@@ -9,6 +9,58 @@
       <body>Platform abstraction layer?
 (Standard library, system functions...)</body>
     </comment>
+    <comment
+      Id="6fb4b306-d1ba-47f5-a95e-9eb36740bf7d">
+      <body>i.e. Blackboard pattern implementation</body>
+    </comment>
+    <comment
+      Id="dd7cae7c-00a5-4e7e-ba9c-2b0787cc933f">
+      <body>Startup / Shutdown</body>
+    </comment>
+    <comment
+      Id="7a68087b-2b21-4794-bdc7-5d01ac7103a1">
+      <body>Global message queues and p2p communication</body>
+    </comment>
+    <comment
+      Id="1ad189d8-2185-41af-a97d-3579f8336a96">
+      <body>Module loading, localization...</body>
+    </comment>
+    <comment
+      Id="ed53dad3-f198-41f7-845d-212d08e17368">
+      <body>Functional components registered from modules</body>
+    </comment>
+    <comment
+      Id="968c7a1d-1686-4809-b2a6-f08c56bfbe55">
+      <body>For submitting arbitrary jobs and executing them in parallel</body>
+    </comment>
+    <comment
+      Id="95a57e76-ae90-458e-b1ba-a2c10ecf34e3">
+      <body>For controlling and debugging core systems at runtime</body>
+    </comment>
+    <comment
+      Id="ad198da8-bb2e-46da-9119-711fc0688571">
+      <body>Stores all game objects and provides handles to them</body>
+    </comment>
+    <comment
+      Id="a074dd89-f9bc-4dee-b35c-2dc917531054">
+      <body>Allocates and deallocates dynamic memory.</body>
+    </comment>
+    <comment
+      Id="7da5c364-e672-4c46-9b76-c28e65d80564">
+      <body>Holds factories for complex object creation. Modules register factories here.</body>
+    </comment>
+    <comment
+      Id="78d55a58-eef6-4e6d-8c94-f018cd72105a">
+      <body>Timing, Gameloop etc goes here</body>
+    </comment>
+    <comment
+      Id="7d0dbd58-aa1b-4393-be21-4d787ccbaa07">
+      <body>Some threadpool implementation for lower level MT functionality than the JobManager provides</body>
+    </comment>
+    <comment
+      Id="df0cf4be-4792-4d18-bae1-378be1a62ef8">
+      <body>Handles global configuration tasks and persisting</body>
+    </comment>
   </ownedCommentsInternal>
   <profileInstances>
     <packageHasProfileInstances
@@ -860,6 +912,134 @@
                 LastKnownLocation="IPEngineCoreSpec.uml" />
             </type_NamedElement>
           </providedInterface>
+          <part
+            Id="2f8b49ec-4512-4cae-b218-c4463ac96ffb"
+            name="DataStore"
+            isLeaf="false"
+            isStatic="false"
+            isReadOnly="false"
+            isDerived="false"
+            isDerivedUnion="false"
+            aggregation="Composite"
+            isComposite="true">
+            <type_NamedElement>
+              <componentMoniker
+                Id="fe0b09aa-71ac-4a49-9e9f-d3120350acb9"
+                LastKnownName="Component13"
+                LastKnownLocation="IPEngineCoreSpec.uml" />
+            </type_NamedElement>
+          </part>
+          <part
+            Id="f102f0a9-394d-44e0-963f-7a17aeb1f36a"
+            name="CoreController"
+            isLeaf="false"
+            isStatic="false"
+            isReadOnly="false"
+            isDerived="false"
+            isDerivedUnion="false"
+            aggregation="Composite"
+            isComposite="true">
+            <type_NamedElement>
+              <componentMoniker
+                Id="7510758f-f2fe-4cc5-98ac-7afb814c72a5"
+                LastKnownName="Component14"
+                LastKnownLocation="IPEngineCoreSpec.uml" />
+            </type_NamedElement>
+          </part>
+          <providedInterface
+            Id="156b41d9-d1c3-4c0f-a3ba-8b7d4518cfff"
+            name="Port13"
+            isLeaf="false"
+            isStatic="false"
+            isReadOnly="false"
+            isDerived="false"
+            isDerivedUnion="false"
+            aggregation="None"
+            isComposite="false"
+            isService="false"
+            isBehavior="false">
+            <targetNamedElementsInternal>
+              <connector
+                Id="27b4089e-4813-417f-9543-1280c8bc4089"
+                isLeaf="false"
+                isStatic="false">
+                <partMoniker
+                  Id="2f8b49ec-4512-4cae-b218-c4463ac96ffb"
+                  LastKnownName="DataStore"
+                  LastKnownLocation="IPEngineCoreSpec.uml" />
+                <relationshipOwnedElementsInternal>
+                  <connectorHasConnectorEnds>
+                    <connectorEnd
+                      Id="11b4d099-cbdb-4bcf-8d08-d50756e3221a" />
+                  </connectorHasConnectorEnds>
+                  <connectorHasConnectorEnds>
+                    <connectorEnd
+                      Id="06a3028b-a3b8-495e-be9b-aa8500c15167">
+                      <portWithPart>
+                        <providedInterfaceMoniker
+                          Id="92e222bf-da3e-4b01-a8e4-f5ad181b1c79"
+                          LastKnownName="Port1"
+                          LastKnownLocation="IPEngineCoreSpec.uml" />
+                      </portWithPart>
+                    </connectorEnd>
+                  </connectorHasConnectorEnds>
+                </relationshipOwnedElementsInternal>
+              </connector>
+            </targetNamedElementsInternal>
+            <type_NamedElement>
+              <interfaceMoniker
+                Id="e7a5d7a2-af5d-44ae-a4b1-8740f1677604"
+                LastKnownName="Global Data Interface"
+                LastKnownLocation="IPEngineCoreSpec.uml" />
+            </type_NamedElement>
+          </providedInterface>
+          <providedInterface
+            Id="194e281b-5cd7-4f89-a27b-c0ee6d6c0d78"
+            name="Port14"
+            isLeaf="false"
+            isStatic="false"
+            isReadOnly="false"
+            isDerived="false"
+            isDerivedUnion="false"
+            aggregation="None"
+            isComposite="false"
+            isService="false"
+            isBehavior="false">
+            <targetNamedElementsInternal>
+              <connector
+                Id="844f2c9e-9a10-4a4a-a4f5-eafb0fdfb312"
+                isLeaf="false"
+                isStatic="false">
+                <partMoniker
+                  Id="f102f0a9-394d-44e0-963f-7a17aeb1f36a"
+                  LastKnownName="CoreController"
+                  LastKnownLocation="IPEngineCoreSpec.uml" />
+                <relationshipOwnedElementsInternal>
+                  <connectorHasConnectorEnds>
+                    <connectorEnd
+                      Id="f0d14dde-214e-43bc-8d0c-10086686426a" />
+                  </connectorHasConnectorEnds>
+                  <connectorHasConnectorEnds>
+                    <connectorEnd
+                      Id="9669311f-5f18-405c-b3c7-acb7d2f16335">
+                      <portWithPart>
+                        <providedInterfaceMoniker
+                          Id="cc2343d3-6ebb-411e-a161-d3155d15b2a9"
+                          LastKnownName="Port1"
+                          LastKnownLocation="IPEngineCoreSpec.uml" />
+                      </portWithPart>
+                    </connectorEnd>
+                  </connectorHasConnectorEnds>
+                </relationshipOwnedElementsInternal>
+              </connector>
+            </targetNamedElementsInternal>
+            <type_NamedElement>
+              <interfaceMoniker
+                Id="55e1f716-20da-4bd0-bc0e-5518ebf870c3"
+                LastKnownName="Core Control Interface"
+                LastKnownLocation="IPEngineCoreSpec.uml" />
+            </type_NamedElement>
+          </providedInterface>
         </ownedAttributesInternal>
       </component>
     </packageHasNamedElement>
@@ -1371,6 +1551,90 @@
     <packageHasNamedElement>
       <Interface
         Id="3381b0f2-df06-4c8a-8b27-cd615ce4eb28"
+        isAbstract="false"
+        isLeaf="false" />
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <component
+        Id="fe0b09aa-71ac-4a49-9e9f-d3120350acb9"
+        name="Component13"
+        isAbstract="false"
+        isLeaf="false"
+        isActiveClass="false">
+        <ownedAttributesInternal>
+          <providedInterface
+            Id="92e222bf-da3e-4b01-a8e4-f5ad181b1c79"
+            name="Port1"
+            isLeaf="false"
+            isStatic="false"
+            isReadOnly="false"
+            isDerived="false"
+            isDerivedUnion="false"
+            aggregation="None"
+            isComposite="false"
+            isService="false"
+            isBehavior="false">
+            <type_NamedElement>
+              <interfaceMoniker
+                Id="c9290c01-e5d3-4789-9ade-c7b04b2a9c23"
+                LastKnownLocation="IPEngineCoreSpec.uml" />
+            </type_NamedElement>
+          </providedInterface>
+        </ownedAttributesInternal>
+      </component>
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <component
+        Id="7510758f-f2fe-4cc5-98ac-7afb814c72a5"
+        name="Component14"
+        isAbstract="false"
+        isLeaf="false"
+        isActiveClass="false">
+        <ownedAttributesInternal>
+          <providedInterface
+            Id="cc2343d3-6ebb-411e-a161-d3155d15b2a9"
+            name="Port1"
+            isLeaf="false"
+            isStatic="false"
+            isReadOnly="false"
+            isDerived="false"
+            isDerivedUnion="false"
+            aggregation="None"
+            isComposite="false"
+            isService="false"
+            isBehavior="false">
+            <type_NamedElement>
+              <interfaceMoniker
+                Id="f52089dd-58bb-43d4-803e-2f4a6a8d6dca"
+                LastKnownLocation="IPEngineCoreSpec.uml" />
+            </type_NamedElement>
+          </providedInterface>
+        </ownedAttributesInternal>
+      </component>
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <Interface
+        Id="e7a5d7a2-af5d-44ae-a4b1-8740f1677604"
+        name="Global Data Interface"
+        isAbstract="false"
+        isLeaf="false" />
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <Interface
+        Id="55e1f716-20da-4bd0-bc0e-5518ebf870c3"
+        name="Core Control Interface"
+        isAbstract="false"
+        isLeaf="false" />
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <Interface
+        Id="f52089dd-58bb-43d4-803e-2f4a6a8d6dca"
+        isAbstract="false"
+        isLeaf="false" />
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <Interface
+        Id="c9290c01-e5d3-4789-9ade-c7b04b2a9c23"
         isAbstract="false"
         isLeaf="false" />
     </packageHasNamedElement>

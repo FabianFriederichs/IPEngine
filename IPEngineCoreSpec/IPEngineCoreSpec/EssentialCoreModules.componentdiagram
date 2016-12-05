@@ -6,21 +6,59 @@
       <body>Platform abstraction layer?
 (Standard library, system functions...)</body>
     </comment>
+    <comment Id="0e5a9d66-ef0d-45e2-bdb2-c5c2e697a0a7">
+      <elementDefinition Id="6fb4b306-d1ba-47f5-a95e-9eb36740bf7d" />
+      <body>i.e. Blackboard pattern implementation</body>
+    </comment>
+    <comment Id="b9df5740-e24e-43ef-b617-f175a9fe3bc2">
+      <elementDefinition Id="dd7cae7c-00a5-4e7e-ba9c-2b0787cc933f" />
+      <body>Startup / Shutdown</body>
+    </comment>
+    <comment Id="977e810f-d94a-4f12-bd81-c642784cb39e">
+      <elementDefinition Id="7a68087b-2b21-4794-bdc7-5d01ac7103a1" />
+      <body>Global message queues and p2p communication</body>
+    </comment>
+    <comment Id="951de985-8e61-4a29-970d-1f5bd0809885">
+      <elementDefinition Id="1ad189d8-2185-41af-a97d-3579f8336a96" />
+      <body>Module loading, localization...</body>
+    </comment>
+    <comment Id="62a0fb48-cc0d-45f0-91a0-1226d1e14647">
+      <elementDefinition Id="ed53dad3-f198-41f7-845d-212d08e17368" />
+      <body>Functional components registered from modules</body>
+    </comment>
+    <comment Id="e595ff9b-aa5f-4180-8df4-e1bd3c13072b">
+      <elementDefinition Id="968c7a1d-1686-4809-b2a6-f08c56bfbe55" />
+      <body>For submitting arbitrary jobs and executing them in parallel</body>
+    </comment>
+    <comment Id="47ddc5c8-c83c-4a2a-bd22-03b918cd21e2">
+      <elementDefinition Id="95a57e76-ae90-458e-b1ba-a2c10ecf34e3" />
+      <body>For controlling and debugging core systems at runtime</body>
+    </comment>
+    <comment Id="99ddea45-9d2b-4f9e-8d8e-4af844fcbf33">
+      <elementDefinition Id="ad198da8-bb2e-46da-9119-711fc0688571" />
+      <body>Stores all game objects and provides handles to them</body>
+    </comment>
+    <comment Id="fd5dc293-fcfe-42d9-b1ba-9deb19cd1abd">
+      <elementDefinition Id="a074dd89-f9bc-4dee-b35c-2dc917531054" />
+      <body>Allocates and deallocates dynamic memory.</body>
+    </comment>
+    <comment Id="d7dc1832-4f52-4c92-b6cf-c388b3708aee">
+      <elementDefinition Id="7da5c364-e672-4c46-9b76-c28e65d80564" />
+      <body>Holds factories for complex object creation. Modules register factories here.</body>
+    </comment>
+    <comment Id="c0dfde7b-1f16-4690-9b27-dc5fff29d5ad">
+      <elementDefinition Id="78d55a58-eef6-4e6d-8c94-f018cd72105a" />
+      <body>Timing, Gameloop etc goes here</body>
+    </comment>
+    <comment Id="677dd1d5-1627-4be6-87a2-0b3c70a26411">
+      <elementDefinition Id="7d0dbd58-aa1b-4393-be21-4d787ccbaa07" />
+      <body>Some threadpool implementation for lower level MT functionality than the JobManager provides</body>
+    </comment>
+    <comment Id="4394bc56-ed52-4586-badd-94b69511db74">
+      <elementDefinition Id="df0cf4be-4792-4d18-bae1-378be1a62ef8" />
+      <body>Handles global configuration tasks and persisting</body>
+    </comment>
   </ownedCommentsInternal>
-  <profileInstances>
-    <packageHasProfileInstances Id="05af0692-f58e-4b24-8481-ffcd9391211e">
-      <profileInstance Id="e596ab2b-dc3c-4bdd-9328-fad117e15bfd" name="StandardProfileL2">
-        <elementDefinition Id="e34d544e-0fea-4ed6-ac5e-1b74119ac791" />
-      </profileInstance>
-      <elementDefinition Id="0caec977-1f8c-4ba3-a7db-8cc9ad9cc73b" />
-    </packageHasProfileInstances>
-    <packageHasProfileInstances Id="58c519ad-6787-482c-8994-093815b2d804">
-      <profileInstance Id="3cc3a548-5409-40f5-9cc8-0fb77ee76437" name="StandardProfileL3">
-        <elementDefinition Id="532ea607-fb19-44b8-8502-3351b05452be" />
-      </profileInstance>
-      <elementDefinition Id="29349502-908c-4fda-9054-c48619c59ed0" />
-    </packageHasProfileInstances>
-  </profileInstances>
   <packagedElements>
     <componentModelHasComponents>
       <component Id="aa00839f-9241-488c-b6ef-f34c2c69316f" name="IPCore" isAbstract="false" isLeaf="false" isActiveClass="false">
@@ -401,6 +439,72 @@
               <interfaceMoniker Id="8aa9ba8c-6297-4c25-81d5-dd762d5a76a0" LastKnownName="Factory Interface" />
             </type_NamedElement>
           </providedInterface>
+          <part Id="d55c54b6-951c-4fdc-8002-34f4274a5d11" name="DataStore" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Composite" isComposite="true">
+            <elementDefinition Id="2f8b49ec-4512-4cae-b218-c4463ac96ffb" />
+            <type_NamedElement>
+              <componentMoniker Id="c373f064-eddc-4053-b248-05bdc7f00a26" LastKnownName="Component13" />
+            </type_NamedElement>
+          </part>
+          <part Id="e3194e74-0eb2-431d-ba1a-1a9d98b17568" name="CoreController" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Composite" isComposite="true">
+            <elementDefinition Id="f102f0a9-394d-44e0-963f-7a17aeb1f36a" />
+            <type_NamedElement>
+              <componentMoniker Id="7f0c0d88-cc99-4832-b3da-02a53db96972" LastKnownName="Component14" />
+            </type_NamedElement>
+          </part>
+          <providedInterface Id="6b5dbb17-9764-4c96-9a31-d9b7d73126a8" name="Port13" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false" isService="false" isBehavior="false">
+            <elementDefinition Id="156b41d9-d1c3-4c0f-a3ba-8b7d4518cfff" />
+            <targetNamedElementsInternal>
+              <connector Id="a1f23bd6-6979-4d3a-a373-322b31bd3781" isLeaf="false" isStatic="false">
+                <partMoniker Id="d55c54b6-951c-4fdc-8002-34f4274a5d11" LastKnownName="DataStore" />
+                <relationshipOwnedElementsInternal>
+                  <connectorHasConnectorEnds>
+                    <connectorEnd Id="1d0b95cd-e3a6-4671-bf5a-71df143a306e">
+                      <elementDefinition Id="11b4d099-cbdb-4bcf-8d08-d50756e3221a" />
+                    </connectorEnd>
+                  </connectorHasConnectorEnds>
+                  <connectorHasConnectorEnds>
+                    <connectorEnd Id="8fcbef60-7538-4e20-b530-b5963f606de5">
+                      <elementDefinition Id="06a3028b-a3b8-495e-be9b-aa8500c15167" />
+                      <portWithPart>
+                        <providedInterfaceMoniker Id="1ba7e668-6221-4609-aa45-fe3c0bd6d5d7" LastKnownName="Port1" />
+                      </portWithPart>
+                    </connectorEnd>
+                  </connectorHasConnectorEnds>
+                </relationshipOwnedElementsInternal>
+                <elementDefinition Id="27b4089e-4813-417f-9543-1280c8bc4089" />
+              </connector>
+            </targetNamedElementsInternal>
+            <type_NamedElement>
+              <interfaceMoniker Id="2ed9b248-4ff9-4cbf-9dc6-6038ef8b13c2" LastKnownName="Global Data Interface" />
+            </type_NamedElement>
+          </providedInterface>
+          <providedInterface Id="4eb55dc3-88a2-430a-a0df-5c9eafd0435d" name="Port14" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false" isService="false" isBehavior="false">
+            <elementDefinition Id="194e281b-5cd7-4f89-a27b-c0ee6d6c0d78" />
+            <targetNamedElementsInternal>
+              <connector Id="5f2ad6ff-b6e6-4c66-9921-3af5da1cf709" isLeaf="false" isStatic="false">
+                <partMoniker Id="e3194e74-0eb2-431d-ba1a-1a9d98b17568" LastKnownName="CoreController" />
+                <relationshipOwnedElementsInternal>
+                  <connectorHasConnectorEnds>
+                    <connectorEnd Id="011da1d5-a7a3-4a2b-977e-197ddf4f4b42">
+                      <elementDefinition Id="f0d14dde-214e-43bc-8d0c-10086686426a" />
+                    </connectorEnd>
+                  </connectorHasConnectorEnds>
+                  <connectorHasConnectorEnds>
+                    <connectorEnd Id="abeb2024-dc2a-48c8-bac7-9319473fc4a5">
+                      <elementDefinition Id="9669311f-5f18-405c-b3c7-acb7d2f16335" />
+                      <portWithPart>
+                        <providedInterfaceMoniker Id="2ef431cc-b7c0-4591-9901-8342b46eb4d8" LastKnownName="Port1" />
+                      </portWithPart>
+                    </connectorEnd>
+                  </connectorHasConnectorEnds>
+                </relationshipOwnedElementsInternal>
+                <elementDefinition Id="844f2c9e-9a10-4a4a-a4f5-eafb0fdfb312" />
+              </connector>
+            </targetNamedElementsInternal>
+            <type_NamedElement>
+              <interfaceMoniker Id="10d911cc-4d09-48f6-a24e-5d027cbd016d" LastKnownName="Core Control Interface" />
+            </type_NamedElement>
+          </providedInterface>
         </ownedAttributesInternal>
       </component>
     </componentModelHasComponents>
@@ -680,8 +784,68 @@
         <elementDefinition Id="3381b0f2-df06-4c8a-8b27-cd615ce4eb28" />
       </Interface>
     </modelContainsNamedElements>
+    <componentModelHasComponents>
+      <component Id="c373f064-eddc-4053-b248-05bdc7f00a26" name="Component13" isAbstract="false" isLeaf="false" isActiveClass="false">
+        <elementDefinition Id="fe0b09aa-71ac-4a49-9e9f-d3120350acb9" />
+        <ownedAttributesInternal>
+          <providedInterface Id="1ba7e668-6221-4609-aa45-fe3c0bd6d5d7" name="Port1" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false" isService="false" isBehavior="false">
+            <elementDefinition Id="92e222bf-da3e-4b01-a8e4-f5ad181b1c79" />
+            <type_NamedElement>
+              <interfaceMoniker Id="9f02fc04-c9fc-41f0-b2f8-3c388d054fbb" />
+            </type_NamedElement>
+          </providedInterface>
+        </ownedAttributesInternal>
+      </component>
+    </componentModelHasComponents>
+    <componentModelHasComponents>
+      <component Id="7f0c0d88-cc99-4832-b3da-02a53db96972" name="Component14" isAbstract="false" isLeaf="false" isActiveClass="false">
+        <elementDefinition Id="7510758f-f2fe-4cc5-98ac-7afb814c72a5" />
+        <ownedAttributesInternal>
+          <providedInterface Id="2ef431cc-b7c0-4591-9901-8342b46eb4d8" name="Port1" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false" isService="false" isBehavior="false">
+            <elementDefinition Id="cc2343d3-6ebb-411e-a161-d3155d15b2a9" />
+            <type_NamedElement>
+              <interfaceMoniker Id="d2bb0c5c-fe12-4c83-a2bc-d9b814a39121" />
+            </type_NamedElement>
+          </providedInterface>
+        </ownedAttributesInternal>
+      </component>
+    </componentModelHasComponents>
+    <modelContainsNamedElements>
+      <Interface Id="2ed9b248-4ff9-4cbf-9dc6-6038ef8b13c2" name="Global Data Interface" isAbstract="false" isLeaf="false">
+        <elementDefinition Id="e7a5d7a2-af5d-44ae-a4b1-8740f1677604" />
+      </Interface>
+    </modelContainsNamedElements>
+    <modelContainsNamedElements>
+      <Interface Id="10d911cc-4d09-48f6-a24e-5d027cbd016d" name="Core Control Interface" isAbstract="false" isLeaf="false">
+        <elementDefinition Id="55e1f716-20da-4bd0-bc0e-5518ebf870c3" />
+      </Interface>
+    </modelContainsNamedElements>
+    <modelContainsNamedElements>
+      <Interface Id="d2bb0c5c-fe12-4c83-a2bc-d9b814a39121" isAbstract="false" isLeaf="false">
+        <elementDefinition Id="f52089dd-58bb-43d4-803e-2f4a6a8d6dca" />
+      </Interface>
+    </modelContainsNamedElements>
+    <modelContainsNamedElements>
+      <Interface Id="9f02fc04-c9fc-41f0-b2f8-3c388d054fbb" isAbstract="false" isLeaf="false">
+        <elementDefinition Id="c9290c01-e5d3-4789-9ade-c7b04b2a9c23" />
+      </Interface>
+    </modelContainsNamedElements>
   </packagedElements>
   <package Id="11519578-ca4c-4307-98a6-87fcd502f693" name="IPEngineCoreSpec">
     <elementDefinition Id="186afaf1-07eb-41fb-8290-50d495a3d99b" />
+    <profileInstances>
+      <packageHasProfileInstances Id="05af0692-f58e-4b24-8481-ffcd9391211e">
+        <profileInstance Id="e596ab2b-dc3c-4bdd-9328-fad117e15bfd" name="StandardProfileL2">
+          <elementDefinition Id="e34d544e-0fea-4ed6-ac5e-1b74119ac791" />
+        </profileInstance>
+        <elementDefinition Id="0caec977-1f8c-4ba3-a7db-8cc9ad9cc73b" />
+      </packageHasProfileInstances>
+      <packageHasProfileInstances Id="58c519ad-6787-482c-8994-093815b2d804">
+        <profileInstance Id="3cc3a548-5409-40f5-9cc8-0fb77ee76437" name="StandardProfileL3">
+          <elementDefinition Id="532ea607-fb19-44b8-8502-3351b05452be" />
+        </profileInstance>
+        <elementDefinition Id="29349502-908c-4fda-9054-c48619c59ed0" />
+      </packageHasProfileInstances>
+    </profileInstances>
   </package>
 </componentModel>
