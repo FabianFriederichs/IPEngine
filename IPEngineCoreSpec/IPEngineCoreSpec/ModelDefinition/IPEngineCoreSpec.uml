@@ -51,7 +51,7 @@
     </comment>
     <comment
       Id="78d55a58-eef6-4e6d-8c94-f018cd72105a">
-      <body>Timing, Gameloop etc goes here</body>
+      <body>Provides tick events in arbitrary intervals to interested modules.</body>
     </comment>
     <comment
       Id="7d0dbd58-aa1b-4393-be21-4d787ccbaa07">
@@ -200,7 +200,7 @@
           </part>
           <part
             Id="b3949f98-b8b8-46a7-9669-37907d4579cd"
-            name="GOManager"
+            name="HandleManager"
             isLeaf="false"
             isStatic="false"
             isReadOnly="false"
@@ -351,23 +351,6 @@
                 LastKnownLocation="IPEngineCoreSpec.uml" />
             </type_NamedElement>
           </part>
-          <part
-            Id="bf669af3-9350-414f-855d-775a67d714e1"
-            name="ComponentManager"
-            isLeaf="false"
-            isStatic="false"
-            isReadOnly="false"
-            isDerived="false"
-            isDerivedUnion="false"
-            aggregation="Composite"
-            isComposite="true">
-            <type_NamedElement>
-              <componentMoniker
-                Id="d4004fae-526c-48a5-a51e-c5bf264e2bd5"
-                LastKnownName="Component11"
-                LastKnownLocation="IPEngineCoreSpec.uml" />
-            </type_NamedElement>
-          </part>
           <requiredInterface
             Id="a719278f-eeed-4b86-a036-b431eac58cb6"
             name="Port1"
@@ -439,53 +422,6 @@
               <interfaceMoniker
                 Id="8af7ad41-422c-4b3c-af18-61f9df247e2a"
                 LastKnownName="Memory Interface"
-                LastKnownLocation="IPEngineCoreSpec.uml" />
-            </type_NamedElement>
-          </providedInterface>
-          <providedInterface
-            Id="265e1081-04f2-4a94-87a6-70c0f4ea366a"
-            name="Port3"
-            isLeaf="false"
-            isStatic="false"
-            isReadOnly="false"
-            isDerived="false"
-            isDerivedUnion="false"
-            aggregation="None"
-            isComposite="false"
-            isService="false"
-            isBehavior="false">
-            <targetNamedElementsInternal>
-              <connector
-                Id="9b93d723-2cc7-4dc4-8b0e-d1d305e94838"
-                isLeaf="false"
-                isStatic="false">
-                <partMoniker
-                  Id="b3949f98-b8b8-46a7-9669-37907d4579cd"
-                  LastKnownName="GOManager"
-                  LastKnownLocation="IPEngineCoreSpec.uml" />
-                <relationshipOwnedElementsInternal>
-                  <connectorHasConnectorEnds>
-                    <connectorEnd
-                      Id="2935c73c-df63-4744-bb55-af038630adde" />
-                  </connectorHasConnectorEnds>
-                  <connectorHasConnectorEnds>
-                    <connectorEnd
-                      Id="8c5b8e1f-e90c-4a1c-a5b3-ad56d01d1cc6">
-                      <portWithPart>
-                        <providedInterfaceMoniker
-                          Id="32f9f7a1-9072-43d1-aae7-e3b93eaf23a1"
-                          LastKnownName="Port1"
-                          LastKnownLocation="IPEngineCoreSpec.uml" />
-                      </portWithPart>
-                    </connectorEnd>
-                  </connectorHasConnectorEnds>
-                </relationshipOwnedElementsInternal>
-              </connector>
-            </targetNamedElementsInternal>
-            <type_NamedElement>
-              <interfaceMoniker
-                Id="51373f97-a820-4423-b34d-590047aecba9"
-                LastKnownName="GO Interface"
                 LastKnownLocation="IPEngineCoreSpec.uml" />
             </type_NamedElement>
           </providedInterface>
@@ -674,53 +610,6 @@
               <interfaceMoniker
                 Id="d1432266-6b81-41b2-84b0-2485e8eedcf7"
                 LastKnownName="Config Interface"
-                LastKnownLocation="IPEngineCoreSpec.uml" />
-            </type_NamedElement>
-          </providedInterface>
-          <providedInterface
-            Id="f8e165d7-bfb8-4340-a727-f8791c87563d"
-            name="Port8"
-            isLeaf="false"
-            isStatic="false"
-            isReadOnly="false"
-            isDerived="false"
-            isDerivedUnion="false"
-            aggregation="None"
-            isComposite="false"
-            isService="false"
-            isBehavior="false">
-            <targetNamedElementsInternal>
-              <connector
-                Id="eb9b0b73-1add-43a1-9208-072de763c6a0"
-                isLeaf="false"
-                isStatic="false">
-                <partMoniker
-                  Id="bf669af3-9350-414f-855d-775a67d714e1"
-                  LastKnownName="ComponentManager"
-                  LastKnownLocation="IPEngineCoreSpec.uml" />
-                <relationshipOwnedElementsInternal>
-                  <connectorHasConnectorEnds>
-                    <connectorEnd
-                      Id="08790ec5-391e-4a2e-b47c-f5c6d4c1af93" />
-                  </connectorHasConnectorEnds>
-                  <connectorHasConnectorEnds>
-                    <connectorEnd
-                      Id="c489abc0-3970-4c71-98b0-af7bbc62172f">
-                      <portWithPart>
-                        <providedInterfaceMoniker
-                          Id="03aa7e00-55fa-4254-a508-b8c46b25e53c"
-                          LastKnownName="Port1"
-                          LastKnownLocation="IPEngineCoreSpec.uml" />
-                      </portWithPart>
-                    </connectorEnd>
-                  </connectorHasConnectorEnds>
-                </relationshipOwnedElementsInternal>
-              </connector>
-            </targetNamedElementsInternal>
-            <type_NamedElement>
-              <interfaceMoniker
-                Id="2f0c6c94-f4c9-47ca-abd8-ece3f9e82509"
-                LastKnownName="Component Interface"
                 LastKnownLocation="IPEngineCoreSpec.uml" />
             </type_NamedElement>
           </providedInterface>
@@ -914,7 +803,7 @@
           </providedInterface>
           <part
             Id="2f8b49ec-4512-4cae-b218-c4463ac96ffb"
-            name="DataStore"
+            name="Blackboard"
             isLeaf="false"
             isStatic="false"
             isReadOnly="false"
@@ -965,7 +854,7 @@
                 isStatic="false">
                 <partMoniker
                   Id="2f8b49ec-4512-4cae-b218-c4463ac96ffb"
-                  LastKnownName="DataStore"
+                  LastKnownName="Blackboard"
                   LastKnownLocation="IPEngineCoreSpec.uml" />
                 <relationshipOwnedElementsInternal>
                   <connectorHasConnectorEnds>

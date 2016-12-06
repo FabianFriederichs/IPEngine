@@ -48,7 +48,7 @@
     </comment>
     <comment Id="c0dfde7b-1f16-4690-9b27-dc5fff29d5ad">
       <elementDefinition Id="78d55a58-eef6-4e6d-8c94-f018cd72105a" />
-      <body>Timing, Gameloop etc goes here</body>
+      <body>Provides tick events in arbitrary intervals to interested modules.</body>
     </comment>
     <comment Id="677dd1d5-1627-4be6-87a2-0b3c70a26411">
       <elementDefinition Id="7d0dbd58-aa1b-4393-be21-4d787ccbaa07" />
@@ -70,7 +70,7 @@
               <componentMoniker Id="ecd024a1-891e-480c-8228-daeaab3f678b" LastKnownName="Component1" />
             </type_NamedElement>
           </part>
-          <part Id="18ab6ab7-4190-45c6-b270-529c01df4bc7" name="GOManager" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Composite" isComposite="true">
+          <part Id="18ab6ab7-4190-45c6-b270-529c01df4bc7" name="HandleManager" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Composite" isComposite="true">
             <elementDefinition Id="b3949f98-b8b8-46a7-9669-37907d4579cd" />
             <type_NamedElement>
               <componentMoniker Id="d423878a-7597-481f-ac03-ffc9c17f3594" LastKnownName="Component2" />
@@ -124,12 +124,6 @@
               <componentMoniker Id="29e79cc1-9d53-4fe4-9f47-5307b652817f" LastKnownName="Component10" />
             </type_NamedElement>
           </part>
-          <part Id="393f4956-8825-484a-8852-45c879a3abea" name="ComponentManager" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Composite" isComposite="true">
-            <elementDefinition Id="bf669af3-9350-414f-855d-775a67d714e1" />
-            <type_NamedElement>
-              <componentMoniker Id="56bbeaf1-b83d-4fa2-8472-5cf2f5c4ee48" LastKnownName="Component11" />
-            </type_NamedElement>
-          </part>
           <requiredInterface Id="ac989a43-3427-4d2d-99fa-917a2c5d2ecb" name="Port1" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false" isService="false" isBehavior="false">
             <elementDefinition Id="a719278f-eeed-4b86-a036-b431eac58cb6" />
             <suppliersInternal>
@@ -167,33 +161,6 @@
             </targetNamedElementsInternal>
             <type_NamedElement>
               <interfaceMoniker Id="422c96bb-cdc2-44ad-8b4b-f600163a489c" LastKnownName="Memory Interface" />
-            </type_NamedElement>
-          </providedInterface>
-          <providedInterface Id="acb76c3c-f8bc-4e94-a02c-0a7457f30139" name="Port3" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false" isService="false" isBehavior="false">
-            <elementDefinition Id="265e1081-04f2-4a94-87a6-70c0f4ea366a" />
-            <targetNamedElementsInternal>
-              <connector Id="9cff271c-7039-4bb3-a5b0-b7e2aac63bcf" isLeaf="false" isStatic="false">
-                <partMoniker Id="18ab6ab7-4190-45c6-b270-529c01df4bc7" LastKnownName="GOManager" />
-                <relationshipOwnedElementsInternal>
-                  <connectorHasConnectorEnds>
-                    <connectorEnd Id="476fbd58-0d2d-4e61-9305-96eec51b522e">
-                      <elementDefinition Id="2935c73c-df63-4744-bb55-af038630adde" />
-                    </connectorEnd>
-                  </connectorHasConnectorEnds>
-                  <connectorHasConnectorEnds>
-                    <connectorEnd Id="9220ca31-107b-4a33-8225-c6b77296e35c">
-                      <elementDefinition Id="8c5b8e1f-e90c-4a1c-a5b3-ad56d01d1cc6" />
-                      <portWithPart>
-                        <providedInterfaceMoniker Id="5a45561f-4129-484e-a19b-069b21939ef4" LastKnownName="Port1" />
-                      </portWithPart>
-                    </connectorEnd>
-                  </connectorHasConnectorEnds>
-                </relationshipOwnedElementsInternal>
-                <elementDefinition Id="9b93d723-2cc7-4dc4-8b0e-d1d305e94838" />
-              </connector>
-            </targetNamedElementsInternal>
-            <type_NamedElement>
-              <interfaceMoniker Id="c98c1141-3634-418a-9c2d-1265bf8c6510" LastKnownName="GO Interface" />
             </type_NamedElement>
           </providedInterface>
           <providedInterface Id="5a96eae3-bd35-47bc-be69-1c87c1a63794" name="Port4" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false" isService="false" isBehavior="false">
@@ -304,33 +271,6 @@
               <interfaceMoniker Id="8e81080d-9621-479c-8215-11153b1fd56c" LastKnownName="Config Interface" />
             </type_NamedElement>
           </providedInterface>
-          <providedInterface Id="d44e290d-5f90-4139-9842-203933dd55dc" name="Port8" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false" isService="false" isBehavior="false">
-            <elementDefinition Id="f8e165d7-bfb8-4340-a727-f8791c87563d" />
-            <targetNamedElementsInternal>
-              <connector Id="c70860df-18bd-400b-9854-79227ff9c349" isLeaf="false" isStatic="false">
-                <partMoniker Id="393f4956-8825-484a-8852-45c879a3abea" LastKnownName="ComponentManager" />
-                <relationshipOwnedElementsInternal>
-                  <connectorHasConnectorEnds>
-                    <connectorEnd Id="ddc6750c-50c3-4f00-84df-9d33e6633e88">
-                      <elementDefinition Id="08790ec5-391e-4a2e-b47c-f5c6d4c1af93" />
-                    </connectorEnd>
-                  </connectorHasConnectorEnds>
-                  <connectorHasConnectorEnds>
-                    <connectorEnd Id="724aaf47-ac90-4224-b02a-b5354bd38e21">
-                      <elementDefinition Id="c489abc0-3970-4c71-98b0-af7bbc62172f" />
-                      <portWithPart>
-                        <providedInterfaceMoniker Id="bad62c81-55e7-4320-9799-0a5912bb0b81" LastKnownName="Port1" />
-                      </portWithPart>
-                    </connectorEnd>
-                  </connectorHasConnectorEnds>
-                </relationshipOwnedElementsInternal>
-                <elementDefinition Id="eb9b0b73-1add-43a1-9208-072de763c6a0" />
-              </connector>
-            </targetNamedElementsInternal>
-            <type_NamedElement>
-              <interfaceMoniker Id="31c06fc3-cbf2-4b51-91eb-52d148b317ea" LastKnownName="Component Interface" />
-            </type_NamedElement>
-          </providedInterface>
           <providedInterface Id="a9d9d91b-3f2e-4921-8821-d777bea63c8b" name="Port9" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false" isService="false" isBehavior="false">
             <elementDefinition Id="77451aae-dc7b-4aba-b094-8dbfba901d2c" />
             <targetNamedElementsInternal>
@@ -439,7 +379,7 @@
               <interfaceMoniker Id="8aa9ba8c-6297-4c25-81d5-dd762d5a76a0" LastKnownName="Factory Interface" />
             </type_NamedElement>
           </providedInterface>
-          <part Id="d55c54b6-951c-4fdc-8002-34f4274a5d11" name="DataStore" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Composite" isComposite="true">
+          <part Id="d55c54b6-951c-4fdc-8002-34f4274a5d11" name="Blackboard" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Composite" isComposite="true">
             <elementDefinition Id="2f8b49ec-4512-4cae-b218-c4463ac96ffb" />
             <type_NamedElement>
               <componentMoniker Id="c373f064-eddc-4053-b248-05bdc7f00a26" LastKnownName="Component13" />
@@ -455,7 +395,7 @@
             <elementDefinition Id="156b41d9-d1c3-4c0f-a3ba-8b7d4518cfff" />
             <targetNamedElementsInternal>
               <connector Id="a1f23bd6-6979-4d3a-a373-322b31bd3781" isLeaf="false" isStatic="false">
-                <partMoniker Id="d55c54b6-951c-4fdc-8002-34f4274a5d11" LastKnownName="DataStore" />
+                <partMoniker Id="d55c54b6-951c-4fdc-8002-34f4274a5d11" LastKnownName="Blackboard" />
                 <relationshipOwnedElementsInternal>
                   <connectorHasConnectorEnds>
                     <connectorEnd Id="1d0b95cd-e3a6-4671-bf5a-71df143a306e">
@@ -639,19 +579,6 @@
       </component>
     </componentModelHasComponents>
     <componentModelHasComponents>
-      <component Id="56bbeaf1-b83d-4fa2-8472-5cf2f5c4ee48" name="Component11" isAbstract="false" isLeaf="false" isActiveClass="false">
-        <elementDefinition Id="d4004fae-526c-48a5-a51e-c5bf264e2bd5" />
-        <ownedAttributesInternal>
-          <providedInterface Id="bad62c81-55e7-4320-9799-0a5912bb0b81" name="Port1" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false" isService="false" isBehavior="false">
-            <elementDefinition Id="03aa7e00-55fa-4254-a508-b8c46b25e53c" />
-            <type_NamedElement>
-              <interfaceMoniker Id="3a3299d3-540b-4621-ad70-22cb23ca7618" />
-            </type_NamedElement>
-          </providedInterface>
-        </ownedAttributesInternal>
-      </component>
-    </componentModelHasComponents>
-    <componentModelHasComponents>
       <component Id="7d5c12ea-8000-4b64-8241-bbcc60a8df35" name="PlatformAbstractionLayer" isAbstract="false" isLeaf="false" isActiveClass="false">
         <elementDefinition Id="4b4ea8bf-fc12-4ff8-af76-99f7f8a8fde2" />
         <ownedAttributesInternal>
@@ -680,11 +607,6 @@
       </Interface>
     </modelContainsNamedElements>
     <modelContainsNamedElements>
-      <Interface Id="c98c1141-3634-418a-9c2d-1265bf8c6510" name="GO Interface" isAbstract="false" isLeaf="false">
-        <elementDefinition Id="51373f97-a820-4423-b34d-590047aecba9" />
-      </Interface>
-    </modelContainsNamedElements>
-    <modelContainsNamedElements>
       <Interface Id="04bca46b-9506-4464-812c-b723cf79ad54" name="Core Console Interface" isAbstract="false" isLeaf="false">
         <elementDefinition Id="bad18b49-3614-44c4-b88a-cfdef539f7a8" />
       </Interface>
@@ -702,11 +624,6 @@
     <modelContainsNamedElements>
       <Interface Id="8e81080d-9621-479c-8215-11153b1fd56c" name="Config Interface" isAbstract="false" isLeaf="false">
         <elementDefinition Id="d1432266-6b81-41b2-84b0-2485e8eedcf7" />
-      </Interface>
-    </modelContainsNamedElements>
-    <modelContainsNamedElements>
-      <Interface Id="31c06fc3-cbf2-4b51-91eb-52d148b317ea" name="Component Interface" isAbstract="false" isLeaf="false">
-        <elementDefinition Id="2f0c6c94-f4c9-47ca-abd8-ece3f9e82509" />
       </Interface>
     </modelContainsNamedElements>
     <modelContainsNamedElements>
@@ -772,11 +689,6 @@
     <modelContainsNamedElements>
       <Interface Id="eb6cbdec-f33e-4385-bc27-3f08096c9fde" isAbstract="false" isLeaf="false">
         <elementDefinition Id="a39040d5-47d6-46fa-a3c2-4ddf8c135c65" />
-      </Interface>
-    </modelContainsNamedElements>
-    <modelContainsNamedElements>
-      <Interface Id="3a3299d3-540b-4621-ad70-22cb23ca7618" isAbstract="false" isLeaf="false">
-        <elementDefinition Id="9f7da292-0e12-49c0-aacf-acbfa7818b4b" />
       </Interface>
     </modelContainsNamedElements>
     <modelContainsNamedElements>
