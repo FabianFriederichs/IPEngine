@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="PAL" version="4">
+  <OBJECT>
+    <ID name="PAL" mc="Standard.ClassDiagram" uid="82b13410-9212-4b49-a518-27f5dd30fb4b"/>
+    <PID name="ipengine_core_wb_l1" mc="Standard.Package" uid="6968e9a7-3135-4da5-b5ca-e9d4e5b0a2dc"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">13</ATT>
+      <ATT name="UiData"><![CDATA[eJztU01P4zAQ/StW7nWbNAiQShEkqEJkKWrZlfaEJvW0GBy7sqfQ/Pt1mhZoV426K7Rc9mTPeN6bD7/pnS8LxV7QOmn0WRDyTsDO+71h/oQTYlJ4V8ConONZYOyMF0agkoYLCTMLBUchyVjuCEg+c1RYoCZX25NN0KAYr+y0tgNWwJOxD29JO0G/d2fNHC2VTEPhcykozYJSIPBvP0AtcF2EXigVtPu99gbwG3RMpcJgq4WoqQVXxTs+MRZ5jT2gvgTcBASKTbKrJY1wemCWW0+xRjJcUppf+xpX1+oicAoLRTtNtut2mhq3qIBQ+Dp2ZvatcrGXylONB7QAK3iiwLn1l7CTKA+7cdhpnUZh1Irz+LQFR+FJKzqeHgnR7UzzOG8eu2ejG21edQY5qp0KxmSlnnlne+Vt7MIovNaJKebGSfLz/3uq5FEqYbFiyKSrZrc+9iIyqZ/d4eGXs9TCqy8ngxLttua6jWuzWRRR4x1XFYPflC3Cf7Mof4b6WpVJsUcO6YBnFz+vRg+XF8nNYDT8fpt+jkIOWLyPf/aung9aiP9r4Uu0cD+8+2wR7H36Bc7Gh1U=]]></ATT>
+      <ATT name="Name"><![CDATA[PAL]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Infrastructure.Note" uid="3a7b1406-2de1-4b46-9808-8b0e2db26926"/>
+          <ATTRIBUTES>
+            <ATT name="Content"></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

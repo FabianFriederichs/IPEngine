@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Messaging Services" version="4">
+  <OBJECT>
+    <ID name="Messaging Services" mc="Standard.ClassDiagram" uid="9792afb9-fdf8-4592-a92b-84d9e37c0ea8"/>
+    <PID name="ipengine_core_wb_l1" mc="Standard.Package" uid="6968e9a7-3135-4da5-b5ca-e9d4e5b0a2dc"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">5</ATT>
+      <ATT name="UiData"><![CDATA[eJztU01P4zAQ/StW7nW7pYhGKkWQoAoRKGqXlTihSTzpGhy7sqfQ/Pt1mnahXTUqK7Rc9mTPeN6bD78ZnC0LxV7QOmn0afCNdwJ2NhyM0yfMiEnhXQGjco6ngbEzXhiBShouJMwsFByFJGO5IyD5zFFhgZpcbWeboFExXdlxbQesgCdjH38n7QTDwZ01c7RUMg2Fz6WgNAuKgcC//QC1wHUReqFU0B4O2hvAH9AplQqDrRa6TS24Kt7xzFjkNfaA+iJwGQgUm2SXS5pgfmCWW0+xRjJcUpxe+RpX1+oiMIeFop0m23U7TY1bVEAofB07M7upXOyl8lTjAS3ACh4pcG79JSw8CbuQp2ErF3m/1TsOuy0Iu2mr3xMhHp1kHYR+89g9G11r86oTSFHtVDAlK/XMO9srb2MXRuGVjkwxN06Sn//fU0U/pRIWK4ZEump262MvIpH62R0efjGLLbz6chIo0W5r7qhxbTaLImq846pi8JuyRfhvFuVjqK9VmRR75BCPeHL+cDl5vDiPrkeT8f1t/DkKOWDx3v/Zm3reaaH3XwtfooXv47vPFsHep18LjYof]]></ATT>
+      <ATT name="Name"><![CDATA[Messaging Services]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Infrastructure.Note" uid="d8954046-1561-49ee-9983-f66a95097150"/>
+          <ATTRIBUTES>
+            <ATT name="Content"></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

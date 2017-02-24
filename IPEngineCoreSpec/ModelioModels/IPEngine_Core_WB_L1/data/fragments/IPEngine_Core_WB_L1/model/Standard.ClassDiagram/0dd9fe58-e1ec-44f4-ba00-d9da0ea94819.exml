@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Data Store / Repository" version="4">
+  <OBJECT>
+    <ID name="Data Store / Repository" mc="Standard.ClassDiagram" uid="0dd9fe58-e1ec-44f4-ba00-d9da0ea94819"/>
+    <PID name="ipengine_core_wb_l1" mc="Standard.Package" uid="6968e9a7-3135-4da5-b5ca-e9d4e5b0a2dc"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">8</ATT>
+      <ATT name="UiData"><![CDATA[eJztU11P2zAU/SuW3+ukW5CoFIogQRUiUNRuk/aEbuPbYnDsynah+ffYTbvRTo0yCY2XPdm+vufcr3PT83UlyQsaK7Q6o30WU3I+TMezJywdEdybKHH1Es+oNgtWaY5SaMYFLAxUDLlw2jDrwIlnhhIrVM4273LnNKqmm3fevCmp4Embh19BYzpM741eonE1UVD5WBJqvXI5OPB/P0CucJuEWklJo2Ea7QB/QKeulkj3SvjSVoIN/paV2iBrsB3yy8CWwJHvgl2t3QTnHaPceYotkuDa5bNrn+PmGi4c57CS7qDIqCmnrXCDEhxyn8dBz26DibwES2gPKA6Gs0yCtduRkJjzwRxPTnvYx7KXJPOkN4M47vEBhxhhkJz2B+1t92zuRulXVcAM5UEGU2eEWtBhGCiZesUgicgEl9oG+dRptHFuLU5LvFaZrjYYP5YjETpQZY9CcoOBoRA2tHR7HEUUQj3b7u6Xi9zAq0+ngBrNvhS/tm7Tbn94g7dMBga/QHuE/2Z//g71ueIT/JjgRqy4+Hk1ebi8yG5Gk/H3u/xjFNJhH9/P7Ld63mkh+a+FT9HCt/H9R4vg6Ncb0FGTPg==]]></ATT>
+      <ATT name="Name"><![CDATA[Data Store / Repository]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Infrastructure.Note" uid="00a7c40c-04cf-4cbd-8897-321c5cb6c7b8"/>
+          <ATTRIBUTES>
+            <ATT name="Content"></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

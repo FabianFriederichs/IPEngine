@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Platform Services" version="4">
+  <OBJECT>
+    <ID name="Platform Services" mc="Standard.ClassDiagram" uid="bfb2e0a1-441f-4fc3-988d-64444372509d"/>
+    <PID name="ipengine_core_wb_l1" mc="Standard.Package" uid="6968e9a7-3135-4da5-b5ca-e9d4e5b0a2dc"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">3</ATT>
+      <ATT name="UiData"><![CDATA[eJztU21P2zAQ/itWvtd9yzaQShEkqEJkFLVs0j6hS3zpDI5d2Vdo/j1O0zLaqVGHEHxZvsR3vue5Fz83OF0Wij2iddLok6DLOwE7HQ7G6T1mxKTwroBROceTwNgZL4xAJQ0XEmYWCo5CkrHcEZB84KiwQE2utrNN0KiYruy4tgNWwL2xdy9JO8FwcGPNHC2VTEPhcykozYJiIPB3P0EtcF2EXigVtIeD9gbwF3RKpcJgq4VeUwuuinc8MxZ5jT2gvghcBgLFJtnFkiaYH5jl2lOskQyXFKeXvsbVsToIzGGhaKfJdt1OU+MWFRAKX8fOzL5XLvZYearxgBZgBY8UOLd+EpbmaQ870G2FYTdvhXnWbx0fHYnW19B//W+9L51j0Tx2z0ZX2jzpBFJUOxVMyUo98872ytvYhVF4qSNTzI2T5Of/dqrot1TCYsWQSFfNbv3bi0ikfnCHh5/PYgtPvpwESrTbmus3rs1mUUSNd1xVDH5Ttgg/ZlH+DfW5KpNijxziEU/Ofl1M7s7PoqvRZPzjOn4fhRyweK/f7I96Xmkh/K+FT9HC7fjmvUWw9+oZSXCIGA==]]></ATT>
+      <ATT name="Name"><![CDATA[Platform Services]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Infrastructure.Note" uid="6516f05f-e767-40ca-ac98-647b08bdc8be"/>
+          <ATTRIBUTES>
+            <ATT name="Content"></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

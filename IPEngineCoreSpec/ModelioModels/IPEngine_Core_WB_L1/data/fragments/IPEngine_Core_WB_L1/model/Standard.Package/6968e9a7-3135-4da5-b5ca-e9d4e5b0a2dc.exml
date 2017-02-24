@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="ipengine_core_wb_l1" version="4">
+  <OBJECT>
+    <ID name="ipengine_core_wb_l1" mc="Standard.Package" uid="6968e9a7-3135-4da5-b5ca-e9d4e5b0a2dc"/>
+    <PID name="IPEngine_Core_WB_L1" mc="Standard.Project" uid="8c849302-9417-4784-bb5d-dc7b20c1d87f"/>
+    <ATTRIBUTES>
+      <ATT name="IsInstantiable">false</ATT>
+      <ATT name="IsAbstract">false</ATT>
+      <ATT name="IsLeaf">false</ATT>
+      <ATT name="IsRoot">false</ATT>
+      <ATT name="Visibility">Public</ATT>
+      <ATT name="Name"><![CDATA[ipengine_core_wb_l1]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="OwnedElement">
+        <COMPID name="IPEngine Core" mc="Standard.Component" uid="e469c948-5329-4d7b-a644-ad9afcaa7381"/>
+        <COMPID name="Platform Abstraction Layer" mc="Standard.Component" uid="9e75df45-3020-44ac-adea-53de94a4d04b"/>
+      </COMP>
+      <COMP relation="Product">
+        <COMPID name="IPEngine_Core_WB_L1" mc="Standard.ClassDiagram" uid="d4df0e1a-ec4b-434d-9131-503c4fd34b5b"/>
+        <COMPID name="PAL" mc="Standard.ClassDiagram" uid="82b13410-9212-4b49-a518-27f5dd30fb4b"/>
+        <COMPID name="Timing" mc="Standard.ClassDiagram" uid="e3605e37-8533-47bb-a9e4-9995833798a1"/>
+        <COMPID name="Console" mc="Standard.ClassDiagram" uid="de978698-89d4-4bd1-8331-0db861f8fc5e"/>
+        <COMPID name="Runtime Control" mc="Standard.ClassDiagram" uid="3915f955-839b-4643-88df-91d9f96e4c22"/>
+        <COMPID name="Threading Services" mc="Standard.ClassDiagram" uid="56c829a7-d346-4adc-a1c7-22ceda28cccb"/>
+        <COMPID name="Data Store / Repository" mc="Standard.ClassDiagram" uid="0dd9fe58-e1ec-44f4-ba00-d9da0ea94819"/>
+        <COMPID name="Memory Manager" mc="Standard.ClassDiagram" uid="52181fa8-370b-41c1-a90e-bf8bd72d9120"/>
+        <COMPID name="Module Manager" mc="Standard.ClassDiagram" uid="3965dbd0-d4c3-46aa-9819-4c1e5de02aa7"/>
+        <COMPID name="Messaging Services" mc="Standard.ClassDiagram" uid="9792afb9-fdf8-4592-a92b-84d9e37c0ea8"/>
+        <COMPID name="Configuration Manager" mc="Standard.ClassDiagram" uid="492710a7-d2a4-4496-a449-834b08d6d6b2"/>
+        <COMPID name="Platform Services" mc="Standard.ClassDiagram" uid="bfb2e0a1-441f-4fc3-988d-64444372509d"/>
+        <COMPID name="Debug / Monitoring" mc="Standard.ClassDiagram" uid="bb51c72d-dbdc-48c0-8c90-237c463389e2"/>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>
