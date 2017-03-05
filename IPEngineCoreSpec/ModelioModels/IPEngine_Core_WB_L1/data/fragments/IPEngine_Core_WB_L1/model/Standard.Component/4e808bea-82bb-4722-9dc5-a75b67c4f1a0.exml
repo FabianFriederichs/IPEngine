@@ -66,6 +66,31 @@
           </DEPENDENCIES>
         </OBJECT>
       </COMP>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="Note" mc="Infrastructure.Note" uid="e8cfc421-d8ef-4779-80b8-89a562a06232"/>
+          <ATTRIBUTES>
+            <ATT name="Content"><![CDATA[<ul>
+	<li>Allgemeines Memory Management</li>
+	<li>Reservieren und L&ouml;schen von Speicher an zentraler Stelle</li>
+	<li>(Mehrere) Memory Pools</li>
+	<li>Unterschiedliche Strategien</li>
+	<li>Alignment etc</li>
+	<li>Definition von primitiven Datentypen</li>
+	<li>(Readonly Speicher etc. ?)</li>
+</ul>
+]]></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"><![CDATA[Note]]></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
     </DEPENDENCIES>
   </OBJECT>
 </EXT>

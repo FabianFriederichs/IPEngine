@@ -31,6 +31,7 @@
         <COMPID name="Configuration Manager" mc="Standard.ClassDiagram" uid="492710a7-d2a4-4496-a449-834b08d6d6b2"/>
         <COMPID name="Platform Services" mc="Standard.ClassDiagram" uid="bfb2e0a1-441f-4fc3-988d-64444372509d"/>
         <COMPID name="Debug / Monitoring" mc="Standard.ClassDiagram" uid="bb51c72d-dbdc-48c0-8c90-237c463389e2"/>
+        <COMPID name="Threading and Synchronisation" mc="Standard.ClassDiagram" uid="4b896745-fc63-4019-911f-307b6f450c76"/>
       </COMP>
     </DEPENDENCIES>
   </OBJECT>

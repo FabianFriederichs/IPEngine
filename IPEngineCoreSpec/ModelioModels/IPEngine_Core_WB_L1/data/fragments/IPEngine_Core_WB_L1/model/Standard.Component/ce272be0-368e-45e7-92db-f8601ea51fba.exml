@@ -81,6 +81,32 @@
             </LINK>
           </DEPENDENCIES>
         </OBJECT>
+        <OBJECT>
+          <ID name="Note" mc="Infrastructure.Note" uid="58cb878f-2e27-47ec-8bc1-3b04a16d1705"/>
+          <ATTRIBUTES>
+            <ATT name="Content"><![CDATA[<ul>
+	<li>Allgemeiner Datentyp f&uuml;r Globale Daten</li>
+	<li>Handles
+	<ul>
+		<li>Object ID</li>
+		<li>Arbitrary data</li>
+	</ul>
+	</li>
+	<li>Suchstrategien, Zugriffsstrategien</li>
+	<li>Object Collections, Object Pool</li>
+	<li>Object Factories</li>
+</ul>
+]]></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"><![CDATA[Note]]></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
       </COMP>
     </DEPENDENCIES>
   </OBJECT>

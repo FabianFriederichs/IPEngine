@@ -66,6 +66,39 @@
           </DEPENDENCIES>
         </OBJECT>
       </COMP>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="Note" mc="Infrastructure.Note" uid="370fe145-9523-4d9e-a4c4-ab47611ecc64"/>
+          <ATTRIBUTES>
+            <ATT name="Content"><![CDATA[<ul>
+	<li>Dynamische P2P Queues</li>
+	<li>Priorisierung</li>
+	<li>Message
+	<ul>
+		<li>Sender</li>
+		<li>Purpose</li>
+		<li>Data</li>
+	</ul>
+	</li>
+	<li>Queue Objekt
+	<ul>
+		<li>Pollen von Messages</li>
+		<li>Warten auf Messages</li>
+	</ul>
+	</li>
+</ul>
+]]></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"><![CDATA[Note]]></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
     </DEPENDENCIES>
   </OBJECT>
 </EXT>

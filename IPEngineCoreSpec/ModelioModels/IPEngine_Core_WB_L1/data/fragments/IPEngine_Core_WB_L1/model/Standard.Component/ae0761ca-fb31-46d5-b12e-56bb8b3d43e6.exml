@@ -66,6 +66,34 @@
           </DEPENDENCIES>
         </OBJECT>
       </COMP>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="Note" mc="Infrastructure.Note" uid="d96a4fea-dc76-4845-9fcf-82e90bfc825f"/>
+          <ATTRIBUTES>
+            <ATT name="Content"><![CDATA[<ul>
+	<li>Registrieren f&uuml;r Timer Events in bestimmten Intervallen, &Uuml;bergabe von Callbacks, Synchron oder Asynchron &uuml;ber Job System</li>
+	<li>Cancellation Tokens</li>
+	<li>Priorisierung</li>
+	<li>Observerables?</li>
+	<li>Timelines?</li>
+	<li>Aufl&ouml;sung abfragen</li>
+	<li>Kalibrierung</li>
+	<li>State management</li>
+	<li>Statusinfo</li>
+	<li>Fallback Busy Spinner</li>
+</ul>
+]]></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"><![CDATA[Note]]></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
     </DEPENDENCIES>
   </OBJECT>
 </EXT>
