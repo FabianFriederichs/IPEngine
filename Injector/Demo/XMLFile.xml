@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DependencyGraph>
+  <Modules>
+    <Module>
+      <id>001</id>
+      <name>graphics.one</name>
+      <attr>
+        <name>dep1</name>
+        <depID>002</depID>
+      </attr>
+    </Module>
+    <Module>
+      <id>002</id>
+      <name>plugin.two</name>
+      <attr>
+        <name>dep1</name>
+        <depID>003</depID>
+      </attr>
+    </Module>
+    <Module>
+      <id>003</id>
+      <name>plugin.three</name>
+    </Module>
+  </Modules>
+</DependencyGraph>

@@ -1,0 +1,72 @@
+#include <boost/property_tree/xml_parser.hpp>
+#include "DependencyGraph.h"
+#include "IModule.h"
+#include <iostream>
+/*
+Stuff to do:
+Get a path to look for dynamic libs to load
+Read in a dependency graph from xml via property tree
+start building IModule objects, inject dependencies
+*/
+
+class Injector
+{
+private:
+	DGStuff::DependencyGraph depgraph;
+	boost::property_tree::ptree tree;
+	boost::property_tree::ptree *parsePropTreeFromXML(std::string path)
+	{
+		
+		boost::property_tree::read_xml(path, tree);//Check out what tree has in it if parsing fails
+		//Parse propertytree into depgraph
+
+
+		return &tree;
+	};
+
+	bool parseDepGraphFromPropertyTree(boost::property_tree::ptree* tree)
+	{
+		
+		for (auto node : *tree)
+		{
+			std::cout << node.first << std::endl;
+			if (node.second.empty())
+				continue;
+			for (auto n2 : node.second)
+			{
+				std::cout << "    " << n2.first << std::endl;
+				if (n2.second.empty())
+					continue;
+				for (auto n3 : n2.second)
+				{
+					std::cout << "        " << n3.first << std::endl;
+					if (n3.second.empty())
+						continue;
+					for (auto n4 : n3.second)
+					{
+						if (n4.second.empty())
+							std::cout << "            " << n4.first << ": " << n4.second.get_value<std::string>() << std::endl;
+						if (n4.second.empty())
+							continue;
+						for (auto n5 : n4.second)
+						{
+							std::cout << "                " << n5.first << ": " << n5.second.get_value<std::string>() << std::endl;
+						}
+					}
+				}
+			}
+		}
+		return true;
+	};
+
+public:
+	Injector()
+	{
+	
+	};
+
+	Injector(std::string dependencyXMLPath, std::string libpath)
+	{
+		parseDepGraphFromPropertyTree(parsePropTreeFromXML(dependencyXMLPath));
+	};
+};

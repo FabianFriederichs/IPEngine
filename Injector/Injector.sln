@@ -5,16 +5,37 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Injector", "Injector\Injector.vcxproj", "{CE569EEF-AECB-48FA-AD84-97D0A89E789E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo", "Demo\Demo.vcxproj", "{77CD555C-10E3-4D41-A486-099BC5822B23}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CE569EEF-AECB-48FA-AD84-97D0A89E789E} = {CE569EEF-AECB-48FA-AD84-97D0A89E789E}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
 		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{CE569EEF-AECB-48FA-AD84-97D0A89E789E}.Debug|Win32.ActiveCfg = Debug|Win32
 		{CE569EEF-AECB-48FA-AD84-97D0A89E789E}.Debug|Win32.Build.0 = Debug|Win32
+		{CE569EEF-AECB-48FA-AD84-97D0A89E789E}.Debug|x64.ActiveCfg = Debug|x64
+		{CE569EEF-AECB-48FA-AD84-97D0A89E789E}.Debug|x64.Build.0 = Debug|x64
+		{CE569EEF-AECB-48FA-AD84-97D0A89E789E}.Debug|x64.Deploy.0 = Debug|x64
 		{CE569EEF-AECB-48FA-AD84-97D0A89E789E}.Release|Win32.ActiveCfg = Release|Win32
 		{CE569EEF-AECB-48FA-AD84-97D0A89E789E}.Release|Win32.Build.0 = Release|Win32
+		{CE569EEF-AECB-48FA-AD84-97D0A89E789E}.Release|x64.ActiveCfg = Release|x64
+		{CE569EEF-AECB-48FA-AD84-97D0A89E789E}.Release|x64.Build.0 = Release|x64
+		{77CD555C-10E3-4D41-A486-099BC5822B23}.Debug|Win32.ActiveCfg = Debug|Win32
+		{77CD555C-10E3-4D41-A486-099BC5822B23}.Debug|Win32.Build.0 = Debug|Win32
+		{77CD555C-10E3-4D41-A486-099BC5822B23}.Debug|x64.ActiveCfg = Debug|x64
+		{77CD555C-10E3-4D41-A486-099BC5822B23}.Debug|x64.Build.0 = Debug|x64
+		{77CD555C-10E3-4D41-A486-099BC5822B23}.Debug|x64.Deploy.0 = Debug|x64
+		{77CD555C-10E3-4D41-A486-099BC5822B23}.Release|Win32.ActiveCfg = Release|Win32
+		{77CD555C-10E3-4D41-A486-099BC5822B23}.Release|Win32.Build.0 = Release|Win32
+		{77CD555C-10E3-4D41-A486-099BC5822B23}.Release|x64.ActiveCfg = Release|x64
+		{77CD555C-10E3-4D41-A486-099BC5822B23}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

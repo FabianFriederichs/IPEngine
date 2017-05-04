@@ -1,26 +1,28 @@
- #include <string>
- namespace  DependencyGraphStuff{
-	 struct Module
-	 {
-		vector<pair<string, Module> dependencies;
-		vector<ExtensionPoint> extensions;
-		string identifier;
-		string iname;
-	 };
-	 
-	 struct ExtensionPoint
-	 { 
-		string extensionpointidentifier;
+#include <string>
+#include <vector>
+namespace  DGStuff
+{
+	struct ExtensionPoint
+	{
+		std::string extensionpointidentifier;
 		int position;
-		string extensionidentifier;
-	 };
+		std::string extensionidentifier;
+	};
+
+	struct Module
+	{
+		std::vector<std::pair<std::string, Module>> dependencies;
+		std::vector<ExtensionPoint> extensions;
+		std::string identifier;
+		std::string iname;
+	};
 	 
-	 class DependencyGraph
-	 {
-	 private:
-		vector<Module> roots;
-	 public:
-		addModule(const Module &m) {roots.push_back(m);}
-	 };
+	class DependencyGraph
+	{
+	private:
+		std::vector<Module> roots;
+	public:
+		void addModule(const Module &m) {roots.push_back(m);}
+	};
  }
  
