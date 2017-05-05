@@ -2,23 +2,24 @@
 <DependencyGraph>
   <Modules>
     <Module>
-      <id>001</id>
       <name>graphics.one</name>
-      <attr>
-        <name>dep1</name>
-        <depID>002</depID>
-      </attr>
+      <dependencies>
+        <dependency>
+          <name>dep1</name>
+          <depID>plugin.two</depID>
+        </dependency>  
+      </dependencies>
     </Module>
     <Module>
-      <id>002</id>
       <name>plugin.two</name>
-      <attr>
-        <name>dep1</name>
-        <depID>003</depID>
-      </attr>
+      <dependencies>
+        <dependency>
+          <name>dep1</name>
+          <depID>plugin.three</depID>
+        </dependency>
+      </dependencies>
     </Module>
     <Module>
-      <id>003</id>
       <name>plugin.three</name>
     </Module>
   </Modules>

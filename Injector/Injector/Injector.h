@@ -26,11 +26,19 @@ private:
 
 	bool parseDepGraphFromPropertyTree(boost::property_tree::ptree* tree)
 	{
-		
-		for (auto node : *tree)
+	//first iteration create all modules	
+		std::vector<DGStuff::Module> tModules;
+		for (auto node : tree->get_child("DependencyGraph.Modules"))
 		{
+			DGStuff::Module tempModule;
+			tempModule.identifier = node.second.get<std::string>("name");
+			if (tempModule.identifier.find("\n") == std::string::npos)
+				return false;
+			//Check for circular dependencies
+			//Check whether the dependency is of a module already handles first then whether not and stuff
+			tModules.push_back(tempModule);
 			std::cout << node.first << std::endl;
-			if (node.second.empty())
+			/*if (node.second.empty())
 				continue;
 			for (auto n2 : node.second)
 			{
@@ -54,10 +62,26 @@ private:
 						}
 					}
 				}
-			}
+			}*/
 		}
 		return true;
 	};
+
+	boost::property_tree::ptree* getTreeByKeyValue(boost::property_tree::ptree* tree, std::string key, std::string value)
+	{
+		for (auto node : *tree)
+		{
+			if (node.second.to_iterator(node.second.find(key)) == node.second.end())
+			{
+				return nullptr; //Key doesn't even exist
+			}
+			if (node.second.get<std::string>(key) == value)
+			{
+				return &node.second;
+			}
+		}
+		return nullptr;
+	}
 
 public:
 	Injector()
