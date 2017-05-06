@@ -22,8 +22,11 @@ namespace  DGStuff
 	{
 	private:
 		std::vector<Module> roots;
+		std::vector<const Module*> modules;
 	public:
-		void addModule(const Module &m) {roots.push_back(m);}
+		void addModule(const Module *m) {modules.push_back(m);}
+		void addRoot(const Module &m) { roots.push_back(m); }
+		std::vector<const Module*> *getModules(){ return &modules; };
 	};
  }
  

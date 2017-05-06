@@ -1,6 +1,8 @@
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/dll/import.hpp>
+#include <boost/dll/alias.hpp>
 #include "DependencyGraph.h"
-#include "IModule.h"
+#include "IModule_API.h"
 #include <iostream>
 #include <algorithm>
 #include <list>
@@ -29,7 +31,8 @@ private:
 
 		return &tree;
 	};
-
+	std::map<std::string, boost::shared_ptr<IModule>> loadedModules;
+	std::vector<boost::filesystem::path> dlibFilePaths;
 	bool parseDepGraphFromPropertyTree(boost::property_tree::ptree* tree)
 	{
 	//first iteration create all modules	
@@ -40,6 +43,7 @@ private:
 			tempModule.identifier = node.second.get<std::string>("identifier");
 			if (tempModule.identifier.find("\n") != std::string::npos)
 				return false;
+			//TODO
 			//Check for circular dependencies
 			//Check whether the dependency is of a module already handles first then whether not and stuff
 			tModules.push_back(tempModule);
@@ -75,12 +79,13 @@ private:
 				}
 			}
 		}
-		for (auto m : dgRoots)
+		for (auto m : tModules)
 		{
-			if (std::find(nonRootIds.begin(), nonRootIds.end(), m->identifier)== nonRootIds.end())
+			if (std::find(nonRootIds.begin(), nonRootIds.end(), m.identifier)== nonRootIds.end())
 			{
-				depgraph.addModule(*m);
+				depgraph.addRoot(m);
 			}
+			depgraph.addModule(&m);
 		}
 		return true;
 	};
@@ -125,8 +130,56 @@ public:
 	{
 		if (parseDepGraphFromPropertyTree(parsePropTreeFromXML(dependencyXMLPath)))
 		{
+			//TODO
 			//do error handling and memes
 		}
 		libFolderPath = libraryFolderpath;
 	};
+
+	void LoadModules(bool reload = false, std::string path = "")
+	{
+		bool newPath = false;
+		if (path != "" && boost::filesystem::exists(path))
+		{
+			newPath = true;
+			libFolderPath = path;
+		}
+
+		if (reload)
+		{
+			//TODO
+			//delete modules and shit
+		}
+		
+
+		boost::filesystem::directory_iterator di(newPath?path:libFolderPath);
+
+		for (auto f : di)
+		{
+			if (boost::filesystem::is_regular_file(f.path()) && f.path().has_extension() && f.path().extension() == boost::dll::shared_library::suffix())
+			{
+				dlibFilePaths.push_back(f.path());
+			}
+		}
+			//load modules from the found library paths. Append or Replace current list? Probably append
+		for (auto path : dlibFilePaths)
+		{
+			loadedModules[path.filename().stem().generic_string()] = boost::dll::import<IModule>(path,"module", boost::dll::load_mode::default_mode);
+		}
+
+		
+		//Check whether all modules in dependency graph are loaded
+		auto& tmp = loadedModules;
+		if (!std::all_of(depgraph.getModules()->begin(), depgraph.getModules()->end(), [tmp](DGStuff::Module v)->bool{return tmp.count(v.identifier) > 0; }))
+		{
+			//TODO
+			//Handle case of missing modules found in dependency graph
+		}
+
+		//Iterate all loaded modules and inject memes.
+		for (auto mkv: loadedModules)
+		{
+			auto module = mkv.second;
+		}
+	}
 };
