@@ -2,25 +2,25 @@
 <DependencyGraph>
   <Modules>
     <Module>
-      <name>graphics.one</name>
+      <identifier>graphics.one</identifier>
       <dependencies>
         <dependency>
-          <name>dep1</name>
+          <identifier>dep1</identifier>
           <depID>plugin.two</depID>
         </dependency>  
       </dependencies>
     </Module>
     <Module>
-      <name>plugin.two</name>
+      <identifier>plugin.two</identifier>
       <dependencies>
         <dependency>
-          <name>dep1</name>
+          <identifier>dep1</identifier>
           <depID>plugin.three</depID>
         </dependency>
       </dependencies>
     </Module>
     <Module>
-      <name>plugin.three</name>
+      <identifier>plugin.three</identifier>
     </Module>
   </Modules>
 </DependencyGraph>

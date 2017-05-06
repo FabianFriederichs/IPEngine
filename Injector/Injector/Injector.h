@@ -2,16 +2,22 @@
 #include "DependencyGraph.h"
 #include "IModule.h"
 #include <iostream>
+#include <algorithm>
+#include <list>
 /*
 Stuff to do:
-Get a path to look for dynamic libs to load
-Read in a dependency graph from xml via property tree
+start loading all dlibs in libraryfolder
 start building IModule objects, inject dependencies
+
+Stuff DONE:
+-Read in a dependency graph from xml via property tree
+-Get a path to look for dynamic libs to load
 */
 
 class Injector
 {
 private:
+	std::string libFolderPath;
 	DGStuff::DependencyGraph depgraph;
 	boost::property_tree::ptree tree;
 	boost::property_tree::ptree *parsePropTreeFromXML(std::string path)
@@ -31,42 +37,68 @@ private:
 		for (auto node : tree->get_child("DependencyGraph.Modules"))
 		{
 			DGStuff::Module tempModule;
-			tempModule.identifier = node.second.get<std::string>("name");
-			if (tempModule.identifier.find("\n") == std::string::npos)
+			tempModule.identifier = node.second.get<std::string>("identifier");
+			if (tempModule.identifier.find("\n") != std::string::npos)
 				return false;
 			//Check for circular dependencies
 			//Check whether the dependency is of a module already handles first then whether not and stuff
 			tModules.push_back(tempModule);
-			std::cout << node.first << std::endl;
-			/*if (node.second.empty())
-				continue;
-			for (auto n2 : node.second)
+		}
+
+		std::list<DGStuff::Module*> dgRoots;
+		std::vector<std::string> nonRootIds;
+		for (auto node : tree->get_child("DependencyGraph.Modules"))
+		{
+			
+			if (node.second.to_iterator(node.second.find("dependencies"))!=node.second.end() && node.second.get_child("dependencies").count("dependency") > 0)
 			{
-				std::cout << "    " << n2.first << std::endl;
-				if (n2.second.empty())
-					continue;
-				for (auto n3 : n2.second)
+				std::string id = node.second.get<std::string>("identifier");
+				DGStuff::Module *module = &*std::find_if(tModules.begin(), tModules.end(), [id](DGStuff::Module v)->bool{return v.identifier == id; }); //getModuleByIdentifier(&tModules, id);
+				dgRoots.push_back(module);               
+				for (auto dependencyNode : node.second.get_child("dependencies"))
 				{
-					std::cout << "        " << n3.first << std::endl;
-					if (n3.second.empty())
-						continue;
-					for (auto n4 : n3.second)
+					std::string idD = dependencyNode.second.get<std::string>("depID");
+					auto memes = std::find_if(tModules.begin(), tModules.end(), [idD](DGStuff::Module v)->bool{return v.identifier == idD; });//getModuleByIdentifier(&tModules, idD);
+					if (memes == tModules.end())
 					{
-						if (n4.second.empty())
-							std::cout << "            " << n4.first << ": " << n4.second.get_value<std::string>() << std::endl;
-						if (n4.second.empty())
-							continue;
-						for (auto n5 : n4.second)
-						{
-							std::cout << "                " << n5.first << ": " << n5.second.get_value<std::string>() << std::endl;
-						}
+						return false; //If module is not found
+					}
+					nonRootIds.push_back(idD);
+					module->dependencies[dependencyNode.second.get<std::string>("identifier")] = &*memes;
+					 
+					//dgRoots.remove_if([memes](DGStuff::Module* v)->bool{return v == memes; })
+					//Optional. Only removes those modules from dgRoots that have already been handled. 
+					if (std::find(dgRoots.begin(), dgRoots.end(), &*memes) != dgRoots.end())
+					{
+						dgRoots.remove(&*memes);
 					}
 				}
-			}*/
+			}
+		}
+		for (auto m : dgRoots)
+		{
+			if (std::find(nonRootIds.begin(), nonRootIds.end(), m->identifier)== nonRootIds.end())
+			{
+				depgraph.addModule(*m);
+			}
 		}
 		return true;
 	};
 
+	//Unnecessary, using std::find_if with lambda instead.
+	DGStuff::Module* getModuleByIdentifier(std::vector<DGStuff::Module> *modules, std::string id)
+	{
+		for (auto& m : *modules)
+		{
+			if (m.identifier == id)
+			{
+				return &m; //returning address of something that won't exist afterwards anymore WRONG
+			}
+		}
+		return nullptr;
+	}
+
+	//What the fuck was this for again?
 	boost::property_tree::ptree* getTreeByKeyValue(boost::property_tree::ptree* tree, std::string key, std::string value)
 	{
 		for (auto node : *tree)
@@ -89,8 +121,12 @@ public:
 	
 	};
 
-	Injector(std::string dependencyXMLPath, std::string libpath)
+	Injector(std::string dependencyXMLPath, std::string libraryFolderpath)
 	{
-		parseDepGraphFromPropertyTree(parsePropTreeFromXML(dependencyXMLPath));
+		if (parseDepGraphFromPropertyTree(parsePropTreeFromXML(dependencyXMLPath)))
+		{
+			//do error handling and memes
+		}
+		libFolderPath = libraryFolderpath;
 	};
 };

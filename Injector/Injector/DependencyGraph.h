@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <map>
 namespace  DGStuff
 {
 	struct ExtensionPoint
@@ -11,7 +12,7 @@ namespace  DGStuff
 
 	struct Module
 	{
-		std::vector<std::pair<std::string, Module>> dependencies;
+		std::map<std::string, Module*> dependencies;
 		std::vector<ExtensionPoint> extensions;
 		std::string identifier;
 		std::string iname;
