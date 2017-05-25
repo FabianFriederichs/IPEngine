@@ -8,12 +8,13 @@
 #include <list>
 /*
 Stuff to do:
-start loading all dlibs in libraryfolder
-start building IModule objects, inject dependencies
+
+	start building IModule objects, inject dependencies
 
 Stuff DONE:
 -Read in a dependency graph from xml via property tree
 -Get a path to look for dynamic libs to load
+-start loading all dlibs in libraryfolder
 */
 
 class Injector
