@@ -6,10 +6,11 @@
 #include <iostream>
 #include <algorithm>
 #include <list>
+#include <queue>
 /*
 Stuff to do:
 
-	start building IModule objects, inject dependencies
+	start building IModule_API objects, inject dependencies
 
 Stuff DONE:
 -Read in a dependency graph from xml via property tree
@@ -32,12 +33,12 @@ private:
 
 		return &tree;
 	};
-	std::map<std::string, boost::shared_ptr<IModule>> loadedModules;
+	std::map<std::string, boost::shared_ptr<IModule_API>> loadedModules;
 	std::vector<boost::filesystem::path> dlibFilePaths;
 	bool parseDepGraphFromPropertyTree(boost::property_tree::ptree* tree)
 	{
 	//first iteration create all modules	
-		std::vector<DGStuff::Module> tModules;
+		//std::list<DGStuff::Module*> tModules;
 		for (auto node : tree->get_child("DependencyGraph.Modules"))
 		{
 			DGStuff::Module tempModule;
@@ -47,9 +48,12 @@ private:
 			//TODO
 			//Check for circular dependencies
 			//Check whether the dependency is of a module already handles first then whether not and stuff
-			tModules.push_back(tempModule);
+			
+			depgraph.addModule(tempModule);
+			//tModules.push_back(&depgraph.getModules()->back());
 		}
 
+		auto tModules = depgraph.getModules();
 		std::list<DGStuff::Module*> dgRoots;
 		std::vector<std::string> nonRootIds;
 		for (auto node : tree->get_child("DependencyGraph.Modules"))
@@ -58,13 +62,13 @@ private:
 			if (node.second.to_iterator(node.second.find("dependencies"))!=node.second.end() && node.second.get_child("dependencies").count("dependency") > 0)
 			{
 				std::string id = node.second.get<std::string>("identifier");
-				DGStuff::Module *module = &*std::find_if(tModules.begin(), tModules.end(), [id](DGStuff::Module v)->bool{return v.identifier == id; }); //getModuleByIdentifier(&tModules, id);
+				DGStuff::Module *module = &*std::find_if(tModules->begin(), tModules->end(), [id](DGStuff::Module v)->bool{return v.identifier == id; }); //getModuleByIdentifier(&tModules, id);
 				dgRoots.push_back(module);               
 				for (auto dependencyNode : node.second.get_child("dependencies"))
 				{
 					std::string idD = dependencyNode.second.get<std::string>("depID");
-					auto memes = std::find_if(tModules.begin(), tModules.end(), [idD](DGStuff::Module v)->bool{return v.identifier == idD; });//getModuleByIdentifier(&tModules, idD);
-					if (memes == tModules.end())
+					auto memes = std::find_if(tModules->begin(), tModules->end(), [idD](DGStuff::Module v)->bool{return v.identifier == idD; });//getModuleByIdentifier(&tModules, idD);
+					if (memes == tModules->end())
 					{
 						return false; //If module is not found
 					}
@@ -80,14 +84,17 @@ private:
 				}
 			}
 		}
-		for (auto m : tModules)
+		for (auto& m : *tModules)
 		{
-			if (std::find(nonRootIds.begin(), nonRootIds.end(), m.identifier)== nonRootIds.end())
+			//depgraph.addModule(m);
+			auto meme = std::find(nonRootIds.begin(), nonRootIds.end(), m.identifier);
+			if (meme == nonRootIds.end())
 			{
-				depgraph.addRoot(m);
+				depgraph.addRoot(&m);
 			}
-			depgraph.addModule(&m);
+			
 		}
+		depgraph.getModules()->front().iname = "test"; //i'm too retarded for pointers 
 		return true;
 	};
 
@@ -152,8 +159,8 @@ public:
 			//delete modules and shit
 		}
 		
-
-		boost::filesystem::directory_iterator di(newPath?path:libFolderPath);
+		auto meme = boost::filesystem::current_path();
+		boost::filesystem::directory_iterator di(boost::filesystem::system_complete(newPath?path:(libFolderPath==""?boost::filesystem::current_path():libFolderPath)));
 
 		for (auto f : di)
 		{
@@ -165,22 +172,76 @@ public:
 			//load modules from the found library paths. Append or Replace current list? Probably append
 		for (auto path : dlibFilePaths)
 		{
-			loadedModules[path.filename().stem().generic_string()] = boost::dll::import<IModule>(path,"module", boost::dll::load_mode::default_mode);
+			loadedModules[path.filename().stem().generic_string()] = boost::dll::import<IModule_API>(path,"module", boost::dll::load_mode::default_mode);
 		}
 
 		
 		//Check whether all modules in dependency graph are loaded
 		auto& tmp = loadedModules;
-		if (!std::all_of(depgraph.getModules()->begin(), depgraph.getModules()->end(), [tmp](DGStuff::Module v)->bool{return tmp.count(v.identifier) > 0; }))
+		if (!std::all_of(depgraph.getModules()->begin(), depgraph.getModules()->end(), [tmp](DGStuff::Module &v)->bool{return tmp.count(v.identifier) > 0; }))
 		{
 			//TODO
 			//Handle case of missing modules found in dependency graph
 		}
 
-		//Iterate all loaded modules and inject memes.
-		for (auto mkv: loadedModules)
+		////Iterate all loaded modules and inject memes.
+		//for (auto mkv: loadedModules)
+		//{
+		//	/*
+		//	Approach:
+		//	Iterate through nodes of depth x where x=max depth and reduce x on each iteration
+		//	*/
+		//	auto module = mkv.second;
+
+
+
+		//}
+		//Iterate through the dep graph in reverse, nodes of one depth etc
+		std::vector<std::string> processedModules;
+		std::queue<const DGStuff::Module*> toProcess;
+		std::list<const DGStuff::Module*> injectOrderList;
+		//for (auto mnd = )
+		for (auto&& modnode : *(depgraph.getRoots()))
 		{
-			auto module = mkv.second;
+			/*depgraph.forEachReverse(&modnode, [&processedModules, &tmp](const DGStuff::Module *v)->
+				void
+				{
+					if (std::find(processedModules.begin(), processedModules.end(), v->identifier) == processedModules.end())
+					{
+
+					}
+				});*/
+			//breadth-first search and add on a stack
+			toProcess.push(modnode);
+			injectOrderList.push_back(modnode);
+		}
+
+		while (!toProcess.empty())
+		{
+			auto m = toProcess.front();
+			toProcess.pop();
+			for (auto modnode : m->dependencies)
+			{
+				toProcess.push(modnode.second);
+				injectOrderList.push_back(modnode.second);
+			}
+		}
+		injectOrderList.reverse();
+		injectOrderList.unique();
+
+		for (auto modnode : injectOrderList)
+		{
+			if (!modnode->dependencies.empty())
+			{
+				auto info = loadedModules[modnode->identifier]->getModuleInfo();
+				for (auto mn : modnode->dependencies)
+				{
+					info->dependencies[mn.first] = loadedModules[mn.second->identifier].get();
+				}
+			}
+			loadedModules[modnode->identifier]->startUp();
 		}
 	}
+
+
 };

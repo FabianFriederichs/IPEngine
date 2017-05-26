@@ -13,11 +13,12 @@
 #include <iostream>
 #include <boost/config.hpp>
 // This class is exported from the Plugin1.dll
-class PLUGIN1_API stdOutPrinter : public IPrinter {
+class PLUGIN1_API stdOutPrinter : public IPrinter_API {
 public:
 	stdOutPrinter(void);
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
+	bool startUp(){ printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; } //do stuff?
 	void printStuffToSomething(std::string text) { std::cout << text << std::endl; }
 private:
 	ModuleInformation m_info;

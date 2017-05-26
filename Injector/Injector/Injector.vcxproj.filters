@@ -26,10 +26,10 @@
     <ClInclude Include="DependencyGraph.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IModule.h">
+    <ClInclude Include="Injector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Injector.h">
+    <ClInclude Include="IModule_API.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

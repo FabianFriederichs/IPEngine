@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<DependencyGraph>
+<!--<DependencyGraph>
   <Modules>
     <Module>
       <identifier>graphics.one</identifier>
@@ -21,6 +21,22 @@
     </Module>
     <Module>
       <identifier>plugin.three</identifier>
+    </Module>
+  </Modules>
+</DependencyGraph>-->
+<DependencyGraph>
+  <Modules>
+    <Module>
+      <identifier>Plugin1</identifier>
+    </Module>
+    <Module>
+      <identifier>Plugin2</identifier>
+      <dependencies>
+        <dependency>
+          <identifier>printer</identifier>
+          <depID>Plugin1</depID>
+        </dependency>
+      </dependencies>
     </Module>
   </Modules>
 </DependencyGraph>

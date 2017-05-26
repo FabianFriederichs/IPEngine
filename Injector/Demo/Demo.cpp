@@ -4,8 +4,10 @@
 #include "Injector.h"
 int _tmain(int argc, _TCHAR* argv[])
 {
-	Injector inj("XMLFile.xml", "memes");
-
+	Injector inj("XMLFile.xml", "../Debug");
+	inj.LoadModules();
+	std::string meme;
+	std::cin >> meme;
 	return 0;
 }
 

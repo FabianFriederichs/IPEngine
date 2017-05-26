@@ -21,12 +21,30 @@ namespace  DGStuff
 	class DependencyGraph
 	{
 	private:
-		std::vector<Module> roots;
-		std::vector<const Module*> modules;
+		std::vector<Module*> roots;
+		std::vector<Module> modules;
+		/*template<typename F>
+		static Module* recursiveApply(const Module *m, F &lambda)
+		{
+			if (m->dependencies.size() > 0)
+			{
+				for (auto m : m->dependencies)
+				{
+					recursiveApply(m.second, lambda);
+				}
+			}
+			lambda(m);
+		}*/
 	public:
-		void addModule(const Module *m) {modules.push_back(m);}
-		void addRoot(const Module &m) { roots.push_back(m); }
-		std::vector<const Module*> *getModules(){ return &modules; };
+		void addModule(Module m) {modules.push_back(m);}
+		void addRoot(Module *m) { roots.push_back(m); }
+		std::vector<Module> *getModules(){ return &modules; };
+		std::vector<Module*> *getRoots(){ return &roots; }
+		/*template<typename F>
+		static void forEachReverse(const Module *m, F &lambda)
+		{
+			recursiveApply(m, lambda);
+		}*/
 	};
  }
  
