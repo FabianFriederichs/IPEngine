@@ -9,13 +9,14 @@
 #include <queue>
 /*
 Stuff to do:
-
-	start building IModule_API objects, inject dependencies
+	ERROR HANDLING
+	
 
 Stuff DONE:
 -Read in a dependency graph from xml via property tree
 -Get a path to look for dynamic libs to load
 -start loading all dlibs in libraryfolder
+-start building IModule_API objects, inject dependencies
 */
 
 class Injector
