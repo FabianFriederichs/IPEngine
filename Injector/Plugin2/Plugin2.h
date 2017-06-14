@@ -13,12 +13,12 @@
 #include "IModule_API.h"
 #include "IPrinter_API.h"
 // This class is exported from the Plugin2.dll
-class PLUGIN2_API CPlugin2 : public IModule_API {
+class CPlugin2 : public IModule_API {
 public:
 	CPlugin2(void);
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
-	bool startUp(){ dynamic_cast<IPrinter_API*>(m_info.dependencies["printer"])->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; } //do stuff?
+	bool startUp(){	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; } //do stuff?
 private:
 	ModuleInformation m_info;
 };

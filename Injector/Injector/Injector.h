@@ -9,14 +9,19 @@
 #include <queue>
 /*
 Stuff to do:
+	flags?
+	-optional dependencies
+	-updatable dependencies
 	ERROR HANDLING
-	
+	-function to return all modules that can be used as dependency of type X
 
 Stuff DONE:
 -Read in a dependency graph from xml via property tree
 -Get a path to look for dynamic libs to load
 -start loading all dlibs in libraryfolder
 -start building IModule_API objects, inject dependencies
+-changing of dependency
+	-callback in module_api
 */
 
 class Injector
@@ -236,13 +241,31 @@ public:
 			{
 				auto info = loadedModules[modnode->identifier]->getModuleInfo();
 				for (auto mn : modnode->dependencies)
-				{
-					info->dependencies[mn.first] = loadedModules[mn.second->identifier].get();
+				{ 
+					info->dependencies.assignDependency(mn.first, loadedModules[mn.second->identifier]);
 				}
 			}
 			loadedModules[modnode->identifier]->startUp();
 		}
 	}
 
+	const std::map<std::string, boost::shared_ptr<IModule_API>>& getLoadedModules()
+	{
+		return loadedModules;
+	}
+
+	void reassignDependency(std::string moduleID, std::string dependencyID, std::string newModuleID)
+	{
+		//change dependency "dependencyID" in module "moduleID" to the module "newModuleID"
+		//Do checks whether it's correct and then update the pointer in "moduleID"s moduleinfo of specified dependency
+		//Tell "moduleID" to update it's pointers and do any work that's necessary for reassignment
+		auto minfo = loadedModules[moduleID]->getModuleInfo();
+		if (minfo->dependencies.exists(dependencyID) && minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam == loadedModules[newModuleID]->getModuleInfo()->iam)
+		{
+			//reassignment should work, i think? 
+			minfo->dependencies.assignDependency(dependencyID, loadedModules[newModuleID]);
+			loadedModules[moduleID]->dependencyUpdated(dependencyID);
+		}
+	}
 
 };

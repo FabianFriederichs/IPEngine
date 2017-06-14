@@ -13,7 +13,7 @@
 #include <iostream>
 #include <boost/config.hpp>
 // This class is exported from the Plugin1.dll
-class PLUGIN1_API stdOutPrinter : public IPrinter_API {
+class stdOutPrinter : public IPrinter_API {
 public:
 	stdOutPrinter(void);
 	// TODO: add your methods here.
