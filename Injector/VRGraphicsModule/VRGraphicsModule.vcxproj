@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{44C14CF2-2BD7-4AE7-A273-940988848344}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Plugin2</RootNamespace>
+    <RootNamespace>VRGraphicsModule</RootNamespace>
     <ProjectName>GraphicsModule</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

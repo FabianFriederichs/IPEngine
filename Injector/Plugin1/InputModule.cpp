@@ -1,8 +1,6 @@
 // Plugin1.cpp : Defines the exported functions for the DLL application.
 //
-
-#include "stdafx.h"
-#include "Plugin1.h"
+#include "InputModule.h"
 
 //
 //// This is an example of an exported variable

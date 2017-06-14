@@ -4,24 +4,19 @@
 // that uses this DLL. This way any other project whose source files include this file see 
 // PLUGIN2_API functions as being imported from a DLL, whereas this DLL sees symbols
 // defined with this macro as being exported.
-#ifdef PLUGIN2_EXPORTS
-#define PLUGIN2_API __declspec(dllexport)
-#else
-#define PLUGIN2_API __declspec(dllimport)
-#endif
+
 #include <boost/config.hpp>
-#include "IModule_API.h"
-#include "IPrinter_API.h"
+#include "IGraphics_API.h"
 // This class is exported from the Plugin2.dll
-class CPlugin2 : public IModule_API {
+class GraphicsModule : public IGraphics_API {
 public:
-	CPlugin2(void);
+	GraphicsModule(void);
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
-	bool startUp(){	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; } //do stuff?
+	bool startUp(){/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */} //do stuff?
 private:
 	ModuleInformation m_info;
 };
 
-extern "C" BOOST_SYMBOL_EXPORT CPlugin2 module;
-CPlugin2 module;
+extern "C" BOOST_SYMBOL_EXPORT GraphicsModule module;
+GraphicsModule module;
