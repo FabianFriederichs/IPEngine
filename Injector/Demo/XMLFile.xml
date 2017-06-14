@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--<DependencyGraph>
+  <Modules>
+    <Module>
+      <identifier>graphics.one</identifier>
+      <dependencies>
+        <dependency>
+          <identifier>dep1</identifier>
+          <depID>plugin.two</depID>
+        </dependency>  
+      </dependencies>
+    </Module>
+    <Module>
+      <identifier>plugin.two</identifier>
+      <dependencies>
+        <dependency>
+          <identifier>dep1</identifier>
+          <depID>plugin.three</depID>
+        </dependency>
+      </dependencies>
+    </Module>
+    <Module>
+      <identifier>plugin.three</identifier>
+    </Module>
+  </Modules>
+</DependencyGraph>-->
+<DependencyGraph>
+  <Modules>
+    <Module>
+      <identifier>Plugin1</identifier>
+    </Module>
+    <Module>
+      <identifier>Plugin2</identifier>
+      <dependencies>
+        <dependency>
+          <identifier>printer</identifier>
+          <depID>Plugin1</depID>
+        </dependency>
+      </dependencies>
+    </Module>
+  </Modules>
+</DependencyGraph>
