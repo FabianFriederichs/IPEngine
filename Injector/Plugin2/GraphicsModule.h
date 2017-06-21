@@ -7,15 +7,27 @@
 
 #include <boost/config.hpp>
 #include "IGraphics_API.h"
+#include <glm/glm.hpp>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
+#include <memory>
+//#define GLEW_STATIC
+#include <GL\glew.h>
 // This class is exported from the Plugin2.dll
 class GraphicsModule : public IGraphics_API {
 public:
 	GraphicsModule(void);
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
-	bool startUp(){/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */} //do stuff?
+	bool startUp();// {/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); */return true;  } //do stuff?
+	void render();
 private:
 	ModuleInformation m_info;
+	std::string DataDepName;
+	SDL_Window* window;
+	void setupSDL();
+	void loadShaders();
+	void updateData();
 };
 
 extern "C" BOOST_SYMBOL_EXPORT GraphicsModule module;

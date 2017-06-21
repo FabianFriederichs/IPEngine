@@ -18,15 +18,12 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GraphicsModule.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IGraphics_API.h">
+    <ClInclude Include="VRGraphicsModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GraphicsModule.cpp">
+    <ClCompile Include="VRGraphicsModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

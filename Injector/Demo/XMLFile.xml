@@ -27,16 +27,10 @@
 <DependencyGraph>
   <Modules>
     <Module>
-      <identifier>Plugin1</identifier>
+      <identifier>GraphicsModule</identifier>
     </Module>
     <Module>
-      <identifier>Plugin2</identifier>
-      <dependencies>
-        <dependency>
-          <identifier>printer</identifier>
-          <depID>Plugin1</depID>
-        </dependency>
-      </dependencies>
+      <identifier>InputModule</identifier>
     </Module>
   </Modules>
 </DependencyGraph>

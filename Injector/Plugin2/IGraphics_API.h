@@ -3,5 +3,5 @@
 class IGraphics_API : public IModule_API
 {
 public:
-	//virtual void printStuffToSomething(std::string) = 0;
+	virtual void render() = 0;
 };

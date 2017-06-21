@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{44C14CF2-2BD7-4AE7-A273-940988848344}</ProjectGuid>
+    <ProjectGuid>{F0AB9D35-E271-40A1-B6B4-A9EE5EA55BD9}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>VRGraphicsModule</RootNamespace>
-    <ProjectName>GraphicsModule</ProjectName>
+    <ProjectName>VRGraphicsModule</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -85,7 +85,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../Plugin1;../Injector;$(BOOST);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Plugin2;../Injector;$(BOOST);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -140,11 +140,10 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GraphicsModule.h" />
-    <ClInclude Include="IGraphics_API.h" />
+    <ClInclude Include="VRGraphicsModule.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GraphicsModule.cpp" />
+    <ClCompile Include="VRGraphicsModule.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
