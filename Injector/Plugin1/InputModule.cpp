@@ -24,7 +24,14 @@ InputModule::InputModule()
 
 bool InputModule::startUp()
 {
-	
+	vr::EVRInitError vrerr;
+	vrsys = vr::VR_Init(&vrerr, vr::EVRApplicationType::VRApplication_Scene);
+	vrcomp = vr::VRCompositor();
+	if (!vrcomp) {
+		fprintf(stderr, "OpenVR Compositor initialization failed. See log file for details\n");
+		vr::VR_Shutdown();
+		return false;
+	}
 	memes = std::thread([this]()->void{while (1){ pollData(); }});
 	return true;
 }
@@ -108,6 +115,88 @@ void InputModule::pollData()
 	}
 
 	//Poll VR positions and add as event
+	vr::VREvent_t vreve;
+	while (vrsys->PollNextEvent(&vreve, sizeof(vr::VREvent_t)))
+	{
+		IInput::Input i;
+		switch (vreve.eventType)
+		{
+		case vr::VREvent_ButtonPress:
+			i.type = IInput::InputType::INPUT_KEY;
+			i.timeStamp = clock.now();// -std::chrono::seconds(vreve.eventAgeSeconds);
+			i.data.kd.state = IInput::ButtonState::BUTTON_DOWN;
+			i.data.kd.deviceIndex = vreve.trackedDeviceIndex;
+			switch (vreve.data.controller.button)
+			{
+			case vr::EVRButtonId::k_EButton_ApplicationMenu:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_MENU;
+				break;
+			case vr::EVRButtonId::k_EButton_System:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_SYSTEM;
+				break;
+			case vr::EVRButtonId::k_EButton_Grip:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_GRIP;
+				break;
+			case vr::EVRButtonId::k_EButton_SteamVR_Touchpad:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TOUCHPAD;
+				break;
+			case vr::EVRButtonId::k_EButton_SteamVR_Trigger:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TRIGGER;
+				break;
+			case vr::EVRButtonId::k_EButton_Axis2:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS2;
+				break;
+			case vr::EVRButtonId::k_EButton_Axis3:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS3;
+				break;
+			case vr::EVRButtonId::k_EButton_Axis4:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS4;
+				break;
+			}
+			break;
+		case vr::VREvent_ButtonUnpress:
+			i.type = IInput::InputType::INPUT_KEY;
+			i.timeStamp = clock.now();// -std::chrono::seconds(vreve.eventAgeSeconds);
+			i.data.kd.state = IInput::ButtonState::BUTTON_UP;
+			i.data.kd.deviceIndex = vreve.trackedDeviceIndex;
+
+			switch (vreve.data.controller.button)
+			{
+			case vr::EVRButtonId::k_EButton_ApplicationMenu:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_MENU;
+				break;
+			case vr::EVRButtonId::k_EButton_System:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_SYSTEM;
+				break;
+			case vr::EVRButtonId::k_EButton_Grip:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_GRIP;
+				break;
+			case vr::EVRButtonId::k_EButton_SteamVR_Touchpad:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TOUCHPAD;
+				break;
+			case vr::EVRButtonId::k_EButton_SteamVR_Trigger:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TRIGGER;
+				break;
+			case vr::EVRButtonId::k_EButton_Axis2:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS2;
+				break;
+			case vr::EVRButtonId::k_EButton_Axis3:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS3;
+				break;
+			case vr::EVRButtonId::k_EButton_Axis4:
+				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS4;
+				break;
+			}
+			break;
+		case vr::VREvent_ButtonTouch:
+			break;
+		case vr::VREvent_ButtonUntouch:
+			break;
+		}
+	}
+
+
+
 	auto timestamp = clock.now() - timeToRetainInput;
 	auto start = inputData.begin();
 	auto end = std::find_if(start, inputData.end(), [timestamp](std::pair<time_t, IInput::Input> i)->bool{if (i.second.timeStamp < timestamp) return true; return false; });
@@ -141,7 +230,7 @@ void InputModule::pollData()
 	isManipulating = false;
 }
 
-const std::vector<IInput::Input> InputModule::getInputBuffered(int millisecondsIntoThePast)
+const std::vector<IInput::Input> InputModule::getInputBuffered(int millisecondsIntoThePast, bool vrpositions)
 {
 	auto timestamp = clock.now() - std::chrono::milliseconds(millisecondsIntoThePast);
 	//create copy
@@ -172,6 +261,100 @@ const std::vector<IInput::Input> InputModule::getInputBuffered(int millisecondsI
 	for (start; start != in.end();++start)
 	{
 		n.push_back(start->second);
+	}
+
+	//add VR position data to the end
+	if (vrpositions)
+	{
+		IInput::Input inputVR;
+		vr::TrackedDevicePose_t poseArray[vr::k_unMaxTrackedDeviceCount];
+		uint32_t count = vr::k_unMaxTrackedDeviceCount;
+		vrsys->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseOrigin::TrackingUniverseStanding, 0, poseArray, count);
+		for (int index = 0; index < vr::k_unMaxTrackedDeviceCount; ++index)
+		{
+			if (vrsys->IsTrackedDeviceConnected(index))
+			{
+				IInput::Input inputVR;
+				float temp[3];
+				//float tempM[3][3];
+				switch (vrsys->GetTrackedDeviceClass(index))
+				{
+				case vr::ETrackedDeviceClass::TrackedDeviceClass_HMD:
+					inputVR.timeStamp = clock.now();
+					inputVR.type = IInput::InputType::INPUT_3DMOVE;
+					inputVR.data.i3dmd.deviceIndex = index;
+					inputVR.data.i3dmd.deviceType = IInput::VRDevices::HMD;
+					inputVR.data.i3dmd.velocity[0] = poseArray[index].vVelocity.v[0];
+					inputVR.data.i3dmd.velocity[1] = poseArray[index].vVelocity.v[1];
+					inputVR.data.i3dmd.velocity[2] = poseArray[index].vVelocity.v[2];
+					inputVR.data.i3dmd.angularVelocity[0] = poseArray[index].vAngularVelocity.v[0];
+					inputVR.data.i3dmd.angularVelocity[1] = poseArray[index].vAngularVelocity.v[1];
+					inputVR.data.i3dmd.angularVelocity[2] = poseArray[index].vAngularVelocity.v[2];
+					hmd34ToPosition(poseArray[index].mDeviceToAbsoluteTracking, temp);
+					inputVR.data.i3dmd.x = temp[0];
+					inputVR.data.i3dmd.y = temp[1];
+					inputVR.data.i3dmd.z = temp[2];
+					hmd34ToRotation(poseArray[index].mDeviceToAbsoluteTracking, temp);
+					inputVR.data.i3dmd.yaw = temp[0];
+					inputVR.data.i3dmd.pitch = temp[1];
+					inputVR.data.i3dmd.roll = temp[2];
+					hmd34ToRotationm(poseArray[index].mDeviceToAbsoluteTracking, inputVR.data.i3dmd.rotation);
+					//inputVR.data.i3dmd.rotation = std::copy(tempM);
+					n.push_back(std::move(inputVR));
+					break;
+				case vr::ETrackedDeviceClass::TrackedDeviceClass_Controller:
+					inputVR.timeStamp = clock.now();
+					inputVR.type = IInput::InputType::INPUT_3DMOVE;
+					inputVR.data.i3dmd.deviceIndex = index;
+					inputVR.data.i3dmd.deviceType = vrsys->GetControllerRoleForTrackedDeviceIndex(index) == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand ? IInput::VRDevices::CONTROLLER_LEFT : IInput::VRDevices::CONTROLLER_RIGHT;
+					inputVR.data.i3dmd.velocity[0] = poseArray[index].vVelocity.v[0];
+					inputVR.data.i3dmd.velocity[1] = poseArray[index].vVelocity.v[1];
+					inputVR.data.i3dmd.velocity[2] = poseArray[index].vVelocity.v[2];
+					inputVR.data.i3dmd.angularVelocity[0] = poseArray[index].vAngularVelocity.v[0];
+					inputVR.data.i3dmd.angularVelocity[1] = poseArray[index].vAngularVelocity.v[1];
+					inputVR.data.i3dmd.angularVelocity[2] = poseArray[index].vAngularVelocity.v[2];
+					hmd34ToPosition(poseArray[index].mDeviceToAbsoluteTracking, temp);
+					inputVR.data.i3dmd.x = temp[0];
+					inputVR.data.i3dmd.y = temp[1];
+					inputVR.data.i3dmd.z = temp[2];
+					hmd34ToRotation(poseArray[index].mDeviceToAbsoluteTracking, temp);
+					inputVR.data.i3dmd.yaw = temp[0];
+					inputVR.data.i3dmd.pitch = temp[1];
+					inputVR.data.i3dmd.roll = temp[2];
+					hmd34ToRotationm(poseArray[index].mDeviceToAbsoluteTracking, inputVR.data.i3dmd.rotation);
+
+					n.push_back(std::move(inputVR));
+
+					break;
+				case vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker:
+					inputVR.timeStamp = clock.now();
+					inputVR.type = IInput::InputType::INPUT_3DMOVE;
+					inputVR.data.i3dmd.deviceIndex = index;
+					inputVR.data.i3dmd.deviceType = IInput::VRDevices::HMD;
+					inputVR.data.i3dmd.velocity[0] = poseArray[index].vVelocity.v[0];
+					inputVR.data.i3dmd.velocity[1] = poseArray[index].vVelocity.v[1];
+					inputVR.data.i3dmd.velocity[2] = poseArray[index].vVelocity.v[2];
+					inputVR.data.i3dmd.angularVelocity[0] = poseArray[index].vAngularVelocity.v[0];
+					inputVR.data.i3dmd.angularVelocity[1] = poseArray[index].vAngularVelocity.v[1];
+					inputVR.data.i3dmd.angularVelocity[2] = poseArray[index].vAngularVelocity.v[2];
+					hmd34ToPosition(poseArray[index].mDeviceToAbsoluteTracking, temp);
+					inputVR.data.i3dmd.x = temp[0];
+					inputVR.data.i3dmd.y = temp[1];
+					inputVR.data.i3dmd.z = temp[2];
+					hmd34ToRotation(poseArray[index].mDeviceToAbsoluteTracking, temp);
+					inputVR.data.i3dmd.yaw = temp[1];
+					inputVR.data.i3dmd.pitch = temp[0];
+					inputVR.data.i3dmd.roll = temp[2];
+					hmd34ToRotationm(poseArray[index].mDeviceToAbsoluteTracking, inputVR.data.i3dmd.rotation);
+
+					n.push_back(std::move(inputVR));
+
+					break;
+				}
+				
+			}
+			
+		}
 	}
 	return n;//std::vector<IInput::Input>(startIt, inputd.end());
 }

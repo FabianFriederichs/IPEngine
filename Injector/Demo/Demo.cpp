@@ -25,15 +25,17 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			try{
 			delta = clock.now() - lastTick;
-			if (delta > std::chrono::milliseconds(500))
+			if (delta > std::chrono::milliseconds(200))
 			{
+				system("cls");
 				std::cout << delta.count() << std::endl;
-				auto memes = input->getInputBuffered(delta.count()/10000);
+				auto memes = input->getInputBuffered(delta.count()/10000, true);
 				std::time_t end_time;
 				for (auto m : memes)
 				{
 					end_time = std::chrono::high_resolution_clock::to_time_t(m.timeStamp);
-					std::cout << "Type: " << (int)m.type << " | TimeStamp: " << std::ctime(&end_time) << " | Data: " << m.data.md.x << " - " << m.data.md.y;
+					if (m.type == IInput::InputType::INPUT_3DMOVE)
+						std::cout << "Type: " << (int)m.type << " | TimeStamp: " << std::ctime(&end_time) << " | Index: "<<m.data.i3dmd.deviceIndex<<" | Data: " << m.data.i3dmd.yaw << " - " << m.data.i3dmd.pitch << " - " << m.data.i3dmd.roll <<std::endl;
 				}
 				lastTick = clock.now();
 			}

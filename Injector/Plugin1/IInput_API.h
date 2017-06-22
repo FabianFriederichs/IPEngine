@@ -360,6 +360,16 @@ namespace IInput
 																																																																										 SCANCODE_MOUSEBUTTON5,
 																																																																										 SCANCODE_MOUSEBUTTON6,
 																																																																										 SCANCODE_MOUSEBUTTON7,
+																																																																										 SCANCODE_VRBUTTON_SYSTEM,
+																																																																										 SCANCODE_VRBUTTON_MENU,
+																																																																										 SCANCODE_VRBUTTON_GRIP,
+																																																																										 SCANCODE_VRBUTTON_AXIS0,
+																																																																										 SCANCODE_VRBUTTON_AXIS1,
+																																																																										 SCANCODE_VRBUTTON_AXIS2,
+																																																																										 SCANCODE_VRBUTTON_AXIS3,
+																																																																										 SCANCODE_VRBUTTON_AXIS4,
+																																																																										 SCANCODE_VRBUTTON_TOUCHPAD,
+																																																																										 SCANCODE_VRBUTTON_TRIGGER,
 																																																																										 /* @} *//* Walther keys */
 
 																																																																										 /* Add any other keys here. */
@@ -394,7 +404,17 @@ namespace IInput
 	enum class ButtonState
 	{
 		BUTTON_UP,
-		BUTTON_DOWN
+		BUTTON_DOWN,
+		TOUCH,
+		UNTOUCH
+	};
+
+	enum class VRDevices
+	{
+		HMD,
+		CONTROLLER_LEFT,
+		CONTROLLER_RIGHT,
+		GENERICTRACKER
 	};
 
 	struct keydata
@@ -402,6 +422,7 @@ namespace IInput
 		Scancode keycode;
 		int modifiers;
 		ButtonState state;
+		int deviceIndex;
 	};
 
 	struct mousedata
@@ -412,7 +433,12 @@ namespace IInput
 	struct i3dmovedata
 	{
 		//transformdata
-		float x, y, z, sx, sy, sz, rx, ry, rz;
+		float x, y, z, pitch, yaw, roll; //don't use pitch, yaw, roll rn
+		float rotation[3][3]; //row major - that's like glm right?
+		float velocity[3];
+		float angularVelocity[3];
+		VRDevices deviceType;
+		int deviceIndex;
 	};
 
 	union InputData
@@ -437,5 +463,5 @@ class IInput_API : public IModule_API
 public:
 	
 	//virtual void printStuffToSomething(std::string) = 0;
-	virtual const std::vector<IInput::Input> getInputBuffered(int millisecondsIntoThePast) = 0;
+	virtual const std::vector<IInput::Input> getInputBuffered(int millisecondsIntoThePast, bool vrpositions = false) = 0;
 };
