@@ -13,7 +13,7 @@
 #include <chrono>
 #include <thread>
 #include <mutex>
-#include "openvr.h"
+#include "IBasicOpenVRModule_API.h"
 #include <math.h>
 // This class is exported from the Plugin1.dll
 class InputModule : public IInput_API {
@@ -34,8 +34,9 @@ private:
 	bool isManipulating = false;
 	std::mutex mymutex;
 	void pollData();
-	vr::IVRSystem* vrsys;
-	vr::IVRCompositor* vrcomp;
+	boost::shared_ptr<vr::IVRSystem> vrsys;
+	bool isVRconnected = false;
+	boost::shared_ptr<IBasicOpenVRModule_API> openvr;
 	vr::TrackedDevicePose_t lastposes[vr::k_unMaxTrackedDeviceCount];
 	void hmd34ToPosition(const vr::HmdMatrix34_t& matrix, float position[3])
 	{

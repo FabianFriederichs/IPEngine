@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VRGraphicsModule", "VRGraph
 		{44C14CF2-2BD7-4AE7-A273-940988848344} = {44C14CF2-2BD7-4AE7-A273-940988848344}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BasicOpenVRModule", "BasicOpenVRModule\BasicOpenVRModule.vcxproj", "{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -93,6 +95,18 @@ Global
 		{F0AB9D35-E271-40A1-B6B4-A9EE5EA55BD9}.Release|Win32.Build.0 = Release|Win32
 		{F0AB9D35-E271-40A1-B6B4-A9EE5EA55BD9}.Release|x64.ActiveCfg = Release|x64
 		{F0AB9D35-E271-40A1-B6B4-A9EE5EA55BD9}.Release|x64.Build.0 = Release|x64
+		{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}.Debug|Win32.Build.0 = Debug|Win32
+		{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}.Debug|x64.ActiveCfg = Debug|x64
+		{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}.Debug|x64.Build.0 = Debug|x64
+		{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}.Release|Win32.ActiveCfg = Release|Win32
+		{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}.Release|Win32.Build.0 = Release|Win32
+		{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}.Release|x64.ActiveCfg = Release|x64
+		{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

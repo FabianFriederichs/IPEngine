@@ -24,13 +24,14 @@ InputModule::InputModule()
 
 bool InputModule::startUp()
 {
-	vr::EVRInitError vrerr;
-	vrsys = vr::VR_Init(&vrerr, vr::EVRApplicationType::VRApplication_Scene);
-	vrcomp = vr::VRCompositor();
-	if (!vrcomp) {
-		fprintf(stderr, "OpenVR Compositor initialization failed. See log file for details\n");
-		vr::VR_Shutdown();
-		return false;
+	if (m_info.dependencies.exists("openvr"))
+	{
+		openvr = m_info.dependencies.getDep<IBasicOpenVRModule_API>("openvr");
+		if (openvr->isConnected())
+		{
+			vrsys = openvr->getSystem();
+			isVRconnected = true;
+		}
 	}
 	memes = std::thread([this]()->void{while (1){ pollData(); }});
 	return true;
@@ -115,83 +116,86 @@ void InputModule::pollData()
 	}
 
 	//Poll VR positions and add as event
-	vr::VREvent_t vreve;
-	while (vrsys->PollNextEvent(&vreve, sizeof(vr::VREvent_t)))
+	if (isVRconnected)
 	{
-		IInput::Input i;
-		switch (vreve.eventType)
+		vr::VREvent_t vreve;
+		while (vrsys->PollNextEvent(&vreve, sizeof(vr::VREvent_t)))
 		{
-		case vr::VREvent_ButtonPress:
-			i.type = IInput::InputType::INPUT_KEY;
-			i.timeStamp = clock.now();// -std::chrono::seconds(vreve.eventAgeSeconds);
-			i.data.kd.state = IInput::ButtonState::BUTTON_DOWN;
-			i.data.kd.deviceIndex = vreve.trackedDeviceIndex;
-			switch (vreve.data.controller.button)
+			IInput::Input i;
+			switch (vreve.eventType)
 			{
-			case vr::EVRButtonId::k_EButton_ApplicationMenu:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_MENU;
+			case vr::VREvent_ButtonPress:
+				i.type = IInput::InputType::INPUT_KEY;
+				i.timeStamp = clock.now();// -std::chrono::seconds(vreve.eventAgeSeconds);
+				i.data.kd.state = IInput::ButtonState::BUTTON_DOWN;
+				i.data.kd.deviceIndex = vreve.trackedDeviceIndex;
+				switch (vreve.data.controller.button)
+				{
+				case vr::EVRButtonId::k_EButton_ApplicationMenu:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_MENU;
+					break;
+				case vr::EVRButtonId::k_EButton_System:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_SYSTEM;
+					break;
+				case vr::EVRButtonId::k_EButton_Grip:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_GRIP;
+					break;
+				case vr::EVRButtonId::k_EButton_SteamVR_Touchpad:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TOUCHPAD;
+					break;
+				case vr::EVRButtonId::k_EButton_SteamVR_Trigger:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TRIGGER;
+					break;
+				case vr::EVRButtonId::k_EButton_Axis2:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS2;
+					break;
+				case vr::EVRButtonId::k_EButton_Axis3:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS3;
+					break;
+				case vr::EVRButtonId::k_EButton_Axis4:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS4;
+					break;
+				}
 				break;
-			case vr::EVRButtonId::k_EButton_System:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_SYSTEM;
-				break;
-			case vr::EVRButtonId::k_EButton_Grip:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_GRIP;
-				break;
-			case vr::EVRButtonId::k_EButton_SteamVR_Touchpad:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TOUCHPAD;
-				break;
-			case vr::EVRButtonId::k_EButton_SteamVR_Trigger:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TRIGGER;
-				break;
-			case vr::EVRButtonId::k_EButton_Axis2:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS2;
-				break;
-			case vr::EVRButtonId::k_EButton_Axis3:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS3;
-				break;
-			case vr::EVRButtonId::k_EButton_Axis4:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS4;
-				break;
-			}
-			break;
-		case vr::VREvent_ButtonUnpress:
-			i.type = IInput::InputType::INPUT_KEY;
-			i.timeStamp = clock.now();// -std::chrono::seconds(vreve.eventAgeSeconds);
-			i.data.kd.state = IInput::ButtonState::BUTTON_UP;
-			i.data.kd.deviceIndex = vreve.trackedDeviceIndex;
+			case vr::VREvent_ButtonUnpress:
+				i.type = IInput::InputType::INPUT_KEY;
+				i.timeStamp = clock.now();// -std::chrono::seconds(vreve.eventAgeSeconds);
+				i.data.kd.state = IInput::ButtonState::BUTTON_UP;
+				i.data.kd.deviceIndex = vreve.trackedDeviceIndex;
 
-			switch (vreve.data.controller.button)
-			{
-			case vr::EVRButtonId::k_EButton_ApplicationMenu:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_MENU;
+				switch (vreve.data.controller.button)
+				{
+				case vr::EVRButtonId::k_EButton_ApplicationMenu:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_MENU;
+					break;
+				case vr::EVRButtonId::k_EButton_System:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_SYSTEM;
+					break;
+				case vr::EVRButtonId::k_EButton_Grip:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_GRIP;
+					break;
+				case vr::EVRButtonId::k_EButton_SteamVR_Touchpad:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TOUCHPAD;
+					break;
+				case vr::EVRButtonId::k_EButton_SteamVR_Trigger:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TRIGGER;
+					break;
+				case vr::EVRButtonId::k_EButton_Axis2:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS2;
+					break;
+				case vr::EVRButtonId::k_EButton_Axis3:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS3;
+					break;
+				case vr::EVRButtonId::k_EButton_Axis4:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS4;
+					break;
+				}
 				break;
-			case vr::EVRButtonId::k_EButton_System:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_SYSTEM;
+			case vr::VREvent_ButtonTouch:
 				break;
-			case vr::EVRButtonId::k_EButton_Grip:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_GRIP;
-				break;
-			case vr::EVRButtonId::k_EButton_SteamVR_Touchpad:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TOUCHPAD;
-				break;
-			case vr::EVRButtonId::k_EButton_SteamVR_Trigger:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TRIGGER;
-				break;
-			case vr::EVRButtonId::k_EButton_Axis2:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS2;
-				break;
-			case vr::EVRButtonId::k_EButton_Axis3:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS3;
-				break;
-			case vr::EVRButtonId::k_EButton_Axis4:
-				i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS4;
+			case vr::VREvent_ButtonUntouch:
 				break;
 			}
-			break;
-		case vr::VREvent_ButtonTouch:
-			break;
-		case vr::VREvent_ButtonUntouch:
-			break;
 		}
 	}
 
@@ -264,7 +268,7 @@ const std::vector<IInput::Input> InputModule::getInputBuffered(int millisecondsI
 	}
 
 	//add VR position data to the end
-	if (vrpositions)
+	if (isVRconnected && vrpositions)
 	{
 		IInput::Input inputVR;
 		vr::TrackedDevicePose_t poseArray[vr::k_unMaxTrackedDeviceCount];
