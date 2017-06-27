@@ -27,6 +27,7 @@
 <DependencyGraph>
   <Modules>
     <Module>
+      <ignore>true</ignore>
       <identifier>BasicOpenVRModule</identifier>
     </Module>
     <Module>
@@ -36,8 +37,9 @@
       <identifier>InputModule</identifier>
       <dependencies>
         <dependency>
+          <inject>false</inject>
           <identifier>openvr</identifier>
-          <depID>BasicOpenVRModule</depID>
+          <moduleID>BasicOpenVRModule</moduleID>
         </dependency>
       </dependencies>
     </Module>

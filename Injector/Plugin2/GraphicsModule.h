@@ -7,12 +7,11 @@
 
 #include <boost/config.hpp>
 #include "IGraphics_API.h"
-#include <glm/glm.hpp>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <memory>
+#include "libheaders.h"
 //#define GLEW_STATIC
-#include <GL\glew.h>
 // This class is exported from the Plugin2.dll
 class GraphicsModule : public IGraphics_API {
 public:

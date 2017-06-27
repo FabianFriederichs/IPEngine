@@ -13,6 +13,7 @@ namespace  DGStuff
 	struct Module
 	{
 		std::map<std::string, Module*> dependencies;
+		std::map<std::string, bool> dontInject;
 		std::vector<ExtensionPoint> extensions;
 		std::string identifier;
 		std::string iname;

@@ -142,12 +142,19 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="glerror.h" />
     <ClInclude Include="GraphicsModule.h" />
     <ClInclude Include="IGraphics_API.h" />
+    <ClInclude Include="libheaders.h" />
+    <ClInclude Include="OBJLoader.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\glew\src\glew.c" />
+    <ClCompile Include="glerror.cpp" />
     <ClCompile Include="GraphicsModule.cpp" />
+    <ClCompile Include="OBJLoader.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

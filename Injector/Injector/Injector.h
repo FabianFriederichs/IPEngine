@@ -49,6 +49,8 @@ private:
 		for (auto node : tree->get_child("DependencyGraph.Modules"))
 		{
 			DGStuff::Module tempModule;
+			if (node.second.get("ignore", false))
+				continue;
 			tempModule.identifier = node.second.get<std::string>("identifier");
 			if (tempModule.identifier.find("\n") != std::string::npos)
 				return false;
@@ -65,7 +67,8 @@ private:
 		std::vector<std::string> nonRootIds;
 		for (auto node : tree->get_child("DependencyGraph.Modules"))
 		{
-			
+			if (node.second.get("ignore", false))
+				continue;
 			if (node.second.to_iterator(node.second.find("dependencies"))!=node.second.end() && node.second.get_child("dependencies").count("dependency") > 0)
 			{
 				std::string id = node.second.get<std::string>("identifier");
@@ -73,20 +76,29 @@ private:
 				dgRoots.push_back(module);               
 				for (auto dependencyNode : node.second.get_child("dependencies"))
 				{
-					std::string idD = dependencyNode.second.get<std::string>("depID");
+					bool inject = dependencyNode.second.get("inject", true);
+					
+					std::string idD = dependencyNode.second.get<std::string>("moduleID");
 					auto memes = std::find_if(tModules->begin(), tModules->end(), [idD](DGStuff::Module v)->bool{return v.identifier == idD; });//getModuleByIdentifier(&tModules, idD);
-					if (memes == tModules->end())
+					if (inject && memes == tModules->end())
 					{
 						return false; //If module is not found
 					}
 					nonRootIds.push_back(idD);
-					module->dependencies[dependencyNode.second.get<std::string>("identifier")] = &*memes;
-					 
-					//dgRoots.remove_if([memes](DGStuff::Module* v)->bool{return v == memes; })
-					//Optional. Only removes those modules from dgRoots that have already been handled. 
-					if (std::find(dgRoots.begin(), dgRoots.end(), &*memes) != dgRoots.end())
+					std::string depIdent = dependencyNode.second.get<std::string>("identifier");
+					module->dontInject[depIdent] = inject;
+					if (memes == tModules->end())
+						module->dependencies[depIdent] = nullptr;
+					else
 					{
-						dgRoots.remove(&*memes);
+						module->dependencies[depIdent] = &*memes;
+
+						//dgRoots.remove_if([memes](DGStuff::Module* v)->bool{return v == memes; })
+						//Optional. Only removes those modules from dgRoots that have already been handled. 
+						if (std::find(dgRoots.begin(), dgRoots.end(), &*memes) != dgRoots.end())
+						{
+							dgRoots.remove(&*memes);
+						}
 					}
 				}
 			}
@@ -101,7 +113,7 @@ private:
 			}
 			
 		}
-		depgraph.getModules()->front().iname = "test"; //i'm too retarded for pointers 
+//		depgraph.getModules()->front().iname = "test"; //i'm too retarded for pointers 
 		return true;
 	};
 
@@ -234,8 +246,11 @@ public:
 			toProcess.pop();
 			for (auto modnode : m->dependencies)
 			{
-				toProcess.push(modnode.second);
-				injectOrderList.push_back(modnode.second);
+				if (modnode.second != nullptr)
+				{
+					toProcess.push(modnode.second);
+					injectOrderList.push_back(modnode.second);
+				}
 			}
 		}
 		injectOrderList.reverse();
@@ -248,7 +263,8 @@ public:
 				auto info = loadedModules[modnode->identifier]->getModuleInfo();
 				for (auto mn : modnode->dependencies)
 				{ 
-					info->dependencies.assignDependency(mn.first, loadedModules[mn.second->identifier]);
+					if (modnode->dontInject.at(mn.first))
+						info->dependencies.assignDependency(mn.first, loadedModules[mn.second->identifier]);
 				}
 			}
 			loadedModules[modnode->identifier]->startUp();

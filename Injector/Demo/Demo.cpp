@@ -34,8 +34,8 @@ int _tmain(int argc, _TCHAR* argv[])
 				for (auto m : memes)
 				{
 					end_time = std::chrono::high_resolution_clock::to_time_t(m.timeStamp);
-					if (m.type == IInput::InputType::INPUT_3DMOVE)
-						std::cout << "Type: " << (int)m.type << " | TimeStamp: " << std::ctime(&end_time) << " | Index: "<<m.data.i3dmd.deviceIndex<<" | Data: " << m.data.i3dmd.yaw << " - " << m.data.i3dmd.pitch << " - " << m.data.i3dmd.roll <<std::endl;
+					if (m.type == IInput::InputType::INPUT_KEY)
+						std::cout << "Type: " << (int)m.type << " | TimeStamp: " << std::ctime(&end_time) << " | Data: " << m.data.kd.keycode << std::endl;// " | Data: " << m.data.i3dmd.yaw << " - " << m.data.i3dmd.pitch << " - " << m.data.i3dmd.roll << std::endl;
 				}
 				lastTick = clock.now();
 			}
