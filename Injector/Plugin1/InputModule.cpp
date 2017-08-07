@@ -273,6 +273,15 @@ const std::vector<IInput::Input> InputModule::getInputBuffered(int millisecondsI
 		IInput::Input inputVR;
 		vr::TrackedDevicePose_t poseArray[vr::k_unMaxTrackedDeviceCount];
 		uint32_t count = vr::k_unMaxTrackedDeviceCount;
+		if (!vrsys->IsTrackedDeviceConnected(vr::k_unTrackedDeviceIndex_Hmd))
+		{
+			IInput::Input inputDC;
+			inputDC.timeStamp = clock.now();
+			inputDC.type = IInput::InputType::INPUT_DEVICE_DISCONNECTED;
+			inputDC.data.i3dmd.deviceIndex = vr::k_unTrackedDeviceIndex_Hmd;
+			inputDC.data.i3dmd.deviceType = IInput::VRDevices::HMD;
+			n.push_back(inputDC);
+		}
 		vrsys->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseOrigin::TrackingUniverseStanding, 0, poseArray, count);
 		for (int index = 0; index < vr::k_unMaxTrackedDeviceCount; ++index)
 		{

@@ -395,6 +395,7 @@ namespace IInput
 	} Keymods;
 	enum class InputType
 	{
+		INPUT_DEVICE_DISCONNECTED,
 		INPUT_MOUSEMOVE,
 		INPUT_MOUSESCROLL,
 		INPUT_KEY,
