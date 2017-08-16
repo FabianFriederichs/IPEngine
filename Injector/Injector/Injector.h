@@ -191,11 +191,19 @@ public:
 			//load modules from the found library paths. Append or Replace current list? Probably append
 		for (auto path : dlibFilePaths)
 		{
-			boost::dll::shared_library lib(path, boost::dll::load_mode::default_mode);
-			if (!lib.has("module"))
-				continue;
-			//boost::shared_ptr<IModule_API> meme = lib.get<boost::shared_ptr<IModule_API>>("module");
-			loadedModules[path.filename().stem().generic_string()] = boost::dll::import<IModule_API>(path, "module", boost::dll::load_mode::default_mode);// lib.get<boost::shared_ptr<IModule_API>>("module"); //boost::dll::import_alias<IModule_API>(boost::move(lib), "module");
+			try{
+				boost::dll::shared_library lib(path, boost::dll::load_mode::default_mode);
+				if (!lib.has("module"))
+					continue;
+				//bo
+				boost::shared_ptr<IModule_API> meme = lib.get<boost::shared_ptr<IModule_API>>("module");
+				loadedModules[path.filename().stem().generic_string()] = boost::dll::import<IModule_API>(path, "module", boost::dll::load_mode::default_mode);// lib.get<boost::shared_ptr<IModule_API>>("module"); //boost::dll::import_alias<IModule_API>(boost::move(lib), "module");
+
+			}
+			catch (std::exception ex)
+			{
+				//do stuff
+			}
 			//loadedModules[path.filename().stem().generic_string()] = boost::dll::import<IModule_API>(path,"module", boost::dll::load_mode::default_mode);
 		}
 

@@ -23,6 +23,7 @@ bool BasicOpenVRModule::initVR()
 		vr::VR_Shutdown();
 		return false;
 	}
+	return true;
 }
 
 bool BasicOpenVRModule::startUp()
