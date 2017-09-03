@@ -453,7 +453,7 @@ namespace IInput
 	{
 		InputType type;
 		InputData data;
-		std::chrono::high_resolution_clock::time_point timeStamp;
+		std::chrono::system_clock::time_point timeStamp;
 	};
 }
 

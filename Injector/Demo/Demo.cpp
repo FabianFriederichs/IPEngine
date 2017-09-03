@@ -18,9 +18,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	//IInput_API input = dynamic_cast<IInput_API>(mods["InputModule"]);
 	
 	std::thread meme([input]()->void{
-		std::chrono::high_resolution_clock clock;
-		std::chrono::high_resolution_clock::duration delta;
-		std::chrono::high_resolution_clock::time_point lastTick;
+		std::chrono::system_clock clock;
+		std::chrono::system_clock::duration delta;
+		std::chrono::system_clock::time_point lastTick;
 		while (1)
 		{
 			try{
@@ -33,7 +33,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				std::time_t end_time;
 				for (auto m : memes)
 				{
-					end_time = std::chrono::high_resolution_clock::to_time_t(m.timeStamp);
+					end_time = std::chrono::system_clock::to_time_t(m.timeStamp);
 					if (m.type == IInput::InputType::INPUT_DEVICE_DISCONNECTED)
 						std::cout << "Type: " << (int)m.type << " | TimeStamp: " << std::ctime(&end_time) << " | Data: " << m.data.kd.keycode << std::endl;// " | Data: " << m.data.i3dmd.yaw << " - " << m.data.i3dmd.pitch << " - " << m.data.i3dmd.roll << std::endl;
 				}

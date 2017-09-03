@@ -28,8 +28,8 @@ private:
 	ModuleInformation m_info;
 	SDL_Window* window;
 	std::thread memes;
-	std::chrono::high_resolution_clock::duration timeToRetainInput = std::chrono::milliseconds(2000);
-	std::chrono::high_resolution_clock clock;
+	std::chrono::system_clock::duration timeToRetainInput = std::chrono::milliseconds(2000);
+	std::chrono::system_clock clock;
 	std::multimap<time_t, IInput::Input> inputData;
 	bool isManipulating = false;
 	std::mutex mymutex;

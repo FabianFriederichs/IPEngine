@@ -67,35 +67,36 @@ void InputModule::pollData()
 			//event.key.keysym
 			//if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) stillRunning = false;
 			//if (event.key.keysym.scancode == SDL_SCANCODE_1) OutputDebugString(std::wstring(L"memes").c_str());
-			tempInput.insert({ std::chrono::high_resolution_clock::to_time_t(i.timeStamp), i });
+			tempInput.insert({ std::chrono::system_clock::to_time_t(i.timeStamp), i });
+
 			//inputData.push_back(std::move(i));
 			break;
 		case SDL_KEYDOWN:
 			i.timeStamp = clock.now();
 			i.type = IInput::InputType::INPUT_KEY;
 			i.data.kd = IInput::keydata{ (IInput::Scancode)((uint16_t)event.key.keysym.scancode), event.key.keysym.mod, IInput::ButtonState::BUTTON_DOWN };
-			tempInput.insert({ std::chrono::high_resolution_clock::to_time_t(i.timeStamp), i });
+			tempInput.insert({ std::chrono::system_clock::to_time_t(i.timeStamp), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			i.timeStamp = clock.now();
 			i.type = IInput::InputType::INPUT_KEY;
 			i.data.kd = IInput::keydata{ (IInput::Scancode)((uint16_t)std::min<Uint8>(6, event.button.button) + (uint16_t)IInput::Scancode::SCANCODE_MOUSEBUTTON1), event.key.keysym.mod, IInput::ButtonState::BUTTON_DOWN };
-			tempInput.insert({ std::chrono::high_resolution_clock::to_time_t(i.timeStamp), i });
+			tempInput.insert({ std::chrono::system_clock::to_time_t(i.timeStamp), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		case SDL_MOUSEBUTTONUP:
 			i.timeStamp = clock.now();
 			i.type = IInput::InputType::INPUT_KEY;
 			i.data.kd = IInput::keydata{ (IInput::Scancode)((uint16_t)std::min<Uint8>(6, event.button.button) + (uint16_t)IInput::Scancode::SCANCODE_MOUSEBUTTON1), event.key.keysym.mod, IInput::ButtonState::BUTTON_UP };
-			tempInput.insert({ std::chrono::high_resolution_clock::to_time_t(i.timeStamp), i });
+			tempInput.insert({ std::chrono::system_clock::to_time_t(i.timeStamp), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		case SDL_MOUSEWHEEL:
 			i.timeStamp = clock.now();
 			i.type = IInput::InputType::INPUT_MOUSESCROLL;
 			i.data.md.y = event.wheel.y;
-			tempInput.insert({ std::chrono::high_resolution_clock::to_time_t(i.timeStamp), i });
+			tempInput.insert({ std::chrono::system_clock::to_time_t(i.timeStamp), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		case SDL_MOUSEMOTION:
@@ -105,7 +106,7 @@ void InputModule::pollData()
 			i.type = IInput::InputType::INPUT_MOUSEMOVE;
 			i.data.md.y = event.motion.y;
 			i.data.md.x = event.motion.x;
-			tempInput.insert({ std::chrono::high_resolution_clock::to_time_t(i.timeStamp), i });
+			tempInput.insert({ std::chrono::system_clock::to_time_t(i.timeStamp), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		default:
