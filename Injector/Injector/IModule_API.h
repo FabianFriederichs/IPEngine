@@ -69,7 +69,7 @@ public:
 	//Returns true if dependencyID exists as a key
 	bool exists(std::string dependencyID)
 	{
-		return dependencies.lower_bound(dependencyID) != dependencies.end();
+		return dependencies.find(dependencyID) != dependencies.end();
 	}
 };
 

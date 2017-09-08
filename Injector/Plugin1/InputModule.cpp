@@ -33,8 +33,15 @@ bool InputModule::startUp()
 			isVRconnected = true;
 		}
 	}
-	memes = std::thread([this]()->void{while (1){ pollData(); }});
+	//memes = std::thread([this]()->void{while (1){ pollData(); }});
+	
+	int subid = m_info.dependencies.getDep<IScheduler_API>("scheduler")->subscribe(TaskFunction::make_func<InputModule, &InputModule::pollDataC>(this), 0, Scheduler::SubType::Frame, 1);
 	return true;
+}
+
+void InputModule::pollDataC(TaskContext& c)
+{
+	pollData();
 }
 
 void InputModule::pollData()

@@ -196,7 +196,7 @@ public:
 				if (!lib.has("module"))
 					continue;
 				//bo
-				boost::shared_ptr<IModule_API> meme = lib.get<boost::shared_ptr<IModule_API>>("module");
+				//boost::shared_ptr<IModule_API> meme = lib.get<boost::shared_ptr<IModule_API>>("module");
 				loadedModules[path.filename().stem().generic_string()] = boost::dll::import<IModule_API>(path, "module", boost::dll::load_mode::default_mode);// lib.get<boost::shared_ptr<IModule_API>>("module"); //boost::dll::import_alias<IModule_API>(boost::move(lib), "module");
 
 			}
