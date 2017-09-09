@@ -269,6 +269,7 @@ public:
 			if (!modnode->dependencies.empty())
 			{
 				auto info = loadedModules[modnode->identifier]->getModuleInfo();
+				assert(info->dependencies.size() == 0);
 				for (auto mn : modnode->dependencies)
 				{ 
 					if (modnode->dontInject.at(mn.first))

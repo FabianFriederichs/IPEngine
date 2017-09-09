@@ -3,8 +3,10 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <boost\smart_ptr.hpp>
 #include <bitset>
+#include <iostream>
 
 namespace DependencyFlags{
 	enum DependencyFlag : size_t
@@ -20,9 +22,9 @@ class DependencyContainer
 {
 private:
 	using depPair = std::pair<boost::shared_ptr<IModule_API>, std::bitset<2>>;
-	std::map<std::string, depPair> dependencies;
+	std::unordered_map<std::string, depPair> dependencies;
 public:
-	DependencyContainer(){};
+	DependencyContainer():dependencies(){}
 
 	//Copied from std::map
 	//template<typename T>
@@ -38,10 +40,15 @@ public:
 	//	return (dynamic_cast<T>(_Where->second));
 	//};
 
+	size_t size()
+	{
+		return dependencies.size();
+	}
 	
 
 	void assignDependency(const std::string dependencyID, boost::shared_ptr<IModule_API> module, std::bitset<2> flags = 0)
 	{
+		assert(size() == 0);
 		if (!exists(dependencyID))
 		{
 			dependencies[dependencyID] = { module, flags };
@@ -69,7 +76,9 @@ public:
 	//Returns true if dependencyID exists as a key
 	bool exists(std::string dependencyID)
 	{
-		return dependencies.find(dependencyID) != dependencies.end();
+		assert(size() == 0);
+
+		return dependencies.lower_bound(dependencyID) != dependencies.end();
 	}
 };
 
