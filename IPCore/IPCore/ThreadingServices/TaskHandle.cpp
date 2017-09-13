@@ -1,0 +1,128 @@
+#include "TaskHandle.h"
+
+//TODO: error checking here
+
+TaskHandle::TaskHandle() :
+	m_task(nullptr),
+	m_pool(nullptr)
+{
+}
+
+TaskHandle::TaskHandle(Task * task, ThreadPool* pool) :
+	m_task(task),
+	m_pool(pool),
+	m_isinpool(false)
+{
+	//m_pool->use(m_task);
+}
+
+TaskHandle::TaskHandle(const TaskHandle & _other)
+{
+	if (this == &_other)
+		return;
+	if (_other.isValid())
+	{
+		_other.m_pool->use(_other.m_task);
+		m_task = _other.m_task;
+		m_pool = _other.m_pool;
+		m_isinpool = _other.m_isinpool;
+	}
+	else
+	{
+		m_task = nullptr;
+		m_pool = nullptr;
+		m_isinpool = false;
+	}
+}
+
+TaskHandle::TaskHandle(TaskHandle && _other)
+{
+	if (this == &_other)
+		return;
+	if (_other.isValid())
+	{
+		m_task = _other.m_task;
+		m_pool = _other.m_pool;
+		m_isinpool = _other.m_isinpool;
+		_other.m_pool = nullptr;
+		_other.m_task = nullptr;
+		_other.m_isinpool = false;
+	}
+	else
+	{
+		m_task = nullptr;
+		m_pool = nullptr;
+		m_isinpool = false;
+	}
+}
+
+TaskHandle::~TaskHandle()
+{
+	if (isValid())
+	{
+		m_pool->release(m_task);
+		m_task = nullptr;
+	}
+}
+
+
+//we'll need a reference to a threadpool. cyclic dependency. outch
+bool TaskHandle::wait(TaskContext* tcptr)
+{
+	if (isValid() && m_isinpool)
+	{
+		m_pool->wait(*this, tcptr);
+		m_isinpool = false;
+		return true;
+	}
+	return false;
+}
+
+bool TaskHandle::wait_recycle(TaskContext * tcptr)
+{
+	if (isValid() && m_isinpool)
+	{
+		m_pool->wait(*this, tcptr);
+		m_isinpool = false;
+		m_pool->recycle(m_task);	//reset unifnished count to 1. Now the task can be thrown into the pool again.
+		return true;
+	}
+	return false;
+}
+
+bool TaskHandle::addChild(TaskHandle & child)
+{
+	if (isValid())
+	{
+		return m_pool->addChild(*this, child);
+	}
+	return false;
+}
+
+bool TaskHandle::spawn(TaskContext* tcptr)
+{
+	if (isValid() && !m_isinpool)
+	{
+		if (m_pool->spawn(*this, tcptr))
+		{
+			m_isinpool = true;
+			return true;
+		}
+	}
+	m_isinpool = false;
+	return false;
+}
+
+bool TaskHandle::submit()
+{
+	if (isValid() && !m_isinpool)
+	{
+		if (m_pool->submit(*this))
+		{
+			m_isinpool = true;
+			return true;
+		}
+	}
+	m_isinpool = false;
+	return false;
+}
