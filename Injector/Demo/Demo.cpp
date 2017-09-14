@@ -27,7 +27,7 @@ void WriteInputs(TaskContext& c)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	Injector inj("XMLFile.xml", "../Debug");
+	Injector inj("XMLFile.xml", "../Release");
 	inj.LoadModules();
 	auto mods = inj.getLoadedModules();
 	input = boost::dynamic_pointer_cast<IInput_API>(mods["InputModule"]);
