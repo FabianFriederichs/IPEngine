@@ -1,7 +1,8 @@
-#include "ICore.h"
+#include <Core/ICore.h>
 
 ipengine::Core::Core() :
-	cmodule_console(std::cout)
+	cmodule_console(std::cout),
+	cmodule_threadingservices(std::thread::hardware_concurrency() - 1)
 {
 }
 
@@ -19,7 +20,7 @@ void ipengine::Core::shutdown()
 
 }
 
-Scheduler & ipengine::Core::getScheduler()
+ipengine::Scheduler & ipengine::Core::getScheduler()
 {
 	return cmodule_scheduler;
 }
@@ -30,7 +31,7 @@ ipengine::Console & ipengine::Core::getConsole()
 	return cmodule_console;
 }
 
-ThreadPool & ipengine::Core::getThreadPool()
+ipengine::ThreadPool & ipengine::Core::getThreadPool()
 {
 	return cmodule_threadingservices;
 }

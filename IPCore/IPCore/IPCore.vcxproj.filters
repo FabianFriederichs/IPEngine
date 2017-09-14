@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Quelldateien">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Headerdateien">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="Ressourcendateien">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -25,17 +17,17 @@
     <Filter Include="Util">
       <UniqueIdentifier>{a91a131a-5739-4e9f-8640-a2892a2901bc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Memory">
+    <Filter Include="Core">
+      <UniqueIdentifier>{4ef826e0-1efe-46de-b6e2-fdcdd91fc7c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PAL">
+      <UniqueIdentifier>{1676bbed-1288-4bf7-87e5-08c8f215cc65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CoreModules\Memory">
       <UniqueIdentifier>{35cb887e-fd63-42dc-8e66-373d00daf573}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ICore.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="PAL.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="ThreadingServices\Task.h">
       <Filter>CoreModules\ThreadingServices</Filter>
     </ClInclude>
@@ -51,17 +43,11 @@
     <ClInclude Include="ThreadingServices\ThreadPool.h">
       <Filter>CoreModules\ThreadingServices</Filter>
     </ClInclude>
-    <ClInclude Include="core_config.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadingServices\Scheduler.h">
-      <Filter>CoreModules\RuntimeControl</Filter>
-    </ClInclude>
     <ClInclude Include="RuntimeControl\Console.h">
       <Filter>CoreModules\RuntimeControl</Filter>
     </ClInclude>
     <ClInclude Include="Memory\allocators.h">
-      <Filter>Memory</Filter>
+      <Filter>CoreModules\Memory</Filter>
     </ClInclude>
     <ClInclude Include="Util\function.h">
       <Filter>Util</Filter>
@@ -87,6 +73,16 @@
     <ClInclude Include="Util\stack.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="core_config.h" />
+    <ClInclude Include="Core\ICore.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="PAL\PAL.h">
+      <Filter>PAL</Filter>
+    </ClInclude>
+    <ClInclude Include="RuntimeControl\Scheduler.h">
+      <Filter>CoreModules\RuntimeControl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThreadingServices\TaskHandle.cpp">
@@ -95,13 +91,13 @@
     <ClCompile Include="ThreadingServices\ThreadPool.cpp">
       <Filter>CoreModules\ThreadingServices</Filter>
     </ClCompile>
-    <ClCompile Include="ICore.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="ThreadingServices\Scheduler.cpp">
+    <ClCompile Include="RuntimeControl\Console.cpp">
       <Filter>CoreModules\RuntimeControl</Filter>
     </ClCompile>
-    <ClCompile Include="RuntimeControl\Console.cpp">
+    <ClCompile Include="Core\ICore.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="RuntimeControl\Scheduler.cpp">
       <Filter>CoreModules\RuntimeControl</Filter>
     </ClCompile>
   </ItemGroup>

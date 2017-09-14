@@ -1,16 +1,16 @@
-#include "Scheduler.h"
+#include <RuntimeControl/Scheduler.h>
 
 // class scheduler -----------------------------------------------------------
 
 // private methods
-Scheduler::Scheduler() :
+ipengine::Scheduler::Scheduler() :
 	m_idgen(0),
 	m_subscriptions()
 {
 }
 
 
-Scheduler::~Scheduler()
+ipengine::Scheduler::~Scheduler()
 {
 	for (auto s : m_subscriptions)
 	{
@@ -19,21 +19,21 @@ Scheduler::~Scheduler()
 }
 
 
-bool Scheduler::unsubscribe(SchedSub * s)
+bool ipengine::Scheduler::unsubscribe(ipengine::Scheduler::SchedSub * s)
 {
-	std::unique_lock<YieldingSpinLock<5000>> lock(m_sublock);
+	std::unique_lock<ipengine::YieldingSpinLock<5000>> lock(m_sublock);
 	bool ret = m_subscriptions.erase(s->subid);
 	lock.unlock();
 	delete s;
 	return ret;
 }
 
-void Scheduler::update(const SubChange & change)
+void ipengine::Scheduler::update(const ipengine::Scheduler::SubChange & change)
 {
 	m_changequeue.enqueue(change);
 }
 
-void Scheduler::applyChanges()
+void ipengine::Scheduler::applyChanges()
 {
 	SubChange sc;
 	while (m_changequeue.try_dequeue(sc))
@@ -46,14 +46,14 @@ void Scheduler::applyChanges()
 	}
 }
 
-void Scheduler::schedule()
+void ipengine::Scheduler::schedule()
 {
 }
 
 //public member functions
 
 
-Scheduler::SubHandle Scheduler::subscribe(const function<void(TaskContext&)>& schedfunc, interval_t desiredInterval, SubType type, float timescale, ThreadPool* pool)
+ipengine::Scheduler::SubHandle ipengine::Scheduler::subscribe(const function<void(TaskContext&)>& schedfunc, interval_t desiredInterval, SubType type, float timescale, ThreadPool* pool)
 {	
 	SchedSub* sub = new SchedSub(m_idgen.fetch_add(1, std::memory_order_relaxed),
 		pool->createTask(schedfunc, TaskContext(SchedInfo())),
@@ -69,20 +69,20 @@ Scheduler::SubHandle Scheduler::subscribe(const function<void(TaskContext&)>& sc
 
 // class subhandle ----------------------------------------------------------
 
-Scheduler::SubHandle::SubHandle(SchedSub * sub, Scheduler * sched) :
+ipengine::Scheduler::SubHandle::SubHandle(SchedSub * sub, Scheduler * sched) :
 	m_subscription(sub),
 	m_sched(sched)
 {
 	sub->refct.inc();
 }
 
-Scheduler::SubHandle::SubHandle() :
+ipengine::Scheduler::SubHandle::SubHandle() :
 	m_subscription(nullptr),
 	m_sched(nullptr)
 {
 }
 
-Scheduler::SubHandle::SubHandle(const SubHandle & other) :
+ipengine::Scheduler::SubHandle::SubHandle(const SubHandle & other) :
 	m_subscription(other.m_subscription),
 	m_sched(other.m_sched)
 {
@@ -90,7 +90,7 @@ Scheduler::SubHandle::SubHandle(const SubHandle & other) :
 		m_subscription->refct.inc();
 }
 
-Scheduler::SubHandle::SubHandle(SubHandle && other) :
+ipengine::Scheduler::SubHandle::SubHandle(SubHandle && other) :
 	m_subscription(other.m_subscription),
 	m_sched(other.m_sched)
 {
@@ -98,7 +98,7 @@ Scheduler::SubHandle::SubHandle(SubHandle && other) :
 	other.m_subscription = nullptr;
 }
 
-Scheduler::SubHandle::~SubHandle()
+ipengine::Scheduler::SubHandle::~SubHandle()
 {
 	if (m_subscription != nullptr && m_subscription->refct.dec())
 	{
@@ -106,7 +106,7 @@ Scheduler::SubHandle::~SubHandle()
 	}
 }
 
-bool Scheduler::SubHandle::setInterval(interval_t newDesiredInterval)
+bool ipengine::Scheduler::SubHandle::setInterval(interval_t newDesiredInterval)
 {
 	if (m_subscription != nullptr)
 	{
@@ -116,7 +116,7 @@ bool Scheduler::SubHandle::setInterval(interval_t newDesiredInterval)
 	return false;
 }
 
-bool Scheduler::SubHandle::setSubscriptionType(SubType newDesiredType)
+bool ipengine::Scheduler::SubHandle::setSubscriptionType(SubType newDesiredType)
 {
 	if (m_subscription != nullptr)
 	{
@@ -126,7 +126,7 @@ bool Scheduler::SubHandle::setSubscriptionType(SubType newDesiredType)
 	return false;
 }
 
-bool Scheduler::SubHandle::setTimeScale(float newDesiredTimescale)
+bool ipengine::Scheduler::SubHandle::setTimeScale(float newDesiredTimescale)
 {
 	if (m_subscription != nullptr)
 	{
@@ -136,7 +136,7 @@ bool Scheduler::SubHandle::setTimeScale(float newDesiredTimescale)
 	return false;
 }
 
-bool Scheduler::SubHandle::update(interval_t newDesiredInterval, SubType newDesiredType, float newDesiredTimescale)
+bool ipengine::Scheduler::SubHandle::update(interval_t newDesiredInterval, SubType newDesiredType, float newDesiredTimescale)
 {
 	if (m_subscription != nullptr)
 	{
@@ -146,7 +146,7 @@ bool Scheduler::SubHandle::update(interval_t newDesiredInterval, SubType newDesi
 	return false;
 }
 
-bool Scheduler::SubHandle::unsubscribe() //?
+bool ipengine::Scheduler::SubHandle::unsubscribe() //?
 {
 	if (m_subscription != nullptr && m_subscription->refct.dec())
 	{
@@ -157,7 +157,7 @@ bool Scheduler::SubHandle::unsubscribe() //?
 	return false;
 }
 
-Scheduler::SchedSub::SchedSub() :
+ipengine::Scheduler::SchedSub::SchedSub() :
 	subid(0),
 	task(),
 	type(SubType::Invalid),
@@ -167,7 +167,7 @@ Scheduler::SchedSub::SchedSub() :
 {
 }
 
-Scheduler::SchedSub::SchedSub(
+ipengine::Scheduler::SchedSub::SchedSub(
 	size_t _subid,
 	TaskHandle && _task,
 	SubType _type,

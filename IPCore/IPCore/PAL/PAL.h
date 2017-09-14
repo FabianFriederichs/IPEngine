@@ -7,4 +7,8 @@
 //- networking: tcp/udp sockets
 //- Shared library loading stuff
 
+namespace ipengine {
+
+}
+
 #endif

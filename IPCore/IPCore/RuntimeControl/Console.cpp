@@ -1,4 +1,4 @@
-#include "Console.h"
+#include <RuntimeControl/Console.h>
 
 ipengine::ConsoleCommand::ConsoleCommand()
 {

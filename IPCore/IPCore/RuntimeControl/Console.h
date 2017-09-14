@@ -1,8 +1,8 @@
 #ifndef _CORE_CONSOLE_H_
 #define _CORE_CONSOLE_H_
 
-#include "../core_config.h"
-#include "../Util/function.h"
+#include <core_config.h>
+#include <Util/function.h>
 #include <unordered_map>
 #include <iostream>
 

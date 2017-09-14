@@ -1,9 +1,9 @@
 #ifndef _I_CORE_H_
 #define _I_CORE_H_
-#include "core_config.h"
-#include "ThreadingServices/TaskLib.h"
-#include "RuntimeControl/Scheduler.h"
-#include "RuntimeControl/Console.h"
+#include <core_config.h>
+#include <ThreadingServices/TaskLib.h>
+#include <RuntimeControl/Scheduler.h>
+#include <RuntimeControl/Console.h>
 
 namespace ipengine
 {
