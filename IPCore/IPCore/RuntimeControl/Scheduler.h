@@ -17,15 +17,19 @@ namespace ipengine {
 
 	class CORE_API Scheduler
 	{
-		using interval_t = int64_t;
-		using sched_time_t = int64_t;
-
+	public:
 		enum class CORE_API SubType
 		{
 			Frame, //Once Per Frame
 			Interval, //Every x interval
 			Invalid
 		};
+	private:
+
+		using interval_t = int64_t;
+		using sched_time_t = int64_t;
+
+		
 
 		struct CORE_API SubChange
 		{
@@ -48,16 +52,19 @@ namespace ipengine {
 			TaskHandle task;
 			SubType type;
 			interval_t interval;
+			int64_t acc;
 			float timescale;
 			RefCtr refct;
+			interval_t lastDelta;
+			sched_time_t lastSchedActivity;
 		};
-
+	public:
 		class CORE_API SchedInfo
 		{
 		public:
 			double dt;
 		};
-
+	public:
 		class CORE_API SubHandle
 		{
 		public:
@@ -78,7 +85,7 @@ namespace ipengine {
 			SchedSub* m_subscription;
 			Scheduler* m_sched;
 		};
-
+	private:
 		sched_time_t m_curtime; //Time elapsed since scheduler startup in nanoseconds. Overflows every 292.47... years
 		sched_time_t m_accum;
 		std::atomic<size_t> m_idgen;
@@ -90,6 +97,7 @@ namespace ipengine {
 		bool unsubscribe(SchedSub* s);
 		void update(const SubChange& change);
 		void applyChanges();
+	public:
 		void schedule();
 
 	public:

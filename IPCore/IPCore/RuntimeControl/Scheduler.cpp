@@ -48,6 +48,47 @@ void ipengine::Scheduler::applyChanges()
 
 void ipengine::Scheduler::schedule()
 {
+	applyChanges();
+	std::vector<SchedSub*> handles;
+	sched_time_t timeNow = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+	for (auto& sub : m_subscriptions)
+	{
+		switch (sub.second->type)
+		{
+		case SubType::Frame:
+		{
+			auto curDelta = timeNow - sub.second->lastSchedActivity;
+			sub.second->task.getContext()->get<SchedInfo>().dt = curDelta;
+			sub.second->task.submit();
+			//sub.second->lastSchedActivity = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+			handles.push_back(sub.second);
+			break;
+		}
+		case SubType::Interval:
+		{
+			auto curDelta = timeNow - sub.second->lastSchedActivity;
+			if ((/*sub.second->acc +=*/ curDelta) >= sub.second->interval)
+			{
+				sub.second->task.getContext()->get<SchedInfo>().dt = curDelta; //MAYBE DEPRECATE THIS
+				sub.second->acc = 0;
+				sub.second->task.submit();
+				//sub.second->lastSchedActivity = std::chrono::high_resolution_clock::now().time_since_epoch().count(); //Questionable
+				handles.push_back(sub.second);
+			}
+			break;
+		}
+		case SubType::Invalid:
+			break;
+		default:
+			break;
+		}
+	}
+
+	for (auto& handle : handles)
+	{
+		handle->task.wait_recycle();
+		handle->lastSchedActivity = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+	}
 }
 
 //public member functions

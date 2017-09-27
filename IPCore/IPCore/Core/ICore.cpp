@@ -2,6 +2,7 @@
 
 ipengine::Core::Core() :
 	cmodule_console(std::cout),
+	cmodule_scheduler(),
 	cmodule_threadingservices(std::thread::hardware_concurrency() - 1)
 {
 }

@@ -3,10 +3,12 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <boost\smart_ptr.hpp>
 #include <bitset>
+#include <iostream>
 
-namespace DependencyFlags{
+namespace DependencyFlags {
 	enum DependencyFlag : size_t
 	{
 		DP_OPTIONAL,
@@ -20,9 +22,9 @@ class DependencyContainer
 {
 private:
 	using depPair = std::pair<boost::shared_ptr<IModule_API>, std::bitset<2>>;
-	std::map<std::string, depPair> dependencies;
+	std::unordered_map<std::string, depPair> dependencies;
 public:
-	DependencyContainer(){};
+	DependencyContainer() :dependencies() {}
 
 	//Copied from std::map
 	//template<typename T>
@@ -38,10 +40,15 @@ public:
 	//	return (dynamic_cast<T>(_Where->second));
 	//};
 
-	
+	size_t size()
+	{
+		return dependencies.size();
+	}
+
 
 	void assignDependency(const std::string dependencyID, boost::shared_ptr<IModule_API> module, std::bitset<2> flags = 0)
 	{
+		assert(size() == 0);
 		if (!exists(dependencyID))
 		{
 			dependencies[dependencyID] = { module, flags };
@@ -69,11 +76,13 @@ public:
 	//Returns true if dependencyID exists as a key
 	bool exists(std::string dependencyID)
 	{
+		assert(size() == 0);
+
 		return dependencies.lower_bound(dependencyID) != dependencies.end();
 	}
 };
 
-	
+
 
 struct ModuleInformation
 {
@@ -89,10 +98,10 @@ struct ModuleInformation
 class IModule_API
 {
 public:
-	virtual ModuleInformation* getModuleInfo()=0;
+	virtual ModuleInformation* getModuleInfo() = 0;
 	virtual bool startUp() = 0; //Returns true if startup is successful. This is called after dependencies have been injected. Handle all the initialization necessary. Probably should replace this with error code memes. 
-	//Should be overriden by modules that have dependencies that can be updated at runtime.
-	virtual void dependencyUpdated(std::string depID){};
+								//Should be overriden by modules that have dependencies that can be updated at runtime.
+	virtual void dependencyUpdated(std::string depID) {};
 	//virtual bool injectDependency(std::string dependencyID, IModule_API *dependency) = 0;
 };
 

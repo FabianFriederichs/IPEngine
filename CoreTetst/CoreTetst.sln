@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CoreTetst", "CoreTetst\CoreTetst.vcxproj", "{7C82EB4E-4A60-4355-A5D8-287EEF185CA5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{44C14CF2-2BD7-4AE7-A273-940988848344} = {44C14CF2-2BD7-4AE7-A273-940988848344}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModulCoreTest", "ModulCoreTest\ModulCoreTest.vcxproj", "{44C14CF2-2BD7-4AE7-A273-940988848344}"
 EndProject

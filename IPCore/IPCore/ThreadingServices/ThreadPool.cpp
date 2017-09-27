@@ -394,7 +394,7 @@ void ipengine::ThreadPool::release(Task * task, bool forcerelease)
 
 void ipengine::ThreadPool::recycle(Task * task)
 {
-	task->m_unfinished.store(std::memory_order_relaxed);
+	task->m_unfinished.store(1, std::memory_order_relaxed);
 }
 
 ipengine::ThreadPool::Worker * ipengine::ThreadPool::getWorkerByThreadID(std::thread::id id)

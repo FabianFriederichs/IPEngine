@@ -7,16 +7,23 @@
 
 #include <boost/config.hpp>
 #include "IModulCoreTest_API.h"
-#include "Core/ICore.h"
+#include <iostream>
 // This class is exported from the Plugin2.dll
 class ModulCoreTest : public IModulCoreTest_API {
 public:
 	ModulCoreTest(void);
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
-	bool startUp() { return true;/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */ } //do stuff?
+	bool startUp();//do stuff?
 private:
 	ModuleInformation m_info;
+	ipengine::Core* core;
+	std::vector<ipengine::Scheduler::SubHandle> handles;
+	// Inherited via IModulCoreTest_API
+	virtual void giveSched(ipengine::Core *) override;
+	void writeOutput(ipengine::TaskContext& cont);
+	// Inherited via IModulCoreTest_API
+	virtual void start() override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT ModulCoreTest module;
