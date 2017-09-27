@@ -2,7 +2,7 @@
 
 // ----------------------------------------------- TASK SYSTEM INTERNAL SECTION --------------------------------------------------------
 
-ThreadPool::Worker::Worker(ThreadPool * pool, size_t id) :
+ipengine::ThreadPool::Worker::Worker(ipengine::ThreadPool * pool, size_t id) :
 	m_pool(pool),
 	local_queue(),
 	id(id)
@@ -12,11 +12,11 @@ ThreadPool::Worker::Worker(ThreadPool * pool, size_t id) :
 	//m_waitstack.reserve(4096);
 }
 
-ThreadPool::Worker::~Worker()
+ipengine::ThreadPool::Worker::~Worker()
 {
 }
 
-void ThreadPool::Worker::run()
+void ipengine::ThreadPool::Worker::run()
 {
 	while (m_runflag.load(std::memory_order_relaxed))
 	{
@@ -34,20 +34,20 @@ void ThreadPool::Worker::run()
 	}
 }
 
-void ThreadPool::Worker::start()
+void ipengine::ThreadPool::Worker::start()
 {
 	m_runflag.store(true, std::memory_order_relaxed);
 	m_thread = std::move(std::thread(&ThreadPool::Worker::run, this));
 	std::cout << "Started worker thread: " << m_thread.get_id() << "\n";
 }
 
-void ThreadPool::Worker::stop()
+void ipengine::ThreadPool::Worker::stop()
 {
 	m_runflag.store(false, std::memory_order_relaxed);
 	m_thread.join();
 }
 
-void ThreadPool::execute(Task * task)
+void ipengine::ThreadPool::execute(Task * task)
 {
 	//assert(task != nullptr && task->m_refct.load() > 0 && task->m_unfinished > 0);
 	Task* current;
@@ -115,7 +115,7 @@ void ThreadPool::execute(Task * task)
 	//}
 }
 
-void ThreadPool::execute(Task * task, Worker* worker)
+void ipengine::ThreadPool::execute(Task * task, Worker* worker)
 {
 	//assert(task != nullptr && task->m_refct.load() > 0 && task->m_unfinished > 0);
 	Task* current;
@@ -189,7 +189,7 @@ void ThreadPool::execute(Task * task, Worker* worker)
 	//}
 }
 
-void ThreadPool::finalize(Task * task)
+void ipengine::ThreadPool::finalize(Task * task)
 {
 	/*if (task->m_unfinished.fetch_sub(1, std::memory_order_acq_rel) == 1)
 	{
@@ -211,7 +211,7 @@ void ThreadPool::finalize(Task * task)
 	}
 }
 
-Task * ThreadPool::tryGetTask(Worker * worker)
+ipengine::Task * ipengine::ThreadPool::tryGetTask(Worker * worker)
 {
 	Task* task = nullptr;
 	bool sc;
@@ -261,7 +261,7 @@ Task * ThreadPool::tryGetTask(Worker * worker)
 	return nullptr;
 }
 
-void ThreadPool::waitForTask(Task * task, TaskContext* tcptr)
+void ipengine::ThreadPool::waitForTask(Task * task, TaskContext* tcptr)
 {	//TODO: state change?
 	while (task->m_unfinished.load(std::memory_order_acquire) > 0)
 	{
@@ -273,7 +273,7 @@ void ThreadPool::waitForTask(Task * task, TaskContext* tcptr)
 
 
 
-bool ThreadPool::help(Worker* _worker)
+bool ipengine::ThreadPool::help(Worker* _worker)
 {
 	Worker* worker = (_worker != nullptr ? _worker : getWorkerByThreadID(std::this_thread::get_id()));
 	
@@ -293,7 +293,7 @@ bool ThreadPool::help(Worker* _worker)
 	}
 }
 
-Task * ThreadPool::trySteal(Worker* worker)
+ipengine::Task * ipengine::ThreadPool::trySteal(Worker* worker)
 {
 	size_t wid;
 	if (worker != nullptr)
@@ -320,7 +320,7 @@ Task * ThreadPool::trySteal(Worker* worker)
 	return nullptr;
 }
 
-Task * ThreadPool::create(const TaskFunction & func, const TaskContext & context)
+ipengine::Task * ipengine::ThreadPool::create(const TaskFunction & func, const TaskContext & context)
 {
 	//Task * task = new Task();	//allocate from pool later
 	Task* task = new(TaskAlloc::allocate(TSIZE))Task;
@@ -332,7 +332,7 @@ Task * ThreadPool::create(const TaskFunction & func, const TaskContext & context
 	return task;
 }
 
-Task * ThreadPool::create(TaskFunction && func, const TaskContext & context)
+ipengine::Task * ipengine::ThreadPool::create(TaskFunction && func, const TaskContext & context)
 {
 	//Task * task = new Task();	//allocate from pool later
 	Task* task = new(TaskAlloc::allocate(TSIZE))Task;
@@ -344,7 +344,7 @@ Task * ThreadPool::create(TaskFunction && func, const TaskContext & context)
 	return task;
 }
 
-Task * ThreadPool::create(const TaskFunction & func, TaskContext && context)
+ipengine::Task * ipengine::ThreadPool::create(const TaskFunction & func, TaskContext && context)
 {
 	//Task * task = new Task();	//allocate from pool later
 	Task* task = new(TaskAlloc::allocate(TSIZE))Task;
@@ -356,7 +356,7 @@ Task * ThreadPool::create(const TaskFunction & func, TaskContext && context)
 	return task;
 }
 
-Task * ThreadPool::create(TaskFunction && func, TaskContext && context)
+ipengine::Task * ipengine::ThreadPool::create(TaskFunction && func, TaskContext && context)
 {
 	//Task * task = new Task();	//allocate from pool later
 	Task* task = new(TaskAlloc::allocate(TSIZE))Task;
@@ -368,12 +368,12 @@ Task * ThreadPool::create(TaskFunction && func, TaskContext && context)
 	return task;
 }
 
-void ThreadPool::use(Task * task)
+void ipengine::ThreadPool::use(Task * task)
 {
 	task->m_refct.fetch_add(1, std::memory_order_relaxed);
 }
 
-void ThreadPool::release(Task * task, bool forcerelease)
+void ipengine::ThreadPool::release(Task * task, bool forcerelease)
 {
 	//if ((task->m_refct.load() == 0 || task->m_refct.fetch_sub(1) == 1) && (task->m_unfinished.load() == 0 || forcerelease))
 	//{
@@ -392,12 +392,12 @@ void ThreadPool::release(Task * task, bool forcerelease)
 	}
 }
 
-void ThreadPool::recycle(Task * task)
+void ipengine::ThreadPool::recycle(Task * task)
 {
 	task->m_unfinished.store(std::memory_order_relaxed);
 }
 
-ThreadPool::Worker * ThreadPool::getWorkerByThreadID(std::thread::id id)
+ipengine::ThreadPool::Worker * ipengine::ThreadPool::getWorkerByThreadID(std::thread::id id)
 {
 	for (size_t i = 0; i < m_workers.size(); i++)
 		if (m_workers[i]->m_thread.get_id() == id) return m_workers[i].get();
@@ -406,7 +406,7 @@ ThreadPool::Worker * ThreadPool::getWorkerByThreadID(std::thread::id id)
 
 // ---------------------------------------- TASK SYSTEM EXTERNAL SECTION ------------------------------------------------------------------
 
-ThreadPool::ThreadPool(size_t nworkers) :
+ipengine::ThreadPool::ThreadPool(size_t nworkers) :
 	rd(),
 	eng(rd()),
 	rnd(0, nworkers - 1),
@@ -414,12 +414,12 @@ ThreadPool::ThreadPool(size_t nworkers) :
 {
 	for (size_t i = 0; i < nworkers; i++)
 	{
-		m_workers.push_back(alloc_aligned<ThreadPool::Worker, CACHE_LINE_SIZE>(this, i));
+		m_workers.push_back(alloc_aligned<ThreadPool::Worker, TS_CACHE_LINE_SIZE>(this, i));
 	}
 	m_isrunning.store(false, std::memory_order_release);
 }
 
-ThreadPool::~ThreadPool()
+ipengine::ThreadPool::~ThreadPool()
 {
 	for (size_t i = 0; i < m_workers.size(); i++)
 	{
@@ -427,7 +427,7 @@ ThreadPool::~ThreadPool()
 	}
 }
 
-void ThreadPool::startWorkers()
+void ipengine::ThreadPool::startWorkers()
 {
 	for (size_t i = 0; i < m_workers.size(); i++)
 	{
@@ -436,7 +436,7 @@ void ThreadPool::startWorkers()
 	m_isrunning.store(true, std::memory_order_release);
 }
 
-void ThreadPool::stopWorkers()
+void ipengine::ThreadPool::stopWorkers()
 {
 	m_isrunning.store(false, std::memory_order_release);
 	for (size_t i = 0; i < m_workers.size(); i++)
@@ -445,7 +445,7 @@ void ThreadPool::stopWorkers()
 	}
 }
 
-bool ThreadPool::submit(TaskHandle& handle)
+bool ipengine::ThreadPool::submit(TaskHandle& handle)
 {
 	if (handle.isValid() && m_isrunning.load(std::memory_order_acquire))
 	{
@@ -458,7 +458,7 @@ bool ThreadPool::submit(TaskHandle& handle)
 	return false;
 }
 
-bool ThreadPool::spawn(TaskHandle& handle, TaskContext* tcptr)
+bool ipengine::ThreadPool::spawn(TaskHandle& handle, TaskContext* tcptr)
 {
 	if (handle.isValid() && m_isrunning.load(std::memory_order_acquire))
 	{
@@ -482,34 +482,34 @@ bool ThreadPool::spawn(TaskHandle& handle, TaskContext* tcptr)
 	return false;
 }
 
-TaskHandle ThreadPool::createTask(const TaskFunction & func, const TaskContext & context)
+ipengine::TaskHandle ipengine::ThreadPool::createTask(const TaskFunction & func, const TaskContext & context)
 {
 	Task* t = create(func, context);
 	return TaskHandle(t, this);
 }
 
-TaskHandle ThreadPool::createTask(const TaskFunction & func, TaskContext && context)
+ipengine::TaskHandle ipengine::ThreadPool::createTask(const TaskFunction & func, TaskContext && context)
 {
 	Task* t = create(func, std::move(context));
 	return TaskHandle(t, this);
 	return TaskHandle();
 }
 
-TaskHandle ThreadPool::createTask(TaskFunction && func, const TaskContext & context)
+ipengine::TaskHandle ipengine::ThreadPool::createTask(TaskFunction && func, const TaskContext & context)
 {
 	Task* t = create(std::move(func), context);
 	return TaskHandle(t, this);
 	return TaskHandle();
 }
 
-TaskHandle ThreadPool::createTask(TaskFunction && func, TaskContext && context)
+ipengine::TaskHandle ipengine::ThreadPool::createTask(TaskFunction && func, TaskContext && context)
 {
 	Task* t = create(std::move(func), std::move(context));
 	return TaskHandle(t, this);
 	return TaskHandle();
 }
 
-TaskHandle ThreadPool::createChild(const TaskFunction & func, const TaskContext & context, TaskHandle& parent)
+ipengine::TaskHandle ipengine::ThreadPool::createChild(const TaskFunction & func, const TaskContext & context, TaskHandle& parent)
 {
 	if (parent.isValid())
 	{
@@ -533,7 +533,7 @@ TaskHandle ThreadPool::createChild(const TaskFunction & func, const TaskContext 
 	return TaskHandle();
 }
 
-TaskHandle ThreadPool::createChild(const TaskFunction & func, TaskContext && context, TaskHandle & parent)
+ipengine::TaskHandle ipengine::ThreadPool::createChild(const TaskFunction & func, TaskContext && context, TaskHandle & parent)
 {
 	if (parent.isValid())
 	{
@@ -556,7 +556,7 @@ TaskHandle ThreadPool::createChild(const TaskFunction & func, TaskContext && con
 	return TaskHandle();
 }
 
-TaskHandle ThreadPool::createChild(TaskFunction && func, const TaskContext & context, TaskHandle & parent)
+ipengine::TaskHandle ipengine::ThreadPool::createChild(TaskFunction && func, const TaskContext & context, TaskHandle & parent)
 {
 	if (parent.isValid())
 	{
@@ -579,7 +579,7 @@ TaskHandle ThreadPool::createChild(TaskFunction && func, const TaskContext & con
 	return TaskHandle();
 }
 
-TaskHandle ThreadPool::createChild(TaskFunction && func, TaskContext && context, TaskHandle & parent)
+ipengine::TaskHandle ipengine::ThreadPool::createChild(TaskFunction && func, TaskContext && context, TaskHandle & parent)
 {
 	if (parent.isValid())
 	{
@@ -602,7 +602,7 @@ TaskHandle ThreadPool::createChild(TaskFunction && func, TaskContext && context,
 	return TaskHandle();
 }
 
-bool ThreadPool::addChild(TaskHandle & parent, TaskHandle & child)
+bool ipengine::ThreadPool::addChild(TaskHandle & parent, TaskHandle & child)
 {
 	if (parent.isValid() && child.isValid())
 	{
@@ -622,7 +622,7 @@ bool ThreadPool::addChild(TaskHandle & parent, TaskHandle & child)
 	return false;
 }
 
-void ThreadPool::wait(TaskHandle & handle, TaskContext* tcptr)
+void ipengine::ThreadPool::wait(TaskHandle & handle, TaskContext* tcptr)
 {
 	if (handle.isValid())
 		waitForTask(handle.m_task, tcptr);

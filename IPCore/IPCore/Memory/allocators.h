@@ -4,6 +4,7 @@
 #include <vector>
 #include <Util/spinlock.h>
 #include <chrono>
+#include <core_config.h>
 
 namespace ipengine {
 
@@ -232,14 +233,14 @@ namespace ipengine {
 				node* next;
 			};
 
-			using batch = struct alignas(CACHE_LINE_SIZE)batch
+			using batch = struct alignas(TS_CACHE_LINE_SIZE)batch
 			{
 				node* first;
 				//node* last;
 				size_t size;
 			};
 		private:
-			typedef struct alignas(CACHE_LINE_SIZE)chunk
+			typedef struct alignas(TS_CACHE_LINE_SIZE)chunk
 			{
 				void* memptr;
 				void* alignedaddr;
