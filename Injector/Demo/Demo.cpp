@@ -6,32 +6,32 @@
 #include <IInput_API.h>
 #include <iostream>
 #include <thread>
-#include "IScheduler_API.h"
-
+#include <Core/ICore.h>
 boost::shared_ptr<IInput_API> input;
-void WriteInputs(TaskContext& c)
-{
-	system("cls");
-	Scheduler::SchedInfo& d = c;
-	std::cout << std::this_thread::get_id();
-	std::cout << d.dt << std::endl;
-	auto memes = input->getInputBuffered(d.dt / 1000000, true);
-	std::time_t end_time;
-	for (auto m : memes)
-	{
-		end_time = std::chrono::system_clock::to_time_t(m.timeStamp);
-		if (m.type == IInput::InputType::INPUT_DEVICE_DISCONNECTED)
-			std::cout << "Type: " << (int)m.type << " | TimeStamp: " << std::ctime(&end_time) << " | Data: " << m.data.kd.keycode << std::endl;// " | Data: " << m.data.i3dmd.yaw << " - " << m.data.i3dmd.pitch << " - " << m.data.i3dmd.roll << std::endl;
-	}
-}
+//void WriteInputs(TaskContext& c)
+//{
+//	system("cls");
+//	Scheduler::SchedInfo& d = c;
+//	std::cout << std::this_thread::get_id();
+//	std::cout << d.dt << std::endl;
+//	auto memes = input->getInputBuffered(d.dt / 1000000, true);
+//	std::time_t end_time;
+//	for (auto m : memes)
+//	{
+//		end_time = std::chrono::system_clock::to_time_t(m.timeStamp);
+//		if (m.type == IInput::InputType::INPUT_DEVICE_DISCONNECTED)
+//			std::cout << "Type: " << (int)m.type << " | TimeStamp: " << std::ctime(&end_time) << " | Data: " << m.data.kd.keycode << std::endl;// " | Data: " << m.data.i3dmd.yaw << " - " << m.data.i3dmd.pitch << " - " << m.data.i3dmd.roll << std::endl;
+//	}
+//}
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	Injector inj("XMLFile.xml", "../Release");
-	inj.LoadModules();
+	Injector inj("XMLFile.xml", "../Debug");
+	ipengine::Core core;
+	inj.LoadModules(&core);
 	auto mods = inj.getLoadedModules();
 	input = boost::dynamic_pointer_cast<IInput_API>(mods["InputModule"]);
-	boost::shared_ptr<IScheduler_API> schedAPI = boost::dynamic_pointer_cast<IScheduler_API>(mods["Scheduler"]);
+	//boost::shared_ptr<IScheduler_API> schedAPI = boost::dynamic_pointer_cast<IScheduler_API>(mods["Scheduler"]);
 	//IInput_API input = dynamic_cast<IInput_API>(mods["InputModule"]);
 
 	//[input]()->void {
@@ -59,11 +59,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//	{
 	//		auto meme = "t";
 	//	}};
-	schedAPI->subscribe(TaskFunction::make_func(WriteInputs), (int)((500)*1000000.f), Scheduler::SubType::Interval, 1);
-	while (true) {
-		schedAPI->schedule();
-	}
-	
+	while (true) {};
 	
 		
 	//std::string meme;

@@ -4,9 +4,10 @@
 #include <string>
 #include <map>
 #include <unordered_map>
-#include <boost\smart_ptr.hpp>
+#include <boost/smart_ptr.hpp>
 #include <bitset>
 #include <iostream>
+#include <Core/ICore.h>
 
 namespace DependencyFlags {
 	enum DependencyFlag : size_t
@@ -17,7 +18,7 @@ namespace DependencyFlags {
 };
 
 class IModule_API;
-
+class Injector;
 class DependencyContainer
 {
 private:
@@ -97,12 +98,15 @@ struct ModuleInformation
 
 class IModule_API
 {
+	friend class Injector;
 public:
 	virtual ModuleInformation* getModuleInfo() = 0;
 	virtual bool startUp() = 0; //Returns true if startup is successful. This is called after dependencies have been injected. Handle all the initialization necessary. Probably should replace this with error code memes. 
 								//Should be overriden by modules that have dependencies that can be updated at runtime.
 	virtual void dependencyUpdated(std::string depID) {};
 	//virtual bool injectDependency(std::string dependencyID, IModule_API *dependency) = 0;
+protected:
+	ipengine::Core* m_core;
 };
 
 #endif

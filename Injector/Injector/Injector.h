@@ -1,9 +1,10 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/dll/import.hpp>
 #include <boost/dll/alias.hpp>
-#include <boost\function\function_base.hpp>
+#include <boost/function/function_base.hpp>
 #include "DependencyGraph.h"
 #include "IModule_API.h"
+#include <Core/ICore.h>
 #include <iostream>
 #include <algorithm>
 #include <list>
@@ -163,7 +164,7 @@ public:
 		libFolderPath = libraryFolderpath;
 	};
 
-	void LoadModules(bool reload = false, std::string path = "")
+	void LoadModules(ipengine::Core* core, bool reload = false, std::string path = "")
 	{
 		bool newPath = false;
 		if (path != "" && boost::filesystem::exists(path))
@@ -198,7 +199,7 @@ public:
 				//bo
 				//boost::shared_ptr<IModule_API> meme = lib.get<boost::shared_ptr<IModule_API>>("module");
 				loadedModules[path.filename().stem().generic_string()] = boost::dll::import<IModule_API>(path, "module", boost::dll::load_mode::default_mode);// lib.get<boost::shared_ptr<IModule_API>>("module"); //boost::dll::import_alias<IModule_API>(boost::move(lib), "module");
-
+				loadedModules[path.filename().stem().generic_string()]->m_core = core;
 			}
 			catch (std::exception ex)
 			{

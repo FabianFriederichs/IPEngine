@@ -15,7 +15,7 @@
 #include <mutex>
 #include "IBasicOpenVRModule_API.h"
 #include <math.h>
-#include "IScheduler_API.h"
+#include "Core/ICore.h"
 // This class is exported from the Plugin1.dll
 class InputModule : public IInput_API {
 public:
@@ -27,7 +27,7 @@ public:
 
 	//void printStuffToSomething(std::string text) { std::cout << text << std::endl; }
 private:
-
+	std::vector<ipengine::Scheduler::SubHandle> handles;
 	ModuleInformation m_info;
 	SDL_Window* window;
 	std::thread memes;
@@ -37,7 +37,7 @@ private:
 	bool isManipulating = false;
 	std::mutex mymutex;
 	void pollData();
-	void pollDataC(TaskContext &c);
+	void pollDataC(ipengine::TaskContext &c);
 	boost::shared_ptr<vr::IVRSystem> vrsys;
 	bool isVRconnected = false;
 	boost::shared_ptr<IBasicOpenVRModule_API> openvr;
