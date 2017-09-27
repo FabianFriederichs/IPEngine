@@ -2,16 +2,7 @@
 <DependencyGraph>
   <Modules>
     <Module>
-      <identifier>Plugin1</identifier>
-    </Module>
-    <Module>
-      <identifier>Plugin2</identifier>
-      <dependencies>
-        <dependency>
-          <identifier>printer</identifier>
-          <depID>Plugin1</depID>
-        </dependency>
-      </dependencies>
+      <identifier>ModulCoreTest</identifier>
     </Module>
   </Modules>
 </DependencyGraph>

@@ -13,7 +13,7 @@
 #include <Util/LFDS.h>
 #include <assert.h>
 #include <Util/stack.h>
-#include <concurrentqueue.h>
+#include <libs/concurrentqueue.h>
 #include <string>
 #include <core_config.h>
 

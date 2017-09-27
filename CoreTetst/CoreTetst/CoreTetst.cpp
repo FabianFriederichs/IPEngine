@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "ICore.h"
+#include "Core/ICore.h"
 #include "Injector.h"
 
 int main()
