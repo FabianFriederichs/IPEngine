@@ -1,14 +1,13 @@
-#include "TaskHandle.h"
-
+#include <ThreadingServices/TaskHandle.h>
 //TODO: error checking here
 
-TaskHandle::TaskHandle() :
+ipengine::TaskHandle::TaskHandle() :
 	m_task(nullptr),
 	m_pool(nullptr)
 {
 }
 
-TaskHandle::TaskHandle(Task * task, ThreadPool* pool) :
+ipengine::TaskHandle::TaskHandle(Task * task, ThreadPool* pool) :
 	m_task(task),
 	m_pool(pool),
 	m_isinpool(false)
@@ -16,7 +15,7 @@ TaskHandle::TaskHandle(Task * task, ThreadPool* pool) :
 	//m_pool->use(m_task);
 }
 
-TaskHandle::TaskHandle(const TaskHandle & _other)
+ipengine::TaskHandle::TaskHandle(const TaskHandle & _other)
 {
 	if (this == &_other)
 		return;
@@ -35,7 +34,7 @@ TaskHandle::TaskHandle(const TaskHandle & _other)
 	}
 }
 
-TaskHandle::TaskHandle(TaskHandle && _other)
+ipengine::TaskHandle::TaskHandle(TaskHandle && _other)
 {
 	if (this == &_other)
 		return;
@@ -56,7 +55,7 @@ TaskHandle::TaskHandle(TaskHandle && _other)
 	}
 }
 
-TaskHandle::~TaskHandle()
+ipengine::TaskHandle::~TaskHandle()
 {
 	if (isValid())
 	{
@@ -67,7 +66,7 @@ TaskHandle::~TaskHandle()
 
 
 //we'll need a reference to a threadpool. cyclic dependency. outch
-bool TaskHandle::wait(TaskContext* tcptr)
+bool ipengine::TaskHandle::wait(TaskContext* tcptr)
 {
 	if (isValid() && m_isinpool)
 	{
@@ -78,7 +77,7 @@ bool TaskHandle::wait(TaskContext* tcptr)
 	return false;
 }
 
-bool TaskHandle::wait_recycle(TaskContext * tcptr)
+bool ipengine::TaskHandle::wait_recycle(TaskContext * tcptr)
 {
 	if (isValid() && m_isinpool)
 	{
@@ -90,7 +89,7 @@ bool TaskHandle::wait_recycle(TaskContext * tcptr)
 	return false;
 }
 
-bool TaskHandle::addChild(TaskHandle & child)
+bool ipengine::TaskHandle::addChild(TaskHandle & child)
 {
 	if (isValid())
 	{
@@ -99,7 +98,7 @@ bool TaskHandle::addChild(TaskHandle & child)
 	return false;
 }
 
-bool TaskHandle::spawn(TaskContext* tcptr)
+bool ipengine::TaskHandle::spawn(TaskContext* tcptr)
 {
 	if (isValid() && !m_isinpool)
 	{
@@ -113,7 +112,7 @@ bool TaskHandle::spawn(TaskContext* tcptr)
 	return false;
 }
 
-bool TaskHandle::submit()
+bool ipengine::TaskHandle::submit()
 {
 	if (isValid() && !m_isinpool)
 	{

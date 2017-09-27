@@ -18,7 +18,7 @@ namespace  DGStuff
 		std::string identifier;
 		std::string iname;
 	};
-	 
+
 	class DependencyGraph
 	{
 	private:
@@ -27,25 +27,24 @@ namespace  DGStuff
 		/*template<typename F>
 		static Module* recursiveApply(const Module *m, F &lambda)
 		{
-			if (m->dependencies.size() > 0)
-			{
-				for (auto m : m->dependencies)
-				{
-					recursiveApply(m.second, lambda);
-				}
-			}
-			lambda(m);
+		if (m->dependencies.size() > 0)
+		{
+		for (auto m : m->dependencies)
+		{
+		recursiveApply(m.second, lambda);
+		}
+		}
+		lambda(m);
 		}*/
 	public:
-		void addModule(Module m) {modules.push_back(m);}
+		void addModule(Module m) { modules.push_back(m); }
 		void addRoot(Module *m) { roots.push_back(m); }
-		std::vector<Module> *getModules(){ return &modules; };
-		std::vector<Module*> *getRoots(){ return &roots; }
+		std::vector<Module> *getModules() { return &modules; };
+		std::vector<Module*> *getRoots() { return &roots; }
 		/*template<typename F>
 		static void forEachReverse(const Module *m, F &lambda)
 		{
-			recursiveApply(m, lambda);
+		recursiveApply(m, lambda);
 		}*/
 	};
- }
- 
+}
