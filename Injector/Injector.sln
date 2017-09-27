@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Injector", "Injector\Injector.vcxproj", "{CE569EEF-AECB-48FA-AD84-97D0A89E789E}"
 EndProject
@@ -28,6 +28,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BasicOpenVRModule", "BasicOpenVRModule\BasicOpenVRModule.vcxproj", "{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Scheduler", "Scheduler\Scheduler.vcxproj", "{958F25CA-F418-45E4-9602-8CC278734D30}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleContentModule", "SimpleContentModule\SimpleContentModule.vcxproj", "{E48F70E5-1CCF-4125-85F8-EE173A9092D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -123,6 +125,18 @@ Global
 		{958F25CA-F418-45E4-9602-8CC278734D30}.Release|Win32.Build.0 = Release|Win32
 		{958F25CA-F418-45E4-9602-8CC278734D30}.Release|x64.ActiveCfg = Release|x64
 		{958F25CA-F418-45E4-9602-8CC278734D30}.Release|x64.Build.0 = Release|x64
+		{E48F70E5-1CCF-4125-85F8-EE173A9092D1}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{E48F70E5-1CCF-4125-85F8-EE173A9092D1}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{E48F70E5-1CCF-4125-85F8-EE173A9092D1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E48F70E5-1CCF-4125-85F8-EE173A9092D1}.Debug|Win32.Build.0 = Debug|Win32
+		{E48F70E5-1CCF-4125-85F8-EE173A9092D1}.Debug|x64.ActiveCfg = Debug|x64
+		{E48F70E5-1CCF-4125-85F8-EE173A9092D1}.Debug|x64.Build.0 = Debug|x64
+		{E48F70E5-1CCF-4125-85F8-EE173A9092D1}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{E48F70E5-1CCF-4125-85F8-EE173A9092D1}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{E48F70E5-1CCF-4125-85F8-EE173A9092D1}.Release|Win32.ActiveCfg = Release|Win32
+		{E48F70E5-1CCF-4125-85F8-EE173A9092D1}.Release|Win32.Build.0 = Release|Win32
+		{E48F70E5-1CCF-4125-85F8-EE173A9092D1}.Release|x64.ActiveCfg = Release|x64
+		{E48F70E5-1CCF-4125-85F8-EE173A9092D1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
