@@ -242,7 +242,7 @@ void InputModule::pollData()
 	isManipulating = false;
 }
 
-const std::vector<IInput::Input> InputModule::getInputBuffered(int millisecondsIntoThePast, bool vrpositions)
+const std::vector<IInput::Input> InputModule::getInputBuffered(int millisecondsIntoThePast, bool vrpositions=false)
 {
 	auto timestamp = clock.now() - std::chrono::milliseconds(millisecondsIntoThePast);
 	//create copy

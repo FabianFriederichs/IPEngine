@@ -48,12 +48,14 @@ namespace SCM
 
 	class MaterialData
 	{
+	public:
 		std::string m_path;
 		uint32_t m_materialId;
 	};
 
 	class TextureData
 	{
+	public:
 		uint32_t m_textureId;
 		bool m_isInMap;
 		std::string m_path;
@@ -64,10 +66,11 @@ namespace SCM
 
 	class VertexData
 	{
+	public:
 		glm::vec3 m_position;
+		glm::vec2 m_uv;
 		glm::vec3 m_normal;
 		glm::vec3 m_tangent;
-		glm::vec2 m_uv;
 	};
 
 	class VertexVector
@@ -88,28 +91,21 @@ namespace SCM
 
 	using index = uint32_t;
 	class MeshData
-	{public:
+	{
+	public:
 		VertexVector m_vertices;
 		std::vector<index> m_indices;
 		MaterialData* m_material;
 		uint32_t m_meshId;
 	};
 
-	class EntityData
-	{public:
-		Transform m_transformData;
-		uint32_t m_entityId;
-		virtual void swap() { m_transformData.swap(); }
-	};
-
-	class DrawableEntity : public EntityData
+	class MeshedObject
 	{
-		
 	public:
+		uint32_t m_meshObjectId;
 		std::vector<MeshData*> m_meshes;
-		EntityData* m_parent;
-		virtual void swap() 
-		{ 
+		virtual void swap()
+		{
 			for (auto& mesh : m_meshes)
 			{
 				mesh->m_vertices.swap();
@@ -117,26 +113,91 @@ namespace SCM
 		}
 	};
 
+	class Entity
+	{
+	public:
+		Transform m_transformData;
+		Entity* m_parent;
+		uint32_t m_entityId;
+		virtual void swap() { m_transformData.swap(); }
+	};
+
+	class ThreeDimEntity : public Entity
+	{
+		
+	public:
+		MeshedObject* m_meshes;
+		virtual void swap() 
+		{ 
+			m_meshes->swap();
+		}
+	};
+
 
 	class ISimpleContentModule_API : public IModule_API
 	{
-	public:
-		std::unordered_map<std::string, EntityData*> entities;
-		void Swap()
+	public:	
+		virtual void Swap()
 		{
 			for (auto& ent : entities)
 			{
-				ent.second->swap();
+				ent.second.swap();
 				
 			}
 		}
+		virtual std::unordered_map<std::string, Entity>& getEntities()
+		{
+			return entities;
+		}
 
+		virtual std::vector<ShaderData>& getShaders()
+		{
+			return shaders;
+		}
 
+		virtual std::vector<MaterialData>& getMaterials()
+		{
+			return materials;
+		}
 
+		virtual std::vector<TextureData>& getTextures()
+		{
+			return textures;
+		}
 
+		virtual std::vector<MeshData>& getMeshes()
+		{
+			return meshes;
+		}
 
+		virtual std::vector<MeshedObject>& getMeshedObjects()
+		{
+			return meshedobjects;
+		}
 
-
-
+		virtual TextureData* getTextureById(uint32_t id)
+		{
+			auto itF = std::find_if(textures.begin(), textures.end(), [id](TextureData& a)->bool {return a.m_textureId == id; });
+			if (itF != textures.end())
+			{
+				return &*itF;
+			}
+			else
+				return nullptr;
+		}
+		virtual MaterialData* getMaterialById(uint32_t id) { return nullptr; };
+		virtual ShaderData* getShaderById(uint32_t id) { return nullptr; };
+		virtual Entity* getEntityById(uint32_t id) { return nullptr; };
+		virtual Entity* getEntityByName(std::string name) { return entities.count(name) ? &entities[name] : nullptr; };
+		virtual MeshData* getMeshById(uint32_t id) { return nullptr; }
+		virtual MeshedObject* getMeshedObjectById(uint32_t id) { return nullptr; }
+		//Would prefer add/remove/const get functions over returning container refs. All virtual so SCMs can change their implementation more freely
+	private:
+		std::unordered_map<std::string, Entity> entities;
+		std::vector<ShaderData> shaders;
+		std::vector<MaterialData> materials;
+		std::vector<TextureData> textures;
+		std::vector<MeshData> meshes;
+		std::vector<MeshedObject> meshedobjects;
 	};
 }
