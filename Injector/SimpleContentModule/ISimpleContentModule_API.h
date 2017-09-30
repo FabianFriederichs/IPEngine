@@ -3,6 +3,9 @@
 #include "../glm/gtc/quaternion.hpp"
 namespace SCM
 {
+	using IdType = uint32_t;
+	using EntityId = IdType;
+	using index = uint32_t;
 	class TransformData
 	{
 	public:
@@ -43,20 +46,20 @@ namespace SCM
 	{
 	public:
 		std::vector<std::string> m_shaderFiles;
-		uint32_t m_shaderId;
+		IdType m_shaderId;
 	};
 
 	class MaterialData
 	{
 	public:
 		std::string m_path;
-		uint32_t m_materialId;
+		IdType m_materialId;
 	};
 
 	class TextureData
 	{
 	public:
-		uint32_t m_textureId;
+		IdType m_textureId;
 		bool m_isInMap;
 		std::string m_path;
 		glm::vec2 m_offset;
@@ -89,20 +92,19 @@ namespace SCM
 		std::vector<VertexData> m_back;
 	};
 
-	using index = uint32_t;
 	class MeshData
 	{
 	public:
 		VertexVector m_vertices;
 		std::vector<index> m_indices;
 		MaterialData* m_material;
-		uint32_t m_meshId;
+		IdType m_meshId;
 	};
 
 	class MeshedObject
 	{
 	public:
-		uint32_t m_meshObjectId;
+		IdType m_meshObjectId;
 		std::vector<MeshData*> m_meshes;
 		virtual void swap()
 		{
@@ -118,7 +120,7 @@ namespace SCM
 	public:
 		Transform m_transformData;
 		Entity* m_parent;
-		uint32_t m_entityId;
+		EntityId m_entityId;
 		virtual void swap() { m_transformData.swap(); }
 	};
 
@@ -175,7 +177,7 @@ namespace SCM
 			return meshedobjects;
 		}
 
-		virtual TextureData* getTextureById(uint32_t id)
+		virtual TextureData* getTextureById(IdType id)
 		{
 			auto itF = std::find_if(textures.begin(), textures.end(), [id](TextureData& a)->bool {return a.m_textureId == id; });
 			if (itF != textures.end())
@@ -185,12 +187,12 @@ namespace SCM
 			else
 				return nullptr;
 		}
-		virtual MaterialData* getMaterialById(uint32_t id) { return nullptr; };
-		virtual ShaderData* getShaderById(uint32_t id) { return nullptr; };
-		virtual Entity* getEntityById(uint32_t id) { return nullptr; };
+		virtual MaterialData* getMaterialById(IdType id) { return nullptr; };
+		virtual ShaderData* getShaderById(IdType id) { return nullptr; };
+		virtual Entity* getEntityById(IdType id) { return nullptr; };
 		virtual Entity* getEntityByName(std::string name) { return entities.count(name) ? &entities[name] : nullptr; };
-		virtual MeshData* getMeshById(uint32_t id) { return nullptr; }
-		virtual MeshedObject* getMeshedObjectById(uint32_t id) { return nullptr; }
+		virtual MeshData* getMeshById(IdType id) { return nullptr; }
+		virtual MeshedObject* getMeshedObjectById(IdType id) { return nullptr; }
 		//Would prefer add/remove/const get functions over returning container refs. All virtual so SCMs can change their implementation more freely
 	private:
 		std::unordered_map<std::string, Entity> entities;
