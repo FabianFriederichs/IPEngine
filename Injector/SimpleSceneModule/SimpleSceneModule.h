@@ -16,6 +16,18 @@ public:
 	bool startUp(){/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */} //do stuff?
 private:
 	ModuleInformation m_info;
+	std::unordered_map<SceneId, Scene> m_scenes;
+
+	// Inherited via ISimpleSceneModule_API
+	virtual SceneId LoadSceneFromFile(std::string filepath) override;
+	virtual SceneId LoadSceneFromFile(std::vector<std::string>::const_iterator filepathstart, std::vector<std::string>::const_iterator filepathend) override;
+	virtual bool RemoveScene(SceneId id) override;
+	virtual bool RemoveScene(std::vector<SCM::EntityId>::const_iterator idstart, std::vector<SCM::EntityId>::const_iterator idend) override;
+	virtual void SwitchActiveScene(SceneId id) override;
+	virtual bool AddEntity(SceneId sceneid, SCM::EntityId entityid) override;
+	virtual bool AddEntity(SceneId sceneid, std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator entityidend) override;
+	virtual bool RemoveEntity(SceneId sceneid, SCM::EntityId entityid) override;
+	virtual bool RemoveEntity(SceneId sceneid, std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator entityidend) override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT SimpleSceneModule module;

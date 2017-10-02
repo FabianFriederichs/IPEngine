@@ -6,6 +6,7 @@ namespace SCM
 	using IdType = uint32_t;
 	using EntityId = IdType;
 	using index = uint32_t;
+
 	class TransformData
 	{
 	public:
@@ -20,7 +21,6 @@ namespace SCM
 		glm::mat4 m_transformMatrix;
 		bool m_isMatrixDirty;
 	private:
-		
 	};
 
 	class Transform
@@ -40,6 +40,27 @@ namespace SCM
 	private:
 		TransformData* m_front;
 		TransformData* m_back;
+	};
+
+	class BoundingBox
+	{
+	public:
+		glm::quat m_rotation;
+		glm::vec3 m_center;
+		glm::vec3 m_size;
+	};
+
+	class BoundingSphere
+	{
+	public:
+		glm::vec3 m_center;
+		glm::float32 m_radius;
+	};
+
+	union BoundingData
+	{
+		BoundingBox box;
+		BoundingSphere sphere;
 	};
 
 	class ShaderData
@@ -121,6 +142,7 @@ namespace SCM
 		Transform m_transformData;
 		Entity* m_parent;
 		EntityId m_entityId;
+		BoundingData m_boundingData;
 		virtual void swap() { m_transformData.swap(); }
 	};
 
