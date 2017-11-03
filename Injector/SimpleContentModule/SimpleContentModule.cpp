@@ -12,3 +12,9 @@ SimpleContentModule::SimpleContentModule()
 	m_info.iam = "ISimpleContentModule_API";
 	return;
 }
+
+SCM::IdType SimpleContentModule::addMeshFromFile(std::string path, std::string format)
+{
+	//TODO construct meshdata via use of fabians objloader
+	return -1;
+}

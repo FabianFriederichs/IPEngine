@@ -8,12 +8,15 @@
 #include <boost/config.hpp>
 #include "ISimpleContentModule_API.h"
 // This class is exported from the Plugin2.dll
-class SimpleContentModule : public ISimpleContentModule_API {
+class SimpleContentModule : public SCM::ISimpleContentModule_API {
 public:
 	SimpleContentModule(void);
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
+
 	bool startUp(){/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */} //do stuff?
+																																													  // Inherited via ISimpleContentModule_API
+	virtual SCM::IdType addMeshFromFile(std::string path, std::string format) override;
 private:
 	ModuleInformation m_info;
 };

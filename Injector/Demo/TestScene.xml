@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Scene>
+  <Entities>
+    <Entity>
+      <Id>0</Id>
+      <StringName>MemeEntity1</StringName>
+      <MeshId></MeshId>
+      <ParentId></ParentId>
+      <TransformData>
+        <Location>0,0,0</Location><!--Vector-->
+        <Rotation>0,0,0,0</Rotation><!--Quaternion-->
+        <Scale>0,0,0</Scale><!--Vector-->
+        <LocalY>0,0,0</LocalY><!--Vector-->
+        <LocalX>0,0,0</LocalX><!--Vector-->
+        <LocalZ>0,0,0</LocalZ><!--Vector-->
+      </TransformData>
+      <BoundingData>
+        <Sphere>
+          <Center>0,0,0</Center><!--X,Y,Z - Vector-->
+          <Radius>1</Radius>
+        </Sphere>
+        <Box>
+          <Center>0,0,0</Center> <!--Vector-->
+          <Size>0</Size> <!--Vector-->
+          <Rotation>0,0,0,0</Rotation> <!--Quaternion-->
+        </Box>
+      </BoundingData>
+    </Entity>
+  </Entities>
+  <Meshes>
+    <Mesh>
+      <Id>0</Id>
+      <Path>assets/meshes/test.obj</Path>
+    </Mesh>
+  </Meshes>
+</Scene>

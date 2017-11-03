@@ -6,11 +6,14 @@ class Scene
 {
 public:
 	const ISimpleSceneModule_API::SceneId m_sceneid;
-private:
 
+	const std::vector<SCM::EntityId> getEntities();
+	int addEntity(SCM::EntityId);
+	int removeEntity(SCM::EntityId);
+private:
+	std::vector<SCM::EntityId> m_entities;
 };
 
 
 
 #endif // !#define _SCENE_H_
-

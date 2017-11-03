@@ -26,5 +26,8 @@
     <Xml Include="XMLFile.xml">
       <Filter>Resource Files</Filter>
     </Xml>
+    <Xml Include="TestScene.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

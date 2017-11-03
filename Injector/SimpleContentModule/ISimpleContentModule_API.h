@@ -143,6 +143,8 @@ namespace SCM
 		Entity* m_parent;
 		EntityId m_entityId;
 		BoundingData m_boundingData;
+		bool isBoundingBox; //True for Box, False for Sphere in Union BoundingData
+		bool isActive;
 		virtual void swap() { m_transformData.swap(); }
 	};
 
@@ -150,10 +152,10 @@ namespace SCM
 	{
 		
 	public:
-		MeshedObject* m_meshes;
+		MeshedObject* m_mesheObjects;
 		virtual void swap() 
 		{ 
-			m_meshes->swap();
+			m_mesheObjects->swap();
 		}
 	};
 
@@ -215,6 +217,7 @@ namespace SCM
 		virtual Entity* getEntityByName(std::string name) { return entities.count(name) ? &entities[name] : nullptr; };
 		virtual MeshData* getMeshById(IdType id) { return nullptr; }
 		virtual MeshedObject* getMeshedObjectById(IdType id) { return nullptr; }
+		virtual IdType addMeshFromFile(std::string path, std::string format) = 0;
 		//Would prefer add/remove/const get functions over returning container refs. All virtual so SCMs can change their implementation more freely
 	private:
 		std::unordered_map<std::string, Entity> entities;

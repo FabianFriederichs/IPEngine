@@ -165,6 +165,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Xml Include="TestScene.xml" />
     <Xml Include="XMLFile.xml">
       <SubType>Designer</SubType>
     </Xml>
