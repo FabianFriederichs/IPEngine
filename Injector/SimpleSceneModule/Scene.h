@@ -5,6 +5,8 @@
 class Scene
 {
 public:
+	Scene():m_sceneid(-1) {};
+	Scene(ISimpleSceneModule_API::SceneId id) :m_sceneid(id) {};
 	const ISimpleSceneModule_API::SceneId m_sceneid;
 
 	const std::vector<SCM::EntityId> getEntities();

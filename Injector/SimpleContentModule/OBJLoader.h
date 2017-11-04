@@ -1,8 +1,8 @@
 #ifndef _OBJ_LOADER_
 #define _OBJ_LOADER_
 
-#include <GL/glew.h>
-#include <glm/glm.hpp>
+#include "../glew/include/GL/glew.h"
+#include "../glm/glm.hpp"
 #include <string>
 #include <vector>
 #include <fstream>

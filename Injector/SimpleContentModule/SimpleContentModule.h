@@ -4,9 +4,11 @@
 // that uses this DLL. This way any other project whose source files include this file see 
 // PLUGIN2_API functions as being imported from a DLL, whereas this DLL sees symbols
 // defined with this macro as being exported.
-
+#ifndef _SIMPLECONTENTMODULE_H_
+#define _SIMPLECONTENTMODULE_H_
 #include <boost/config.hpp>
 #include "ISimpleContentModule_API.h"
+#include "OBJLoader.h"
 // This class is exported from the Plugin2.dll
 class SimpleContentModule : public SCM::ISimpleContentModule_API {
 public:
@@ -14,7 +16,7 @@ public:
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
 
-	bool startUp(){/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */} //do stuff?
+	bool startUp() { return true;/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */ } //do stuff?
 																																													  // Inherited via ISimpleContentModule_API
 	virtual SCM::IdType addMeshFromFile(std::string path, std::string format) override;
 private:
@@ -23,3 +25,5 @@ private:
 
 extern "C" BOOST_SYMBOL_EXPORT SimpleContentModule module;
 SimpleContentModule module;
+
+#endif

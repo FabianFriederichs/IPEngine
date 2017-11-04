@@ -21,9 +21,15 @@
     <ClInclude Include="ISimpleContentModule_API.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OBJLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SimpleContentModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OBJLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -33,9 +33,6 @@
     <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OBJLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GraphicsModule.cpp">
@@ -48,9 +45,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OBJLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

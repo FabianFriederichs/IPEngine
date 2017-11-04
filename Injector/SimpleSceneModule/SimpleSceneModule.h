@@ -20,7 +20,7 @@ public:
 	SimpleSceneModule(void);
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
-	bool startUp(){/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */} //do stuff?
+	bool startUp() { return true; }; //do stuff?
 private:
 	ModuleInformation m_info;
 	std::string contentmoduleidentifier = "SimpleContentModule";

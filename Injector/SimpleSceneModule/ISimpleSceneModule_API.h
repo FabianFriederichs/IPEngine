@@ -7,6 +7,13 @@ class ISimpleSceneModule_API : public IModule_API
 {
 public:
 	using SceneId = uint32_t;
+
+	static SceneId generateNewSceneId()
+	{
+		static SceneId lastId = 0;
+		return lastId++;
+	}
+
 	//Load scene file, return id
 	virtual SceneId LoadSceneFromFile(std::string filepath) = 0;
 	virtual std::vector<SceneId> LoadSceneFromFile(std::vector<std::string>::const_iterator filepathstart, std::vector<std::string>::const_iterator filepathend) = 0;

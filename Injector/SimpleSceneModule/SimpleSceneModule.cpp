@@ -3,14 +3,53 @@
 
 #include "SimpleSceneModule.h"
 
-// This is the constructor of a class that has been exported.
-// see Plugin2.h for the class definition
-SimpleSceneModule::SimpleSceneModule()
+SimpleSceneModule::SimpleSceneModule(void)
 {
 	m_info.identifier = "SimpleSceneModule";
 	m_info.version = "1.0";
 	m_info.iam = "ISimpleSceneModule_API";
 	return;
+}
+
+
+glm::vec3& parseVectorFromString(std::string s)
+{
+	glm::vec3 v;
+	std::string x, y, z;
+	auto pos = s.find_first_of('/', 0);
+	x = s.substr(0, pos);
+	auto opos = pos+1;
+	pos = s.find_first_of('/', pos);
+	y = s.substr(opos, pos);
+	opos = pos+1;
+	pos = s.find_first_of('/', pos);
+	z = s.substr(opos, pos);
+	v.x = std::stof(x);
+	v.y = std::stof(y);
+	v.z = std::stof(z);
+	return v;
+}
+
+glm::quat& parseQuatFromString(std::string s)
+{
+	glm::quat q;
+	std::string w, x, y, z;
+	auto pos = s.find_first_of('/', 0);
+	w = s.substr(0, pos);
+	auto opos = pos+1;
+	pos = s.find_first_of('/', pos);
+	x = s.substr(opos, pos);
+	opos = pos+1;
+	pos = s.find_first_of('/', pos);
+	y = s.substr(opos, pos);
+	opos = pos+1;
+	pos = s.find_first_of('/', pos);
+	z = s.substr(opos, pos);
+	q.w = std::stof(w);
+	q.x = std::stof(x);
+	q.y = std::stof(y);
+	q.z = std::stof(z);
+	return q;
 }
 
 SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string filepath)
@@ -36,7 +75,9 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 	boost::property_tree::ptree tree;
 	boost::property_tree::read_xml(filepath, tree);
 	auto contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
+	auto entitystorage = contentmodule->getEntities();
 	std::unordered_map<int, SCM::IdType> meshtointernid;
+	std::unordered_map<int, SCM::EntityId> entitytointernid;
 	//Add all meshes 
 	for (auto node : tree.get_child("Scene.Meshes"))
 	{
@@ -46,8 +87,8 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		{
 			continue; //Skip because scenes meshid is a duplicate.
 		}
-		meshid = node.second.get<SCM::IdType>("Id");
-		meshpath = node.second.get<std::string>("Path");
+		meshid = node.second.get<SCM::IdType>("Id", -1);
+		meshpath = node.second.get<std::string>("Path", "");
 		auto pos = meshpath.find_last_of('.');
 		std::string extension = pos!=std::string::npos?meshpath.substr(pos+1):"";
 		meshtointernid[meshid] = contentmodule->addMeshFromFile(meshpath, extension);
@@ -58,24 +99,95 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		std::string entityname;
 		int entityid;
 		int meshid;
-		int parentid;
 		SCM::TransformData transdata;
+		SCM::BoundingBox boxdata;
+		boxdata.m_center = glm::vec3(0, 0, 0);
+		boxdata.m_size = glm::vec3(0, 0, 0);
+		boxdata.m_rotation = glm::quat(0, 0, 0, 0);
+		SCM::BoundingSphere spheredata;
+		bool boxorsphere =true;
 		//TODO
-		//SCM::BoundingData boundingdata;
 
 		//if (meshtointernid.count(meshid) > 0)
 		//{
 		//	continue; //Skip because scenes meshid is a duplicate.
 		//}
-		entityid = node.second.get<SCM::IdType>("Id");
-		entityname = node.second.get<std::string>("StringName");
+		entityid = node.second.get<SCM::IdType>("Id", -1);
+		if (entityid == -1 || entitytointernid.count(entityid) > 0)
+		{
+			continue; //Entity skipped because faulty input data or duplicate
+		}
+		entityname = node.second.get<std::string>("StringName", "");
+		if (entityname == "" || entitystorage.count(entityname) > 0)
+		{
+			continue; //Entity skipped because faulty input data or duplicate
+		}
 
+		meshid = node.second.get<int>("MeshId", -1);
+		transdata.m_location = parseVectorFromString(node.second.get<std::string>("TransformData.Location", "0/0/0"));
+		transdata.m_rotation = parseQuatFromString(node.second.get<std::string>("TransformData.Rotation", "0/0/0/0"));
+		transdata.m_scale = parseVectorFromString(node.second.get<std::string>("TransformData.Scale", "0/0/0"));
+		transdata.m_localX = parseVectorFromString(node.second.get<std::string>("TransformData.LocalY", "0/0/0"));
+		transdata.m_localY = parseVectorFromString(node.second.get<std::string>("TransformData.LocalX", "0/0/0"));
+		transdata.m_localZ = parseVectorFromString(node.second.get<std::string>("TransformData.LocalZ", "0/0/0"));
+
+		//Box or Sphere?
+		auto boundingdata = node.second.find("BoundingData");
+		if (boundingdata!= node.second.not_found())
+		{
+			auto spec = boundingdata->second.find("Sphere");
+			if (spec != boundingdata->second.not_found())
+			{
+				spheredata.m_center = parseVectorFromString(spec->second.get<std::string>("Center", "0/0/0"));
+				spheredata.m_radius = spec->second.get<float>("Radius", 1);
+				boxorsphere = false;
+			}
+			else if ((spec = boundingdata->second.find("Box")) != boundingdata->second.not_found())
+			{
+				boxdata.m_center = parseVectorFromString(spec->second.get<std::string>("Center", "0/0/0"));
+				boxdata.m_size = parseVectorFromString(spec->second.get<std::string>("Size", "0/0/0"));
+				boxdata.m_rotation = parseQuatFromString(spec->second.get<std::string>("Rotation", "0/0/0/0"));
+				boxorsphere = true;
+			}
+		}
+		
+		//Check Mesh id
+		if (meshtointernid.find(meshid) != meshtointernid.end())
+		{
+			entitystorage[entityname] = SCM::ThreeDimEntity(SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
+			entitytointernid[entityid] = entitystorage[entityname].m_entityId;
+
+		}
+		else
+		{
+			entitystorage[entityname] = SCM::Entity(SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
+			entitytointernid[entityid] = entitystorage[entityname].m_entityId;
+		}
 		//auto pos = meshpath.find_last_of('.');
 		//std::string extension = pos != std::string::npos ? meshpath.substr(pos + 1) : "";
 		//meshtointernid[meshid] = contentmodule->addMeshFromFile(meshpath, extension);
 	}
 
-	return SceneId();
+	Scene sc(generateNewSceneId());
+
+	for (auto node : tree.get_child("Scene.Entities"))
+	{
+		int entityid;
+		int parentid;
+		entityid = node.second.get<SCM::IdType>("Id", -1);
+		parentid = node.second.get<int>("ParentId", -1);
+		if (entitytointernid.count(entityid) > 0)
+		{
+			sc.addEntity(entityid);
+			if (entitytointernid.count(parentid) > 0)
+			{
+				contentmodule->setEntityParent(entitytointernid[entityid], entitytointernid[parentid]);
+			}
+		}
+		
+	}
+
+	return sc.m_sceneid;
 }
 
 std::vector<SimpleSceneModule::SceneId> SimpleSceneModule::LoadSceneFromFile(std::vector<std::string>::const_iterator filepathstart, std::vector<std::string>::const_iterator filepathend)
@@ -190,3 +302,4 @@ int SimpleSceneModule::RemoveEntity(SceneId sceneid, std::vector<SCM::EntityId>:
 	}
 	return c;
 }
+
