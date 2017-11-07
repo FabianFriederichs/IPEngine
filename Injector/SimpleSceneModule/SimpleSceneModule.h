@@ -23,7 +23,7 @@ public:
 	bool startUp() { return true; }; //do stuff?
 private:
 	ModuleInformation m_info;
-	std::string contentmoduleidentifier = "SimpleContentModule";
+	std::string contentmoduleidentifier = "SCM";
 	std::unordered_map<SceneId, Scene> m_scenes;
 	SceneId m_activeScene;
 	// Inherited via ISimpleSceneModule_API

@@ -7,6 +7,8 @@
 #include <iostream>
 #include <thread>
 #include <Core/ICore.h>
+#include "ISimpleSceneModule_API.h"
+#include "ISimpleContentModule_API.h"
 boost::shared_ptr<IInput_API> input;
 //void WriteInputs(TaskContext& c)
 //{
@@ -30,7 +32,12 @@ int _tmain(int argc, _TCHAR* argv[])
 	ipengine::Core core;
 	inj.LoadModules(&core);
 	auto mods = inj.getLoadedModules();
-	input = boost::dynamic_pointer_cast<IInput_API>(mods["InputModule"]);
+	auto ssm = boost::dynamic_pointer_cast<ISimpleSceneModule_API>(mods["SimpleSceneModule"]);
+	auto scm = boost::dynamic_pointer_cast<SCM::ISimpleContentModule_API>(mods["SimpleContentModule"]);
+
+	auto sceneid = ssm->LoadSceneFromFile("TestScene.xml");
+	std::cout << sceneid;
+	std::cout << "\n" << SCM::allEntitiesAsString(*scm, false);
 	//boost::shared_ptr<IScheduler_API> schedAPI = boost::dynamic_pointer_cast<IScheduler_API>(mods["Scheduler"]);
 	//IInput_API input = dynamic_cast<IInput_API>(mods["InputModule"]);
 

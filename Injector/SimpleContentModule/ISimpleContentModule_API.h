@@ -23,7 +23,8 @@ namespace SCM
 	class TransformData
 	{
 	public:
-		TransformData() {};
+		TransformData() { m_isMatrixDirty = true; };
+		TransformData(const TransformData& d) :m_location(d.m_location), m_rotation(d.m_rotation), m_scale(d.m_scale), m_localX(d.m_localX), m_localY(d.m_localY), m_localZ(d.m_localZ) { m_isMatrixDirty = true; };
 		~TransformData() {};
 		glm::vec3 m_location;
 		glm::quat m_rotation;
@@ -42,9 +43,19 @@ namespace SCM
 		Transform() {
 			m_front = new TransformData(); m_back = new TransformData();
 		}
-		Transform(TransformData& data) {
-			m_front = &data; m_back = new TransformData();
+		Transform(const Transform& other) : m_front(new TransformData(*other.m_front)), m_back(new TransformData(*other.m_back)) 
+		{
 		}
+		Transform(const TransformData& data): m_front(new TransformData(data)) {
+			m_back = new TransformData();
+		}
+		Transform& operator=(Transform other)
+		{
+			m_front = new TransformData(*other.m_front);
+			m_back = new TransformData(*other.m_back);
+			return *this;
+		}
+
 		~Transform() {
 			delete m_front; delete m_back;
 		}
@@ -124,6 +135,12 @@ namespace SCM
 	class VertexVector
 	{
 	public:
+		VertexVector()
+		{
+		}
+		VertexVector(const VertexVector& other) : m_front(other.m_front), m_back(other.m_back)
+		{
+		}
 		const std::vector<VertexData>& getData() {
 			return m_front;
 		}
@@ -167,11 +184,18 @@ namespace SCM
 		Entity()
 		{
 			m_entityId = generateNewEntityId();
+			m_parent = nullptr;
 			isBoundingBox = true;
+			isActive = false;
+		}
+		Entity(const Entity& other):m_transformData(other.m_transformData), m_parent(other.m_parent), m_entityId(generateNewEntityId()), m_boundingData(other.m_boundingData), isBoundingBox(other.isBoundingBox), isActive(other.isActive)
+		{
+
 		}
 		Entity(Transform& transform, BoundingData& boundingdata, bool boundingbox, bool active) :m_transformData(transform), m_boundingData(boundingdata)
 		{
 			m_entityId = generateNewEntityId();
+			m_parent = nullptr;
 			isBoundingBox = boundingbox;
 			isActive = active;
 		}
@@ -293,7 +317,7 @@ namespace SCM
 	static std::string glmquattostring(glm::quat q)
 	{
 		std::string out = "";
-		out += std::to_string(q.x) + " / " + std::to_string(q.y) + " / " + std::to_string(q.z);
+		out += std::to_string(q.w) + " / " + std::to_string(q.x) + " / " + std::to_string(q.y) + " / " + std::to_string(q.z);
 		return out;
 	}
 
@@ -303,10 +327,15 @@ namespace SCM
 
 		for (auto ents : content.getEntities())
 		{
-			out += ents.second.m_entityId + ": " + ents.first + " Active: " + (ents.second.isActive?"True":"False") + "\n";
+			out += std::to_string(ents.second.m_entityId) + ": " + ents.first + " Active: " + (ents.second.isActive?"True":"False") + "\n";
 			if (withproperties)
 			{
-				out += "\t Parent: " + ents.second.m_parent->m_entityId;
+				if (ents.second.m_parent != nullptr)
+				{
+					out += "\t Parent: " + std::to_string(ents.second.m_parent->m_entityId) + "\n";;
+				}
+				else
+					out += "\t Parent: -\n";
 				auto vd = ents.second.m_transformData.getData();
 				out += "\t Transform: \n";
 				out += "\t\t Location: " + glmvec3tostring(vd->m_location) + "\n";

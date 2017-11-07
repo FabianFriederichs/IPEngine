@@ -86,7 +86,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Plugin1;..\Injector;$(BOOST);%(AdditionalIncludeDirectories);;../../IPCore/IPCore;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Plugin1;..\Injector;$(BOOST);%(AdditionalIncludeDirectories);;../../IPCore/IPCore;../SimpleContentModule;../SimpleSceneModule;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -161,6 +161,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\Demo\XMLFile.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Demo\TestScene.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

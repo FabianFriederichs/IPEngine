@@ -19,11 +19,11 @@ glm::vec3& parseVectorFromString(std::string s)
 	auto pos = s.find_first_of('/', 0);
 	x = s.substr(0, pos);
 	auto opos = pos+1;
-	pos = s.find_first_of('/', pos);
-	y = s.substr(opos, pos);
+	pos = s.find_first_of('/', opos);
+	y = s.substr(opos, pos-opos);
 	opos = pos+1;
-	pos = s.find_first_of('/', pos);
-	z = s.substr(opos, pos);
+	pos = s.find_first_of('/', opos);
+	z = s.substr(opos, pos - opos);
 	v.x = std::stof(x);
 	v.y = std::stof(y);
 	v.z = std::stof(z);
@@ -38,13 +38,13 @@ glm::quat& parseQuatFromString(std::string s)
 	w = s.substr(0, pos);
 	auto opos = pos+1;
 	pos = s.find_first_of('/', pos);
-	x = s.substr(opos, pos);
+	x = s.substr(opos, pos - opos);
 	opos = pos+1;
 	pos = s.find_first_of('/', pos);
-	y = s.substr(opos, pos);
+	y = s.substr(opos, pos - opos);
 	opos = pos+1;
 	pos = s.find_first_of('/', pos);
-	z = s.substr(opos, pos);
+	z = s.substr(opos, pos - opos);
 	q.w = std::stof(w);
 	q.x = std::stof(x);
 	q.y = std::stof(y);
@@ -73,9 +73,9 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 	*/
 	//TODO: path validity checks
 	boost::property_tree::ptree tree;
-	boost::property_tree::read_xml(filepath, tree);
+	boost::property_tree::read_xml(filepath, tree,boost::property_tree::xml_parser::no_comments);
 	auto contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
-	auto entitystorage = contentmodule->getEntities();
+	auto& entitystorage = contentmodule->getEntities();
 	std::unordered_map<int, SCM::IdType> meshtointernid;
 	std::unordered_map<int, SCM::EntityId> entitytointernid;
 	//Add all meshes 
@@ -156,11 +156,13 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		{
 			entitystorage[entityname] = SCM::ThreeDimEntity(SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
 			entitytointernid[entityid] = entitystorage[entityname].m_entityId;
-
 		}
 		else
 		{
-			entitystorage[entityname] = SCM::Entity(SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
+			entitystorage[entityname] = SCM::Entity();// SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
+			entitystorage[entityname].m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
+			entitystorage[entityname].isBoundingBox = boxorsphere;
+			entitystorage[entityname].m_transformData = SCM::Transform(transdata);
 			entitytointernid[entityid] = entitystorage[entityname].m_entityId;
 		}
 		//auto pos = meshpath.find_last_of('.');
@@ -169,7 +171,7 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 	}
 
 	Scene sc(generateNewSceneId());
-
+	m_scenes.insert({ sc.m_sceneid,sc });
 	for (auto node : tree.get_child("Scene.Entities"))
 	{
 		int entityid;
@@ -178,7 +180,7 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		parentid = node.second.get<int>("ParentId", -1);
 		if (entitytointernid.count(entityid) > 0)
 		{
-			sc.addEntity(entityid);
+			m_scenes[sc.m_sceneid].addEntity(entityid);
 			if (entitytointernid.count(parentid) > 0)
 			{
 				contentmodule->setEntityParent(entitytointernid[entityid], entitytointernid[parentid]);
@@ -186,7 +188,6 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		}
 		
 	}
-
 	return sc.m_sceneid;
 }
 
