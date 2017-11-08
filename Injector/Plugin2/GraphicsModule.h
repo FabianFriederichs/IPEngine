@@ -1,3 +1,5 @@
+#ifndef _GRAPHICSMODULE_H_
+#define _GRAPHICSMODULE_H_
 // The following ifdef block is the standard way of creating macros which make exporting 
 // from a DLL simpler. All files within this DLL are compiled with the PLUGIN2_EXPORTS
 // symbol defined on the command line. This symbol should not be defined on any project
@@ -31,3 +33,5 @@ private:
 
 extern "C" BOOST_SYMBOL_EXPORT GraphicsModule module;
 GraphicsModule module;
+
+#endif

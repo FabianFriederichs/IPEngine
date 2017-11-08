@@ -141,7 +141,7 @@ namespace SCM
 		VertexVector(const VertexVector& other) : m_front(other.m_front), m_back(other.m_back)
 		{
 		}
-		const std::vector<VertexData>& getData() {
+		const std::vector<VertexData>& getData() const {
 			return m_front;
 		}
 		std::vector<VertexData>& setData() {
@@ -273,12 +273,60 @@ namespace SCM
 			else
 				return nullptr;
 		}
-		virtual MaterialData* getMaterialById(IdType id) { return nullptr; };
-		virtual ShaderData* getShaderById(IdType id) { return nullptr; };
-		virtual Entity* getEntityById(IdType id) { return nullptr; };
-		virtual Entity* getEntityByName(std::string name) { return entities.count(name) ? &entities[name] : nullptr; };
-		virtual MeshData* getMeshById(IdType id) { return nullptr; }
-		virtual MeshedObject* getMeshedObjectById(IdType id) { return nullptr; }
+		virtual MaterialData* getMaterialById(IdType id) 
+		{ 
+			auto itF = std::find_if(materials.begin(), materials.end(), [id](MaterialData& a)->bool {return a.m_materialId == id; });
+			if (itF != materials.end())
+			{
+				return &*itF;
+			}
+			else
+				return nullptr; 
+		};
+		virtual ShaderData* getShaderById(IdType id) 
+		{ 
+			auto itF = std::find_if(shaders.begin(), shaders.end(), [id](ShaderData& a)->bool {return a.m_shaderId == id; });
+			if (itF != shaders.end())
+			{
+				return &*itF;
+			}
+			else
+				return nullptr;
+		};
+		virtual Entity* getEntityById(EntityId id)
+		{ 
+			auto itF = std::find_if(entities.begin(), entities.end(), [id](std::pair<const std::string, Entity>& a)->bool {return a.second.m_entityId== id; });
+			if (itF != entities.end())
+			{
+				return &(itF->second);
+			}
+			else
+				return nullptr;
+		};
+		virtual Entity* getEntityByName(std::string name) 
+		{ 
+			return entities.count(name) ? &entities[name] : nullptr; 
+		};
+		virtual MeshData* getMeshById(IdType id)
+		{ 
+			auto itF = std::find_if(meshes.begin(), meshes.end(), [id](MeshData& a)->bool {return a.m_meshId == id; });
+			if (itF != meshes.end())
+			{
+				return &*itF;
+			}
+			else
+				return nullptr;
+		}
+		virtual MeshedObject* getMeshedObjectById(IdType id)
+		{ 
+			auto itF = std::find_if(meshedobjects.begin(), meshedobjects.end(), [id](MeshedObject& a)->bool {return a.m_meshObjectId == id; });
+			if (itF != meshedobjects.end())
+			{
+				return &*itF;
+			}
+			else
+				return nullptr;
+		}
 		virtual IdType addMeshFromFile(std::string path, std::string format) = 0;
 		virtual bool setEntityParent(EntityId child, EntityId parent)
 		{
@@ -307,6 +355,7 @@ namespace SCM
 	{
 		std::string out = "";
 		out += std::to_string(v.x) + " / " + std::to_string(v.y);
+		return out;
 	}
 	static std::string glmvec3tostring(glm::vec3 v)
 	{
@@ -327,7 +376,7 @@ namespace SCM
 
 		for (auto ents : content.getEntities())
 		{
-			out += std::to_string(ents.second.m_entityId) + ": " + ents.first + " Active: " + (ents.second.isActive?"True":"False") + "\n";
+			out += "Id: " + std::to_string(ents.second.m_entityId) + ": " + ents.first + " Active: " + (ents.second.isActive?"True":"False") + "\n";
 			if (withproperties)
 			{
 				if (ents.second.m_parent != nullptr)
@@ -371,12 +420,12 @@ namespace SCM
 
 		for (auto mobs : content.getMeshedObjects())
 		{
-			out += mobs.m_meshObjectId + ": " + std::to_string(mobs.m_meshes.size()) + "\n";
+			out += "Id: " + std::to_string(mobs.m_meshObjectId) + ": " + std::to_string(mobs.m_meshes.size()) + " meshes\n";
 			if (withproperties)
 			{
 				for (auto m : mobs.m_meshes)
 				{
-					out += "\t MeshId: " + std::to_string(m->m_meshId) + "\n";
+					out += "    MeshId: " + std::to_string(m->m_meshId) + "\n";
 					out += "\t Indices: " + std::to_string(m->m_indices.size()) + "\n";
 					if (extended)
 					{
@@ -400,8 +449,9 @@ namespace SCM
 				}
 			}
 		}
+		return out;
 	}
-
+	
 }
 
 #endif

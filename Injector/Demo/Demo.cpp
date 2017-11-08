@@ -36,8 +36,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	auto scm = boost::dynamic_pointer_cast<SCM::ISimpleContentModule_API>(mods["SimpleContentModule"]);
 
 	auto sceneid = ssm->LoadSceneFromFile("TestScene.xml");
-	std::cout << sceneid;
-	std::cout << "\n" << SCM::allEntitiesAsString(*scm, false);
+	auto entity = scm->getEntityById(0);
+	std::cout << sceneid << "\n";
+	std::cout << SCM::allEntitiesAsString(*scm, true);
+	std::cout << SCM::allMeshObjectsAsString(*scm, true);
 	//boost::shared_ptr<IScheduler_API> schedAPI = boost::dynamic_pointer_cast<IScheduler_API>(mods["Scheduler"]);
 	//IInput_API input = dynamic_cast<IInput_API>(mods["InputModule"]);
 

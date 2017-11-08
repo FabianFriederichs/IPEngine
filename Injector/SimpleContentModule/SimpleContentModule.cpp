@@ -19,7 +19,7 @@ SCM::IdType SimpleContentModule::addMeshFromFile(std::string path, std::string f
 	if (format == "obj")
 	{
 		auto obj = OBJLoader::loadOBJ(path).objects[0];
-		auto scmmeshes = getMeshes();
+		auto& scmmeshes = getMeshes();
 		std::vector<SCM::MeshData*> meshes;
 		for (auto m : obj.meshes)
 		{

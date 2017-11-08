@@ -9,7 +9,7 @@ inline size_t index2d(size_t x, size_t y, size_t width)
 #include "libheaders.h"
 #include <string>
 #include <vector>
-#include "OBJLoader.h"
+#include "ISimpleContentModule_API.h"
 #include <memory>
 #include "glerror.h"
 
@@ -25,7 +25,7 @@ public:
 	GLUtils(GLUtils&&) = delete;
 
 	//static std::shared_ptr<Texture2D> loadGLTexture(const std::string& path);
-	static std::shared_ptr<VAO> createVAO(const OBJMesh& mesh);
+	static std::shared_ptr<VAO> createVAO(const SCM::MeshData& mesh);
 	static std::shared_ptr<ShaderProgram> createShaderProgram(const std::string& vspath, const std::string& fspath);
 };
 

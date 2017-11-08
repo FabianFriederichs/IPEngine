@@ -83,11 +83,11 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 	{
 		std::string meshpath;
 		int meshid;
+		meshid = node.second.get<SCM::IdType>("Id", -1);
 		if (meshtointernid.count(meshid) > 0)
 		{
 			continue; //Skip because scenes meshid is a duplicate.
 		}
-		meshid = node.second.get<SCM::IdType>("Id", -1);
 		meshpath = node.second.get<std::string>("Path", "");
 		auto pos = meshpath.find_last_of('.');
 		std::string extension = pos!=std::string::npos?meshpath.substr(pos+1):"";

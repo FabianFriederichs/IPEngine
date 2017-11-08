@@ -4,7 +4,7 @@
     <Entity>
       <Id>0</Id>
       <StringName>MemeEntity1</StringName>
-      <MeshId></MeshId>
+      <MeshId>0</MeshId>
       <ParentId></ParentId>
       <TransformData>
         <Location>0/0/0</Location><!--Vector-->
@@ -29,7 +29,7 @@
     <Entity>
       <Id>1</Id>
       <StringName>MemeEntity2</StringName>
-      <MeshId></MeshId>
+      <MeshId>0</MeshId>
       <ParentId></ParentId>
       <TransformData>
         <Location>1/1/0</Location>
@@ -64,7 +64,7 @@
     <Entity>
       <Id>2</Id>
       <StringName>MemeEntity3</StringName>
-      <MeshId></MeshId>
+      <MeshId>0</MeshId>
       <ParentId></ParentId>
       <TransformData>
         <Location>-1/-1/0</Location>
@@ -99,7 +99,7 @@
     <Entity>
       <Id>3</Id>
       <StringName>MemeEntity4</StringName>
-      <MeshId></MeshId>
+      <MeshId>0</MeshId>
       <ParentId></ParentId>
       <TransformData>
         <Location>1/-1/0</Location>
@@ -133,26 +133,21 @@
     </Entity>
   </Entities>
   
-  <Meshes>
-    <!--
+  <Meshes> 
     <Mesh>
       <Id>0</Id>
-      <Path>assets/meshes/test.obj</Path>
+      <Path>../../assets/models/uglypot.obj</Path>
     </Mesh>
-  </Meshes>
-  <Meshes>
+    <!--
     <Mesh>
       <Id>1</Id>
-      <Path>assets/meshes/test.obj</Path>
+      <Path>../..assets/models/ground.obj</Path>
     </Mesh>
-  </Meshes>
-  <Meshes>
+ 
     <Mesh>
       <Id>2</Id>
       <Path>assets/meshes/test.obj</Path>
     </Mesh>
-  </Meshes>
-  <Meshes>
     <Mesh>
       <Id>3</Id>
       <Path>assets/meshes/test.obj</Path>
