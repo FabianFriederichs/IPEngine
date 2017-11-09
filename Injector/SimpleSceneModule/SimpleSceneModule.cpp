@@ -78,6 +78,44 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 	auto& entitystorage = contentmodule->getEntities();
 	std::unordered_map<int, SCM::IdType> meshtointernid;
 	std::unordered_map<int, SCM::EntityId> entitytointernid;
+	std::unordered_map<int, SCM::IdType> shadertointernid;
+	std::unordered_map<int, SCM::IdType> materialtointernid;
+
+
+	auto& shaders = contentmodule->getShaders();
+	for (auto node : tree.get_child("Scene.Shaders"))
+	{
+		std::string fsp, vsp;
+		int shaderid;
+		shaderid = node.second.get<SCM::IdType>("Id", -1);
+		if (shadertointernid.count(shaderid) > 0)
+		{
+			continue; //Skip because scenes meshid is a duplicate.
+		}
+		vsp = node.second.get<std::string>("VSPath", "");
+		fsp = node.second.get<std::string>("FSPath", "");
+		auto id = SCM::generateNewGeneralId();
+		shaders.push_back(SCM::ShaderData(id, vsp, fsp));
+		shadertointernid[shaderid] = id;
+	}
+
+	auto& materials = contentmodule->getMaterials();
+	for (auto node : tree.get_child("Scene.Materials"))
+	{
+		std::string texturepath;
+		int matid, shaderid;
+		matid = node.second.get<SCM::IdType>("Id", -1);
+		if (materialtointernid.count(matid) > 0)
+		{
+			continue; //Skip because scenes meshid is a duplicate.
+		}
+		texturepath = node.second.get<std::string>("TexturePath", "");
+		shaderid = node.second.get<SCM::IdType>("ShaderId", -1);
+		auto id = SCM::generateNewGeneralId();
+		materials.push_back(SCM::MaterialData(id, texturepath, shaderid)); //TODO Textures have to be loaded somewhere
+		materialtointernid[matid] = id;
+	}
+
 	//Add all meshes 
 	for (auto node : tree.get_child("Scene.Meshes"))
 	{
@@ -90,9 +128,19 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		}
 		meshpath = node.second.get<std::string>("Path", "");
 		auto pos = meshpath.find_last_of('.');
-		std::string extension = pos!=std::string::npos?meshpath.substr(pos+1):"";
-		meshtointernid[meshid] = contentmodule->addMeshFromFile(meshpath, extension);
+		std::string extension = pos != std::string::npos ? meshpath.substr(pos + 1) : "";
+
+		std::vector<SCM::IdType> materials;
+		//materials
+		for (auto matnode : tree.get_child("Scene.Meshes.Materials"))
+		{
+			auto matid = node.second.get<SCM::IdType>("MaterialId", -1);
+			materials.push_back(matid);
+		}
+
+		meshtointernid[meshid] = contentmodule->addMeshFromFile(meshpath, extension, materials);
 	}
+
 
 	for (auto node : tree.get_child("Scene.Entities"))
 	{
@@ -155,6 +203,7 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		if (meshtointernid.find(meshid) != meshtointernid.end())
 		{
 			entitystorage[entityname] = SCM::ThreeDimEntity(SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
+			entitystorage[entityname].m_name = entityname;
 			entitytointernid[entityid] = entitystorage[entityname].m_entityId;
 		}
 		else
@@ -163,6 +212,7 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 			entitystorage[entityname].m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
 			entitystorage[entityname].isBoundingBox = boxorsphere;
 			entitystorage[entityname].m_transformData = SCM::Transform(transdata);
+			entitystorage[entityname].m_name = entityname;
 			entitytointernid[entityid] = entitystorage[entityname].m_entityId;
 		}
 		//auto pos = meshpath.find_last_of('.');

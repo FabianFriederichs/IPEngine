@@ -32,6 +32,13 @@
     </Module>
     <Module>
       <identifier>GraphicsModule</identifier>
+      <dependencies>
+        <dependency>
+          <inject>true</inject>
+          <identifier>SCM</identifier>
+          <moduleID>SimpleContentModule</moduleID>
+        </dependency>
+      </dependencies>
     </Module>
     <Module>
       <identifier>InputModule</identifier>

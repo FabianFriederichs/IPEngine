@@ -62,6 +62,26 @@ public:
 	~ShaderProgram();
 	void use();
 	GLuint prog;
+
+	bool isActive()
+	{
+		GLint progName = 0;
+		glGetIntegerv(GL_CURRENT_PROGRAM, &progName); GLERR
+			if (progName != this->prog)
+				return false;
+		return true;
+	}
+
+	template<class T>
+	inline void setUniform(const std::string name, T stuff);
+	template<class T>
+	inline void setUniform(const std::string name, T stuff, const GLboolean transpose);
+
+private:
+	GLint getUniformLocation(std::string name)
+	{
+		return glGetUniformLocation(this->prog, name.c_str()); GLERR
+	}
 };
 
 

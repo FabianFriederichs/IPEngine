@@ -24,6 +24,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InputModule", "Plugin1\Plug
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GraphicsModule", "Plugin2\Plugin2.vcxproj", "{44C14CF2-2BD7-4AE7-A273-940988848344}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E48F70E5-1CCF-4125-85F8-EE173A9092D1} = {E48F70E5-1CCF-4125-85F8-EE173A9092D1}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VRGraphicsModule", "VRGraphicsModule\VRGraphicsModule.vcxproj", "{F0AB9D35-E271-40A1-B6B4-A9EE5EA55BD9}"
 	ProjectSection(ProjectDependencies) = postProject

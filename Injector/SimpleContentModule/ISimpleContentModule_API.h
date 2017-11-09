@@ -99,6 +99,11 @@ namespace SCM
 	class ShaderData
 	{
 	public:
+		ShaderData() = default;
+		ShaderData(IdType id, std::string v, std::string f):m_shaderFiles({v,f})
+		{
+
+		}
 		std::vector<std::string> m_shaderFiles;
 		IdType m_shaderId;
 	};
@@ -106,7 +111,10 @@ namespace SCM
 	class MaterialData
 	{
 	public:
-		std::string m_path;
+		MaterialData() = default;
+		MaterialData(SCM::IdType id, std::string path, SCM::IdType shaderid) : m_materialId(id), m_shaderid(shaderid), m_texturepath(path) {};
+		std::string m_texturepath;
+		SCM::IdType m_shaderid;
 		IdType m_materialId;
 	};
 
@@ -188,7 +196,7 @@ namespace SCM
 			isBoundingBox = true;
 			isActive = false;
 		}
-		Entity(const Entity& other):m_transformData(other.m_transformData), m_parent(other.m_parent), m_entityId(generateNewEntityId()), m_boundingData(other.m_boundingData), isBoundingBox(other.isBoundingBox), isActive(other.isActive)
+		Entity(const Entity& other):m_transformData(other.m_transformData), m_parent(other.m_parent), m_entityId(generateNewEntityId()), m_name(other.m_name), m_boundingData(other.m_boundingData), isBoundingBox(other.isBoundingBox), isActive(other.isActive)
 		{
 
 		}
@@ -202,6 +210,7 @@ namespace SCM
 		Transform m_transformData;
 		Entity* m_parent;
 		EntityId m_entityId;
+		std::string m_name;
 		BoundingData m_boundingData;
 		bool isBoundingBox; //True for Box, False for Sphere in Union BoundingData
 		bool isActive;
@@ -327,7 +336,8 @@ namespace SCM
 			else
 				return nullptr;
 		}
-		virtual IdType addMeshFromFile(std::string path, std::string format) = 0;
+		virtual IdType addMeshFromFile(std::string path, std::string format, std::vector<IdType> mats) = 0;
+		virtual SCM::IdType getDefaultMaterialId() = 0;
 		virtual bool setEntityParent(EntityId child, EntityId parent)
 		{
 			auto ent = getEntityById(child);
@@ -373,7 +383,6 @@ namespace SCM
 	static std::string allEntitiesAsString(ISimpleContentModule_API& content, bool withproperties = false)
 	{
 		std::string out="";
-
 		for (auto ents : content.getEntities())
 		{
 			out += "Id: " + std::to_string(ents.second.m_entityId) + ": " + ents.first + " Active: " + (ents.second.isActive?"True":"False") + "\n";

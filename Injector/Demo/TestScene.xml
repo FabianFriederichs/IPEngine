@@ -137,6 +137,11 @@
     <Mesh>
       <Id>0</Id>
       <Path>../../assets/models/uglypot.obj</Path>
+      <Materials>
+        <Material>
+          <MaterialId>0</MaterialId>
+        </Material>
+      </Materials>
     </Mesh>
     <!--
     <Mesh>
@@ -153,4 +158,20 @@
       <Path>assets/meshes/test.obj</Path>
     </Mesh>-->
   </Meshes>
+
+  <Shaders>
+    <Shader>
+      <Id>0</Id>
+      <VSPath>../../assets/shaders/vs.vs</VSPath>
+      <FSPath>../../assets/shaders/fs.fs</FSPath>
+    </Shader>
+  </Shaders>
+
+  <Materials>
+    <Material>
+      <Id>0</Id>
+      <TexturePath>../../assets/textures/sample.dds</TexturePath>
+      <ShaderId>0</ShaderId>
+    </Material>
+  </Materials>
 </Scene>

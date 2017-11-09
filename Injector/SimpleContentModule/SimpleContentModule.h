@@ -18,7 +18,8 @@ public:
 
 	bool startUp() { return true;/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */ } //do stuff?
 																																													  // Inherited via ISimpleContentModule_API
-	virtual SCM::IdType addMeshFromFile(std::string path, std::string format) override;
+	virtual SCM::IdType addMeshFromFile(std::string path, std::string format, std::vector<SCM::IdType> mats) override;
+	virtual SCM::IdType getDefaultMaterialId() override;
 private:
 	ModuleInformation m_info;
 };
