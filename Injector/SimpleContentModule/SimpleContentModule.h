@@ -7,6 +7,7 @@
 #ifndef _SIMPLECONTENTMODULE_H_
 #define _SIMPLECONTENTMODULE_H_
 #include <boost/config.hpp>
+#include <filesystem>
 #include "ISimpleContentModule_API.h"
 #include "OBJLoader.h"
 // This class is exported from the Plugin2.dll
@@ -16,12 +17,18 @@ public:
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
 
-	bool startUp() { return true;/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */ } //do stuff?
+	bool startUp();// { return true;/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */ } //do stuff?
 																																													  // Inherited via ISimpleContentModule_API
 	virtual SCM::IdType addMeshFromFile(std::string path, std::string format, std::vector<SCM::IdType> mats) override;
-	virtual SCM::IdType getDefaultMaterialId() override;
+	virtual SCM::IdType getDefaultShaderId() override;
 private:
 	ModuleInformation m_info;
+
+	SCM::IdType generateDefaultTexture();
+	SCM::IdType generateDefaultShader();
+
+	// Inherited via ISimpleContentModule_API
+	virtual SCM::IdType getDefaultTextureId() override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT SimpleContentModule module;

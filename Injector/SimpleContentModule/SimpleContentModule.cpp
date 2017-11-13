@@ -13,6 +13,17 @@ SimpleContentModule::SimpleContentModule(void)
 	return;
 }
 
+bool SimpleContentModule::startUp()
+{
+	//Setup default material
+	//auto id = SCM::generateNewGeneralId();
+	generateDefaultShader();
+	generateDefaultTexture();
+
+
+	return true;
+}
+
 //One OBJ per .obj
 SCM::IdType SimpleContentModule::addMeshFromFile(std::string path, std::string format, std::vector<SCM::IdType> mats)
 {
@@ -32,13 +43,22 @@ SCM::IdType SimpleContentModule::addMeshFromFile(std::string path, std::string f
 				data->m_vertices.setData().push_back(SCM::VertexData(v.position, v.uv, v.normal, v.tangent));
 			}
 			//data->m_vertices.swap(); //Does this make sense?
-			data->m_meshId = SCM::generateNewGeneralId();
-			data->m_material = mats.size()>meshindex?&getMaterials()[meshindex]: &getMaterials()[getDefaultMaterialId()];
+			data->m_meshId = generateNewGeneralId();
+			if (mats.size() <= meshindex)
+			{
+				auto & materials = getMaterials();
+
+				//auto id = SCM::generateNewEntityId();
+				//materials.push_back(SCM::MaterialData(id, -1, getDefaultShaderId()));
+				auto id = mats.back();
+				mats.push_back(id);
+			}
+			data->m_material = &getMaterials()[mats[meshindex]];
 			meshes.push_back(data);
 			scmmeshes.push_back(*data);
 			meshindex++;
 		}
-		auto id = SCM::generateNewGeneralId();
+		auto id = generateNewGeneralId();
 		getMeshedObjects().push_back(SCM::MeshedObject(meshes,id));
 		return id;
 	}
@@ -47,8 +67,45 @@ SCM::IdType SimpleContentModule::addMeshFromFile(std::string path, std::string f
 	return -1;
 }
 
-SCM::IdType SimpleContentModule::getDefaultMaterialId()
+SCM::IdType SimpleContentModule::getDefaultShaderId()
+{	//TODO
+	return getShaders().front().m_shaderId;
+}
+
+SCM::IdType SimpleContentModule::generateDefaultTexture()
 {
-	//TODO
-	return SCM::IdType();
+	//
+	return -1;
+}
+
+SCM::IdType SimpleContentModule::generateDefaultShader()
+{
+	std::string vert = "#version 330 core\nlayout(location = 0) in vec3 position;\nuniform mat4 model;\nuniform mat4 view;\nuniform mat4 projection;\nmain()\n{vec4 worldpos = model * vec4(position.x, position.y, position.z, 1.0)\ngl_Position = projection * view * worldpos;\n}";
+	std::string frag = "#version 330 core\nout vec4 color; \nvoid main()\n{\ncolor = vec4(0.0f, 1.0f, 1.0f, 1.0f); \n}";
+	std::ofstream vf, ff;
+	std::string vfFname = "defaultvertexshader.vs";
+	std::string ffFname = "defaultfragmentshader.fs";
+	while (std::experimental::filesystem::exists(vfFname))
+	{
+		vfFname = "1" + vfFname;
+	}
+	while (std::experimental::filesystem::exists(ffFname))
+	{
+		ffFname = "1" + ffFname;
+	}
+	vf.open(vfFname);
+	vf << vert;
+	vf.close();
+	ff.open(ffFname);
+	ff << frag;
+	ff.close();
+	auto& shaders = getShaders();
+	SCM::ShaderData data(generateNewGeneralId(), vfFname, ffFname);
+	shaders.insert(shaders.begin(), data);
+	return data.m_shaderId;
+}
+
+SCM::IdType SimpleContentModule::getDefaultTextureId()
+{
+	return getTextures().front().m_textureId;
 }

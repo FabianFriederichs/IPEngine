@@ -24,16 +24,21 @@ public:
 	ModuleInformation* getModuleInfo(){ return &m_info; }
 	bool startUp();// {/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); */return true;  } //do stuff?
 	void render();
+	void render(ipengine::TaskContext& c);
 private:
 	std::vector<std::string> getActiveEntityNames(SCM::ISimpleContentModule_API&);
 	ModuleInformation m_info;
 	std::string DataDepName;
 	SDL_Window* window;
-	std::string m_scmID = "scm";
+	SDL_GLContext context;
+	HGLRC wincontext;
+	SDL_SysWMinfo info;
+	std::string m_scmID = "SCM";
 	boost::shared_ptr<SCM::ISimpleContentModule_API> m_scm;
+	std::vector<ipengine::Scheduler::SubHandle> handles;
 
 	//constants
-	glm::vec4 m_clearcolor = { 0.15f, 0.15f, 0.18f, 1.0f };
+	glm::vec4 m_clearcolor = { 1.0f, 0.15f, 0.18f, 0.5f };
 	float width = 1280; float height = 720; float znear = 0.1f; float zfar = 100;
 	float m_fov = glm::pi<float>() / 2;
 	//

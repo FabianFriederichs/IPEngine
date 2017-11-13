@@ -34,12 +34,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	auto mods = inj.getLoadedModules();
 	auto ssm = boost::dynamic_pointer_cast<ISimpleSceneModule_API>(mods["SimpleSceneModule"]);
 	auto scm = boost::dynamic_pointer_cast<SCM::ISimpleContentModule_API>(mods["SimpleContentModule"]);
-
 	auto sceneid = ssm->LoadSceneFromFile("TestScene.xml");
+	ssm->SwitchActiveScene(sceneid);
 	auto entity = scm->getEntityById(0);
 	std::cout << sceneid << "\n";
 	std::cout << SCM::allEntitiesAsString(*scm, true);
 	std::cout << SCM::allMeshObjectsAsString(*scm, true);
+	core.getThreadPool().startWorkers();
+	auto b = core.getThreadPool().isRunning();
 	//boost::shared_ptr<IScheduler_API> schedAPI = boost::dynamic_pointer_cast<IScheduler_API>(mods["Scheduler"]);
 	//IInput_API input = dynamic_cast<IInput_API>(mods["InputModule"]);
 
@@ -68,7 +70,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	//	{
 	//		auto meme = "t";
 	//	}};
-	while (true) {};
+	while (true) {
+		core.getScheduler().schedule();
+	};
 	
 		
 	//std::string meme;

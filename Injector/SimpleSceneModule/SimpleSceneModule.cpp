@@ -94,12 +94,13 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		}
 		vsp = node.second.get<std::string>("VSPath", "");
 		fsp = node.second.get<std::string>("FSPath", "");
-		auto id = SCM::generateNewGeneralId();
+		auto id = contentmodule->generateNewGeneralId();
 		shaders.push_back(SCM::ShaderData(id, vsp, fsp));
 		shadertointernid[shaderid] = id;
 	}
 
 	auto& materials = contentmodule->getMaterials();
+	auto& textures = contentmodule->getTextures();
 	for (auto node : tree.get_child("Scene.Materials"))
 	{
 		std::string texturepath;
@@ -111,8 +112,22 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		}
 		texturepath = node.second.get<std::string>("TexturePath", "");
 		shaderid = node.second.get<SCM::IdType>("ShaderId", -1);
-		auto id = SCM::generateNewGeneralId();
-		materials.push_back(SCM::MaterialData(id, texturepath, shaderid)); //TODO Textures have to be loaded somewhere
+		if (shaderid == -1)
+		{
+			shaderid = contentmodule->getDefaultShaderId();
+		}
+		auto id = contentmodule->generateNewGeneralId();
+		SCM::EntityId tid;
+		if (texturepath == "")
+		{
+			tid = -1;//q contentmodule->getDefaultTextureId();
+		}
+		else
+		{
+			tid = contentmodule->generateNewGeneralId();
+			textures.push_back(SCM::TextureData(tid, texturepath));
+		}
+		materials.push_back(SCM::MaterialData(id, tid, shaderid)); //TODO Textures have to be loaded somewhere
 		materialtointernid[matid] = id;
 	}
 
@@ -132,9 +147,9 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 
 		std::vector<SCM::IdType> materials;
 		//materials
-		for (auto matnode : tree.get_child("Scene.Meshes.Materials"))
+		for (auto matnode : node.second.get_child("Materials"))
 		{
-			auto matid = node.second.get<SCM::IdType>("MaterialId", -1);
+			int matid = matnode.second.get<SCM::IdType>("MaterialId", -1);
 			materials.push_back(matid);
 		}
 
@@ -202,13 +217,14 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		//Check Mesh id
 		if (meshtointernid.find(meshid) != meshtointernid.end())
 		{
-			entitystorage[entityname] = SCM::ThreeDimEntity(SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
+			entitystorage[entityname] = SCM::ThreeDimEntity(contentmodule->generateNewEntityId(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
 			entitystorage[entityname].m_name = entityname;
 			entitytointernid[entityid] = entitystorage[entityname].m_entityId;
 		}
 		else
 		{
 			entitystorage[entityname] = SCM::Entity();// SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
+			entitystorage[entityname].m_entityId = contentmodule->generateNewEntityId();
 			entitystorage[entityname].m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
 			entitystorage[entityname].isBoundingBox = boxorsphere;
 			entitystorage[entityname].m_transformData = SCM::Transform(transdata);
@@ -280,35 +296,50 @@ bool SimpleSceneModule::SwitchActiveScene(SceneId id)
 	{
 		return false;
 	}
-	auto activeents = m_scenes[m_activeScene].getEntities();
-	auto newents = m_scenes[id].getEntities();
-	//switch active scene will need to change active state of entities in SCM
-
-	//get set of entities not in new scene
-	std::vector<SCM::EntityId> missing;
-	std::set_difference(activeents.begin(), activeents.end(), newents.begin(), newents.end(), std::inserter(missing, missing.begin()));
-
-	//get set of entities new in scene
-	std::vector<SCM::EntityId> news;
-	std::set_difference(newents.begin(), newents.end(), activeents.begin(), activeents.end(), std::inserter(news, news.begin()));
-
 	auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
-	if (missing.size() > 0)
+	if (m_scenes.find(m_activeScene) == m_scenes.end())
 	{
-		for (auto id : missing)
-		{
-			scm->getEntityById(id)->isActive = false;
-		}
-	}
+		auto newents = m_scenes[id].getEntities();
 
-	if (news.size() > 0)
-	{
-		for (auto id : missing)
+		for (auto id : newents)
 		{
 			scm->getEntityById(id)->isActive = true;
 		}
+		
 	}
+	else
+	{
 
+	
+		auto activeents = m_scenes[m_activeScene].getEntities();
+		auto newents = m_scenes[id].getEntities();
+		//switch active scene will need to change active state of entities in SCM
+
+		//get set of entities not in new scene
+		std::vector<SCM::EntityId> missing;
+		std::set_difference(activeents.begin(), activeents.end(), newents.begin(), newents.end(), std::inserter(missing, missing.begin()));
+
+		//get set of entities new in scene
+		std::vector<SCM::EntityId> news;
+		std::set_difference(newents.begin(), newents.end(), activeents.begin(), activeents.end(), std::inserter(news, news.begin()));
+
+		
+		if (missing.size() > 0)
+		{
+			for (auto id : missing)
+			{
+				scm->getEntityById(id)->isActive = false;
+			}
+		}
+
+		if (news.size() > 0)
+		{
+			for (auto id : missing)
+			{
+				scm->getEntityById(id)->isActive = true;
+			}
+		}
+	}
 	m_activeScene = id;
 }
 

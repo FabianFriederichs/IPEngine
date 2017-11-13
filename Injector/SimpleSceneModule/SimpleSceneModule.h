@@ -20,7 +20,7 @@ public:
 	SimpleSceneModule(void);
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
-	bool startUp() { return true; }; //do stuff?
+	bool startUp() { m_activeScene = -1; return true; }; //do stuff?
 private:
 	ModuleInformation m_info;
 	std::string contentmoduleidentifier = "SCM";

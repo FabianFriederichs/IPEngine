@@ -6,20 +6,11 @@
 
 namespace SCM
 {
-	using IdType = uint32_t;
+	using IdType = int64_t;
 	using EntityId = IdType;
 	using index = uint32_t;
 
-	static IdType generateNewGeneralId()
-	{
-		static IdType lastId = 0;
-		return lastId++;
-	}
-	static EntityId generateNewEntityId()
-	{
-		static IdType lastId = 0;
-		return lastId++;
-	}
+	
 	class TransformData
 	{
 	public:
@@ -100,28 +91,31 @@ namespace SCM
 	{
 	public:
 		ShaderData() = default;
-		ShaderData(IdType id, std::string v, std::string f):m_shaderFiles({v,f})
+		ShaderData(IdType id, std::string v, std::string f):m_shaderId(id), m_shaderFiles({v,f})
 		{
 
 		}
 		std::vector<std::string> m_shaderFiles;
-		IdType m_shaderId;
+		SCM::IdType m_shaderId;
+		//Uniform descriptors maybe?
 	};
 
 	class MaterialData
 	{
 	public:
 		MaterialData() = default;
-		MaterialData(SCM::IdType id, std::string path, SCM::IdType shaderid) : m_materialId(id), m_shaderid(shaderid), m_texturepath(path) {};
-		std::string m_texturepath;
-		SCM::IdType m_shaderid;
-		IdType m_materialId;
+		MaterialData(SCM::IdType id, SCM::IdType tid, SCM::IdType shaderid) : m_materialId(id), m_shaderId(shaderid), m_textureid(tid) {};
+		SCM::IdType m_textureid; //array of textureids?
+		SCM::IdType m_shaderId;
+		SCM::IdType m_materialId;
 	};
 
 	class TextureData
 	{
 	public:
-		IdType m_textureId;
+		TextureData() = default;
+		TextureData(SCM::IdType id, std::string path, bool isCube = false, bool isInMap = false, glm::vec2 offset = { 0,0 }, glm::vec2 size = { 0,0 }) : m_textureId(id), m_path(path), m_isCube(isCube), m_isInMap(isInMap), m_offset(offset), m_size(size){};
+		SCM::IdType m_textureId;
 		bool m_isInMap;
 		std::string m_path;
 		glm::vec2 m_offset;
@@ -191,18 +185,18 @@ namespace SCM
 	public:
 		Entity()
 		{
-			m_entityId = generateNewEntityId();
+			m_entityId = -1;
 			m_parent = nullptr;
 			isBoundingBox = true;
 			isActive = false;
 		}
-		Entity(const Entity& other):m_transformData(other.m_transformData), m_parent(other.m_parent), m_entityId(generateNewEntityId()), m_name(other.m_name), m_boundingData(other.m_boundingData), isBoundingBox(other.isBoundingBox), isActive(other.isActive)
+		Entity(const Entity& other):m_transformData(other.m_transformData), m_parent(other.m_parent), m_name(other.m_name), m_boundingData(other.m_boundingData), isBoundingBox(other.isBoundingBox), isActive(other.isActive)
 		{
-
+			m_entityId = -1;
 		}
-		Entity(Transform& transform, BoundingData& boundingdata, bool boundingbox, bool active) :m_transformData(transform), m_boundingData(boundingdata)
+		Entity(EntityId id, Transform& transform, BoundingData& boundingdata, bool boundingbox, bool active) :m_transformData(transform), m_boundingData(boundingdata)
 		{
-			m_entityId = generateNewEntityId();
+			m_entityId = id;
 			m_parent = nullptr;
 			isBoundingBox = boundingbox;
 			isActive = active;
@@ -221,7 +215,7 @@ namespace SCM
 	{
 
 	public:
-		ThreeDimEntity(Transform& transform, BoundingData& boundingdata, bool boundingbox, bool active, MeshedObject* meshes) :Entity(transform, boundingdata, boundingbox, active), m_mesheObjects(meshes)
+		ThreeDimEntity(EntityId id, Transform& transform, BoundingData& boundingdata, bool boundingbox, bool active, MeshedObject* meshes) :Entity(id, transform, boundingdata, boundingbox, active), m_mesheObjects(meshes)
 		{
 		}
 		MeshedObject* m_mesheObjects;
@@ -337,7 +331,20 @@ namespace SCM
 				return nullptr;
 		}
 		virtual IdType addMeshFromFile(std::string path, std::string format, std::vector<IdType> mats) = 0;
-		virtual SCM::IdType getDefaultMaterialId() = 0;
+		virtual SCM::IdType getDefaultShaderId() = 0;
+		virtual SCM::IdType getDefaultTextureId() = 0;
+
+		static IdType generateNewGeneralId()
+		{
+			static IdType lastId = 0;
+			return lastId++;
+		}
+		static EntityId generateNewEntityId()
+		{
+			static IdType lastId = 0;
+			return lastId++;
+		}
+
 		virtual bool setEntityParent(EntityId child, EntityId parent)
 		{
 			auto ent = getEntityById(child);
