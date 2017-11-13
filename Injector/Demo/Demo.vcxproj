@@ -119,7 +119,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Plugin1;..\Injector;$(BOOST);%(AdditionalIncludeDirectories);..\Scheduler;..\Scheduler\Libs;;../../IPCore/IPCore;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Plugin1;..\Injector;$(BOOST);%(AdditionalIncludeDirectories);;../../IPCore/IPCore;../SimpleContentModule;../SimpleSceneModule;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

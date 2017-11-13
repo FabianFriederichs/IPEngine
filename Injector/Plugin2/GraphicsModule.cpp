@@ -18,7 +18,10 @@ bool GraphicsModule::startUp()
 {
 	m_scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(m_scmID);
 	setupSDL();
-	loadShaders();
+	//loadShaders();
+	ipengine::Scheduler& sched = m_core->getScheduler();
+	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GraphicsModule, &GraphicsModule::render>(this), 0, ipengine::Scheduler::SubType::Frame, 1, &m_core->getThreadPool()));
+
 	return true;
 }
 
@@ -29,6 +32,13 @@ void GraphicsModule::loadShaders()
 
 void GraphicsModule::render()
 {
+	bool res;
+	if (wglGetCurrentContext() == NULL)
+	{
+		res = wglMakeCurrent(info.info.win.hdc, wincontext);
+	}
+
+	updateData();
 	//stuff
 	//Clear buffer
 	glClearColor(m_clearcolor.r, m_clearcolor.g, m_clearcolor.b, m_clearcolor.a); GLERR
@@ -37,29 +47,33 @@ void GraphicsModule::render()
 	glCullFace(GL_BACK); GLERR
 	glEnable(GL_DEPTH_TEST); GLERR
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GLERR
-
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); GLERR
 	//go through meshes
 	auto& activeentitynames = getActiveEntityNames(*m_scm);
-	auto& entities = m_scm->getEntities();
+	auto& entities = m_scm->getThreeDimEntities();
 	for (auto eid : activeentitynames)
 	{
-		auto mO = dynamic_cast<SCM::ThreeDimEntity*>(&entities[eid]);
+		if (entities.count(eid) <= 0)
+		{
+			continue;
+		}
+		auto mO = entities[eid]; 
 
 		if (mO)
 		{
 			for (auto mesh : mO->m_mesheObjects->m_meshes)
 			{
 				//activate shader
-				auto shader = m_scmshadertovao[mesh->m_material->m_shaderid];
+				auto shader = m_scmshadertoprogram[mesh->m_material->m_shaderId];
 				shader->use();
 
 				//set uniforms/light/transform/view/proj/camera pos
 				shader->setUniform("model", mO->m_transformData.getData()->m_transformMatrix, false);
-				glm::vec3 camerapos(0,0,0); 
+				glm::vec3 camerapos(3,3,20); 
 				GLfloat m_fov(glm::pi<float>() / 2);
 
 				glm::mat4 projmat = glm::perspective(m_fov, width / height, znear, zfar);
-				glm::mat4 viewmat = glm::mat4(glm::quat(.0f, .0f, .0f, 1.0f))*translate(glm::mat4(1.0f), -camerapos);;
+				glm::mat4 viewmat = glm::mat4(glm::quat(1.0f, 0.0f, .0f, .0f))*translate(glm::mat4(1.0f), -camerapos);;
 				shader->setUniform("view", viewmat, false);
 				
 				shader->setUniform("projection", projmat, false);
@@ -72,27 +86,33 @@ void GraphicsModule::render()
 				//draw mesh
 				drawSCMMesh(mesh->m_meshId);
 
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); GLERR //QUESTION is this necessary?
+				 //QUESTION is this necessary?
 			}
 		}
 	}
 	
-
+	SDL_GL_SwapWindow(window);
+	//wglMakeCurrent(NULL, NULL);
 
 }
 
-std::vector<std::string> GraphicsModule::getActiveEntityNames(SCM::ISimpleContentModule_API & scm)
+void GraphicsModule::render(ipengine::TaskContext & c)
+{
+	render();
+}
+
+std::vector<SCM::EntityId> GraphicsModule::getActiveEntityNames(SCM::ISimpleContentModule_API & scm)
 {
 	auto& entities = scm.getEntities();
-	std::vector<std::string> names;
+	std::vector<SCM::EntityId> ids;
 	for (auto e : entities)
 	{
-		if (e.second.isActive)
+		if (e.second->isActive)
 		{
-			names.push_back(e.second.m_name);
+			ids.push_back(e.second->m_entityId);
 		}
 	}
-	return names;
+	return ids;
 }
 
 void GraphicsModule::setupSDL()
@@ -101,6 +121,11 @@ void GraphicsModule::setupSDL()
 		//std::cout << "Could not initialize SDL." << std::endl;
 	}
 	
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	window = SDL_CreateWindow("Demo Window", SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
 	
@@ -109,26 +134,28 @@ void GraphicsModule::setupSDL()
 		/*printDebug("Could not create SDL window.\n");
 		return 1;*/
 	}
-	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-	//SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	//SDL_GL_CreateContext(window);
-	////check null
+	if (!SDL_GetWindowWMInfo(window, &info))
+	{
 
-	//glewExperimental = GL_TRUE;
-	//glewInit();
+	}
+	context = SDL_GL_CreateContext(window);
+	wincontext = wglGetCurrentContext();
+	//check null
+	SDL_GL_SetSwapInterval(0);
+	glewExperimental = GL_TRUE;
+	glewInit();
+	wglMakeCurrent(NULL, NULL);
 	//bla
 }
 
 void GraphicsModule::updateData()
 {
 	auto& activeentitynames= getActiveEntityNames(*m_scm);
-	auto& entities = m_scm->getEntities();
+	auto& entities = m_scm->getThreeDimEntities();
 	auto& shaders = m_scm->getShaders();
 	for (auto eid : activeentitynames)
 	{
-		auto mO = dynamic_cast<SCM::ThreeDimEntity*>(&entities[eid]);
+		auto mO = entities[eid];
 
 		if (mO)
 		{
@@ -139,12 +166,18 @@ void GraphicsModule::updateData()
 					auto vao = GLUtils::createVAO(*mesh);
 					m_scmmeshtovao[mesh->m_meshId] = vao;
 				}
-				if (m_scmshadertovao.count(mesh->m_material->m_shaderid) < 1)
+				if (m_scmshadertoprogram.count(mesh->m_material->m_shaderId) < 1)
 				{
-					auto files = shaders[mesh->m_material->m_shaderid];
+					auto files = shaders[mesh->m_material->m_shaderId];
 					auto prog = GLUtils::createShaderProgram(files.m_shaderFiles[0], files.m_shaderFiles[1]);
-					m_scmshadertovao[files.m_shaderId] = prog;
+					m_scmshadertoprogram[files.m_shaderId] = prog;
 				}
+			}
+			if (mO->m_transformData.getData()->m_isMatrixDirty)
+			{
+				auto transdata = mO->m_transformData.getData();
+				mO->m_transformData.setData()->m_transformMatrix = glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
+				mO->m_transformData.setData()->m_isMatrixDirty = false;
 			}
 		}
 	}

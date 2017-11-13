@@ -217,19 +217,20 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		//Check Mesh id
 		if (meshtointernid.find(meshid) != meshtointernid.end())
 		{
-			entitystorage[entityname] = SCM::ThreeDimEntity(contentmodule->generateNewEntityId(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
-			entitystorage[entityname].m_name = entityname;
-			entitytointernid[entityid] = entitystorage[entityname].m_entityId;
+			entitystorage[entityname] = new SCM::ThreeDimEntity(contentmodule->generateNewEntityId(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
+			entitystorage[entityname]->m_name = entityname;
+			contentmodule->getThreeDimEntities()[entitystorage[entityname]->m_entityId] = static_cast<SCM::ThreeDimEntity*>(entitystorage[entityname]);
+			entitytointernid[entityid] = entitystorage[entityname]->m_entityId;
 		}
 		else
 		{
-			entitystorage[entityname] = SCM::Entity();// SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
-			entitystorage[entityname].m_entityId = contentmodule->generateNewEntityId();
-			entitystorage[entityname].m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
-			entitystorage[entityname].isBoundingBox = boxorsphere;
-			entitystorage[entityname].m_transformData = SCM::Transform(transdata);
-			entitystorage[entityname].m_name = entityname;
-			entitytointernid[entityid] = entitystorage[entityname].m_entityId;
+			entitystorage[entityname] = new SCM::Entity();// SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
+			entitystorage[entityname]->m_entityId = contentmodule->generateNewEntityId();
+			entitystorage[entityname]->m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
+			entitystorage[entityname]->isBoundingBox = boxorsphere;
+			entitystorage[entityname]->m_transformData = SCM::Transform(transdata);
+			entitystorage[entityname]->m_name = entityname;
+			entitytointernid[entityid] = entitystorage[entityname]->m_entityId;
 		}
 		//auto pos = meshpath.find_last_of('.');
 		//std::string extension = pos != std::string::npos ? meshpath.substr(pos + 1) : "";

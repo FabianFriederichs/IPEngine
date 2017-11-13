@@ -20,7 +20,6 @@ bool SimpleContentModule::startUp()
 	generateDefaultShader();
 	generateDefaultTexture();
 
-
 	return true;
 }
 
@@ -80,25 +79,27 @@ SCM::IdType SimpleContentModule::generateDefaultTexture()
 
 SCM::IdType SimpleContentModule::generateDefaultShader()
 {
-	std::string vert = "#version 330 core\nlayout(location = 0) in vec3 position;\nuniform mat4 model;\nuniform mat4 view;\nuniform mat4 projection;\nmain()\n{vec4 worldpos = model * vec4(position.x, position.y, position.z, 1.0)\ngl_Position = projection * view * worldpos;\n}";
+	std::string vert = "#version 330 core\nlayout(location = 0) in vec3 position;\nuniform mat4 model;\nuniform mat4 view;\nuniform mat4 projection;\nvoid main()\n{vec4 worldpos = model * vec4(position.x, position.y, position.z, 1.0);\ngl_Position = projection * view * worldpos;\n}";
 	std::string frag = "#version 330 core\nout vec4 color; \nvoid main()\n{\ncolor = vec4(0.0f, 1.0f, 1.0f, 1.0f); \n}";
 	std::ofstream vf, ff;
 	std::string vfFname = "defaultvertexshader.vs";
 	std::string ffFname = "defaultfragmentshader.fs";
-	while (std::experimental::filesystem::exists(vfFname))
+	if (!std::experimental::filesystem::exists(vfFname))
 	{
-		vfFname = "1" + vfFname;
+		//vfFname = "1" + vfFname;
+		vf.open(vfFname);
+		vf << vert;
+		vf.close();
 	}
-	while (std::experimental::filesystem::exists(ffFname))
+	if (!std::experimental::filesystem::exists(ffFname))
 	{
-		ffFname = "1" + ffFname;
+		//ffFname = "1" + ffFname;
+		ff.open(ffFname);
+		ff << frag;
+		ff.close();
 	}
-	vf.open(vfFname);
-	vf << vert;
-	vf.close();
-	ff.open(ffFname);
-	ff << frag;
-	ff.close();
+	
+
 	auto& shaders = getShaders();
 	SCM::ShaderData data(generateNewGeneralId(), vfFname, ffFname);
 	shaders.insert(shaders.begin(), data);

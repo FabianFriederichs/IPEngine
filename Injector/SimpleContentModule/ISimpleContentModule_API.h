@@ -201,6 +201,9 @@ namespace SCM
 			isBoundingBox = boundingbox;
 			isActive = active;
 		}
+
+		//virtual ~Entity() {};
+
 		Transform m_transformData;
 		Entity* m_parent;
 		EntityId m_entityId;
@@ -208,6 +211,7 @@ namespace SCM
 		BoundingData m_boundingData;
 		bool isBoundingBox; //True for Box, False for Sphere in Union BoundingData
 		bool isActive;
+		//std::map<std::string, boost::any> m_decorators;
 		virtual void swap() { m_transformData.swap(); }
 	};
 
@@ -232,13 +236,18 @@ namespace SCM
 		{
 			for (auto& ent : entities)
 			{
-				ent.second.swap();
+				ent.second->swap();
 
 			}
 		}
-		virtual std::unordered_map<std::string, Entity>& getEntities()
+		virtual std::unordered_map<std::string, Entity*>& getEntities()
 		{
 			return entities;
+		}
+
+		virtual std::unordered_map<EntityId, ThreeDimEntity*>& getThreeDimEntities()
+		{
+			return threedimentities;
 		}
 
 		virtual std::vector<ShaderData>& getShaders()
@@ -298,17 +307,17 @@ namespace SCM
 		};
 		virtual Entity* getEntityById(EntityId id)
 		{ 
-			auto itF = std::find_if(entities.begin(), entities.end(), [id](std::pair<const std::string, Entity>& a)->bool {return a.second.m_entityId== id; });
+			auto itF = std::find_if(entities.begin(), entities.end(), [id](std::pair<const std::string, Entity*>& a)->bool {return a.second->m_entityId== id; });
 			if (itF != entities.end())
 			{
-				return &(itF->second);
+				return (itF->second);
 			}
 			else
 				return nullptr;
 		};
 		virtual Entity* getEntityByName(std::string name) 
 		{ 
-			return entities.count(name) ? &entities[name] : nullptr; 
+			return entities.count(name) ? entities[name] : nullptr; 
 		};
 		virtual MeshData* getMeshById(IdType id)
 		{ 
@@ -360,7 +369,8 @@ namespace SCM
 		//Would prefer add/remove/const get functions over returning container refs. All virtual so SCMs can change their implementation more freely
 	private:
 
-		std::unordered_map<std::string, Entity> entities;
+		std::unordered_map<std::string, Entity*> entities;
+		std::unordered_map<EntityId, ThreeDimEntity*> threedimentities;
 		std::vector<ShaderData> shaders;
 		std::vector<MaterialData> materials;
 		std::vector<TextureData> textures;
@@ -392,16 +402,16 @@ namespace SCM
 		std::string out="";
 		for (auto ents : content.getEntities())
 		{
-			out += "Id: " + std::to_string(ents.second.m_entityId) + ": " + ents.first + " Active: " + (ents.second.isActive?"True":"False") + "\n";
+			out += "Id: " + std::to_string(ents.second->m_entityId) + ": " + ents.first + " Active: " + (ents.second->isActive?"True":"False") + "\n";
 			if (withproperties)
 			{
-				if (ents.second.m_parent != nullptr)
+				if (ents.second->m_parent != nullptr)
 				{
-					out += "\t Parent: " + std::to_string(ents.second.m_parent->m_entityId) + "\n";;
+					out += "\t Parent: " + std::to_string(ents.second->m_parent->m_entityId) + "\n";;
 				}
 				else
 					out += "\t Parent: -\n";
-				auto vd = ents.second.m_transformData.getData();
+				auto vd = ents.second->m_transformData.getData();
 				out += "\t Transform: \n";
 				out += "\t\t Location: " + glmvec3tostring(vd->m_location) + "\n";
 				out += "\t\t Scale: " + glmvec3tostring(vd->m_scale) + "\n";
@@ -410,8 +420,8 @@ namespace SCM
 				out += "\t\t Local Y: " + glmvec3tostring(vd->m_localY) + "\n";
 				out += "\t\t Local Z: " + glmvec3tostring(vd->m_localZ) + "\n";
 
-				auto bd = ents.second.m_boundingData;
-				if (ents.second.isBoundingBox)
+				auto bd = ents.second->m_boundingData;
+				if (ents.second->isBoundingBox)
 				{
 					out += "\t Bounding Box: \n";
 					out += "\t\t Center: " + glmvec3tostring(bd.box.m_center) + "\n";

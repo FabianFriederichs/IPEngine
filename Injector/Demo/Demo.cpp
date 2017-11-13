@@ -28,7 +28,11 @@ boost::shared_ptr<IInput_API> input;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+#ifdef _DEBUG
 	Injector inj("XMLFile.xml", "../Debug");
+#else
+	Injector inj("XMLFile.xml", "../Release");
+#endif
 	ipengine::Core core;
 	inj.LoadModules(&core);
 	auto mods = inj.getLoadedModules();

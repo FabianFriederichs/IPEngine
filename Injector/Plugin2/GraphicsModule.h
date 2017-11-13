@@ -10,6 +10,7 @@
 #include <boost/config.hpp>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#include "../../glm/gtx/quaternion.hpp"
 #include <memory>
 #include <unordered_map>
 #include "libheaders.h"
@@ -26,7 +27,7 @@ public:
 	void render();
 	void render(ipengine::TaskContext& c);
 private:
-	std::vector<std::string> getActiveEntityNames(SCM::ISimpleContentModule_API&);
+	std::vector<SCM::EntityId> getActiveEntityNames(SCM::ISimpleContentModule_API&);
 	ModuleInformation m_info;
 	std::string DataDepName;
 	SDL_Window* window;
@@ -38,7 +39,7 @@ private:
 	std::vector<ipengine::Scheduler::SubHandle> handles;
 
 	//constants
-	glm::vec4 m_clearcolor = { 1.0f, 0.15f, 0.18f, 0.5f };
+	glm::vec4 m_clearcolor = { 0.15f, 0.15f, 0.18f, 1.0f };
 	float width = 1280; float height = 720; float znear = 0.1f; float zfar = 100;
 	float m_fov = glm::pi<float>() / 2;
 	//
