@@ -191,3 +191,5 @@ Injector/.vs/
 *.zip
 IPCore/.vs/
 CoreTetst/.vs/
+.vs/
+IPDefinitiveVersion/ExternalDependencies/
