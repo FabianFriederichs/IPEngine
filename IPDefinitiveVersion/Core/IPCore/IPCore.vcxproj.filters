@@ -83,6 +83,9 @@
     <ClInclude Include="RuntimeControl\Scheduler.h">
       <Filter>CoreModules\RuntimeControl</Filter>
     </ClInclude>
+    <ClInclude Include="Memory\memory_utils.h">
+      <Filter>CoreModules\Memory</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThreadingServices\TaskHandle.cpp">

@@ -24,6 +24,7 @@ namespace ipengine {
 		bool wait(TaskContext* tcptr = nullptr);
 		bool wait_recycle(TaskContext* tcptr = nullptr);
 		bool addChild(TaskHandle& child);
+		bool addContinuation(TaskHandle& continuationTask);
 		bool spawn(TaskContext* tcptr = nullptr);
 		bool submit();
 		TaskContext* getContext()

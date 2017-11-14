@@ -135,6 +135,7 @@
     <ClInclude Include="Core\ICore.h" />
     <ClInclude Include="core_config.h" />
     <ClInclude Include="Memory\allocators.h" />
+    <ClInclude Include="Memory\memory_utils.h" />
     <ClInclude Include="PAL\PAL.h" />
     <ClInclude Include="RuntimeControl\Console.h" />
     <ClInclude Include="RuntimeControl\Scheduler.h" />

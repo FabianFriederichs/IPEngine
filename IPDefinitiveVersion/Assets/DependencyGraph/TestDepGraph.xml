@@ -63,5 +63,20 @@
         </dependency>
       </dependencies>
     </Module>
+    <Module>
+      <identifier>PhysicsModule</identifier>
+      <dependencies>
+        <dependency>
+          <inject>true</inject>
+          <identifier>SCM</identifier>
+          <moduleID>SimpleContentModule</moduleID>
+        </dependency>
+        <dependency>
+          <inject>true</inject>
+          <identifier>SSM</identifier>
+          <moduleID>SimpleSceneModule</moduleID>
+        </dependency>
+      </dependencies>
+    </Module>
   </Modules>
 </DependencyGraph>

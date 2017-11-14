@@ -1,7 +1,6 @@
 #include <IPCore/ThreadingServices/ThreadPool.h>
 
 // ----------------------------------------------- TASK SYSTEM INTERNAL SECTION --------------------------------------------------------
-
 ipengine::ThreadPool::Worker::Worker(ipengine::ThreadPool * pool, size_t id) :
 	m_pool(pool),
 	local_queue(),
@@ -13,8 +12,7 @@ ipengine::ThreadPool::Worker::Worker(ipengine::ThreadPool * pool, size_t id) :
 }
 
 ipengine::ThreadPool::Worker::~Worker()
-{
-}
+{}
 
 void ipengine::ThreadPool::Worker::run()
 {
@@ -50,154 +48,63 @@ void ipengine::ThreadPool::Worker::stop()
 void ipengine::ThreadPool::execute(Task * task)
 {
 	//assert(task != nullptr && task->m_refct.load() > 0 && task->m_unfinished > 0);
-	Task* current;
-	size_t cursize = m_helperwaitstack.size();
-	m_helperwaitstack.push(task);
-	while (m_helperwaitstack.size() > cursize)
+	try
 	{
-		if (m_helperwaitstack.top()->m_unfinished.load(std::memory_order_acquire) > 1)
-		{
-			current = tryGetTask(nullptr);
-			if (current != nullptr)
-			{
-				m_helperwaitstack.push(current);
-			}
-			else
-			{
-				std::this_thread::yield();
-			}
-		}
-		else
-		{
-			current = m_helperwaitstack.pop();
-			try
-			{
-				current->m_context.workerid = -1;
-				current->m_context.pool = this;
-				current->m_func(current->m_context);
-				finalize(current);
-			}
-			catch (std::exception& ex)
-			{
-				size_t exlth = std::char_traits<char>::length(ex.what());
-				char* ex_msg = new char[exlth];
-				strncpy_s(ex_msg, exlth, ex.what(), exlth);
-				current->m_context.ex.reset(ex_msg);				//store exceptions inside task context for later rethrowing
-			}
-			catch (...)
-			{
-				size_t exlth = std::char_traits<char>::length("Unknown exception");
-				char* ex_msg = new char[exlth];
-				strncpy_s(ex_msg, exlth, "Unknown exception", exlth);
-				current->m_context.ex.reset(ex_msg);
-			}
-		}
+		task->m_context.workerid = -1;
+		task->m_context.pool = this;
+		task->m_func(task->m_context);
+		finalize(task, nullptr);
 	}
-	
-
-
-	//try
-	//{
-	//	while (task->m_unfinished.load(std::memory_order_acquire) > 1)
-	//	{
-	//		help();	//TODO: make this stuff iterative to prevent stack overflow
-	//	}
-	//	task->m_func(task->m_context);
-	//	finalize(task);
-	//}
-	//catch (const std::exception& ex)
-	//{
-	//	task->m_context.ex = std::move(ex);				//store exceptions inside task context for later rethrowing
-	//}
-	//catch (...)
-	//{
-	//	task->m_context.ex = std::logic_error("Something bad happened.");
-	//}
+	catch (std::exception& ex)
+	{
+		size_t exlth = std::char_traits<char>::length(ex.what());
+		char* ex_msg = new char[exlth];
+		strncpy_s(ex_msg, exlth, ex.what(), exlth);
+		task->m_context.ex.reset(ex_msg);				//store exceptions inside task context for later rethrowing
+	}
+	catch (...)
+	{
+		size_t exlth = std::char_traits<char>::length("Unknown exception");
+		char* ex_msg = new char[exlth];
+		strncpy_s(ex_msg, exlth, "Unknown exception", exlth);
+		task->m_context.ex.reset(ex_msg);
+	}
 }
 
 void ipengine::ThreadPool::execute(Task * task, Worker* worker)
 {
-	//assert(task != nullptr && task->m_refct.load() > 0 && task->m_unfinished > 0);
-	Task* current;
-	size_t cursize = worker->m_waitstack.size();
-	worker->m_waitstack.push(task);
-	while (worker->m_waitstack.size() > cursize)
-	{			
-		if (worker->m_waitstack.top()->m_unfinished.load(std::memory_order_acquire) > 1)
-		{
-			current = tryGetTask(worker);
-			if (current != nullptr)
-			{
-				worker->m_waitstack.push(current);
-			}
-			else
-			{
-				std::this_thread::yield();
-			}
-		}
-		else
-		{
-			current = worker->m_waitstack.pop();
-			try
-			{
-				current->m_context.workerid = static_cast<int>(worker->id);
-				current->m_context.pool = this;
-				current->m_func(current->m_context);
-				finalize(current);
-			}
-			catch (std::exception& ex)
-			{
-				size_t exlth = std::char_traits<char>::length(ex.what());
-				char* ex_msg = new char[exlth];
-				strncpy_s(ex_msg, exlth, ex.what(), exlth);
-				current->m_context.ex.reset(ex_msg);				//store exceptions inside task context for later rethrowing
-			}
-			catch (...)
-			{
-				size_t exlth = std::char_traits<char>::length("Unknown exception");
-				char* ex_msg = new char[exlth];
-				strncpy_s(ex_msg, exlth, "Unknown exception", exlth);
-				current->m_context.ex.reset(ex_msg);
-			}
-		}
-	}	
-
-	//try
-	//{
-	//	while (task->m_unfinished.load(std::memory_order_acquire) > 1)
-	//	{
-	//		Task* otask = tryGetTask(worker);
-	//		if (otask != nullptr)
-	//		{
-	//			execute(task, worker);	//TODO: make this stuff iterative to prevent stack overflow				
-	//		}
-	//		else
-	//		{
-	//			std::this_thread::yield();
-	//		}
-	//	}
-	//	task->m_func(task->m_context);		//TODO: explicit waiting for children?
-	//	finalize(task);
-	//}
-	//catch (const std::exception& ex)
-	//{
-	//	task->m_context.ex = std::move(ex);				//store exceptions inside task context for later rethrowing
-	//}
-	//catch (...)
-	//{
-	//	task->m_context.ex = std::logic_error("Something bad happened.");
-	//}
+	try
+	{
+		task->m_context.workerid = static_cast<int>(worker->id);
+		task->m_context.pool = this;
+		task->m_func(task->m_context);
+		finalize(task, worker);
+	}
+	catch (std::exception& ex)
+	{
+		size_t exlth = std::char_traits<char>::length(ex.what());
+		char* ex_msg = new char[exlth];
+		strncpy_s(ex_msg, exlth, ex.what(), exlth);
+		task->m_context.ex.reset(ex_msg);				//store exceptions inside task context for later rethrowing
+	}
+	catch (...)
+	{
+		size_t exlth = std::char_traits<char>::length("Unknown exception");
+		char* ex_msg = new char[exlth];
+		strncpy_s(ex_msg, exlth, "Unknown exception", exlth);
+		task->m_context.ex.reset(ex_msg);
+	}
 }
 
-void ipengine::ThreadPool::finalize(Task * task)
+void ipengine::ThreadPool::finalize(Task * task, Worker* worker)
 {
 	/*if (task->m_unfinished.fetch_sub(1, std::memory_order_acq_rel) == 1)
 	{
-		if (task->m_parent)
-		{
-			finalize(task->m_parent);
-		}
-		release(task);
+	if (task->m_parent)
+	{
+	finalize(task->m_parent);
+	}
+	release(task);
 	}*/
 
 	Task* c = task;
@@ -207,6 +114,19 @@ void ipengine::ThreadPool::finalize(Task * task)
 	{
 		r = c;
 		c = c->m_parent;
+
+		for (size_t i = 0; i < r->m_contcount.load(std::memory_order_acquire); i++)
+		{
+			if (worker != nullptr)
+			{
+				worker->local_queue.push(r->m_continuations[i]);
+			}
+			else
+			{
+				m_helperqueue.push_left(r->m_continuations[i]);
+			}
+		}
+
 		release(r);
 	}
 }
@@ -224,7 +144,7 @@ ipengine::Task * ipengine::ThreadPool::tryGetTask(Worker * worker)
 		if (sc && task != nullptr)
 		{
 			//std::cout << "LOCAL TASK " << std::this_thread::get_id() << "\n";
-		//	assert(task->m_unfinished.load() > 0);
+			//	assert(task->m_unfinished.load() > 0);
 			return task;
 		}
 	}
@@ -237,15 +157,12 @@ ipengine::Task * ipengine::ThreadPool::tryGetTask(Worker * worker)
 			return task;
 		}
 	}
-	
+
 
 	//try pop from global queue
-	//sc = m_globalWorkQueue.try_pop_left(task);
 	sc = m_globalWorkQueue.try_dequeue(task);
 	if (sc && task != nullptr)
 	{
-		//std::cout << "GLOBAL TASK " << std::this_thread::get_id() << "\n";
-	//	assert(task->m_unfinished.load() > 0);
 		return task;
 	}
 
@@ -254,7 +171,6 @@ ipengine::Task * ipengine::ThreadPool::tryGetTask(Worker * worker)
 	task = trySteal(worker);
 	if (task != nullptr)
 	{
-		//std::cout << "STOLEN TASK " << std::this_thread::get_id() << "\n";
 		return task;
 	}
 
@@ -262,21 +178,20 @@ ipengine::Task * ipengine::ThreadPool::tryGetTask(Worker * worker)
 }
 
 void ipengine::ThreadPool::waitForTask(Task * task, TaskContext* tcptr)
-{	//TODO: state change?
+{
 	while (task->m_unfinished.load(std::memory_order_acquire) > 0)
 	{
 		if (!help((tcptr && tcptr->workerid > -1 ? m_workers[tcptr->workerid].get() : nullptr)))
 			std::this_thread::yield();
-		//help();
 	}
- }
+}
 
 
 
 bool ipengine::ThreadPool::help(Worker* _worker)
 {
 	Worker* worker = (_worker != nullptr ? _worker : getWorkerByThreadID(std::this_thread::get_id()));
-	
+
 	Task * task = tryGetTask(worker);
 	if (task != nullptr)
 	{
@@ -284,7 +199,6 @@ bool ipengine::ThreadPool::help(Worker* _worker)
 			execute(task, worker);
 		else
 			execute(task);
-		//finalize(task);
 		return true;
 	}
 	else
@@ -305,15 +219,15 @@ ipengine::Task * ipengine::ThreadPool::trySteal(Worker* worker)
 	bool sc = m_workers[rwid]->local_queue.steal(task);
 	if (sc && task != nullptr)
 	{
-	//	assert(task->m_unfinished.load() > 0);
+		//	assert(task->m_unfinished.load() > 0);
 		return task;
 	}
-	else if(worker != nullptr)
+	else if (worker != nullptr)
 	{
 		m_helperqueue.try_pop_right(task);
 		if (task != nullptr)
 		{
-	//		assert(task->m_unfinished.load() > 0);
+			//		assert(task->m_unfinished.load() > 0);
 			return task;
 		}
 	}
@@ -327,8 +241,9 @@ ipengine::Task * ipengine::ThreadPool::create(const TaskFunction & func, const T
 	task->m_func = func;
 	task->m_context = context;
 	task->m_parent = nullptr;
+	task->m_contcount.store(0, std::memory_order_relaxed);
 	task->m_refct.store(1, std::memory_order_relaxed);
-	task->m_unfinished.store(1, std::memory_order_release);	
+	task->m_unfinished.store(1, std::memory_order_release);
 	return task;
 }
 
@@ -339,6 +254,7 @@ ipengine::Task * ipengine::ThreadPool::create(TaskFunction && func, const TaskCo
 	task->m_func = std::move(func);
 	task->m_context = context;
 	task->m_parent = nullptr;
+	task->m_contcount.store(0, std::memory_order_relaxed);
 	task->m_refct.store(1, std::memory_order_relaxed);
 	task->m_unfinished.store(1, std::memory_order_release);
 	return task;
@@ -351,6 +267,7 @@ ipengine::Task * ipengine::ThreadPool::create(const TaskFunction & func, TaskCon
 	task->m_func = func;
 	task->m_context = std::move(context);
 	task->m_parent = nullptr;
+	task->m_contcount.store(0, std::memory_order_relaxed);
 	task->m_refct.store(1, std::memory_order_relaxed);
 	task->m_unfinished.store(1, std::memory_order_release);
 	return task;
@@ -363,6 +280,7 @@ ipengine::Task * ipengine::ThreadPool::create(TaskFunction && func, TaskContext 
 	task->m_func = std::move(func);
 	task->m_context = std::move(context);
 	task->m_parent = nullptr;
+	task->m_contcount.store(0, std::memory_order_relaxed);
 	task->m_refct.store(1, std::memory_order_relaxed);
 	task->m_unfinished.store(1, std::memory_order_release);
 	return task;
@@ -452,7 +370,7 @@ bool ipengine::ThreadPool::submit(TaskHandle& handle)
 		use(handle.m_task);
 		//m_globalWorkQueue.push_right(handle.m_task);
 		m_globalWorkQueue.enqueue(handle.m_task);
-		
+
 		return true;
 	}
 	return false;
@@ -466,14 +384,14 @@ bool ipengine::ThreadPool::spawn(TaskHandle& handle, TaskContext* tcptr)
 		if (w != nullptr)
 		{
 			use(handle.m_task);
-		//	assert(handle.m_task->m_unfinished.load() != 0);// && handle.m_task->isdead.load() == false);
-			w->local_queue.push(handle.m_task);				
+			//	assert(handle.m_task->m_unfinished.load() != 0);// && handle.m_task->isdead.load() == false);
+			w->local_queue.push(handle.m_task);
 			return true;
 		}
 		else
 		{
 			use(handle.m_task);
-		//	assert(handle.m_task->m_unfinished.load() != 0);// && handle.m_task->isdead.load() == false);
+			//	assert(handle.m_task->m_unfinished.load() != 0);// && handle.m_task->isdead.load() == false);
 			m_helperqueue.push_left(handle.m_task);					//and that
 			return true;
 		}
@@ -492,21 +410,24 @@ ipengine::TaskHandle ipengine::ThreadPool::createTask(const TaskFunction & func,
 {
 	Task* t = create(func, std::move(context));
 	return TaskHandle(t, this);
-	return TaskHandle();
 }
 
 ipengine::TaskHandle ipengine::ThreadPool::createTask(TaskFunction && func, const TaskContext & context)
 {
 	Task* t = create(std::move(func), context);
 	return TaskHandle(t, this);
-	return TaskHandle();
 }
 
 ipengine::TaskHandle ipengine::ThreadPool::createTask(TaskFunction && func, TaskContext && context)
 {
 	Task* t = create(std::move(func), std::move(context));
 	return TaskHandle(t, this);
-	return TaskHandle();
+}
+
+ipengine::TaskHandle ipengine::ThreadPool::createEmpty()
+{
+	Task* t = create(TaskFunction::make_func<empty_func>(), TaskContext());
+	return TaskHandle(t, this);
 }
 
 ipengine::TaskHandle ipengine::ThreadPool::createChild(const TaskFunction & func, const TaskContext & context, TaskHandle& parent)
@@ -518,18 +439,17 @@ ipengine::TaskHandle ipengine::ThreadPool::createChild(const TaskFunction & func
 			return TaskHandle();
 
 		//update parent unfinished count via CAS loop. If parents unfinished count becomes 0 we return a invalid task handle
-		size_t unf = parent.m_task->m_unfinished.load(std::memory_order_relaxed);
+		size_t unf = parent.m_task->m_unfinished.load(std::memory_order_relaxed); //TODO: rethink memory order
 		do
 		{
 			if (unf == 0)
 				return TaskHandle();
-		}
-		while(!parent.m_task->m_unfinished.compare_exchange_weak(unf, unf + 1, std::memory_order_release, std::memory_order_relaxed));
+		} while (!parent.m_task->m_unfinished.compare_exchange_weak(unf, unf + 1, std::memory_order_release, std::memory_order_relaxed));
 
 		//if cas loop was successful, parent can't be finished until this child is. Set parent of our new child.
-		t->m_parent = parent.m_task;		
+		t->m_parent = parent.m_task;
 		return TaskHandle(t, this);
-	}	
+	}
 	return TaskHandle();
 }
 
@@ -542,7 +462,7 @@ ipengine::TaskHandle ipengine::ThreadPool::createChild(const TaskFunction & func
 			return TaskHandle();
 
 		//update parent unfinished count via CAS loop. If parents unfinished count becomes 0 we return a invalid task handle
-		size_t unf = parent.m_task->m_unfinished.load(std::memory_order_relaxed);
+		size_t unf = parent.m_task->m_unfinished.load(std::memory_order_relaxed); //TODO: rethink memory order
 		do
 		{
 			if (unf == 0)
@@ -565,7 +485,7 @@ ipengine::TaskHandle ipengine::ThreadPool::createChild(TaskFunction && func, con
 			return TaskHandle();
 
 		//update parent unfinished count via CAS loop. If parents unfinished count becomes 0 we return a invalid task handle
-		size_t unf = parent.m_task->m_unfinished.load(std::memory_order_relaxed);
+		size_t unf = parent.m_task->m_unfinished.load(std::memory_order_relaxed); //TODO: rethink memory order
 		do
 		{
 			if (unf == 0)
@@ -588,7 +508,7 @@ ipengine::TaskHandle ipengine::ThreadPool::createChild(TaskFunction && func, Tas
 			return TaskHandle();
 
 		//update parent unfinished count via CAS loop. If parents unfinished count becomes 0 we return a invalid task handle
-		size_t unf = parent.m_task->m_unfinished.load(std::memory_order_relaxed);
+		size_t unf = parent.m_task->m_unfinished.load(std::memory_order_relaxed); //TODO: rethink memory order
 		do
 		{
 			if (unf == 0)
@@ -609,7 +529,7 @@ bool ipengine::ThreadPool::addChild(TaskHandle & parent, TaskHandle & child)
 		if (parent.m_task == child.m_task->m_parent)
 			return true;
 		//update parent unfinished count via CAS loop. If parents unfinished count becomes 0 we return false
-		size_t unf = parent.m_task->m_unfinished.load(std::memory_order_relaxed);
+		size_t unf = parent.m_task->m_unfinished.load(std::memory_order_relaxed); //TODO: rethink memory order
 		do
 		{
 			if (unf == 0)
@@ -618,6 +538,25 @@ bool ipengine::ThreadPool::addChild(TaskHandle & parent, TaskHandle & child)
 
 		//if cas loop was successful, parent can't be finished until this child is. Set parent of our new child.
 		child.m_task->m_parent = parent.m_task;
+	}
+	return false;
+}
+
+bool ipengine::ThreadPool::addContinuation(TaskHandle & task, TaskHandle & continuationTask)
+{
+	if (task.isValid() && continuationTask.isValid())
+	{
+		//Check if continuation is already continuation task?
+		size_t cindex = task.m_task->m_contcount.load(std::memory_order_relaxed);
+		do
+		{
+			if (cindex >= 15)
+			{
+				return false;
+			}
+		} while (!task.m_task->m_contcount.compare_exchange_weak(cindex, cindex + 1, std::memory_order_release, std::memory_order_relaxed));
+		use(continuationTask.m_task);
+		task.m_task->m_continuations[cindex] = continuationTask.m_task; //synchronozation of this is done with the queues		
 	}
 	return false;
 }

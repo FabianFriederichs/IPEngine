@@ -16,9 +16,8 @@
 #include <IPCore/libs/concurrentqueue.h>
 #include <string>
 #include <IPCore/core_config.h>
-
-namespace ipengine {
-
+namespace ipengine
+{
 	class CORE_API ThreadPool
 	{
 		using ws_queue = ipengine::LockFreeWSQueue<Task*>;
@@ -36,7 +35,6 @@ namespace ipengine {
 
 			ws_queue local_queue;
 			std::thread m_thread;
-			stack<Task*> m_waitstack;
 			ThreadPool* m_pool;
 			std::atomic<bool> m_runflag;
 			size_t id;
@@ -61,11 +59,13 @@ namespace ipengine {
 		TaskHandle createTask(const TaskFunction& func, TaskContext&& context);
 		TaskHandle createTask(TaskFunction&& func, const TaskContext& context);
 		TaskHandle createTask(TaskFunction&& func, TaskContext&& context);
+		TaskHandle createEmpty();
 		TaskHandle createChild(const TaskFunction& func, const TaskContext& context, TaskHandle& parent);
 		TaskHandle createChild(const TaskFunction& func, TaskContext&& context, TaskHandle& parent);
 		TaskHandle createChild(TaskFunction&& func, const TaskContext& context, TaskHandle& parent);
 		TaskHandle createChild(TaskFunction&& func, TaskContext&& context, TaskHandle& parent);
 		bool addChild(TaskHandle& parent, TaskHandle& child);
+		bool addContinuation(TaskHandle& task, TaskHandle& continuationTask);
 		std::thread::id getCurrentWorkerId()
 		{
 			return std::this_thread::get_id();
@@ -80,7 +80,7 @@ namespace ipengine {
 	private:
 		void execute(Task* task);
 		void execute(Task* task, Worker* worker);
-		void finalize(Task* task);
+		void finalize(Task* task, Worker* worker);
 		void waitForTask(Task*, TaskContext* tcptr = nullptr);
 		bool help(Worker* worker = nullptr);
 		Task* trySteal(Worker* worker);
@@ -100,7 +100,6 @@ namespace ipengine {
 		//private data
 		moodycamel::ConcurrentQueue<Task*, moodycamel::ConcurrentQueueDefaultTraits> m_globalWorkQueue;
 		ipengine::Deque<Task*> m_helperqueue; //this thing bottlenecks helperthreads if there are many of them
-		spinlock_stack<Task*> m_helperwaitstack; //same problem here. but the stack could be replaced with a lockfree version.
 		std::vector<aligned_ptr<Worker>> m_workers;
 		std::atomic<bool> m_isrunning;
 		using TaskAlloc = ThreadSafeFreeList<TS_CACHE_LINE_SIZE, sizeof(Task), 4096>;

@@ -5,13 +5,12 @@
 #include <IPCore/Util/spinlock.h>
 #include <chrono>
 #include <IPCore/core_config.h>
+#include <IPCore/Memory/memory_utils.h>
 
 namespace ipengine {
 
-	constexpr bool isPowerOf2(size_t n)
-	{
-		return n && (n & (n - 1)) == 0;
-	}
+	
+
 	//TODO: more locality can be achieved if a bunch of chunks is preallocted in a continguous array
 	//TODO: std conforming allocator interface
 	//do some optimization if possible
@@ -588,74 +587,7 @@ namespace ipengine {
 	thread_local typename ThreadSafeFreeList<alignment, blocksize, blocksperchunk>::ThreadCache ThreadSafeFreeList<alignment, blocksize, blocksperchunk>::tc(ThreadSafeFreeList<alignment, blocksize, blocksperchunk>::centralList);
 
 
-	template<typename T>
-	class aligned_ptr
-	{
-	private:
-		template <typename T, size_t alignment, typename ... ARGS>
-		friend aligned_ptr<T> alloc_aligned(ARGS&& ... args);
-
-		template <typename T>
-		friend void free_aligned(const aligned_ptr<T>& ptr);
-
-		T* ptr;
-		void* mem_ptr;
-	public:
-		aligned_ptr()
-		{
-
-		}
-
-		aligned_ptr(T* _ptr, void* _mem) :
-			ptr(_ptr),
-			mem_ptr(_mem)
-		{
-
-		}
-
-		T* operator->()
-		{
-			return ptr;
-		}
-
-		const T* operator->() const
-		{
-			return ptr;
-		}
-
-		T* get()
-		{
-			return ptr;
-		}
-
-		const T* get() const
-		{
-			return ptr;
-		}
-	};
-
-	template <typename T, size_t alignment, typename ... ARGS>
-	inline aligned_ptr<T> alloc_aligned(ARGS&& ... args)
-	{
-		static_assert(isPowerOf2(alignment), "alignment template parameter has to be a power of 2");
-		size_t space = sizeof(T) + alignment - 1;
-		void* ptr = ::operator new(space);
-		void* aligned = ptr;
-		if (std::align(alignment, sizeof(T), aligned, space) == nullptr)
-		{
-			delete ptr;
-			throw std::bad_alloc();
-		}
-		new(aligned)T(std::forward<ARGS>(args)...);
-		return aligned_ptr<T>(reinterpret_cast<T*>(aligned), ptr);
-	}
-
-	template <typename T>
-	inline void free_aligned(const aligned_ptr<T>& ptr)
-	{
-		ptr.ptr->T::~T();
-		delete ptr.mem_ptr;
-	}
+	
 
 }
 #endif

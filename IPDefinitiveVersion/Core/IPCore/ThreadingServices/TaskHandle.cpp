@@ -12,7 +12,6 @@ ipengine::TaskHandle::TaskHandle(Task * task, ThreadPool* pool) :
 	m_pool(pool),
 	m_isinpool(false)
 {
-	//m_pool->use(m_task);
 }
 
 ipengine::TaskHandle::TaskHandle(const TaskHandle & _other)
@@ -94,6 +93,15 @@ bool ipengine::TaskHandle::addChild(TaskHandle & child)
 	if (isValid())
 	{
 		return m_pool->addChild(*this, child);
+	}
+	return false;
+}
+
+bool ipengine::TaskHandle::addContinuation(TaskHandle & continuationTask)
+{
+	if (isValid())
+	{
+		return m_pool->addContinuation(*this, continuationTask);
 	}
 	return false;
 }

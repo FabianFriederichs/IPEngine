@@ -25,11 +25,11 @@ public:
 	virtual bool SwitchActiveScene(SceneId id) = 0;
 
 	//Edit scene, add/remove entity?
-	virtual bool AddEntity(SceneId sceneid, SCM::EntityId entityid) = 0;
-	virtual int AddEntity(SceneId sceneid, std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator  entityidend) = 0;
+	virtual bool AddEntity( SCM::EntityId entityid, SceneId sceneid = std::numeric_limits<SceneId>::max()) = 0;
+	virtual int AddEntity( std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator  entityidend, SceneId sceneid = std::numeric_limits<SceneId>::max()) = 0;
 
-	virtual bool RemoveEntity(SceneId sceneid, SCM::EntityId entityid) = 0;
-	virtual int RemoveEntity(SceneId sceneid, std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator  entityidend) = 0;
+	virtual bool RemoveEntity( SCM::EntityId entityid, SceneId sceneid = std::numeric_limits<SceneId>::max()) = 0;
+	virtual int RemoveEntity(std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator  entityidend, SceneId sceneid = std::numeric_limits<SceneId>::max()) = 0;
 };
 
 #endif// !_ISIMPLESCENEMODULE_API_H_

@@ -344,19 +344,35 @@ bool SimpleSceneModule::SwitchActiveScene(SceneId id)
 	m_activeScene = id;
 }
 
-bool SimpleSceneModule::AddEntity(SceneId sceneid, SCM::EntityId entityid)
+bool SimpleSceneModule::AddEntity(SCM::EntityId entityid, SceneId sceneid)
 {
+	if (sceneid == m_maxId)
+	{
+		sceneid = m_activeScene;
+	}
 	auto it = m_scenes.find(sceneid);
 	if (it != m_scenes.end())
 	{
 		if(it->second.addEntity(entityid)==1)
 			return true;
 	}
+
+	if (sceneid == m_activeScene)
+	{
+		auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
+
+		scm->getEntityById(entityid)->isActive = true;
+	}
+
 	return false;
 }
 
-int SimpleSceneModule::AddEntity(SceneId sceneid, std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator entityidend)
+int SimpleSceneModule::AddEntity(std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator entityidend, SceneId sceneid)
 {
+	if (sceneid == m_maxId)
+	{
+		sceneid = m_activeScene;
+	}
 	int c = 0;
 	for (; entityidstart < entityidend; entityidstart++)
 	{
@@ -365,19 +381,35 @@ int SimpleSceneModule::AddEntity(SceneId sceneid, std::vector<SCM::EntityId>::co
 	return c;
 }
 
-bool SimpleSceneModule::RemoveEntity(SceneId sceneid, SCM::EntityId entityid)
+bool SimpleSceneModule::RemoveEntity(SCM::EntityId entityid, SceneId sceneid)
 {
+	if (sceneid == m_maxId)
+	{
+		sceneid = m_activeScene;
+	}
 	auto it = m_scenes.find(sceneid);
 	if (it != m_scenes.end())
 	{
 		if (it->second.removeEntity(entityid) == 1)
 			return true;
 	}
+	w
+	if (sceneid == m_activeScene)
+	{
+		auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
+
+		scm->getEntityById(entityid)->isActive = false;
+	}
+
 	return false;
 }
 
-int SimpleSceneModule::RemoveEntity(SceneId sceneid, std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator entityidend)
+int SimpleSceneModule::RemoveEntity(std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator entityidend, SceneId sceneid)
 {
+	if (sceneid == m_maxId)
+	{
+		sceneid = m_activeScene;
+	}
 	int c=0;
 	for (; entityidstart < entityidend; entityidstart++)
 	{

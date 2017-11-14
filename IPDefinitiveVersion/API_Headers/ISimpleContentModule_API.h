@@ -15,8 +15,8 @@ namespace SCM
 	class TransformData
 	{
 	public:
-		TransformData() { m_isMatrixDirty = true; };
-		TransformData(const TransformData& d) :m_location(d.m_location), m_rotation(d.m_rotation), m_scale(d.m_scale), m_localX(d.m_localX), m_localY(d.m_localY), m_localZ(d.m_localZ) { m_isMatrixDirty = true; };
+		//TransformData() { m_isMatrixDirty = true; };
+		//TransformData(const TransformData& d) :m_location(d.m_location), m_rotation(d.m_rotation), m_scale(d.m_scale), m_localX(d.m_localX), m_localY(d.m_localY), m_localZ(d.m_localZ) { m_isMatrixDirty = true; };
 		~TransformData() {};
 		glm::vec3 m_location;
 		glm::quat m_rotation;
@@ -26,7 +26,6 @@ namespace SCM
 		glm::vec3 m_localZ;
 		glm::mat4 m_transformMatrix;
 		bool m_isMatrixDirty;
-	private:
 	};
 
 	class Transform
