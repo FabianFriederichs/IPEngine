@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Ressourcendateien">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="CoreModules">
+      <UniqueIdentifier>{b5928b1e-afbb-4698-9996-b61310dc8aed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CoreModules\ThreadingServices">
+      <UniqueIdentifier>{a0fdaf66-a37f-4529-bb53-d53844bd3deb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CoreModules\RuntimeControl">
+      <UniqueIdentifier>{926b64f2-2bce-4168-ae19-190d5327f650}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{a91a131a-5739-4e9f-8640-a2892a2901bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{4ef826e0-1efe-46de-b6e2-fdcdd91fc7c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PAL">
+      <UniqueIdentifier>{1676bbed-1288-4bf7-87e5-08c8f215cc65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CoreModules\Memory">
+      <UniqueIdentifier>{35cb887e-fd63-42dc-8e66-373d00daf573}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ThreadingServices\Task.h">
+      <Filter>CoreModules\ThreadingServices</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadingServices\TaskContext.h">
+      <Filter>CoreModules\ThreadingServices</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadingServices\TaskHandle.h">
+      <Filter>CoreModules\ThreadingServices</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadingServices\TaskLib.h">
+      <Filter>CoreModules\ThreadingServices</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadingServices\ThreadPool.h">
+      <Filter>CoreModules\ThreadingServices</Filter>
+    </ClInclude>
+    <ClInclude Include="RuntimeControl\Console.h">
+      <Filter>CoreModules\RuntimeControl</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\allocators.h">
+      <Filter>CoreModules\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\function.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\any.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Deque.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\hazard_pointer.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\LFDS.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\refctr.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\spinlock.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\stack.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="core_config.h" />
+    <ClInclude Include="Core\ICore.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="PAL\PAL.h">
+      <Filter>PAL</Filter>
+    </ClInclude>
+    <ClInclude Include="RuntimeControl\Scheduler.h">
+      <Filter>CoreModules\RuntimeControl</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\memory_utils.h">
+      <Filter>CoreModules\Memory</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ThreadingServices\TaskHandle.cpp">
+      <Filter>CoreModules\ThreadingServices</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadingServices\ThreadPool.cpp">
+      <Filter>CoreModules\ThreadingServices</Filter>
+    </ClCompile>
+    <ClCompile Include="RuntimeControl\Console.cpp">
+      <Filter>CoreModules\RuntimeControl</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\ICore.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="RuntimeControl\Scheduler.cpp">
+      <Filter>CoreModules\RuntimeControl</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

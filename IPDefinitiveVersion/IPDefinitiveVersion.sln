@@ -31,6 +31,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{70B77B
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PhysicsModule", "Modules\PhysicsModule\PhysicsModule.vcxproj", "{374CEB09-5FE5-4BF8-96EB-ECF5BF365AE1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API_Headers", "API_Headers", "{9047FF9A-1820-4478-881B-5717FE2306D8}"
+	ProjectSection(SolutionItems) = preProject
+		API_Headers\IBasicGraphicsContentModule_API.h = API_Headers\IBasicGraphicsContentModule_API.h
+		API_Headers\IBasicOpenVRModule_API.h = API_Headers\IBasicOpenVRModule_API.h
+		API_Headers\IGraphics_API.h = API_Headers\IGraphics_API.h
+		API_Headers\IInput_API.h = API_Headers\IInput_API.h
+		API_Headers\IModule_API.h = API_Headers\IModule_API.h
+		API_Headers\IPhysicsModule_API.h = API_Headers\IPhysicsModule_API.h
+		API_Headers\ISimpleContentModule_API.h = API_Headers\ISimpleContentModule_API.h
+		API_Headers\ISimpleSceneModule_API.h = API_Headers\ISimpleSceneModule_API.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
