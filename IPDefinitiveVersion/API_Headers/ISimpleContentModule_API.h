@@ -163,6 +163,9 @@ namespace SCM
 		std::vector<index> m_indices;
 		MaterialData* m_material;
 		IdType m_meshId;
+		bool m_dynamic;
+		bool m_dirty;
+
 	};
 	
 	class MeshedObject

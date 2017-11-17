@@ -379,34 +379,30 @@ void PhysicsModule::handleCollisions(ipengine::TaskContext & context)
 	auto& preadbuf = ub.m_cloth->oldBuf();
 	auto& pwritebuf = ub.m_cloth->newBuf();
 
-	//Get collider list
-	//TODO: get possible colliders from scene module later. for testing we'll use a local list of thingies
-
-	//for each collider call tryCollide and apply the correcting velocity to the particle
-
 	for (size_t pid = ub.from; pid <= ub.to; pid++)
 	{
 		Particle& p = preadbuf[pid];
 		Particle& wp = pwritebuf[pid];
 
-		//TODO: get colliders from SCM
-		//for (auto& bs : sphereColliders)
-		//{
-		//	glm::vec3 cvel = tryCollide(ub.m_cloth, p, bs, ub.dt);
-		//	wp.m_velocity += cvel;
-		//	wp.m_position = p.m_position;
-		//	wp.m_acceleration = p.m_acceleration;
-		//}
+		auto &  entities = contentmodule->getThreeDimEntities();
+		for (auto& e : entities)
+		{
+			auto entity = e.second;
+			if (entity->isActive)
+			{
+				if (entity->isBoundingBox)
+				{
+					wp.m_velocity += tryCollide(ub.m_cloth, p, entity->m_boundingData.box, ub.dt);
+				}
+				else
+				{
+					wp.m_velocity += tryCollide(ub.m_cloth, p, entity->m_boundingData.sphere, ub.dt);
+				}
+			}
+		}
 
-		//for (auto& bs : aabColliders)
-		//{
-		//	glm::vec3 cvel = tryCollide(ub.m_cloth, p, bs, ub.dt);
-		//	/*if (glm::length(cvel) < 1.0e-6f)
-		//	cvel = p.m_position;*/
-		//	wp.m_velocity += cvel;
-		//	wp.m_position = p.m_position;
-		//	wp.m_acceleration = p.m_acceleration;
-		//}
+		wp.m_position = p.m_position;
+		wp.m_acceleration = p.m_acceleration;
 	}
 
 
@@ -602,7 +598,7 @@ void PhysicsModule::updateMesh(Cloth* cloth)
 		mesh->m_vertices.setData()[mesh->m_indices[i + 1]].m_normal += normal;
 		mesh->m_vertices.setData()[mesh->m_indices[i + 2]].m_normal += normal;
 	}
-
+	mesh->m_dirty = true;
 	//normalize normals
 	//Very costly on cpu. Let the vertex shader do this job!	
 }
@@ -882,6 +878,8 @@ SCM::EntityId PhysicsModule::createCloth(const std::string &name,size_t width,
 	auto &tcloth = clothInstances.back();
 	mdata.m_indices = m_indices;
 	mdata.m_vertices.setData().swap(m_vertices);
+	mdata.m_dynamic = true;
+	mdata.m_dirty = false;
 	
 	mdata.m_material = contentmodule->getMaterialById(materialid);
 

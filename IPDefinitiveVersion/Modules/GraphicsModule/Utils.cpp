@@ -68,21 +68,73 @@ std::shared_ptr<VAO> GLUtils::createVAO(const SCM::MeshData& mesh)
 	}
 	auto& vertices = mesh.m_vertices.getData();
 	glBindVertexArray(vao);	GLERR
-		glBindBuffer(GL_ARRAY_BUFFER, vbo); GLERR
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); GLERR
-		glBufferData(GL_ARRAY_BUFFER, sizeof(SCM::VertexData) * mesh.m_vertices.getData().size(), reinterpret_cast<const GLvoid*>(mesh.m_vertices.getData().data()), GL_STATIC_DRAW); GLERR
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(SCM::index) * mesh.m_indices.size(), reinterpret_cast<const GLvoid*>(mesh.m_indices.data()), GL_STATIC_DRAW); GLERR
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SCM::VertexData), reinterpret_cast<void*>(offsetof(SCM::VertexData, m_position))); GLERR
-		glEnableVertexAttribArray(0); GLERR											
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SCM::VertexData), reinterpret_cast<void*>(offsetof(SCM::VertexData, m_uv))); GLERR
-		glEnableVertexAttribArray(1); GLERR
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(SCM::VertexData), reinterpret_cast<void*>(offsetof(SCM::VertexData, m_normal))); GLERR
-		glEnableVertexAttribArray(2); GLERR
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(SCM::VertexData), reinterpret_cast<void*>(offsetof(SCM::VertexData, m_tangent))); GLERR
-		glEnableVertexAttribArray(3); GLERR
-		glBindBuffer(GL_ARRAY_BUFFER, 0); GLERR
-		glBindVertexArray(0); GLERR
-		return std::make_shared<VAO>(vbo, ibo, vao, mesh.m_indices.size());
+	glBindBuffer(GL_ARRAY_BUFFER, vbo); GLERR
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); GLERR
+	glBufferData(GL_ARRAY_BUFFER, sizeof(SCM::VertexData) * mesh.m_vertices.getData().size(), reinterpret_cast<const GLvoid*>(mesh.m_vertices.getData().data()), GL_STATIC_DRAW); GLERR
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(SCM::index) * mesh.m_indices.size(), reinterpret_cast<const GLvoid*>(mesh.m_indices.data()), GL_STATIC_DRAW); GLERR
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SCM::VertexData), reinterpret_cast<void*>(offsetof(SCM::VertexData, m_position))); GLERR
+	glEnableVertexAttribArray(0); GLERR											
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SCM::VertexData), reinterpret_cast<void*>(offsetof(SCM::VertexData, m_uv))); GLERR
+	glEnableVertexAttribArray(1); GLERR
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(SCM::VertexData), reinterpret_cast<void*>(offsetof(SCM::VertexData, m_normal))); GLERR
+	glEnableVertexAttribArray(2); GLERR
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(SCM::VertexData), reinterpret_cast<void*>(offsetof(SCM::VertexData, m_tangent))); GLERR
+	glEnableVertexAttribArray(3); GLERR
+	glBindBuffer(GL_ARRAY_BUFFER, 0); GLERR
+	glBindVertexArray(0); GLERR
+	return std::make_shared<VAO>(vbo, ibo, vao, mesh.m_indices.size());
+}
+
+std::shared_ptr<VAO> GLUtils::createDynamicVAO(const SCM::MeshData & mesh)
+{
+	GLuint vao;
+	glGenVertexArrays(1, &vao); GLERR
+		if (vao == 0)
+		{
+			throw std::logic_error("VAO could not be created.");
+		}
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	if (vbo == 0)
+	{
+		glDeleteVertexArrays(1, &vao);
+		throw std::logic_error("VBO could not be created.");
+	}
+	GLuint ibo;
+	glGenBuffers(1, &ibo);
+	if (ibo == 0)
+	{
+		glDeleteVertexArrays(1, &vao);
+		glDeleteBuffers(1, &vbo);
+		throw std::logic_error("IBO could not be created.");
+	}
+	auto& vertices = mesh.m_vertices.getData();
+	glBindVertexArray(vao);	GLERR
+	glBindBuffer(GL_ARRAY_BUFFER, vbo); GLERR
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); GLERR
+	glBufferData(GL_ARRAY_BUFFER, sizeof(SCM::VertexData) * mesh.m_vertices.getData().size(), reinterpret_cast<const GLvoid*>(mesh.m_vertices.getData().data()), GL_STREAM_DRAW); GLERR
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(SCM::index) * mesh.m_indices.size(), reinterpret_cast<const GLvoid*>(mesh.m_indices.data()), GL_STATIC_DRAW); GLERR
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SCM::VertexData), reinterpret_cast<void*>(offsetof(SCM::VertexData, m_position))); GLERR
+	glEnableVertexAttribArray(0); GLERR
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SCM::VertexData), reinterpret_cast<void*>(offsetof(SCM::VertexData, m_uv))); GLERR
+	glEnableVertexAttribArray(1); GLERR
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(SCM::VertexData), reinterpret_cast<void*>(offsetof(SCM::VertexData, m_normal))); GLERR
+	glEnableVertexAttribArray(2); GLERR
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(SCM::VertexData), reinterpret_cast<void*>(offsetof(SCM::VertexData, m_tangent))); GLERR
+	glEnableVertexAttribArray(3); GLERR
+	glBindBuffer(GL_ARRAY_BUFFER, 0); GLERR
+	glBindVertexArray(0); GLERR
+	return std::make_shared<VAO>(vbo, ibo, vao, mesh.m_indices.size());
+}
+
+void GLUtils::updateVAO(std::shared_ptr<VAO>& vao, const SCM::MeshData & mesh)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, vao->vbo);
+	//Orphane the old buffer through creating a new one
+	glBufferData(GL_ARRAY_BUFFER, sizeof(SCM::VertexData) * mesh.m_vertices.getData().size(), 0, GL_STREAM_DRAW);
+	//Fill the new buffer with updated data
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(SCM::VertexData) * mesh.m_vertices.getData().size(), reinterpret_cast<const void*>(mesh.m_vertices.getData().data()));
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 std::shared_ptr<ShaderProgram> GLUtils::createShaderProgram(const std::string& vspath, const std::string& fspath)

@@ -163,9 +163,14 @@ void GraphicsModule::updateData()
 			{
 				if (m_scmmeshtovao.count(mesh->m_meshId)<1)
 				{
-					auto vao = GLUtils::createVAO(*mesh);
+					auto vao = (mesh->m_dynamic ? GLUtils::createDynamicVAO(*mesh) : GLUtils::createVAO(*mesh));
 					m_scmmeshtovao[mesh->m_meshId] = vao;
 				}
+				else if(mesh->m_dynamic && mesh->m_dirty)//update dynamic meshes
+				{
+					auto& vao = m_scmmeshtovao[mesh->m_meshId];
+					GLUtils::updateVAO(vao, *mesh);
+				}				
 				if (m_scmshadertoprogram.count(mesh->m_material->m_shaderId) < 1)
 				{
 					auto files = shaders[mesh->m_material->m_shaderId];
