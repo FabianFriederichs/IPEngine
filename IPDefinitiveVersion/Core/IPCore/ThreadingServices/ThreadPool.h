@@ -66,6 +66,7 @@ namespace ipengine
 		TaskHandle createChild(TaskFunction&& func, TaskContext&& context, TaskHandle& parent);
 		bool addChild(TaskHandle& parent, TaskHandle& child);
 		bool addContinuation(TaskHandle& task, TaskHandle& continuationTask);
+		void executeImmediate(TaskHandle& task);
 		std::thread::id getCurrentWorkerId()
 		{
 			return std::this_thread::get_id();

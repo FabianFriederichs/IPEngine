@@ -27,6 +27,7 @@ namespace ipengine {
 		bool addContinuation(TaskHandle& continuationTask);
 		bool spawn(TaskContext* tcptr = nullptr);
 		bool submit();
+		void execute();
 		TaskContext* getContext()
 		{
 			if (isValid())

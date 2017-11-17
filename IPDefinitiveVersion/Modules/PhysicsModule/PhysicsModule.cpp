@@ -19,7 +19,8 @@ void PhysicsModule::update(ipengine::TaskContext & context)
 {
 	//context.getPool()->t_end.store(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count());
 	//std::cout << context.getPool()->t_end - context.getPool()->t_start << "us\n";
-	double dt = context;
+	ipengine::Scheduler::SchedInfo si = context;
+	float dt = si.dt.sec();
 	/*for (Cloth& cloth : clothInstances)
 	{
 

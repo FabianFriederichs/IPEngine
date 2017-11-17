@@ -1,9 +1,9 @@
 #pragma once
 #include <memory>
 #include <atomic>
-#include <ThreadingServices/Task.h>
-#include <ThreadingServices/ThreadPool.h>
-#include <core_config.h>
+#include <IPCore/ThreadingServices/Task.h>
+#include <IPCore/ThreadingServices/ThreadPool.h>
+#include <IPCore/core_config.h>
 
 namespace ipengine {
 	class ThreadPool;
@@ -24,8 +24,10 @@ namespace ipengine {
 		bool wait(TaskContext* tcptr = nullptr);
 		bool wait_recycle(TaskContext* tcptr = nullptr);
 		bool addChild(TaskHandle& child);
+		bool addContinuation(TaskHandle& continuationTask);
 		bool spawn(TaskContext* tcptr = nullptr);
 		bool submit();
+		void execute();
 		TaskContext* getContext()
 		{
 			if (isValid())

@@ -1,4 +1,4 @@
-#include <Core/ICore.h>
+#include <IPCore/Core/ICore.h>
 
 ipengine::Core::Core() :
 	cmodule_console(std::cout),

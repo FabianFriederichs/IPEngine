@@ -1,4 +1,4 @@
-#include <ThreadingServices/TaskHandle.h>
+#include <IPCore/ThreadingServices/TaskHandle.h>
 //TODO: error checking here
 
 ipengine::TaskHandle::TaskHandle() :
@@ -12,7 +12,6 @@ ipengine::TaskHandle::TaskHandle(Task * task, ThreadPool* pool) :
 	m_pool(pool),
 	m_isinpool(false)
 {
-	//m_pool->use(m_task);
 }
 
 ipengine::TaskHandle::TaskHandle(const TaskHandle & _other)
@@ -98,6 +97,15 @@ bool ipengine::TaskHandle::addChild(TaskHandle & child)
 	return false;
 }
 
+bool ipengine::TaskHandle::addContinuation(TaskHandle & continuationTask)
+{
+	if (isValid())
+	{
+		return m_pool->addContinuation(*this, continuationTask);
+	}
+	return false;
+}
+
 bool ipengine::TaskHandle::spawn(TaskContext* tcptr)
 {
 	if (isValid() && !m_isinpool)
@@ -124,4 +132,12 @@ bool ipengine::TaskHandle::submit()
 	}
 	m_isinpool = false;
 	return false;
+}
+
+void ipengine::TaskHandle::execute()
+{
+	if (isValid() && !m_isinpool)
+	{
+		m_pool->executeImmediate(*this);
+	}
 }

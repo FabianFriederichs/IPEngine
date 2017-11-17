@@ -8,6 +8,7 @@
 #include <IPCore/libs/concurrentqueue.h>
 #include <IPCore/core_config.h>
 #include <mutex>
+#include <IPCore/RuntimeControl/Time.h>
 
 //High level scheduler interface.
 //subscribe/unsubscribe function
@@ -26,8 +27,8 @@ namespace ipengine {
 		};
 	private:
 
-		using interval_t = int64_t;
-		using sched_time_t = int64_t;
+		using interval_t = time_t;
+		using sched_time_t = time_t;
 
 		
 
@@ -55,14 +56,13 @@ namespace ipengine {
 			int64_t acc;
 			float timescale;
 			RefCtr refct;
-			interval_t lastDelta;
-			sched_time_t lastSchedActivity;
+			bool mainThreadOnly;
 		};
 	public:
 		class CORE_API SchedInfo
 		{
 		public:
-			double dt;
+			Time dt;
 		};
 	public:
 		class CORE_API SubHandle
@@ -87,9 +87,10 @@ namespace ipengine {
 		};
 	private:
 		sched_time_t m_curtime; //Time elapsed since scheduler startup in nanoseconds. Overflows every 292.47... years
-		sched_time_t m_accum;
 		std::atomic<size_t> m_idgen;
 		std::map<uint64_t, SchedSub*> m_subscriptions;
+		std::vector<SchedSub*> m_scheduledPoolSubs;
+		std::vector<SchedSub*> m_scheduledMainThreadSubs;
 		moodycamel::ConcurrentQueue<SubChange, moodycamel::ConcurrentQueueDefaultTraits> m_changequeue;
 		using sub_entry_t = std::pair<size_t, SchedSub*>;
 		YieldingSpinLock<5000> m_sublock;
@@ -104,7 +105,7 @@ namespace ipengine {
 		Scheduler();
 		~Scheduler();
 
-		SubHandle subscribe(const ipengine::function<void(TaskContext&)>&, interval_t desiredInterval, SubType type, float timescale, ThreadPool* pool); //Temporary last param for testing. use core interface later!
+		SubHandle subscribe(const ipengine::function<void(TaskContext&)>&, interval_t desiredInterval, SubType type, float timescale, ThreadPool* pool, bool mainThreadOnly = false); //Temporary last param for testing. use core interface later!
 	};
 
 }

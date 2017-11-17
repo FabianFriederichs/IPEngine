@@ -1,16 +1,19 @@
 #pragma once
 #include <exception>
-#include <Util/any.h>
+#include <IPCore/Util/any.h>
 #include <memory>
-#include <core_config.h>
-
+#include <IPCore/core_config.h>
 namespace ipengine {
 
 	class CORE_API TaskContext
 	{
 		friend class ThreadPool;
 	public:
-		TaskContext() {}
+		TaskContext() :
+			ex(nullptr),
+			data(),
+			workerid(-1)
+		{}
 
 		template <typename T>
 		TaskContext(T data) :
@@ -20,6 +23,7 @@ namespace ipengine {
 		{
 		}
 
+		//TODO: fix this constructor
 		TaskContext(const TaskContext& other) :
 			ex(std::move(const_cast<TaskContext&>(other).ex)),
 			data(other.data),
@@ -106,11 +110,11 @@ namespace ipengine {
 
 	private:
 		//char* ex_msg; //maybe this way. risky when exception is "bad_alloc" but we'd have space for the pool pointer. just new ex_msg on demand and throw a new exception later
-
-		ipengine::soo_any data;
-		ThreadPool* pool;
-		std::unique_ptr<char[]> ex;
-		int workerid; //fixes the "find the worker" thing
+		//max 72
+		ipengine::soo_any data;								//48
+		ThreadPool* pool;									//8
+		std::unique_ptr<char[]> ex;							//8
+		int workerid; //fixes the "find the worker" thing	//4
 	};
 
 }

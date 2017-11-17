@@ -184,6 +184,8 @@ void ipengine::ThreadPool::waitForTask(Task * task, TaskContext* tcptr)
 		if (!help((tcptr && tcptr->workerid > -1 ? m_workers[tcptr->workerid].get() : nullptr)))
 			std::this_thread::yield();
 	}
+	if (task->m_context.ex != nullptr)
+		throw std::logic_error(task->m_context.ex.get());
 }
 
 
@@ -559,6 +561,13 @@ bool ipengine::ThreadPool::addContinuation(TaskHandle & task, TaskHandle & conti
 		task.m_task->m_continuations[cindex] = continuationTask.m_task; //synchronozation of this is done with the queues		
 	}
 	return false;
+}
+
+void ipengine::ThreadPool::executeImmediate(TaskHandle & task)
+{
+	task.m_task->m_context.workerid = -1;
+	task.m_task->m_context.pool = this;
+	task.m_task->m_func(task.m_task->m_context);
 }
 
 void ipengine::ThreadPool::wait(TaskHandle & handle, TaskContext* tcptr)
