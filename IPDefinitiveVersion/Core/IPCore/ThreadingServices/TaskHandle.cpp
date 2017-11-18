@@ -133,3 +133,11 @@ bool ipengine::TaskHandle::submit()
 	m_isinpool = false;
 	return false;
 }
+
+void ipengine::TaskHandle::execute()
+{
+	if (isValid() && !m_isinpool)
+	{
+		m_pool->executeImmediate(*this);
+	}
+}

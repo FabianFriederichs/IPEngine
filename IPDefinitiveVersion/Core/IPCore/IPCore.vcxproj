@@ -139,6 +139,7 @@
     <ClInclude Include="PAL\PAL.h" />
     <ClInclude Include="RuntimeControl\Console.h" />
     <ClInclude Include="RuntimeControl\Scheduler.h" />
+    <ClInclude Include="RuntimeControl\Time.h" />
     <ClInclude Include="ThreadingServices\Task.h" />
     <ClInclude Include="ThreadingServices\TaskContext.h" />
     <ClInclude Include="ThreadingServices\TaskHandle.h" />

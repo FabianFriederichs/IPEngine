@@ -3,7 +3,7 @@
 #include <chrono>
 #include <random>
 #include <algorithm>
-#include <core_config.h>
+#include <IPCore/core_config.h>
 
 namespace ipengine {
 

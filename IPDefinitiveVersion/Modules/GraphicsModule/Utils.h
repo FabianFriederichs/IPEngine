@@ -26,6 +26,8 @@ public:
 
 	//static std::shared_ptr<Texture2D> loadGLTexture(const std::string& path);
 	static std::shared_ptr<VAO> createVAO(const SCM::MeshData& mesh);
+	static std::shared_ptr<VAO> createDynamicVAO(const SCM::MeshData& mesh);
+	static void updateVAO(std::shared_ptr<VAO>& vao, const SCM::MeshData& mesh);
 	static std::shared_ptr<ShaderProgram> createShaderProgram(const std::string& vspath, const std::string& fspath);
 };
 
