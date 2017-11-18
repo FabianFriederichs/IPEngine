@@ -80,9 +80,24 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 	std::unordered_map<int, SCM::EntityId> entitytointernid;
 	std::unordered_map<int, SCM::IdType> shadertointernid;
 	std::unordered_map<int, SCM::IdType> materialtointernid;
-
+	std::unordered_map<int, SCM::IdType> texturetointernid;
 
 	auto& shaders = contentmodule->getShaders();
+	auto& textures = contentmodule->getTextures();
+	for (auto node : tree.get_child("Scene.Textures"))
+	{
+		std::string path;
+		int textureid;
+		textureid = node.second.get<SCM::IdType>("Id", -1);
+		if (texturetointernid.count(textureid) > 0)
+		{
+			continue; //Skip because scenes meshid is a duplicate.
+		}
+		path = node.second.get<std::string>("TexturePath", "");
+		auto id = contentmodule->generateNewGeneralId();
+		textures.push_back(SCM::TextureFile(id, path));
+		shadertointernid[textureid] = id;
+	}
 	for (auto node : tree.get_child("Scene.Shaders"))
 	{
 		std::string fsp, vsp;
@@ -100,34 +115,33 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 	}
 
 	auto& materials = contentmodule->getMaterials();
-	auto& textures = contentmodule->getTextures();
+	
 	for (auto node : tree.get_child("Scene.Materials"))
 	{
-		std::string texturepath;
 		int matid, shaderid;
 		matid = node.second.get<SCM::IdType>("Id", -1);
+		std::unordered_map<std::string, int> texts;
 		if (materialtointernid.count(matid) > 0)
 		{
 			continue; //Skip because scenes meshid is a duplicate.
 		}
-		texturepath = node.second.get<std::string>("TexturePath", "");
+		//texturepath = node.second.get<std::string>("TexturePath", "");
 		shaderid = node.second.get<SCM::IdType>("ShaderId", -1);
 		if (shaderid == -1)
 		{
 			shaderid = contentmodule->getDefaultShaderId();
 		}
 		auto id = contentmodule->generateNewGeneralId();
-		SCM::EntityId tid;
-		if (texturepath == "")
+		SCM::TextureMap tids;
+		for (auto node2 : node.second.get_child("Textures"))
 		{
-			tid = -1;//q contentmodule->getDefaultTextureId();
+			auto tname = node2.second.get<std::string>("Name", "");
+			auto tid = node2.second.get<SCM::IdType>("Id", -1);
+			if (tid == SCM::IdType(-1) || tname == "")
+				continue;
+			tids[tname] = SCM::TextureData(texturetointernid[tid]);
 		}
-		else
-		{
-			tid = contentmodule->generateNewGeneralId();
-			textures.push_back(SCM::TextureData(tid, texturepath));
-		}
-		materials.push_back(SCM::MaterialData(id, tid, shaderid)); //TODO Textures have to be loaded somewhere
+		materials.push_back(SCM::MaterialData(id, shaderid, tids)); //TODO Textures have to be loaded somewhere
 		materialtointernid[matid] = id;
 	}
 
@@ -150,7 +164,8 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		for (auto matnode : node.second.get_child("Materials"))
 		{
 			int matid = matnode.second.get<SCM::IdType>("MaterialId", -1);
-			materials.push_back(matid);
+			if(materialtointernid.count(matid)>0)
+				materials.push_back(materialtointernid[matid]);
 		}
 
 		meshtointernid[meshid] = contentmodule->addMeshFromFile(meshpath, extension, materials);
@@ -393,7 +408,7 @@ bool SimpleSceneModule::RemoveEntity(SCM::EntityId entityid, SceneId sceneid)
 		if (it->second.removeEntity(entityid) == 1)
 			return true;
 	}
-	w
+	
 	if (sceneid == m_activeScene)
 	{
 		auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);

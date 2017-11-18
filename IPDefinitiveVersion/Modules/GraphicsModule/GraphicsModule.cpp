@@ -69,11 +69,17 @@ void GraphicsModule::render()
 
 				//set uniforms/light/transform/view/proj/camera pos
 				shader->setUniform("model", mO->m_transformData.getData()->m_transformMatrix, false);
-				glm::vec3 camerapos(3,3,20); 
-				GLfloat m_fov(glm::pi<float>() / 2);
+				if (cameraentity != SCM::EntityId(-1))
+				{
+					auto cent = m_scm->getEntityById(cameraentity);
+					auto transdata = cent->m_transformData.getData();
+					viewmat = glm::toMat4(transdata->m_rotation)*translate(glm::mat4(1.0f), transdata->m_location);
+				}
+				else
+				{
+					viewmat = glm::mat4(glm::quat(1.0f, 0.0f, .0f, .0f))*translate(glm::mat4(1.0f), -camerapos);
+				}
 
-				glm::mat4 projmat = glm::perspective(m_fov, width / height, znear, zfar);
-				glm::mat4 viewmat = glm::mat4(glm::quat(1.0f, 0.0f, .0f, .0f))*translate(glm::mat4(1.0f), -camerapos);;
 				shader->setUniform("view", viewmat, false);
 				
 				shader->setUniform("projection", projmat, false);
@@ -82,6 +88,10 @@ void GraphicsModule::render()
 
 				//set material uniforms
 				//TODO
+				for (auto tdata : mesh->m_material->m_textures)
+				{
+					//shader->setUniform(tdata.first, )
+				}
 
 				//draw mesh
 				drawSCMMesh(mesh->m_meshId);
@@ -198,4 +208,34 @@ void GraphicsModule::drawSCMMesh(SCM::IdType meshid)
 	{
 
 	}
+}
+
+void GraphicsModule::setCameraEntity(uint32_t v)
+{
+	if(m_scm->getEntityById(v) !=nullptr)
+		cameraentity = v;
+}
+
+void GraphicsModule::setFOV(uint32_t v)
+{
+	m_fov = v;
+	recalcProj();
+}
+
+void GraphicsModule::setResolution(uint32_t x, uint32_t y)
+{
+	width = x;
+	height = y;
+	recalcProj();
+}
+
+void GraphicsModule::setClipRange(uint32_t n, uint32_t f)
+{
+	znear = n; zfar = f;
+	recalcProj();
+}
+
+void GraphicsModule::recalcProj()
+{
+	projmat = glm::perspective(m_fov, width / height, znear, zfar);
 }

@@ -170,8 +170,20 @@
   <Materials>
     <Material>
       <Id>0</Id>
-      <TexturePath></TexturePath>
+      <Textures>
+        <!--<Texture>
+          <Name></Name>
+          <Id></Id>
+        </Texture>-->
+      </Textures>
       <ShaderId></ShaderId>
     </Material>
   </Materials>
+
+  <Textures>
+    <!--<Texture>
+      <Id>0</Id>
+      <TexturePath></TexturePath>
+    </Texture>-->
+  </Textures>
 </Scene>

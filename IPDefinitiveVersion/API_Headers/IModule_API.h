@@ -49,7 +49,7 @@ public:
 
 	void assignDependency(const std::string dependencyID, boost::shared_ptr<IModule_API> module, std::bitset<2> flags = 0)
 	{
-		assert(size() == 0);
+		//assert(size() == 0);
 		if (!exists(dependencyID))
 		{
 			dependencies[dependencyID] = { module, flags };
@@ -77,7 +77,7 @@ public:
 	//Returns true if dependencyID exists as a key
 	bool exists(std::string dependencyID)
 	{
-		assert(size() == 0);
+		//assert(size() == 0);
 
 		return dependencies.lower_bound(dependencyID) != dependencies.end();
 	}

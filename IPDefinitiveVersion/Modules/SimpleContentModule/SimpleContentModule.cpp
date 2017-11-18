@@ -49,10 +49,15 @@ SCM::IdType SimpleContentModule::addMeshFromFile(std::string path, std::string f
 
 				//auto id = SCM::generateNewEntityId();
 				//materials.push_back(SCM::MaterialData(id, -1, getDefaultShaderId()));
-				auto id = mats.back();
-				mats.push_back(id);
+				if (mats.size() > 0)
+				{
+					auto id = mats.back();
+					mats.push_back(id);
+				}
 			}
-			data->m_material = &getMaterials()[mats[meshindex]];
+			auto& maters = getMaterials();
+			//[id](TextureFile& a)->bool {return a.m_textureId == id; }
+			data->m_material = &*std::find_if(maters.begin(), maters.end(), [mats, meshindex](SCM::MaterialData& m)->bool { return m.m_materialId == mats[meshindex]; });
 			meshes.push_back(data);
 			scmmeshes.push_back(*data);
 			meshindex++;

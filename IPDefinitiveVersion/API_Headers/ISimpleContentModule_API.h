@@ -7,10 +7,11 @@
 
 namespace SCM
 {
+	class TextureData;
 	using IdType = int64_t;
 	using EntityId = IdType;
 	using index = uint32_t;
-
+	using TextureMap = std::unordered_map<std::string, TextureData>;
 	
 	class TransformData
 	{
@@ -103,24 +104,32 @@ namespace SCM
 	class MaterialData
 	{
 	public:
+		
 		MaterialData() = default;
-		MaterialData(SCM::IdType id, SCM::IdType tid, SCM::IdType shaderid) : m_materialId(id), m_shaderId(shaderid), m_textureid(tid) {};
-		SCM::IdType m_textureid; //array of textureids?
+		MaterialData(SCM::IdType id, SCM::IdType shaderid, const TextureMap &textures) : m_materialId(id), m_shaderId(shaderid), m_textures(textures) {};
+		SCM::TextureMap m_textures; //textures plus name
 		SCM::IdType m_shaderId;
 		SCM::IdType m_materialId;
+	};
+
+	class TextureFile
+	{
+	public:
+		TextureFile() = default;
+		TextureFile(SCM::IdType id, std::string path, bool isCube = false) : m_textureId(id), m_path(path), m_isCube(isCube){};
+		SCM::IdType m_textureId;
+		std::string m_path;
+		bool m_isCube;
 	};
 
 	class TextureData
 	{
 	public:
 		TextureData() = default;
-		TextureData(SCM::IdType id, std::string path, bool isCube = false, bool isInMap = false, glm::vec2 offset = { 0,0 }, glm::vec2 size = { 0,0 }) : m_textureId(id), m_path(path), m_isCube(isCube), m_isInMap(isInMap), m_offset(offset), m_size(size){};
-		SCM::IdType m_textureId;
-		bool m_isInMap;
-		std::string m_path;
+		TextureData(SCM::IdType fileid, glm::vec2 offset = glm::vec2( 0,0 ), glm::vec2 size= glm::vec2(0,0)) :m_texturefileId(fileid), m_offset(offset), m_size(size) {}
+		SCM::IdType m_texturefileId;
 		glm::vec2 m_offset;
 		glm::vec2 m_size;
-		bool m_isCube;
 	};
 
 	class VertexData
@@ -260,9 +269,9 @@ namespace SCM
 			return materials;
 		}
 
-		virtual std::vector<TextureData>& getTextures()
+		virtual std::vector<TextureFile>& getTextures()
 		{
-			return textures;
+			return texturefiles;
 		}
 
 		virtual std::vector<MeshData>& getMeshes()
@@ -275,10 +284,10 @@ namespace SCM
 			return meshedobjects;
 		}
 
-		virtual TextureData* getTextureById(IdType id)
+		virtual TextureFile* getTextureById(IdType id)
 		{
-			auto itF = std::find_if(textures.begin(), textures.end(), [id](TextureData& a)->bool {return a.m_textureId == id; });
-			if (itF != textures.end())
+			auto itF = std::find_if(texturefiles.begin(), texturefiles.end(), [id](TextureFile& a)->bool {return a.m_textureId == id; });
+			if (itF != texturefiles.end())
 			{
 				return &*itF;
 			}
@@ -373,7 +382,7 @@ namespace SCM
 		std::unordered_map<EntityId, ThreeDimEntity*> threedimentities;
 		std::vector<ShaderData> shaders;
 		std::vector<MaterialData> materials;
-		std::vector<TextureData> textures;
+		std::vector<TextureFile> texturefiles;
 		std::vector<MeshData> meshes;
 		std::vector<MeshedObject> meshedobjects;
 	};

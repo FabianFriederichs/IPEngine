@@ -37,11 +37,14 @@ private:
 	std::string m_scmID = "SCM";
 	boost::shared_ptr<SCM::ISimpleContentModule_API> m_scm;
 	std::vector<ipengine::Scheduler::SubHandle> handles;
-
+	SCM::EntityId cameraentity = -1;
 	//constants
 	glm::vec4 m_clearcolor = { 0.15f, 0.15f, 0.18f, 1.0f };
 	float width = 1280; float height = 720; float znear = 0.1f; float zfar = 100;
 	float m_fov = glm::pi<float>() / 2;
+	glm::vec3 camerapos = glm::vec3(3, 3, 20);
+	glm::mat4 projmat = glm::perspective(m_fov, width / height, znear, zfar);
+	glm::mat4 viewmat = glm::mat4(glm::quat(1.0f, 0.0f, .0f, .0f))*translate(glm::mat4(1.0f), -camerapos);
 	//
 
 	void setupSDL();
@@ -51,6 +54,14 @@ private:
 	std::unordered_map<SCM::IdType, std::shared_ptr<ShaderProgram>> m_scmshadertoprogram;
 
 	void drawSCMMesh(SCM::IdType);
+
+	// Inherited via IGraphics_API
+	virtual void setCameraEntity(uint32_t v) override;
+	virtual void setFOV(uint32_t v) override;
+	virtual void setResolution(uint32_t x, uint32_t y) override;
+	virtual void setClipRange(uint32_t n, uint32_t f) override;
+
+	void recalcProj();
 	//container with vao to scm mesh id
 };
 
