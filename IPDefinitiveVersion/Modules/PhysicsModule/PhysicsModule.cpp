@@ -387,7 +387,9 @@ void PhysicsModule::handleCollisions(ipengine::TaskContext & context)
 		auto &  entities = contentmodule->getThreeDimEntities();
 		for (auto& e : entities)
 		{
-			auto entity = e.second;
+			auto& entity = e.second;
+			if (entity->m_entityId == ub.m_cloth->id)
+				continue;
 			if (entity->isActive)
 			{
 				if (entity->isBoundingBox)
