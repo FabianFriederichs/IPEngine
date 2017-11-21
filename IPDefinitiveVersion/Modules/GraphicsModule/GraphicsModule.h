@@ -26,6 +26,11 @@ public:
 	bool startUp();// {/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); */return true;  } //do stuff?
 	void render();
 	void render(ipengine::TaskContext& c);
+	virtual void setCameraEntity(uint32_t v) override;
+	virtual void setFOV(uint32_t v) override;
+	virtual void setResolution(uint32_t x, uint32_t y) override;
+	virtual void setClipRange(uint32_t n, uint32_t f) override;
+
 private:
 	std::vector<SCM::EntityId> getActiveEntityNames(SCM::ISimpleContentModule_API&);
 	ModuleInformation m_info;
@@ -52,14 +57,10 @@ private:
 	void updateData();
 	std::unordered_map<SCM::IdType, std::shared_ptr<VAO>> m_scmmeshtovao;
 	std::unordered_map<SCM::IdType, std::shared_ptr<ShaderProgram>> m_scmshadertoprogram;
-
+	std::unordered_map < SCM::IdType, GLuint > m_scmtexturefiletogpu;
 	void drawSCMMesh(SCM::IdType);
 
 	// Inherited via IGraphics_API
-	virtual void setCameraEntity(uint32_t v) override;
-	virtual void setFOV(uint32_t v) override;
-	virtual void setResolution(uint32_t x, uint32_t y) override;
-	virtual void setClipRange(uint32_t n, uint32_t f) override;
 
 	void recalcProj();
 	//container with vao to scm mesh id

@@ -35,7 +35,7 @@ bool InputModule::startUp()
 	}
 	//memes = std::thread([this]()->void{while (1){ pollData(); }});
 	ipengine::Scheduler& sched = m_core->getScheduler();
-	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<InputModule, &InputModule::pollDataC>(this), 0, ipengine::Scheduler::SubType::Frame,1, &m_core->getThreadPool()));
+	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<InputModule, &InputModule::pollDataC>(this), 0, ipengine::Scheduler::SubType::Frame,1, &m_core->getThreadPool(), false));
 	return true;
 }
 

@@ -35,18 +35,34 @@ private:
 	boost::property_tree::ptree *parsePropTreeFromXML(std::string path)
 	{
 		
-		boost::property_tree::read_xml(path, tree);//Check out what tree has in it if parsing fails
+		boost::property_tree::read_xml(path, tree, boost::property_tree::xml_parser::no_comments);//Check out what tree has in it if parsing fails
 		//Parse propertytree into depgraph
 
 
 		return &tree;
 	};
 	std::map<std::string, boost::shared_ptr<IModule_API>> loadedModules;
+	std::map<std::string, boost::shared_ptr<IExtensionPoint>> loadedExtensions;
 	std::vector<boost::filesystem::path> dlibFilePaths;
 	bool parseDepGraphFromPropertyTree(boost::property_tree::ptree* tree)
 	{
 	//first iteration create all modules	
 		//std::list<DGStuff::Module*> tModules;
+		for (auto node : tree->get_child("DependencyGraph.Extensions"))
+		{
+			DGStuff::Extension tempExt;
+			tempExt.inject = node.second.get("inject", true);
+			tempExt.identifier = node.second.get<std::string>("identifier");
+			if (tempExt.identifier.find("\n") != std::string::npos)
+				return false;
+			//TODO
+			//Check for circular dependencies
+			//Check whether the dependency is of a module already handles first then whether not and stuff
+
+			depgraph.addExtension(tempExt);
+			//tModules.push_back(&depgraph.getModules()->back());
+		}
+		auto depexts = depgraph.getExtensions();
 		for (auto node : tree->get_child("DependencyGraph.Modules"))
 		{
 			DGStuff::Module tempModule;
@@ -55,6 +71,29 @@ private:
 			tempModule.identifier = node.second.get<std::string>("identifier");
 			if (tempModule.identifier.find("\n") != std::string::npos)
 				return false;
+			if (node.second.get_child_optional("ExtensionPoints"))
+			{
+				for (auto node2 : node.second.get_child("ExtensionPoints"))
+				{
+					DGStuff::ExtensionPoint p;
+					p.extensionpointidentifier = node2.second.get<std::string>("identifier", "");
+					for (auto mextensions : node2.second.get_child("Extensions"))
+					{
+						std::string text;
+						text = mextensions.second.get<std::string>("extensionname", "");
+						auto tempext = std::find_if(depexts->begin(), depexts->end(), [text](DGStuff::Extension e)->bool {return e.identifier == text; });
+						if (text == "" || tempext == depexts->end())
+							continue;
+						uint32_t prio = mextensions.second.get<uint32_t>("priority", 0);
+						while (p.extensions.count(prio) > 0)
+						{
+							++prio;
+						}
+						p.extensions[prio] = &*tempext;
+					}
+					tempModule.extensions.push_back(p);
+			}
+		}
 			//TODO
 			//Check for circular dependencies
 			//Check whether the dependency is of a module already handles first then whether not and stuff
@@ -194,12 +233,17 @@ public:
 		{
 			try{
 				boost::dll::shared_library lib(path, boost::dll::load_mode::default_mode);
-				if (!lib.has("module"))
-					continue;
-				//bo
+				if (lib.has("module"))
+				{				//bo
 				//boost::shared_ptr<IModule_API> meme = lib.get<boost::shared_ptr<IModule_API>>("module");
-				loadedModules[path.filename().stem().generic_string()] = boost::dll::import<IModule_API>(path, "module", boost::dll::load_mode::default_mode);// lib.get<boost::shared_ptr<IModule_API>>("module"); //boost::dll::import_alias<IModule_API>(boost::move(lib), "module");
-				loadedModules[path.filename().stem().generic_string()]->m_core = core;
+					loadedModules[path.filename().stem().generic_string()] = boost::dll::import<IModule_API>(path, "module", boost::dll::load_mode::default_mode);// lib.get<boost::shared_ptr<IModule_API>>("module"); //boost::dll::import_alias<IModule_API>(boost::move(lib), "module");
+					loadedModules[path.filename().stem().generic_string()]->m_core = core;
+				}
+				//load extensions
+				if (lib.has("extension"))
+				{
+					loadedExtensions[path.filename().stem().generic_string()] = boost::dll::import<IExtensionPoint>(path, "extension", boost::dll::load_mode::default_mode);
+				}
 			}
 			catch (std::exception ex)
 			{
@@ -267,14 +311,29 @@ public:
 
 		for (auto modnode : injectOrderList)
 		{
+			auto info = loadedModules[modnode->identifier]->getModuleInfo();
+
 			if (!modnode->dependencies.empty())
 			{
-				auto info = loadedModules[modnode->identifier]->getModuleInfo();
 				assert(info->dependencies.size() == 0);
 				for (auto mn : modnode->dependencies)
 				{ 
 					if (modnode->dontInject.at(mn.first))
 						info->dependencies.assignDependency(mn.first, loadedModules[mn.second->identifier]);
+				}
+			}
+			for (auto e : modnode->extensions)
+			{
+				for (auto e2 : e.extensions)
+				{
+					if (e2.second->inject)
+					{
+						if (loadedExtensions.count(e2.second->identifier) > 0)
+						{
+							info->expoints.expoints[e.extensionpointidentifier].push_back(loadedExtensions[e2.second->identifier]);
+							loadedExtensions[e2.second->identifier]->isActive = true;
+						}
+					}
 				}
 			}
 			loadedModules[modnode->identifier]->startUp();

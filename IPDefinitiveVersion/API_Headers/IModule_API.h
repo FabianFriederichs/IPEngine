@@ -19,6 +19,7 @@ namespace DependencyFlags {
 
 class IModule_API;
 class Injector;
+class IExtensionPoint;
 class DependencyContainer
 {
 private:
@@ -83,18 +84,61 @@ public:
 	}
 };
 
+class IExtensionPoint
+{
+public:
+	bool isActive = false;
+	virtual void execute(std::vector<std::string>, std::vector<ipengine::any>&) = 0;
+};
 
+class ExtensionReceptor
+{
+public:
+	void execute(std::string extensionpointname, std::vector<std::string> argnames, std::vector<ipengine::any> &args)
+	{
+		for (auto ex : expoints[extensionpointname])
+		{
+			if (ex->isActive)
+			{
+				ex->execute(argnames, args);
+			}
+		}
+	}
+
+	bool isActive(std::string extensionpointname, int prio=0)
+	{
+		auto ex = expoints.find(extensionpointname);
+		if (ex!=expoints.end())
+		{
+			return ex->second[prio]->isActive;
+		}
+	}
+
+	void setActive(std::string extensionpointname, int prio = 0, bool val = true)
+	{
+		auto ex = expoints.find(extensionpointname);
+		if (ex != expoints.end())
+		{
+			ex->second[prio]->isActive = val;
+		}
+	}
+
+	std::map<std::string, std::vector<boost::shared_ptr<IExtensionPoint>>> expoints;
+};
 
 struct ModuleInformation
 {
+	//using ExtensionReceptor = std::map<std::string, std::vector<boost::shared_ptr<IExtensionPoint>>>; //ExP name : [priority]:ExP object 
 	DependencyContainer dependencies;
 	//std::vector<std::string> dependencies; //List of the dependency names this module takes. Has to be identical to the string key used by the IModule_API to hold the IModule_API reference. Maybe add flags for whethher it's optional?
 	std::string iam; //Maybe make this a string container and have it contain every possible upcast? then you can easily check whether a module can be used as a dependency for X
 	std::string identifier; //Modules ID - similiar to java's package names?
 	std::string version;
-	std::vector<std::string> expoints; //Extension points. Similiar to dependencies ///TODO COMES LATER
+	ExtensionReceptor expoints; //Extension points. Similiar to dependencies ///TODO COMES LATER
 	std::string dlibpath; //absolute path to the dynamic library this module comes from
 };
+
+
 
 class IModule_API
 {
@@ -108,5 +152,7 @@ public:
 protected:
 	ipengine::Core* m_core;
 };
+
+
 
 #endif

@@ -21,7 +21,10 @@ bool GraphicsModule::startUp()
 	//loadShaders();
 	ipengine::Scheduler& sched = m_core->getScheduler();
 	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GraphicsModule, &GraphicsModule::render>(this), 0, ipengine::Scheduler::SubType::Frame, 1, &m_core->getThreadPool()));
-
+	std::vector<ipengine::any> anyvector;
+	anyvector.push_back(this);
+	anyvector.push_back(&m_scmID);
+	m_info.expoints.execute("TestPoint", { "this", "test" }, anyvector);
 	return true;
 }
 
@@ -90,7 +93,11 @@ void GraphicsModule::render()
 				//TODO
 				for (auto tdata : mesh->m_material->m_textures)
 				{
-					//shader->setUniform(tdata.first, )
+					shader->setUniform(tdata.first, m_scmtexturefiletogpu[tdata.second.m_texturefileId]);
+					if (tdata.second.m_size.length() == 0)
+					{
+						//TODO set offset+size uniforms?
+					}
 				}
 
 				//draw mesh
@@ -163,6 +170,7 @@ void GraphicsModule::updateData()
 	auto& activeentitynames= getActiveEntityNames(*m_scm);
 	auto& entities = m_scm->getThreeDimEntities();
 	auto& shaders = m_scm->getShaders();
+	auto& textures = m_scm->getTextures();
 	for (auto eid : activeentitynames)
 	{
 		auto mO = entities[eid];
@@ -171,6 +179,14 @@ void GraphicsModule::updateData()
 		{
 			for (auto mesh : mO->m_mesheObjects->m_meshes)
 			{
+				for (auto texts : mesh->m_material->m_textures)
+				{
+					if (m_scmtexturefiletogpu.count(texts.second.m_texturefileId) < 1)
+					{
+						//TODO
+						//load texture into gpu memory?? 
+					}
+				}
 				if (m_scmmeshtovao.count(mesh->m_meshId)<1)
 				{
 					auto vao = (mesh->m_dynamic ? GLUtils::createDynamicVAO(*mesh) : GLUtils::createVAO(*mesh));

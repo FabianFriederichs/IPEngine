@@ -39,6 +39,17 @@
           <moduleID>SimpleContentModule</moduleID>
         </dependency>
       </dependencies>
+      <ExtensionPoints>
+        <Point>
+          <identifier>TestPoint</identifier>
+          <Extensions>
+            <Extension>
+              <extensionname>ExtensionTest</extensionname>
+              <priority>0</priority>
+            </Extension>
+          </Extensions>
+        </Point>
+      </ExtensionPoints>
     </Module>
     <Module>
       <identifier>InputModule</identifier>
@@ -80,4 +91,10 @@
       </dependencies>
     </Module>
   </Modules>
+  <Extensions>
+    <Extension>
+      <inject>true</inject>
+      <identifier>ExtensionTest</identifier>
+    </Extension>
+  </Extensions>
 </DependencyGraph>

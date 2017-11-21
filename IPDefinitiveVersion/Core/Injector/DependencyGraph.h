@@ -3,11 +3,17 @@
 #include <map>
 namespace  DGStuff
 {
+	struct Extension
+	{
+		std::string identifier;
+		bool inject;
+	};
+
 	struct ExtensionPoint
 	{
 		std::string extensionpointidentifier;
-		int position;
-		std::string extensionidentifier;
+
+		std::map<uint32_t, Extension*> extensions;
 	};
 
 	struct Module
@@ -24,6 +30,7 @@ namespace  DGStuff
 	private:
 		std::vector<Module*> roots;
 		std::vector<Module> modules;
+		std::vector<Extension> extensions;
 		/*template<typename F>
 		static Module* recursiveApply(const Module *m, F &lambda)
 		{
@@ -38,7 +45,9 @@ namespace  DGStuff
 		}*/
 	public:
 		void addModule(Module m) { modules.push_back(m); }
+		void addExtension(Extension e) { extensions.push_back(e); }
 		void addRoot(Module *m) { roots.push_back(m); }
+		std::vector<Extension>* getExtensions(){ return &extensions; }
 		std::vector<Module> *getModules() { return &modules; };
 		std::vector<Module*> *getRoots() { return &roots; }
 		/*template<typename F>

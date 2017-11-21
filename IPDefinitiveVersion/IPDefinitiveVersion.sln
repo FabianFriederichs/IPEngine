@@ -52,6 +52,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API_Headers", "API_Headers"
 		API_Headers\ISimpleSceneModule_API.h = API_Headers\ISimpleSceneModule_API.h
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExtensionTest", "ExtensionTest\ExtensionTest.vcxproj", "{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -132,6 +136,14 @@ Global
 		{374CEB09-5FE5-4BF8-96EB-ECF5BF365AE1}.Release|x64.Build.0 = Release|x64
 		{374CEB09-5FE5-4BF8-96EB-ECF5BF365AE1}.Release|x86.ActiveCfg = Release|Win32
 		{374CEB09-5FE5-4BF8-96EB-ECF5BF365AE1}.Release|x86.Build.0 = Release|Win32
+		{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9}.Debug|x64.ActiveCfg = Debug|x64
+		{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9}.Debug|x64.Build.0 = Debug|x64
+		{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9}.Debug|x86.ActiveCfg = Debug|Win32
+		{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9}.Debug|x86.Build.0 = Debug|Win32
+		{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9}.Release|x64.ActiveCfg = Release|x64
+		{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9}.Release|x64.Build.0 = Release|x64
+		{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9}.Release|x86.ActiveCfg = Release|Win32
+		{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -145,6 +157,7 @@ Global
 		{E48F70E5-1CCF-4125-85F8-EE173A9092D1} = {B1BE8738-7475-42FB-86E6-804456EC531F}
 		{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF} = {B1BE8738-7475-42FB-86E6-804456EC531F}
 		{374CEB09-5FE5-4BF8-96EB-ECF5BF365AE1} = {B1BE8738-7475-42FB-86E6-804456EC531F}
+		{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8D852F7-90CA-4379-BF8E-6B6E1D793FA0}
