@@ -8,29 +8,29 @@ namespace  DGStuff
 		std::string identifier;
 		bool inject;
 	};
-
-	struct ExtensionPoint
-	{
-		std::string extensionpointidentifier;
-
-		std::map<uint32_t, Extension*> extensions;
-	};
-
+	
+	struct ExtensionPoint;
 	struct Module
 	{
 		std::map<std::string, Module*> dependencies;
 		std::map<std::string, bool> dontInject;
 		std::vector<ExtensionPoint> extensions;
+		bool isExP;
 		std::string identifier;
 		std::string iname;
 	};
+	struct ExtensionPoint
+	{
+		std::string extensionpointidentifier;
 
+		std::map<uint32_t, Module*> extensions;
+	};
 	class DependencyGraph
 	{
 	private:
-		std::vector<Module*> roots;
-		std::vector<Module> modules;
-		std::vector<Extension> extensions;
+		std::list<Module*> roots;
+		std::list<Module> modules;
+		//std::vector<Module*> extensions;
 		/*template<typename F>
 		static Module* recursiveApply(const Module *m, F &lambda)
 		{
@@ -45,11 +45,11 @@ namespace  DGStuff
 		}*/
 	public:
 		void addModule(Module m) { modules.push_back(m); }
-		void addExtension(Extension e) { extensions.push_back(e); }
+		//void addExtension(Extension e) { extensions.push_back(e); }
 		void addRoot(Module *m) { roots.push_back(m); }
-		std::vector<Extension>* getExtensions(){ return &extensions; }
-		std::vector<Module> *getModules() { return &modules; };
-		std::vector<Module*> *getRoots() { return &roots; }
+		//std::vector<Extension>* getExtensions(){ return &extensions; }
+		std::list<Module> *getModules() { return &modules; };
+		std::list<Module*> *getRoots() { return &roots; }
 		/*template<typename F>
 		static void forEachReverse(const Module *m, F &lambda)
 		{

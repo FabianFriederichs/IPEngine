@@ -21,10 +21,10 @@ bool GraphicsModule::startUp()
 	//loadShaders();
 	ipengine::Scheduler& sched = m_core->getScheduler();
 	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GraphicsModule, &GraphicsModule::render>(this), 0, ipengine::Scheduler::SubType::Frame, 1, &m_core->getThreadPool()));
-	std::vector<ipengine::any> anyvector;
-	anyvector.push_back(this);
-	anyvector.push_back(&m_scmID);
-	m_info.expoints.execute("TestPoint", { "this", "test" }, anyvector);
+	//std::vector<ipengine::any> anyvector;
+	//anyvector.push_back(this);
+	//anyvector.push_back(&m_scmID);
+//	m_info.expoints.execute("TestPoint", { "this", "test" }, anyvector);
 	return true;
 }
 
@@ -35,6 +35,10 @@ void GraphicsModule::loadShaders()
 
 void GraphicsModule::render()
 {
+	std::vector<ipengine::any> anyvector;
+	anyvector.push_back(this);
+	anyvector.push_back(&m_scmID);
+	m_info.expoints.execute("TestPoint", { "this", "test" }, anyvector);
 	bool res;
 	if (wglGetCurrentContext() == NULL)
 	{

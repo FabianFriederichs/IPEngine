@@ -84,11 +84,29 @@ public:
 	}
 };
 
+struct ExtensionInformation
+{
+	//using ExtensionReceptor = std::map<std::string, std::vector<boost::shared_ptr<IExtensionPoint>>>; //ExP name : [priority]:ExP object 
+	DependencyContainer dependencies;
+	//std::vector<std::string> dependencies; //List of the dependency names this module takes. Has to be identical to the string key used by the IModule_API to hold the IModule_API reference. Maybe add flags for whethher it's optional?
+	//std::string iam; //Maybe make this a string container and have it contain every possible upcast? then you can easily check whether a module can be used as a dependency for X
+	std::string identifier; //Modules ID - similiar to java's package names?
+	std::string version;
+	std::string dlibpath; //absolute path to the dynamic library this module comes from
+};
+
 class IExtensionPoint
 {
+	friend class Injector;
 public:
 	bool isActive = false;
 	virtual void execute(std::vector<std::string>, std::vector<ipengine::any>&) = 0;
+
+	virtual ExtensionInformation* getInfo() = 0;
+	virtual void dependencyUpdated(std::string depID) {};
+	//virtual bool injectDependency(std::string dependencyID, IModule_API *dependency) = 0;
+protected:
+	ipengine::Core* m_core;
 };
 
 class ExtensionReceptor

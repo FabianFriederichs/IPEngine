@@ -90,11 +90,23 @@
         </dependency>
       </dependencies>
     </Module>
+    <Module>
+      <ignore>false</ignore>
+      <identifier>ExtensionTest</identifier>
+      <isExPoint>true</isExPoint>
+      <dependencies>
+        <dependency>
+          <inject>true</inject>
+          <identifier>SCM</identifier>
+          <moduleID>SimpleContentModule</moduleID>
+        </dependency>
+      </dependencies>
+    </Module>
   </Modules>
-  <Extensions>
+  <!--<Extensions>
     <Extension>
       <inject>true</inject>
       <identifier>ExtensionTest</identifier>
     </Extension>
-  </Extensions>
+  </Extensions>-->
 </DependencyGraph>

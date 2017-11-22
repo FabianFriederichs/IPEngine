@@ -7,6 +7,7 @@
 // see Plugin2.h for the class definition
 ExtensionTest::ExtensionTest()
 {
+	//m_info.
 }
 
 
@@ -27,6 +28,7 @@ void ExtensionTest::execute(std::vector<std::string> argnames, std::vector<ipeng
 		{
 			if (args.size() > i)
 			{
+				auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
 				auto mmeme = args[i].cast<std::string*>();
 				args[i].cast<std::string*>()->append("Success!!");
 			}
@@ -34,4 +36,9 @@ void ExtensionTest::execute(std::vector<std::string> argnames, std::vector<ipeng
 		++i;
 	}
 
+}
+
+ExtensionInformation * ExtensionTest::getInfo()
+{
+	return &m_info;
 }
