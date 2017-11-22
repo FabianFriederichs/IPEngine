@@ -12,7 +12,7 @@ SimpleSceneModule::SimpleSceneModule(void)
 }
 
 
-glm::vec3& parseVectorFromString(std::string s)
+glm::vec3 parseVectorFromString(std::string s)
 {
 	glm::vec3 v;
 	std::string x, y, z;
@@ -30,7 +30,7 @@ glm::vec3& parseVectorFromString(std::string s)
 	return v;
 }
 
-glm::quat& parseQuatFromString(std::string s)
+glm::quat parseQuatFromString(std::string s)
 {
 	glm::quat q;
 	std::string w, x, y, z;

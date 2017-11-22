@@ -19,7 +19,7 @@ void ExtensionTest::execute(std::vector<std::string> argnames, std::vector<ipeng
 		init = true;
 		ipengine::Scheduler& sched = m_core->getScheduler();
 		auto time = ipengine::Time(1.f, 1);
-		handle.push_back(sched.subscribe(ipengine::TaskFunction::make_func<ExtensionTest, &ExtensionTest::changeCamera>(this), time.nano(), ipengine::Scheduler::SubType::Interval, 1, &m_core->getThreadPool()));
+		handle.push_back(sched.subscribe(ipengine::TaskFunction::make_func<ExtensionTest, &ExtensionTest::changeCamera>(this), time.nano(), ipengine::Scheduler::SubType::Interval, 1, &m_core->getThreadPool(),true));
 		auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
 		args[0].cast<IGraphics_API*>()->setCameraEntity(scm->getEntityByName("Camera")->m_entityId);
 	}
@@ -55,7 +55,7 @@ ExtensionInformation * ExtensionTest::getInfo()
 void ExtensionTest::changeCamera(ipengine::TaskContext &c)
 {
 	auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
-	
+	std::cout << -scm->getEntityByName("Camera")->m_transformData.setData()->m_location.z;
 	scm->getEntityByName("Camera")->m_transformData.setData()->m_location.z += 1;
 	scm->getEntityByName("Camera")->m_transformData.setData()->m_isMatrixDirty = true;
 }

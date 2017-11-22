@@ -80,7 +80,7 @@
     <OutDir>$(SolutionDir)/Output/$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\libs;$(IncludePath);$(ProjectDir)</IncludePath>
+    <IncludePath>$(ProjectDir)\libs;$(IncludePath);$(SolutionDir)/Core;</IncludePath>
     <OutDir>$(SolutionDir)/Output/$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

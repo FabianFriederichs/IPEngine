@@ -237,6 +237,7 @@ namespace SCM
 		MeshedObject* m_mesheObjects;
 		virtual void swap()
 		{
+			m_transformData.swap();
 			m_mesheObjects->swap();
 		}
 	};

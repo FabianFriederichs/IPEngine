@@ -77,11 +77,13 @@ void GraphicsModule::render()
 
 				//set uniforms/light/transform/view/proj/camera pos
 				shader->setUniform("model", mO->m_transformData.getData()->m_transformMatrix, false);
+				
 				if (cameraentity != SCM::EntityId(-1))
 				{
 					auto cent = m_scm->getEntityById(cameraentity);
 					auto transdata = cent->m_transformData.getData();
 					viewmat = glm::toMat4(transdata->m_rotation)*translate(glm::mat4(1.0f), -transdata->m_location);
+					
 				}
 				else
 				{
