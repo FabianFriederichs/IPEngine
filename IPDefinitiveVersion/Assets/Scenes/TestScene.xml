@@ -2,6 +2,40 @@
 <Scene>
   <Entities>
     <Entity>
+      <Id>4</Id>
+      <StringName>Camera</StringName>
+      <ParentId></ParentId>
+      <TransformData>
+        <Location>0/0/0</Location>
+        <!--Vector-->
+        <Rotation>1/0/0/0</Rotation>
+        <!--Quaternion-->
+        <Scale>1/1/1</Scale>
+        <!--Vector-->
+        <LocalY>0/1/0</LocalY>
+        <!--Vector-->
+        <LocalX>1/0/0</LocalX>
+        <!--Vector-->
+        <LocalZ>0/0/1</LocalZ>
+        <!--Vector-->
+      </TransformData>
+      <BoundingData>
+        <Sphere>
+          <Center>0/0/0</Center>
+          <!--X,Y,Z - Vector-->
+          <Radius>1</Radius>
+        </Sphere>
+        <Box>
+          <Center>0/0/0</Center>
+          <!--Vector-->
+          <Size>0/0/0</Size>
+          <!--Vector-->
+          <Rotation>0/0/0/0</Rotation>
+          <!--Quaternion-->
+        </Box>
+      </BoundingData>
+    </Entity>
+    <Entity>
       <Id>0</Id>
       <StringName>MemeEntity1</StringName>
       <MeshId>0</MeshId>
@@ -141,6 +175,9 @@
         <Material>
           <MaterialId>0</MaterialId>
         </Material>
+        <Material>
+          <MaterialId>1</MaterialId>
+        </Material>
       </Materials>
     </Mesh>
     <!--
@@ -162,8 +199,8 @@
   <Shaders>
     <Shader>
       <Id>0</Id>
-      <VSPath>../../assets/shaders/vs.vs</VSPath>
-      <FSPath>../../assets/shaders/fs.fs</FSPath>
+      <VSPath>../../assets/shaders/BaseVertex.vert</VSPath>
+      <FSPath>../../assets/shaders/BaseFrag.frag</FSPath>
     </Shader>
   </Shaders>
 
@@ -171,19 +208,97 @@
     <Material>
       <Id>0</Id>
       <Textures>
-        <!--<Texture>
-          <Name></Name>
-          <Id></Id>
-        </Texture>-->
+        <Texture>
+          <Name>material.mtex[0]</Name>
+          <Id>0</Id>
+        </Texture>
+        <Texture>
+          <Name>material.mtex[1]</Name>
+          <Id>4</Id>
+        </Texture>
+        <Texture>
+          <Name>material.mtex[2]</Name>
+          <Id>1</Id>
+        </Texture>
+        <Texture>
+          <Name>material.mtex[3]</Name>
+          <Id>3</Id>
+        </Texture>
+        <Texture>
+          <Name>material.mtex[4]</Name>
+          <Id>2</Id>
+        </Texture>
       </Textures>
-      <ShaderId></ShaderId>
+      <ShaderId>0</ShaderId>
+    </Material>
+    <Material>
+      <Id>1</Id>
+      <Textures>
+        <Texture>
+          <Name>material.mtex[0]</Name>
+          <Id>5</Id>
+        </Texture>
+        <Texture>
+          <Name>material.mtex[1]</Name>
+          <Id>9</Id>
+        </Texture>
+        <Texture>
+          <Name>material.mtex[2]</Name>
+          <Id>6</Id>
+        </Texture>
+        <Texture>
+          <Name>material.mtex[3]</Name>
+          <Id>8</Id>
+        </Texture>
+        <Texture>
+          <Name>material.mtex[4]</Name>
+          <Id>7</Id>
+        </Texture>
+      </Textures>
+      <ShaderId>0</ShaderId>
     </Material>
   </Materials>
 
   <Textures>
-    <!--<Texture>
+    <Texture>
       <Id>0</Id>
-      <TexturePath></TexturePath>
-    </Texture>-->
+      <TexturePath>../../assets/textures/metal/metaldiff.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>1</Id>
+      <TexturePath>../../assets/textures/metal/metalgloss.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>2</Id>
+      <TexturePath>../../assets/textures/metal/metalheight.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>3</Id>
+      <TexturePath>../../assets/textures/metal/metalnormal.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>4</Id>
+      <TexturePath>../../assets/textures/metal/metalspec.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>5</Id>
+      <TexturePath>../../assets/textures/wood/wooddiff.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>6</Id>
+      <TexturePath>../../assets/textures/wood/woodgloss.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>7</Id>
+      <TexturePath>../../assets/textures/wood/woodheight.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>8</Id>
+      <TexturePath>../../assets/textures/wood/woodnormal.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>9</Id>
+      <TexturePath>../../assets/textures/wood/woodspec.png</TexturePath>
+    </Texture>
   </Textures>
 </Scene>

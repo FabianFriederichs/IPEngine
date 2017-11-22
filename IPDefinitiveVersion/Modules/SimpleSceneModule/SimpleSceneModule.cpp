@@ -96,7 +96,7 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		path = node.second.get<std::string>("TexturePath", "");
 		auto id = contentmodule->generateNewGeneralId();
 		textures.push_back(SCM::TextureFile(id, path));
-		shadertointernid[textureid] = id;
+		texturetointernid[textureid] = id;
 	}
 	for (auto node : tree.get_child("Scene.Shaders"))
 	{
@@ -141,7 +141,7 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 				continue;
 			tids[tname] = SCM::TextureData(texturetointernid[tid]);
 		}
-		materials.push_back(SCM::MaterialData(id, shaderid, tids)); //TODO Textures have to be loaded somewhere
+		materials.push_back(SCM::MaterialData(id, shadertointernid[shaderid], tids)); //TODO Textures have to be loaded somewhere
 		materialtointernid[matid] = id;
 	}
 

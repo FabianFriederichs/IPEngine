@@ -1,47 +1,53 @@
 ﻿#include "Utils.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+std::shared_ptr<Texture2D> GLUtils::loadGLTexture(const std::string& path)
+{
+	GLsizei width;
+	GLsizei height;
+	GLsizei channels;
+	stbi__vertically_flip_on_load = true;
+	unsigned char* image = stbi_load(path.c_str(), &width, &height, &channels, 0);
+	//unsigned char* image = SOIL_load_image(path.c_str(), &width, &height, &channels, SOIL_LOAD_RGBA);
+	GLuint texid = 0;
+	if (image == nullptr)
+	{
+		throw std::logic_error("Texture file coudn't be read.");
+	}
+	else
+	{
+		glGenTextures(1, &texid); GLERR
+		if (texid == 0)
+		{
+			throw std::logic_error("OpenGL texture object creation failed.");
+		}
+		glBindTexture(GL_TEXTURE_2D, texid); GLERR
+		glTexImage2D(
+			GL_TEXTURE_2D,		
+			0,					
+			GL_RGB8,			
+			width,				
+			height,				
+			0,					
+			GL_RGB,			
+			GL_UNSIGNED_BYTE,	
+			image				
+		);
+		if (checkglerror())
+		{
+			glDeleteTextures(1, &texid);
+			//SOIL_free_image_data(image);
+			stbi_image_free(image);
+			throw std::logic_error("Error. Could not buffer texture data.");
+		}
+		glGenerateMipmap(GL_TEXTURE_2D); GLERR
+		glBindTexture(GL_TEXTURE_2D, 0); GLERR
+			stbi_image_free(image);
 
-//std::shared_ptr<Texture2D> GLUtils::loadGLTexture(const std::string& path)
-//{
-//	GLsizei width;
-//	GLsizei height;
-//	GLsizei channels;
-//	unsigned char* image = SOIL_load_image(path.c_str(), &width, &height, &channels, SOIL_LOAD_RGBA);
-//	GLuint texid = 0;
-//	if (image == nullptr)
-//	{
-//		throw std::logic_error("Texture file coudn't be read.");
-//	}
-//	else
-//	{
-//		glGenTextures(1, &texid); GLERR
-//		if (texid == 0)
-//		{
-//			throw std::logic_error("OpenGL texture object creation failed.");
-//		}
-//		glBindTexture(GL_TEXTURE_2D, texid); GLERR
-//		glTexImage2D(
-//			GL_TEXTURE_2D,		
-//			0,					
-//			GL_RGBA8,			
-//			width,				
-//			height,				
-//			0,					
-//			GL_RGBA,			
-//			GL_UNSIGNED_BYTE,	
-//			image				
-//		);
-//		if (checkglerror())
-//		{
-//			glDeleteTextures(1, &texid);
-//			SOIL_free_image_data(image);
-//			throw std::logic_error("Error. Could not buffer texture data.");
-//		}
-//		glGenerateMipmap(GL_TEXTURE_2D); GLERR
-//		glBindTexture(GL_TEXTURE_2D, 0); GLERR
-//		SOIL_free_image_data(image);
-//	}
-//	return std::make_shared<Texture2D>(texid);
-//}
+		//SOIL_free_image_data(image);
+	}
+	return std::make_shared<Texture2D>(texid);
+}
 
 std::shared_ptr<VAO> GLUtils::createVAO(const SCM::MeshData& mesh)
 {

@@ -161,12 +161,13 @@ private:
 					
 					std::string idD = dependencyNode.second.get<std::string>("moduleID");
 					auto memes = std::find_if(tModules->begin(), tModules->end(), [idD](DGStuff::Module v)->bool{return v.identifier == idD; });//getModuleByIdentifier(&tModules, idD);
-					if (memes->isExP)
-						continue;
+					
 					if (inject && memes == tModules->end())
 					{
 						return false; //If module is not found
 					}
+					if (memes==tModules->end() || memes->isExP)
+						continue;
 					nonRootIds.push_back(idD);
 					std::string depIdent = dependencyNode.second.get<std::string>("identifier");
 					module->dontInject[depIdent] = inject;

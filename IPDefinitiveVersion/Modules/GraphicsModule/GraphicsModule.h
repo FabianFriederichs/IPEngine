@@ -57,7 +57,7 @@ private:
 	void updateData();
 	std::unordered_map<SCM::IdType, std::shared_ptr<VAO>> m_scmmeshtovao;
 	std::unordered_map<SCM::IdType, std::shared_ptr<ShaderProgram>> m_scmshadertoprogram;
-	std::unordered_map < SCM::IdType, GLuint > m_scmtexturefiletogpu;
+	std::unordered_map < SCM::IdType, std::shared_ptr<Texture2D>> m_scmtexturetot2d;
 	void drawSCMMesh(SCM::IdType);
 
 	// Inherited via IGraphics_API

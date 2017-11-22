@@ -54,7 +54,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API_Headers", "API_Headers"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExtensionTest", "ExtensionTest\ExtensionTest.vcxproj", "{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExtensionTest", "Extensions\ExtensionTest\ExtensionTest.vcxproj", "{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -20,7 +20,7 @@ bool GraphicsModule::startUp()
 	setupSDL();
 	//loadShaders();
 	ipengine::Scheduler& sched = m_core->getScheduler();
-	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GraphicsModule, &GraphicsModule::render>(this), 0, ipengine::Scheduler::SubType::Frame, 1, &m_core->getThreadPool()));
+	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GraphicsModule, &GraphicsModule::render>(this), 0, ipengine::Scheduler::SubType::Frame, 1, &m_core->getThreadPool(), true));
 	//std::vector<ipengine::any> anyvector;
 	//anyvector.push_back(this);
 	//anyvector.push_back(&m_scmID);
@@ -36,7 +36,7 @@ void GraphicsModule::loadShaders()
 void GraphicsModule::render()
 {
 	std::vector<ipengine::any> anyvector;
-	anyvector.push_back(this);
+	anyvector.push_back(static_cast<IGraphics_API*>(this));
 	anyvector.push_back(&m_scmID);
 	m_info.expoints.execute("TestPoint", { "this", "test" }, anyvector);
 	bool res;
@@ -49,12 +49,13 @@ void GraphicsModule::render()
 	//stuff
 	//Clear buffer
 	glClearColor(m_clearcolor.r, m_clearcolor.g, m_clearcolor.b, m_clearcolor.a); GLERR
-	glEnable(GL_CULL_FACE); GLERR
-	glFrontFace(GL_CCW); GLERR
-	glCullFace(GL_BACK); GLERR
-	glEnable(GL_DEPTH_TEST); GLERR
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GLERR
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); GLERR
+		glEnable(GL_CULL_FACE); GLERR
+		glFrontFace(GL_CCW); GLERR
+		glCullFace(GL_BACK); GLERR
+		glEnable(GL_DEPTH_TEST); GLERR
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GLERR
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); GLERR
+		glDepthFunc(GL_LESS); GLERR;
 	//go through meshes
 	auto& activeentitynames = getActiveEntityNames(*m_scm);
 	auto& entities = m_scm->getThreeDimEntities();
@@ -80,7 +81,7 @@ void GraphicsModule::render()
 				{
 					auto cent = m_scm->getEntityById(cameraentity);
 					auto transdata = cent->m_transformData.getData();
-					viewmat = glm::toMat4(transdata->m_rotation)*translate(glm::mat4(1.0f), transdata->m_location);
+					viewmat = glm::toMat4(transdata->m_rotation)*translate(glm::mat4(1.0f), -transdata->m_location);
 				}
 				else
 				{
@@ -94,15 +95,27 @@ void GraphicsModule::render()
 				shader->setUniform("camerapos", camerapos);
 
 				//set material uniforms
-				//TODO
+				GLint inndex = 0;
 				for (auto tdata : mesh->m_material->m_textures)
 				{
-					shader->setUniform(tdata.first, m_scmtexturefiletogpu[tdata.second.m_texturefileId]);
-					if (tdata.second.m_size.length() == 0)
-					{
-						//TODO set offset+size uniforms?
-					}
+					/*if (!this->getTextures()[i]->isBound())
+					{*/
+					m_scmtexturetot2d[tdata.second.m_texturefileId]->bind(inndex);
+
+					//}
+
+					shader->setUniform(tdata.first, inndex);
+
+					shader->setUniform("offset", tdata.second.m_offset);
+
+					shader->setUniform("size", tdata.second.m_size);
+
+					//_material->getTextures()[i]->bindToTextureUnit(i);
 				}
+
+				shader->setUniform("material.texcount", (GLint)(inndex+1));
+					
+				
 
 				//draw mesh
 				drawSCMMesh(mesh->m_meshId);
@@ -185,8 +198,16 @@ void GraphicsModule::updateData()
 			{
 				for (auto texts : mesh->m_material->m_textures)
 				{
-					if (m_scmtexturefiletogpu.count(texts.second.m_texturefileId) < 1)
+					if (m_scmtexturetot2d.count(texts.second.m_texturefileId) < 1)
 					{
+						for (auto fexfiles : textures)
+						{
+							if (fexfiles.m_textureId == texts.second.m_texturefileId)
+							{
+								m_scmtexturetot2d[texts.second.m_texturefileId] = GLUtils::loadGLTexture(fexfiles.m_path);
+							}
+						}
+						//GLUtils::loadGLTexture(textures[])
 						//TODO
 						//load texture into gpu memory?? 
 					}
@@ -203,9 +224,9 @@ void GraphicsModule::updateData()
 				}				
 				if (m_scmshadertoprogram.count(mesh->m_material->m_shaderId) < 1)
 				{
-					auto files = shaders[mesh->m_material->m_shaderId];
-					auto prog = GLUtils::createShaderProgram(files.m_shaderFiles[0], files.m_shaderFiles[1]);
-					m_scmshadertoprogram[files.m_shaderId] = prog;
+					auto files = m_scm->getShaderById(mesh->m_material->m_shaderId);
+					auto prog = GLUtils::createShaderProgram(files->m_shaderFiles[0], files->m_shaderFiles[1]);
+					m_scmshadertoprogram[files->m_shaderId] = prog;
 				}
 			}
 			if (mO->m_transformData.getData()->m_isMatrixDirty)
