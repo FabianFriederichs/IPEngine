@@ -56,7 +56,7 @@ void ExtensionTest::changeCamera(ipengine::TaskContext &c)
 {
 	auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
 	std::cout << -scm->getEntityByName("Camera")->m_transformData.setData()->m_location.z;
-	scm->getEntityByName("Camera")->m_transformData.setData()->m_location.z = scm->getEntityByName("Camera")->m_transformData.getData()->m_location.z + scm->getEntityByName("Camera")->m_transformData.getData()->m_localZ * 1.0f;
+	scm->getEntityByName("Camera")->m_transformData.setData()->m_location = scm->getEntityByName("Camera")->m_transformData.getData()->m_location + scm->getEntityByName("Camera")->m_transformData.getData()->m_localZ * 1.0f;
 	scm->getEntityByName("Camera")->m_transformData.setData()->m_isMatrixDirty = true;
 	
 	/*
