@@ -234,8 +234,12 @@ void GraphicsModule::updateData()
 			if (mO->m_transformData.getData()->m_isMatrixDirty)
 			{
 				auto transdata = mO->m_transformData.getData();
-				mO->m_transformData.setData()->m_transformMatrix = glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
+				glm::mat4 tmat = glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
+				mO->m_transformData.setData()->m_transformMatrix = tmat;//glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
 				mO->m_transformData.setData()->m_isMatrixDirty = false;
+				mO->m_transformData.setData()->m_localX = glm::normalize(glm::vec3(tmat[0][0], tmat[0][1], tmat[0][2]));
+				mO->m_transformData.setData()->m_localY = glm::normalize(glm::vec3(tmat[1][0], tmat[1][1], tmat[1][2]));
+				mO->m_transformData.setData()->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
 			}
 		}
 	}
