@@ -56,6 +56,13 @@ void ExtensionTest::changeCamera(ipengine::TaskContext &c)
 {
 	auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
 	std::cout << -scm->getEntityByName("Camera")->m_transformData.setData()->m_location.z;
-	scm->getEntityByName("Camera")->m_transformData.setData()->m_location.z += 1;
+	scm->getEntityByName("Camera")->m_transformData.setData()->m_location.z = scm->getEntityByName("Camera")->m_transformData.getData()->m_location.z + scm->getEntityByName("Camera")->m_transformData.getData()->m_localZ * 1.0f;
 	scm->getEntityByName("Camera")->m_transformData.setData()->m_isMatrixDirty = true;
+	
+	/*
+	Rotation:
+	yawquat <- calculate yaw rotation quat from mouse delta stuff
+	pitchquat <- calculate pitch rotation quat from mouse delta stuff	
+	newRotation = normalize(yawquat * currentRotation * pitchquat)	
+	*/
 }
