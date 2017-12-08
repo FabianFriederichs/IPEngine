@@ -65,10 +65,11 @@ void GraphicsModule::render()
 		{
 			continue;
 		}
-		auto mO = entities[eid]; 
+		auto findent = entities.find(eid);
 
-		if (mO)
+		if (findent !=entities.end())
 		{
+			auto mO = findent->second;
 			for (auto mesh : mO->m_mesheObjects->m_meshes)
 			{
 				//activate shader
@@ -126,7 +127,8 @@ void GraphicsModule::render()
 			}
 		}
 	}
-	
+	/*SDL_Event e;
+	while (SDL_PollEvent(&e) != 0) {}*/
 	SDL_GL_SwapWindow(window);
 	//wglMakeCurrent(NULL, NULL);
 
@@ -192,10 +194,11 @@ void GraphicsModule::updateData()
 	auto& textures = m_scm->getTextures();
 	for (auto eid : activeentitynames)
 	{
-		auto mO = entities[eid];
-
-		if (mO)
+		auto findent = entities.find(eid);
+		if (findent != entities.end())
 		{
+			auto mO =findent->second;
+
 			for (auto mesh : mO->m_mesheObjects->m_meshes)
 			{
 				for (auto texts : mesh->m_material->m_textures)
@@ -231,16 +234,16 @@ void GraphicsModule::updateData()
 					m_scmshadertoprogram[files->m_shaderId] = prog;
 				}
 			}
-			if (mO->m_transformData.getData()->m_isMatrixDirty)
-			{
-				auto transdata = mO->m_transformData.getData();
-				glm::mat4 tmat = glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
-				mO->m_transformData.setData()->m_transformMatrix = tmat;//glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
-				mO->m_transformData.setData()->m_isMatrixDirty = false;
-				mO->m_transformData.setData()->m_localX = glm::normalize(glm::vec3(tmat[0][0], tmat[0][1], tmat[0][2]));
-				mO->m_transformData.setData()->m_localY = glm::normalize(glm::vec3(tmat[1][0], tmat[1][1], tmat[1][2]));
-				mO->m_transformData.setData()->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
-			}
+			//if (mO->m_transformData.getData()->m_isMatrixDirty)
+			//{
+			//	auto transdata = mO->m_transformData.getData();
+			//	glm::mat4 tmat = glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
+			//	mO->m_transformData.setData()->m_transformMatrix = tmat;//glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
+			//	mO->m_transformData.setData()->m_isMatrixDirty = false;
+			//	mO->m_transformData.setData()->m_localX = glm::normalize(glm::vec3(tmat[0][0], tmat[0][1], tmat[0][2]));
+			//	mO->m_transformData.setData()->m_localY = glm::normalize(glm::vec3(tmat[1][0], tmat[1][1], tmat[1][2]));
+			//	mO->m_transformData.setData()->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
+			//}
 		}
 	}
 	//bla

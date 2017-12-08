@@ -35,7 +35,7 @@ bool InputModule::startUp()
 	}
 	//memes = std::thread([this]()->void{while (1){ pollData(); }});
 	ipengine::Scheduler& sched = m_core->getScheduler();
-	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<InputModule, &InputModule::pollDataC>(this), 0, ipengine::Scheduler::SubType::Frame,1, &m_core->getThreadPool(), false));
+	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<InputModule, &InputModule::pollDataC>(this), 0, ipengine::Scheduler::SubType::Frame,1, &m_core->getThreadPool(), true));
 	return true;
 }
 
@@ -64,56 +64,59 @@ void InputModule::pollData()
 	//}
 	std::multimap<time_t, IInput::Input> tempInput;
 	SDL_Event event;
-	while (SDL_PollEvent(&event)) {
+	while (SDL_PollEvent(&event)==1) {
 		IInput::Input i;
 		switch (event.type) {
 		case SDL_KEYUP:
-			i.timeStamp = clock.now();
+			i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 			i.type = IInput::InputType::INPUT_KEY;
 			i.data.kd = IInput::keydata{ (IInput::Scancode)((uint16_t)event.key.keysym.scancode), event.key.keysym.mod, IInput::ButtonState::BUTTON_UP };
+			i.data.kd.isrepeat = event.key.repeat;
 			//event.key.keysym
 			//if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) stillRunning = false;
 			//if (event.key.keysym.scancode == SDL_SCANCODE_1) OutputDebugString(std::wstring(L"memes").c_str());
-			tempInput.insert({ std::chrono::system_clock::to_time_t(i.timeStamp), i });
+			tempInput.insert({ i.timeStamp.nano(), i });
 
 			//inputData.push_back(std::move(i));
 			break;
 		case SDL_KEYDOWN:
-			i.timeStamp = clock.now();
+			i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 			i.type = IInput::InputType::INPUT_KEY;
 			i.data.kd = IInput::keydata{ (IInput::Scancode)((uint16_t)event.key.keysym.scancode), event.key.keysym.mod, IInput::ButtonState::BUTTON_DOWN };
-			tempInput.insert({ std::chrono::system_clock::to_time_t(i.timeStamp), i });
+			i.data.kd.isrepeat = event.key.repeat;
+
+			tempInput.insert({ i.timeStamp.nano(), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			i.timeStamp = clock.now();
+			i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 			i.type = IInput::InputType::INPUT_KEY;
 			i.data.kd = IInput::keydata{ (IInput::Scancode)((uint16_t)std::min<Uint8>(6, event.button.button) + (uint16_t)IInput::Scancode::SCANCODE_MOUSEBUTTON1), event.key.keysym.mod, IInput::ButtonState::BUTTON_DOWN };
-			tempInput.insert({ std::chrono::system_clock::to_time_t(i.timeStamp), i });
+			tempInput.insert({ i.timeStamp.nano(), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		case SDL_MOUSEBUTTONUP:
-			i.timeStamp = clock.now();
+			i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 			i.type = IInput::InputType::INPUT_KEY;
 			i.data.kd = IInput::keydata{ (IInput::Scancode)((uint16_t)std::min<Uint8>(6, event.button.button) + (uint16_t)IInput::Scancode::SCANCODE_MOUSEBUTTON1), event.key.keysym.mod, IInput::ButtonState::BUTTON_UP };
-			tempInput.insert({ std::chrono::system_clock::to_time_t(i.timeStamp), i });
+			tempInput.insert({ i.timeStamp.nano(), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		case SDL_MOUSEWHEEL:
-			i.timeStamp = clock.now();
+			i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 			i.type = IInput::InputType::INPUT_MOUSESCROLL;
 			i.data.md.y = event.wheel.y;
-			tempInput.insert({ std::chrono::system_clock::to_time_t(i.timeStamp), i });
+			tempInput.insert({ i.timeStamp.nano(), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		case SDL_MOUSEMOTION:
 			if (event.motion.xrel == 0 && event.motion.yrel == 0)
 				break;
-			i.timeStamp = clock.now();
+			i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 			i.type = IInput::InputType::INPUT_MOUSEMOVE;
 			i.data.md.y = event.motion.y;
 			i.data.md.x = event.motion.x;
-			tempInput.insert({ std::chrono::system_clock::to_time_t(i.timeStamp), i });
+			tempInput.insert({ i.timeStamp.nano(), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		default:
@@ -134,7 +137,7 @@ void InputModule::pollData()
 			{
 			case vr::VREvent_ButtonPress:
 				i.type = IInput::InputType::INPUT_KEY;
-				i.timeStamp = clock.now();// -std::chrono::seconds(vreve.eventAgeSeconds);
+				i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 				i.data.kd.state = IInput::ButtonState::BUTTON_DOWN;
 				i.data.kd.deviceIndex = vreve.trackedDeviceIndex;
 				switch (vreve.data.controller.button)
@@ -167,7 +170,7 @@ void InputModule::pollData()
 				break;
 			case vr::VREvent_ButtonUnpress:
 				i.type = IInput::InputType::INPUT_KEY;
-				i.timeStamp = clock.now();// -std::chrono::seconds(vreve.eventAgeSeconds);
+				i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 				i.data.kd.state = IInput::ButtonState::BUTTON_UP;
 				i.data.kd.deviceIndex = vreve.trackedDeviceIndex;
 
@@ -209,9 +212,9 @@ void InputModule::pollData()
 
 
 
-	auto timestamp = clock.now() - timeToRetainInput;
+	auto timestamp = ipengine::Time((clock.now() - timeToRetainInput).time_since_epoch().count());
 	auto start = inputData.begin();
-	auto end = std::find_if(start, inputData.end(), [timestamp](std::pair<time_t, IInput::Input> i)->bool{if (i.second.timeStamp < timestamp) return true; return false; });
+	auto end = std::find_if(start, inputData.end(), [timestamp](std::pair<time_t, IInput::Input> i)->bool{if (i.second.timeStamp.nano() < timestamp.nano()) return true; return false; });
 	try{
 		/*while (isManipulating)
 		{
@@ -227,6 +230,7 @@ void InputModule::pollData()
 		
 		inputData.erase(start, end);
 		mymutex.unlock();
+		//std::cout << tempInput.size(); std::cout << "      ";
 		/*while (start != inputData.end() && start++->timeStamp < timestamp)
 		{
 			inputData.pop_front();
@@ -242,9 +246,9 @@ void InputModule::pollData()
 	isManipulating = false;
 }
 
-const std::vector<IInput::Input> InputModule::getInputBuffered(int millisecondsIntoThePast, bool vrpositions)
+const std::vector<IInput::Input> InputModule::getInputBuffered(ipengine::Time timestamp, bool vrpositions)
 {
-	auto timestamp = clock.now() - std::chrono::milliseconds(millisecondsIntoThePast);
+	//auto timestamp = clock.now() - std::chrono::milliseconds(millisecondsIntoThePast);
 	//create copy
 	/*while (isManipulating)
 	{
@@ -262,7 +266,7 @@ const std::vector<IInput::Input> InputModule::getInputBuffered(int millisecondsI
 	auto start = end;
 	//auto inputd = std::deque<IInput::Input>(inputData.begin(), inputData.end());
 	if (!inputData.empty())
-		start = std::find_if(in.begin(), in.end(), [timestamp](std::pair<time_t, IInput::Input> i)->bool{if (i.second.timeStamp >= timestamp) return true; return false; });
+		start = std::find_if(in.begin(), in.end(), [timestamp](std::pair<time_t, IInput::Input> i)->bool{if (i.second.timeStamp.nano() >= timestamp.nano()) return true; return false; });
 	//auto start = inputData.begin();
 
 	//for ()
@@ -284,7 +288,7 @@ const std::vector<IInput::Input> InputModule::getInputBuffered(int millisecondsI
 		if (!vrsys->IsTrackedDeviceConnected(vr::k_unTrackedDeviceIndex_Hmd))
 		{
 			IInput::Input inputDC;
-			inputDC.timeStamp = clock.now();
+			inputVR.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 			inputDC.type = IInput::InputType::INPUT_DEVICE_DISCONNECTED;
 			inputDC.data.i3dmd.deviceIndex = vr::k_unTrackedDeviceIndex_Hmd;
 			inputDC.data.i3dmd.deviceType = IInput::VRDevices::HMD;
@@ -301,7 +305,7 @@ const std::vector<IInput::Input> InputModule::getInputBuffered(int millisecondsI
 				switch (vrsys->GetTrackedDeviceClass(index))
 				{
 				case vr::ETrackedDeviceClass::TrackedDeviceClass_HMD:
-					inputVR.timeStamp = clock.now();
+					inputVR.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 					inputVR.type = IInput::InputType::INPUT_3DMOVE;
 					inputVR.data.i3dmd.deviceIndex = index;
 					inputVR.data.i3dmd.deviceType = IInput::VRDevices::HMD;
@@ -324,7 +328,7 @@ const std::vector<IInput::Input> InputModule::getInputBuffered(int millisecondsI
 					n.push_back(std::move(inputVR));
 					break;
 				case vr::ETrackedDeviceClass::TrackedDeviceClass_Controller:
-					inputVR.timeStamp = clock.now();
+					inputVR.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 					inputVR.type = IInput::InputType::INPUT_3DMOVE;
 					inputVR.data.i3dmd.deviceIndex = index;
 					inputVR.data.i3dmd.deviceType = vrsys->GetControllerRoleForTrackedDeviceIndex(index) == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand ? IInput::VRDevices::CONTROLLER_LEFT : IInput::VRDevices::CONTROLLER_RIGHT;
@@ -348,7 +352,7 @@ const std::vector<IInput::Input> InputModule::getInputBuffered(int millisecondsI
 
 					break;
 				case vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker:
-					inputVR.timeStamp = clock.now();
+					inputVR.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 					inputVR.type = IInput::InputType::INPUT_3DMOVE;
 					inputVR.data.i3dmd.deviceIndex = index;
 					inputVR.data.i3dmd.deviceType = IInput::VRDevices::HMD;

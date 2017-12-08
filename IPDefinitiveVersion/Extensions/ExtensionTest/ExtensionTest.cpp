@@ -1,5 +1,5 @@
 // Plugin2.cpp : Defines the exported functions for the DLL application.
-//
+//1
 
 #include "ExtensionTest.h"
 

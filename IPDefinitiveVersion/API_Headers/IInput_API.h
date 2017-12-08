@@ -424,6 +424,7 @@ namespace IInput
 		int modifiers;
 		ButtonState state;
 		int deviceIndex;
+		bool isrepeat;
 	};
 
 	struct mousedata
@@ -453,7 +454,7 @@ namespace IInput
 	{
 		InputType type;
 		InputData data;
-		std::chrono::system_clock::time_point timeStamp;
+		ipengine::Time timeStamp;
 	};
 }
 
@@ -464,5 +465,5 @@ class IInput_API : public IModule_API
 public:
 	
 	//virtual void printStuffToSomething(std::string) = 0;
-	virtual const std::vector<IInput::Input> getInputBuffered(int millisecondsIntoThePast, bool vrpositions = false) = 0;
+	virtual const std::vector<IInput::Input> getInputBuffered(ipengine::Time, bool vrpositions = false) = 0;
 };

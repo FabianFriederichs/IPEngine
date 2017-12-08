@@ -52,6 +52,7 @@
       </ExtensionPoints>
     </Module>
     <Module>
+      <ignore>false</ignore>
       <identifier>InputModule</identifier>
       <dependencies>
         <dependency>
@@ -91,7 +92,7 @@
       </dependencies>
     </Module>
     <Module>
-      <ignore>false</ignore>
+      <ignore>true</ignore>
       <identifier>ExtensionTest</identifier>
       <isExPoint>true</isExPoint>
       <dependencies>
@@ -99,6 +100,27 @@
           <inject>true</inject>
           <identifier>SCM</identifier>
           <moduleID>SimpleContentModule</moduleID>
+        </dependency>
+      </dependencies>
+    </Module>
+    <Module>
+      <ignore>false</ignore>
+      <identifier>GameLogicModule</identifier>
+      <isExPoint>false</isExPoint>
+      <dependencies>
+        <dependency>
+          <inject>true</inject>
+          <identifier>SCM</identifier>
+          <moduleID>SimpleContentModule</moduleID>
+        </dependency>
+        <dependency>
+          <inject>true</inject>
+          <identifier>input</identifier>
+          <moduleID>InputModule</moduleID>
+        </dependency>
+        <dependency>
+          <identifier>graphics</identifier>
+          <moduleID>GraphicsModule</moduleID>
         </dependency>
       </dependencies>
     </Module>
