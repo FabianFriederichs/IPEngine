@@ -28,6 +28,10 @@ private:
 	ipengine::Time lastInputTimestamp = ipengine::Time(0.f);
 	ipengine::Time timing = ipengine::Time(1.f / 60.f, 1);
 	glm::vec3 camVelocity = { 0,0,0 };
+	glm::vec2 mouseDelta = { 0,0 };
+	float pitch, yaw;
+	glm::vec3 lastlx, lastlz;
+	IInput::Input lastMouseMove;
 	bool initialized=false;
 	double modifier = 1;
 	void update(ipengine::TaskContext&);

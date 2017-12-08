@@ -110,13 +110,18 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 	{
 		if (i.data.kd.keycode == IInput::SCANCODE_W)
 		{
-			camVelocity -= cam->m_transformData.setData()->m_localZ;
+			//lastlz = cam->m_transformData.setData()->m_localZ;
+
+			camVelocity -= glm::vec3(0,0,1);
+			//lastlz = cam->m_transformData.setData()->m_localZ;
+
 			//cam->m_transformData.setData()->m_location -= cam->m_transformData.setData()->m_localZ*(float)modifier;
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
 		}
 		else if (i.data.kd.keycode == IInput::SCANCODE_S)
 		{
-			camVelocity += cam->m_transformData.setData()->m_localZ;
+
+			camVelocity += glm::vec3(0, 0, 1);
 
 			//cam->m_transformData.setData()->m_location += cam->m_transformData.setData()->m_localZ*(float)modifier;
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
@@ -124,7 +129,8 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 		}
 		else if (i.data.kd.keycode == IInput::SCANCODE_A)
 		{
-			camVelocity -= cam->m_transformData.setData()->m_localX;
+
+			camVelocity -= glm::vec3(1, 0, 0);
 
 			//cam->m_transformData.setData()->m_location -= cam->m_transformData.setData()->m_localX*(float)modifier;
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
@@ -132,7 +138,8 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 		}
 		else if (i.data.kd.keycode == IInput::SCANCODE_D)
 		{
-			camVelocity += cam->m_transformData.setData()->m_localX;
+
+			camVelocity += glm::vec3(1, 0, 0);
 
 			//cam->m_transformData.setData()->m_location += cam->m_transformData.setData()->m_localX*(float)modifier;
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
@@ -143,13 +150,13 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 	{
 		if (i.data.kd.keycode == IInput::SCANCODE_W)
 		{
-			camVelocity += cam->m_transformData.setData()->m_localZ;
+			camVelocity += glm::vec3(0, 0, 1);
 			//cam->m_transformData.setData()->m_location -= cam->m_transformData.setData()->m_localZ*(float)modifier;
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
 		}
 		else if (i.data.kd.keycode == IInput::SCANCODE_S)
 		{
-			camVelocity -= cam->m_transformData.setData()->m_localZ;
+			camVelocity -= glm::vec3(0, 0, 1);
 
 			//cam->m_transformData.setData()->m_location += cam->m_transformData.setData()->m_localZ*(float)modifier;
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
@@ -157,7 +164,7 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 		}
 		else if (i.data.kd.keycode == IInput::SCANCODE_A)
 		{
-			camVelocity += cam->m_transformData.setData()->m_localX;
+			camVelocity += glm::vec3(1, 0, 0);
 
 			//cam->m_transformData.setData()->m_location -= cam->m_transformData.setData()->m_localX*(float)modifier;
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
@@ -165,7 +172,7 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 		}
 		else if (i.data.kd.keycode == IInput::SCANCODE_D)
 		{
-			camVelocity -= cam->m_transformData.setData()->m_localX;
+			camVelocity -= glm::vec3(1, 0, 0);
 
 			//cam->m_transformData.setData()->m_location += cam->m_transformData.setData()->m_localX*(float)modifier;
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
@@ -176,6 +183,44 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 
 void GameLogicModule::mousemoveUpdate(IInput::Input &i)
 {
+	mouseDelta = glm::vec2(lastMouseMove.data.md.x, lastMouseMove.data.md.y) - glm::vec2(i.data.md.x, i.data.md.y);
+	auto cam = contentmodule->getEntityByName("Camera");
+
+	
+	//yaw = std::fmod(yaw + mouseDelta.x*0.01, 360);
+	//yaw = (int)(yaw + mouseDelta.x*0.1) % 360;
+	yaw = -1;
+	static int counteryaw = 0;
+	auto pitchquat = glm::quat(glm::vec3(0, 0, 0));
+	counteryaw++;
+	if (counteryaw == 30)
+	{
+		std::cout << yaw;
+		counteryaw = 0;
+	}
+	if (pitch > 90)
+		pitch = 90;
+	else if (pitch < -90)
+		pitch = -90;
+	/*if(pitch += mouseDelta.y*0.01 > 90 || pitch <90)
+		pitchquat = glm::quat(glm::vec3(glm::radians(mouseDelta.y*0.1),0,0));*/
+	if (pitch += 0.1 > 90 || pitch <90)
+		pitchquat = glm::quat(glm::vec3(glm::radians(0.1), 0, 0));
+	//pitchquat = glm::quat(glm::vec3(0, 0, 0));
+	auto yawquat= glm::quat(glm::vec3(0, glm::radians(-mouseDelta.x*0.1),0));
+	auto newrot = glm::normalize(yawquat*cam->m_transformData.getData()->m_rotation *pitchquat);
+	cam->m_transformData.setData()->m_rotation = newrot;
+	cam->m_transformData.setData()->m_isMatrixDirty = true;
+
+	auto transdata = cam->m_transformData.getData();
+	glm::mat4 tmat = glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
+	auto data = cam->m_transformData.setData();
+	data->m_transformMatrix = tmat;//glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
+	data->m_isMatrixDirty = false;
+	data->m_localX = glm::normalize(glm::vec3(tmat[0][0], tmat[0][1], tmat[0][2]));
+	data->m_localY = glm::normalize(glm::vec3(tmat[1][0], tmat[1][1], tmat[1][2]));
+	data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
+	lastMouseMove = IInput::Input(i);
 }
 
 void GameLogicModule::mousescrollUpdate(IInput::Input &i)
@@ -186,7 +231,9 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 {
 	if (e->m_name == "Camera"&& camVelocity != glm::vec3(0, 0, 0))
 	{
-		e->m_transformData.setData()->m_location += camVelocity*(float)modifier;
+		auto x = e->m_transformData.getData()->m_localX*(float)camVelocity.x*(float)modifier;
+		auto y = e->m_transformData.getData()->m_localZ*camVelocity.z*(float)modifier;
+		e->m_transformData.setData()->m_location += x + y;
 		e->m_transformData.setData()->m_isMatrixDirty = true;
 	}
 	if (e->m_transformData.setData()->m_isMatrixDirty)
