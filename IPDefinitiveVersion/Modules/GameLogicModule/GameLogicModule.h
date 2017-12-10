@@ -29,6 +29,7 @@ private:
 	ipengine::Time timing = ipengine::Time(1.f / 60.f, 1);
 	glm::vec3 camVelocity = { 0,0,0 };
 	glm::vec2 mouseDelta = { 0,0 };
+	bool w, a, s, d;
 	float pitch, yaw;
 	glm::vec3 lastlx, lastlz;
 	IInput::Input lastMouseMove;

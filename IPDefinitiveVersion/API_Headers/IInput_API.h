@@ -430,6 +430,7 @@ namespace IInput
 	struct mousedata
 	{
 		int x, y;
+		float rx, ry;
 	};
 
 	struct i3dmovedata

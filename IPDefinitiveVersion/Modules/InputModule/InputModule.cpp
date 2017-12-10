@@ -36,7 +36,7 @@ bool InputModule::startUp()
 	//memes = std::thread([this]()->void{while (1){ pollData(); }});
 	ipengine::Scheduler& sched = m_core->getScheduler();
 	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<InputModule, &InputModule::pollDataC>(this), 0, ipengine::Scheduler::SubType::Frame,1, &m_core->getThreadPool(), true));
-	//SDL_SetRelativeMouseMode(SDL_TRUE);
+	SDL_SetRelativeMouseMode(SDL_TRUE);
 	//SDL_CaptureMouse(SDL_TRUE);
 	return true;
 }
@@ -64,6 +64,8 @@ void InputModule::pollData()
 	//	}
 	//	//add polldata as recurrent
 	//}
+	auto& extrec = m_info.expoints;
+	std::vector<ipengine::any> anyvector;
 	std::multimap<time_t, IInput::Input> tempInput;
 	SDL_Event event;
 	while (SDL_PollEvent(&event)==1) {
@@ -118,8 +120,23 @@ void InputModule::pollData()
 			i.type = IInput::InputType::INPUT_MOUSEMOVE;
 			i.data.md.y = event.motion.y;
 			i.data.md.x = event.motion.x;
+			i.data.md.rx = event.motion.xrel;
+			i.data.md.ry = event.motion.yrel;
 			tempInput.insert({ i.timeStamp.nano(), i });
 			//inputData.push_back(std::move(i));			
+			break;
+		case SDL_WINDOWEVENT:
+			anyvector.push_back(static_cast<IModule_API*>(this));
+			anyvector.push_back(event.window);
+			extrec.execute("SDL_WindowEvent", { "this", "windowevent" }, anyvector);
+			switch (event.window.event) {
+				case SDL_WINDOWEVENT_FOCUS_GAINED:
+					SDL_SetRelativeMouseMode(SDL_TRUE);
+					break;
+				case SDL_WINDOWEVENT_FOCUS_LOST:
+					SDL_SetRelativeMouseMode(SDL_FALSE);
+					break;
+			}
 			break;
 		default:
 			// Do nothing.
