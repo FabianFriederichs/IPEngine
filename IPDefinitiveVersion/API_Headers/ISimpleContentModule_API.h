@@ -26,7 +26,7 @@ namespace SCM
 		glm::vec3 m_localX;
 		glm::vec3 m_localZ;
 		glm::mat4 m_transformMatrix;
-		bool m_isMatrixDirty;
+		bool m_isMatrixDirty =true;
 	};
 
 	class Transform
@@ -39,7 +39,7 @@ namespace SCM
 		{
 		}
 		Transform(const TransformData& data): m_front(new TransformData(data)) {
-			m_back = new TransformData();
+			m_back = new TransformData(data);
 		}
 		Transform& operator=(Transform other)
 		{
@@ -51,10 +51,10 @@ namespace SCM
 		~Transform() {
 			delete m_front; delete m_back;
 		}
-		const TransformData* getData() { return m_front; }
-		TransformData* setData() { return m_front; }
+		const TransformData* getData() { return m_back; }
+		TransformData* setData() { return m_back; }
 		void swap() {
-			std::swap(m_back, m_front);
+			//std::swap(m_back, m_front);
 		}
 	private:
 		TransformData* m_front;

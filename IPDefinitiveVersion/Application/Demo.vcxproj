@@ -99,7 +99,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(BOOST)\stage\lib;$(OutDir);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>IPCore.lib;</AdditionalDependencies>
+      <AdditionalDependencies>IPCore.lib;Injector.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

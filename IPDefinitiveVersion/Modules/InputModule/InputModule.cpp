@@ -68,6 +68,7 @@ void InputModule::pollData()
 	std::vector<ipengine::any> anyvector;
 	std::multimap<time_t, IInput::Input> tempInput;
 	SDL_Event event;
+	auto lasttiming = inputData.size() > 0 ? (inputData.rbegin())->first:0;
 	while (SDL_PollEvent(&event)==1) {
 		IInput::Input i;
 		switch (event.type) {
@@ -79,7 +80,7 @@ void InputModule::pollData()
 			//event.key.keysym
 			//if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) stillRunning = false;
 			//if (event.key.keysym.scancode == SDL_SCANCODE_1) OutputDebugString(std::wstring(L"memes").c_str());
-			tempInput.insert({ i.timeStamp.nano(), i });
+			
 
 			//inputData.push_back(std::move(i));
 			break;
@@ -89,28 +90,28 @@ void InputModule::pollData()
 			i.data.kd = IInput::keydata{ (IInput::Scancode)((uint16_t)event.key.keysym.scancode), event.key.keysym.mod, IInput::ButtonState::BUTTON_DOWN };
 			i.data.kd.isrepeat = event.key.repeat;
 
-			tempInput.insert({ i.timeStamp.nano(), i });
+			//tempInput.insert({ i.timeStamp.nano(), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 			i.type = IInput::InputType::INPUT_KEY;
 			i.data.kd = IInput::keydata{ (IInput::Scancode)((uint16_t)std::min<Uint8>(6, event.button.button) + (uint16_t)IInput::Scancode::SCANCODE_MOUSEBUTTON1), event.key.keysym.mod, IInput::ButtonState::BUTTON_DOWN };
-			tempInput.insert({ i.timeStamp.nano(), i });
+			//tempInput.insert({ i.timeStamp.nano(), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		case SDL_MOUSEBUTTONUP:
 			i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 			i.type = IInput::InputType::INPUT_KEY;
 			i.data.kd = IInput::keydata{ (IInput::Scancode)((uint16_t)std::min<Uint8>(6, event.button.button) + (uint16_t)IInput::Scancode::SCANCODE_MOUSEBUTTON1), event.key.keysym.mod, IInput::ButtonState::BUTTON_UP };
-			tempInput.insert({ i.timeStamp.nano(), i });
+			//tempInput.insert({ i.timeStamp.nano(), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		case SDL_MOUSEWHEEL:
 			i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 			i.type = IInput::InputType::INPUT_MOUSESCROLL;
 			i.data.md.y = event.wheel.y;
-			tempInput.insert({ i.timeStamp.nano(), i });
+			//tempInput.insert({ i.timeStamp.nano(), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		case SDL_MOUSEMOTION:
@@ -122,7 +123,7 @@ void InputModule::pollData()
 			i.data.md.x = event.motion.x;
 			i.data.md.rx = event.motion.xrel;
 			i.data.md.ry = event.motion.yrel;
-			tempInput.insert({ i.timeStamp.nano(), i });
+			//tempInput.insert({ i.timeStamp.nano(), i });
 			//inputData.push_back(std::move(i));			
 			break;
 		case SDL_WINDOWEVENT:
@@ -142,7 +143,9 @@ void InputModule::pollData()
 			// Do nothing.
 			break;
 		}
-		
+		if (i.timeStamp.nano() == lasttiming)
+			i.timeStamp = ipengine::Time(lasttiming + 1);
+		tempInput.insert({ i.timeStamp.nano(), i });
 	}
 
 	//Poll VR positions and add as event

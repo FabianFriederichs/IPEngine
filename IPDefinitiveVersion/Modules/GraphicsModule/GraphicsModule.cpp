@@ -83,8 +83,7 @@ void GraphicsModule::render()
 				{
 					auto cent = m_scm->getEntityById(cameraentity);
 					auto transdata = cent->m_transformData.getData();
-					viewmat = glm::toMat4(transdata->m_rotation)*translate(glm::mat4(1.0f), -transdata->m_location);
-					
+					viewmat = ViewFromTransData(transdata);//glm::inverse(transdata->m_transformMatrix);//glm::toMat4(transdata->m_rotation) * translate(glm::mat4(1.0f), -transdata->m_location);
 				}
 				else
 				{
@@ -288,6 +287,39 @@ void GraphicsModule::setClipRange(uint32_t n, uint32_t f)
 {
 	znear = n; zfar = f;
 	recalcProj();
+}
+
+glm::mat4 GraphicsModule::ViewFromTransData(const SCM::TransformData *transform)
+{
+	
+	/*	x y z					negative translation	x	y	z
+	|x.x	x.y		x.z		-cp.x| camera x achse	1	0	0
+	|y.x	y.y		y.z		-cp.y| camera y achse	0	1	0
+	|z.x	z.y		z.z		-cp.z| camera z achse   0	0	1
+	|0		0		0		1    | */
+	//transform.GetTransformMat();
+		
+	glm::mat4 viewRot = glm::mat4(
+		glm::vec4(transform->m_localX.x, transform->m_localY.x, transform->m_localZ.x, 0.0f),
+		glm::vec4(transform->m_localX.y, transform->m_localY.y, transform->m_localZ.y, 0.0f),
+		glm::vec4(transform->m_localX.z, transform->m_localY.z, transform->m_localZ.z, 0.0f),
+		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+
+	glm::mat4 viewTr = glm::mat4(
+		glm::vec4(1, 0, 0, 0),
+		glm::vec4(0, 1, 0, 0),
+		glm::vec4(0, 0, 1, 0),
+		glm::vec4(-transform->m_location.x, -transform->m_location.y, -transform->m_location.z, 1));
+
+	viewmat = viewRot * viewTr;
+	//vdirty = false;
+	/*std::cout << "Camera axes: \n";
+	std::cout << "X: " << transform.localx.x << " " << transform.localx.y << " " << transform.localx.z << "\n";
+	std::cout << "Y: " << transform.localy.x << " " << transform.localy.y << " " << transform.localy.z << "\n";
+	std::cout << "Z: " << transform.localz.x << " " << transform.localz.y << " " << transform.localz.z << "\n\n";*/
+	
+	return viewmat;
 }
 
 void GraphicsModule::recalcProj()

@@ -61,7 +61,7 @@ private:
 	void drawSCMMesh(SCM::IdType);
 
 	// Inherited via IGraphics_API
-
+	glm::mat4 ViewFromTransData(const SCM::TransformData*);
 	void recalcProj();
 	//container with vao to scm mesh id
 };

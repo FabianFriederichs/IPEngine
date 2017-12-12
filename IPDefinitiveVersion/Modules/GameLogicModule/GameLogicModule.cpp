@@ -18,7 +18,7 @@ bool GameLogicModule::startUp()
 {
 	//Initialize your module
 	ipengine::Scheduler& sched = m_core->getScheduler();
-	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GameLogicModule, &GameLogicModule::update>(this),timing.nano(), ipengine::Scheduler::SubType::Interval, 1, &m_core->getThreadPool(), false));
+	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GameLogicModule, &GameLogicModule::update>(this),timing.nano(), ipengine::Scheduler::SubType::Interval, 1, &m_core->getThreadPool(), true));
 	contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
 	if (m_info.dependencies.exists("input")) 
 	{
@@ -70,7 +70,7 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 			break;
 		case IInput::InputType::INPUT_MOUSEMOVE:
 			extrec.execute("mousemove", paras, anyvector);
-			//mousemoveUpdate(i);
+			mousemoveUpdate(i);
 			break;
 		case IInput::InputType::INPUT_MOUSESCROLL:
 			extrec.execute("mousescroll", paras, anyvector);
@@ -108,11 +108,11 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 {
 	auto cam = contentmodule->getEntityByName("Camera");
 	static bool trythis = true;
-	if (i.data.kd.keycode == IInput::SCANCODE_Q && !i.data.kd.isrepeat)
+	if (i.data.kd.keycode == IInput::SCANCODE_Q && i.data.kd.state == IInput::ButtonState::BUTTON_UP &&!i.data.kd.isrepeat)
 	{
 		trythis = false;
 		auto pitchquat = glm::quat(glm::vec3(0, 0, 0));
-		auto yawquat = glm::quat(glm::vec3(0, glm::radians(180.f), 0));
+		auto yawquat = glm::quat(glm::vec3(0, glm::radians(45.f), 0));
 		auto newrot = glm::normalize(yawquat*cam->m_transformData.getData()->m_rotation *pitchquat);
 		cam->m_transformData.setData()->m_rotation = newrot;
 		cam->m_transformData.setData()->m_isMatrixDirty = true;
@@ -125,11 +125,11 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 		//data->m_localY = glm::normalize(glm::vec3(tmat[1][0], tmat[1][1], tmat[1][2]));
 		//data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));	
 	}
-	if (i.data.kd.keycode == IInput::SCANCODE_R && i.data.kd.state == IInput::ButtonState::BUTTON_DOWN&&!i.data.kd.isrepeat)
+	if (i.data.kd.keycode == IInput::SCANCODE_R && i.data.kd.state == IInput::ButtonState::BUTTON_UP &&!i.data.kd.isrepeat)
 	{
 		trythis = false;
 		auto pitchquat = glm::quat(glm::vec3(0, 0, 0));
-		auto yawquat = glm::quat(glm::vec3(0, glm::radians(-180.f), 0));
+		auto yawquat = glm::quat(glm::vec3(0, glm::radians(-45.f), 0));
 		auto newrot = glm::normalize(yawquat*cam->m_transformData.getData()->m_rotation *pitchquat);
 		cam->m_transformData.setData()->m_rotation = newrot;
 		cam->m_transformData.setData()->m_isMatrixDirty = true;
@@ -142,7 +142,7 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 		//data->m_localY = glm::normalize(glm::vec3(tmat[1][0], tmat[1][1], tmat[1][2]));
 		//data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));	
 	}
-	if (i.data.kd.keycode == IInput::SCANCODE_E && i.data.kd.state == IInput::ButtonState::BUTTON_DOWN&&!i.data.kd.isrepeat)
+	if (i.data.kd.keycode == IInput::SCANCODE_E && i.data.kd.state == IInput::ButtonState::BUTTON_UP &&!i.data.kd.isrepeat)
 	{
 		auto data = cam->m_transformData.getData();
 
@@ -151,7 +151,8 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 		std::cout << data->m_localY.x << " | " << data->m_localY.y << " | " << data->m_localY.z;
 		std::cout << "\n";
 		std::cout << data->m_localZ.x << " | " << data->m_localZ.y << " | " << data->m_localZ.z;
-		std::cout << "\n";
+		std::cout << "\n=\n";
+
 	}
 	if (i.data.kd.state == IInput::ButtonState::BUTTON_DOWN && !i.data.kd.isrepeat)
 	{
@@ -198,7 +199,7 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
 		}
 	}
-	else if (i.data.kd.state == IInput::ButtonState::BUTTON_UP)
+	if (i.data.kd.state == IInput::ButtonState::BUTTON_UP)
 	{
 		if (i.data.kd.keycode == IInput::SCANCODE_W)
 		{
@@ -268,18 +269,7 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 	{
 		//yaw = std::fmod(yaw + mouseDelta.x*0.01, 360);
 		//yaw = (int)(yaw + mouseDelta.x*0.1) % 360;
-		//yaw = -1;
-		/*static int counteryaw = 0;
-		
-		counteryaw++;
-		if (counteryaw == 30)
-		{
-			std::cout << yaw;
-			counteryaw = 0;
-		}*/
 
-		/*if(pitch += mouseDelta.y*0.01 > 90 || pitch <90)
-		pitchquat = glm::quat(glm::vec3(glm::radians(mouseDelta.y*0.1),0,0));*/
 		auto pitchquat = glm::quat(glm::vec3(0, 0, 0));
 		auto ydelta = mouseDelta.y*0.1;
 		if (pitch + ydelta> 90)
@@ -296,31 +286,28 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 		{
 			pitch += ydelta;
 		}
-		pitchquat = glm::quat(glm::vec3(glm::radians(ydelta), 0, 0));
+		pitchquat = glm::quat(glm::vec3(glm::radians(-ydelta), 0, 0));
 		//pitchquat = glm::quat(glm::vec3(0, 0, 0));
-		auto yawquat = glm::quat(glm::vec3(0, glm::radians(mouseDelta.x*0.1), 0));
+		auto yawquat = glm::quat(glm::vec3(0, glm::radians(-mouseDelta.x*0.1), 0));
 		auto newrot = glm::normalize(yawquat * e->m_transformData.getData()->m_rotation * pitchquat);
 		e->m_transformData.setData()->m_rotation = newrot;
 		e->m_transformData.setData()->m_isMatrixDirty = true;
 	}
 	
-	if (e->m_name == "Camera" )//&& camVelocity != glm::vec3(0, 0, 0))
+	if (e->m_name == "Camera")//&& camVelocity != glm::vec3(0, 0, 0))
 	{
-		
+
 		//auto x = e->m_transformData.getData()->m_localX*(float)camVelocity.x*(float)modifier;
 		//auto y = e->m_transformData.getData()->m_localZ*camVelocity.z*(float)modifier;
-
 
 		auto 	x = e->m_transformData.getData()->m_localX*(float)((a ? -1 : 0 + d ? 1 : 0)*modifier);
 		auto	y = e->m_transformData.getData()->m_localZ*(float)((w ? -1 : 0 + s ? 1 : 0)*modifier);
 
-		if (((a ? -1 : 0 + d ? 1 : 0)*modifier) == 0)
+		if (glm::length(x) != 0 || glm::length(y))
 		{
-
+			e->m_transformData.setData()->m_location += x + y;
+			e->m_transformData.setData()->m_isMatrixDirty = true;
 		}
-
-		e->m_transformData.setData()->m_location += x + y;
-		e->m_transformData.setData()->m_isMatrixDirty = true;
 	}
 
 	if (e->m_transformData.setData()->m_isMatrixDirty)
@@ -333,6 +320,8 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 		data->m_localX = glm::normalize(glm::vec3(tmat[0][0], tmat[0][1], tmat[0][2]));
 		data->m_localY = glm::normalize(glm::vec3(tmat[1][0], tmat[1][1], tmat[1][2]));
 		data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
+		e->swap();
+		e->m_transformData.setData()->m_isMatrixDirty = false;
 	}
 }
 
@@ -348,5 +337,8 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 		data->m_localX = glm::normalize(glm::vec3(tmat[0][0], tmat[0][1], tmat[0][2]));
 		data->m_localY = glm::normalize(glm::vec3(tmat[1][0], tmat[1][1], tmat[1][2]));
 		data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
+		e->swap();
+		e->m_transformData.setData()->m_isMatrixDirty = false;
+
 	}
 }
