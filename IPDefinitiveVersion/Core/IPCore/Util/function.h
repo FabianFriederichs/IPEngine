@@ -109,6 +109,7 @@ namespace ipengine {
 		}
 
 	public:
+		//TODO: isEmpty() or isValid() member!!!
 		//public data
 		using return_type = R;
 

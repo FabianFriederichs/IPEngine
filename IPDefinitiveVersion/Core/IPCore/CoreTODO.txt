@@ -1,0 +1,8 @@
+- fix those warnings
+- implement actual memory manager
+- implement PAL functionality
+- debugging/monitoring
+- pimpl some things
+- provide a basic non-std set of containers
+- implement functionality for creating and managing threads
+- config manager

@@ -170,20 +170,20 @@
   <Meshes> 
     <Mesh>
       <Id>0</Id>
-      <Path>../../assets/models/uglypot.obj</Path>
+      <Path>../assets/models/uglypot.obj</Path>
       <Materials>
         <Material>
-          <MaterialId>1</MaterialId>
+          <MaterialId>0</MaterialId>
         </Material>
         <Material>
-          <MaterialId>0</MaterialId>
+          <MaterialId>1</MaterialId>
         </Material>
       </Materials>
     </Mesh>
     <!--
     <Mesh>
       <Id>1</Id>
-      <Path>../..assets/models/ground.obj</Path>
+      <Path>..assets/models/ground.obj</Path>
     </Mesh>
  
     <Mesh>
@@ -199,8 +199,8 @@
   <Shaders>
     <Shader>
       <Id>0</Id>
-      <VSPath>../../assets/shaders/BaseVertex.vert</VSPath>
-      <FSPath>../../assets/shaders/BaseFrag.frag</FSPath>
+      <VSPath>../assets/shaders/BaseVertex.vert</VSPath>
+      <FSPath>../assets/shaders/BaseFrag.frag</FSPath>
     </Shader>
   </Shaders>
 
@@ -262,43 +262,43 @@
   <Textures>
     <Texture>
       <Id>0</Id>
-      <TexturePath>../../assets/textures/metal/metaldiff.png</TexturePath>
+      <TexturePath>../assets/textures/metal/metaldiff.png</TexturePath>
     </Texture>
     <Texture>
       <Id>1</Id>
-      <TexturePath>../../assets/textures/metal/metalgloss.png</TexturePath>
+      <TexturePath>../assets/textures/metal/metalgloss.png</TexturePath>
     </Texture>
     <Texture>
       <Id>2</Id>
-      <TexturePath>../../assets/textures/metal/metalheight.png</TexturePath>
+      <TexturePath>../assets/textures/metal/metalheight.png</TexturePath>
     </Texture>
     <Texture>
       <Id>3</Id>
-      <TexturePath>../../assets/textures/metal/metalnormal.png</TexturePath>
+      <TexturePath>../assets/textures/metal/metalnormal.png</TexturePath>
     </Texture>
     <Texture>
       <Id>4</Id>
-      <TexturePath>../../assets/textures/metal/metalspec.png</TexturePath>
+      <TexturePath>../assets/textures/metal/metalspec.png</TexturePath>
     </Texture>
     <Texture>
       <Id>5</Id>
-      <TexturePath>../../assets/textures/wood/wooddiff.png</TexturePath>
+      <TexturePath>../assets/textures/wood/wooddiff.png</TexturePath>
     </Texture>
     <Texture>
       <Id>6</Id>
-      <TexturePath>../../assets/textures/wood/woodgloss.png</TexturePath>
+      <TexturePath>../assets/textures/wood/woodgloss.png</TexturePath>
     </Texture>
     <Texture>
       <Id>7</Id>
-      <TexturePath>../../assets/textures/wood/woodheight.png</TexturePath>
+      <TexturePath>../assets/textures/wood/woodheight.png</TexturePath>
     </Texture>
     <Texture>
       <Id>8</Id>
-      <TexturePath>../../assets/textures/wood/woodnormal.png</TexturePath>
+      <TexturePath>../assets/textures/wood/woodnormal.png</TexturePath>
     </Texture>
     <Texture>
       <Id>9</Id>
-      <TexturePath>../../assets/textures/wood/woodspec.png</TexturePath>
+      <TexturePath>../assets/textures/wood/woodspec.png</TexturePath>
     </Texture>
   </Textures>
 </Scene>
