@@ -144,7 +144,9 @@ void InputModule::pollData()
 			break;
 		}
 		if (i.timeStamp.nano() == lasttiming)
+		{
 			i.timeStamp = ipengine::Time(lasttiming + 1);
+		}
 		tempInput.insert({ i.timeStamp.nano(), i });
 	}
 
@@ -236,7 +238,7 @@ void InputModule::pollData()
 
 	auto timestamp = ipengine::Time((clock.now() - timeToRetainInput).time_since_epoch().count());
 	auto start = inputData.begin();
-	auto end = std::find_if(start, inputData.end(), [timestamp](std::pair<time_t, IInput::Input> i)->bool{if (i.second.timeStamp.nano() < timestamp.nano()) return true; return false; });
+	auto end = std::find_if(start, inputData.end(), [timestamp](std::pair<time_t, IInput::Input> i)->bool{if (i.first < timestamp.nano()) return false; return true; });
 	try{
 		/*while (isManipulating)
 		{
@@ -284,6 +286,7 @@ const std::vector<IInput::Input> InputModule::getInputBuffered(ipengine::Time ti
 	auto in = std::multimap<time_t, IInput::Input>(inputData);
 	mymutex.unlock();
 	isManipulating = false;
+
 	auto end= in.end();
 	auto start = end;
 	//auto inputd = std::deque<IInput::Input>(inputData.begin(), inputData.end());

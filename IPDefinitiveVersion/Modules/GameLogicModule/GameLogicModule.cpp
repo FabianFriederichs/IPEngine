@@ -300,8 +300,8 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 		//auto x = e->m_transformData.getData()->m_localX*(float)camVelocity.x*(float)modifier;
 		//auto y = e->m_transformData.getData()->m_localZ*camVelocity.z*(float)modifier;
 
-		auto 	x = e->m_transformData.getData()->m_localX*(float)((a ? -1 : 0 + d ? 1 : 0)*modifier);
-		auto	y = e->m_transformData.getData()->m_localZ*(float)((w ? -1 : 0 + s ? 1 : 0)*modifier);
+		auto 	x = e->m_transformData.getData()->m_localX*(float)(((a ? -1 : 0 )+(d ? 1 : 0))*modifier);
+		auto	y = e->m_transformData.getData()->m_localZ*(float)(((w ? -1 : 0 )+ (s ? 1 : 0))*modifier);
 
 		if (glm::length(x) != 0 || glm::length(y))
 		{
