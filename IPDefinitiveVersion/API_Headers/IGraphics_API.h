@@ -11,6 +11,10 @@ public:
 	virtual void setResolution(uint32_t, uint32_t) = 0;
 	virtual void setClipRange(uint32_t, uint32_t) = 0;
 
+	virtual uint32_t getCameraEntity() = 0;
+	virtual uint32_t getFOV() = 0;
+	virtual void getResolution(uint32_t&, uint32_t&) = 0;
+	virtual void getClipRange(uint32_t&, uint32_t&) = 0;
 };
 
 #endif // !_IGRAPHICS_API_H_

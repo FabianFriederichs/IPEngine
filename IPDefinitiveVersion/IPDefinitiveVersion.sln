@@ -46,6 +46,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API_Headers", "API_Headers"
 	ProjectSection(SolutionItems) = preProject
 		API_Headers\IBasicGraphicsContentModule_API.h = API_Headers\IBasicGraphicsContentModule_API.h
 		API_Headers\IBasicOpenVRModule_API.h = API_Headers\IBasicOpenVRModule_API.h
+		API_Headers\IDataStoreModuleh_API.h = API_Headers\IDataStoreModuleh_API.h
 		API_Headers\IGraphics_API.h = API_Headers\IGraphics_API.h
 		API_Headers\IInput_API.h = API_Headers\IInput_API.h
 		API_Headers\ILogicModule_API.h = API_Headers\ILogicModule_API.h
@@ -61,10 +62,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExtensionTest", "Extensions
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameLogicModule", "Modules\GameLogicModule\GameLogicModule.vcxproj", "{85A47735-85C6-4C1E-A41E-59C7CC3BDA4F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GraphicsModulePostRenderVR", "Extensions\GraphicsModulePostRenderVR\GraphicsModulePostRenderVR.vcxproj", "{258089BD-269F-4DAB-BB8B-6BFEE1471CCC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GraphicsModulePreRenderVR", "Extensions\GraphicsModulePreRenderVR\GraphicsModulePreRenderVR.vcxproj", "{BB16A050-B1F2-4BF6-BC0F-5470AA570735}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DataStoreModule", "Modules\DataStoreModule\DataStoreModule.vcxproj", "{4C1BAB59-3F08-428F-AEB3-DD9B35C083AB}"
+EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
@@ -160,6 +164,30 @@ Global
 		{85A47735-85C6-4C1E-A41E-59C7CC3BDA4F}.Release|x64.Build.0 = Release|x64
 		{85A47735-85C6-4C1E-A41E-59C7CC3BDA4F}.Release|x86.ActiveCfg = Release|Win32
 		{85A47735-85C6-4C1E-A41E-59C7CC3BDA4F}.Release|x86.Build.0 = Release|Win32
+		{258089BD-269F-4DAB-BB8B-6BFEE1471CCC}.Debug|x64.ActiveCfg = Debug|x64
+		{258089BD-269F-4DAB-BB8B-6BFEE1471CCC}.Debug|x64.Build.0 = Debug|x64
+		{258089BD-269F-4DAB-BB8B-6BFEE1471CCC}.Debug|x86.ActiveCfg = Debug|Win32
+		{258089BD-269F-4DAB-BB8B-6BFEE1471CCC}.Debug|x86.Build.0 = Debug|Win32
+		{258089BD-269F-4DAB-BB8B-6BFEE1471CCC}.Release|x64.ActiveCfg = Release|x64
+		{258089BD-269F-4DAB-BB8B-6BFEE1471CCC}.Release|x64.Build.0 = Release|x64
+		{258089BD-269F-4DAB-BB8B-6BFEE1471CCC}.Release|x86.ActiveCfg = Release|Win32
+		{258089BD-269F-4DAB-BB8B-6BFEE1471CCC}.Release|x86.Build.0 = Release|Win32
+		{BB16A050-B1F2-4BF6-BC0F-5470AA570735}.Debug|x64.ActiveCfg = Debug|x64
+		{BB16A050-B1F2-4BF6-BC0F-5470AA570735}.Debug|x64.Build.0 = Debug|x64
+		{BB16A050-B1F2-4BF6-BC0F-5470AA570735}.Debug|x86.ActiveCfg = Debug|Win32
+		{BB16A050-B1F2-4BF6-BC0F-5470AA570735}.Debug|x86.Build.0 = Debug|Win32
+		{BB16A050-B1F2-4BF6-BC0F-5470AA570735}.Release|x64.ActiveCfg = Release|x64
+		{BB16A050-B1F2-4BF6-BC0F-5470AA570735}.Release|x64.Build.0 = Release|x64
+		{BB16A050-B1F2-4BF6-BC0F-5470AA570735}.Release|x86.ActiveCfg = Release|Win32
+		{BB16A050-B1F2-4BF6-BC0F-5470AA570735}.Release|x86.Build.0 = Release|Win32
+		{4C1BAB59-3F08-428F-AEB3-DD9B35C083AB}.Debug|x64.ActiveCfg = Debug|x64
+		{4C1BAB59-3F08-428F-AEB3-DD9B35C083AB}.Debug|x64.Build.0 = Debug|x64
+		{4C1BAB59-3F08-428F-AEB3-DD9B35C083AB}.Debug|x86.ActiveCfg = Debug|Win32
+		{4C1BAB59-3F08-428F-AEB3-DD9B35C083AB}.Debug|x86.Build.0 = Debug|Win32
+		{4C1BAB59-3F08-428F-AEB3-DD9B35C083AB}.Release|x64.ActiveCfg = Release|x64
+		{4C1BAB59-3F08-428F-AEB3-DD9B35C083AB}.Release|x64.Build.0 = Release|x64
+		{4C1BAB59-3F08-428F-AEB3-DD9B35C083AB}.Release|x86.ActiveCfg = Release|Win32
+		{4C1BAB59-3F08-428F-AEB3-DD9B35C083AB}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -175,9 +203,15 @@ Global
 		{374CEB09-5FE5-4BF8-96EB-ECF5BF365AE1} = {B1BE8738-7475-42FB-86E6-804456EC531F}
 		{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
 		{85A47735-85C6-4C1E-A41E-59C7CC3BDA4F} = {B1BE8738-7475-42FB-86E6-804456EC531F}
+		{258089BD-269F-4DAB-BB8B-6BFEE1471CCC} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
+		{BB16A050-B1F2-4BF6-BC0F-5470AA570735} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
+		{4C1BAB59-3F08-428F-AEB3-DD9B35C083AB} = {B1BE8738-7475-42FB-86E6-804456EC531F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8D852F7-90CA-4379-BF8E-6B6E1D793FA0}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

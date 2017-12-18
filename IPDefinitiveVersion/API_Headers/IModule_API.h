@@ -140,7 +140,6 @@ public:
 			ex->second[prio]->isActive = val;
 		}
 	}
-
 	std::map<std::string, std::vector<boost::shared_ptr<IExtensionPoint>>> expoints;
 };
 

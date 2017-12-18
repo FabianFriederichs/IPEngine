@@ -30,6 +30,13 @@ public:
 	virtual void setFOV(uint32_t v) override;
 	virtual void setResolution(uint32_t x, uint32_t y) override;
 	virtual void setClipRange(uint32_t n, uint32_t f) override;
+	virtual uint32_t getCameraEntity() override;
+	virtual uint32_t getFOV() override;
+	virtual void getResolution(uint32_t &, uint32_t &) override;
+	virtual void getClipRange(uint32_t &, uint32_t &) override;
+	glm::vec3 camerapos = glm::vec3(3, 3, 20);
+	glm::mat4 projmat = glm::perspective(m_fov, width / height, znear, zfar);
+	glm::mat4 viewmat = glm::mat4(glm::quat(1.0f, 0.0f, .0f, .0f))*translate(glm::mat4(1.0f), -camerapos);
 
 private:
 	std::vector<SCM::EntityId> getActiveEntityNames(SCM::ISimpleContentModule_API&);
@@ -47,9 +54,7 @@ private:
 	glm::vec4 m_clearcolor = { 0.15f, 0.15f, 0.18f, 1.0f };
 	float width = 1280; float height = 720; float znear = 0.1f; float zfar = 100;
 	float m_fov = glm::pi<float>() / 2;
-	glm::vec3 camerapos = glm::vec3(3, 3, 20);
-	glm::mat4 projmat = glm::perspective(m_fov, width / height, znear, zfar);
-	glm::mat4 viewmat = glm::mat4(glm::quat(1.0f, 0.0f, .0f, .0f))*translate(glm::mat4(1.0f), -camerapos);
+
 	//
 
 	void setupSDL();
@@ -63,6 +68,9 @@ private:
 	// Inherited via IGraphics_API
 	glm::mat4 ViewFromTransData(const SCM::TransformData*);
 	void recalcProj();
+
+	// Inherited via IGraphics_API
+
 	//container with vao to scm mesh id
 };
 

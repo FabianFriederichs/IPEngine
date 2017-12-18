@@ -15,6 +15,7 @@ public:
 	virtual boost::shared_ptr<vr::IVRScreenshots> getScreenshots() = 0;
 	virtual bool initVR() = 0;
 	virtual void shutdown(){ vr::VR_Shutdown(); }
+
 };
 
 
