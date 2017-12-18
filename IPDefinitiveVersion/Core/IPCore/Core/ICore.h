@@ -15,7 +15,8 @@ namespace ipengine
 		//ctors
 		Core();
 		~Core();
-
+		//TODO:something like core::tick() function that'll be called from the application repeatedly.
+		//tick should trigger all actions that must run continuously (e.g. Scheduler::schedule()...)
 		//core
 		void initialize();
 		void shutdown();

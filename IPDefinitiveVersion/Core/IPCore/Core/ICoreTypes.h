@@ -3,6 +3,8 @@
 #include <cstdint>
 namespace ipengine
 {
+	//identifiers
+#define IPID_INVALID 0
 	using ipid = uint64_t;
 }
 

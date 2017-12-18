@@ -5,10 +5,20 @@
 #include <glm/glm.hpp>
 #include <ISimpleContentModule_API.h>
 
+//physics message type ids
+#define IPMSG_CLOTH_ENTITY_COLLISION 1
+
 class IPhysicsModule_API : public IModule_API
 {
 public:
 	//public types
+	class Collision
+	{
+	public:
+		SCM::EntityId e1;
+		SCM::EntityId e2;
+	};
+
 	class PhysicsContext
 	{
 	public:

@@ -72,6 +72,9 @@ public:
 		clothentities.push_back(id);
 		scenemodule->AddEntity(id);
 
+		//Setup messaging
+		collisionMessageEp = m_core->getEndpointRegistry().createEndpoint("PHYSICS_MODULE_ENDPOINT");
+
 		/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */
 		schedulerSubscriptionHandle.push_back(
 			m_core->getScheduler().subscribe(
@@ -145,6 +148,9 @@ private:
 
 		std::vector<size_t> m_csidx;
 		//std::vector<size_t> m_fixedparticles;
+		moodycamel::ConcurrentQueue<SCM::EntityId> m_collisionqueue;
+		std::atomic<SCM::EntityId> m_currentCollision; //hmmm
+		std::vector<SCM::EntityId> m_collidedEntities; //for uniqifying
 	};
 
 	class UpdateBatch //32 bytes
@@ -188,8 +194,8 @@ private:
 	void handleCollisions(ipengine::TaskContext& context);
 
 														//Put SCM types here
-	glm::vec3 tryCollide(Cloth* cloth, Particle& particle, SCM::BoundingBox& collider, float dt);
-	glm::vec3 tryCollide(Cloth* cloth, Particle& particle, SCM::BoundingSphere& collider, float dt);
+	glm::vec3 tryCollide(Cloth* cloth, Particle& particle, SCM::BoundingBox& collider, float dt, bool&);
+	glm::vec3 tryCollide(Cloth* cloth, Particle& particle, SCM::BoundingSphere& collider, float dt, bool&);
 	//void updateParticleBatch(ipengine::TaskContext& context);	//context is update batch
 	glm::vec3 accumulateForces(Cloth* cloth, Particle& particle);
 	inline glm::vec3 externalForces(Cloth* cloth, Particle& particle);
@@ -219,7 +225,7 @@ public:
 private:
 	//private data
 	std::vector<Cloth> clothInstances;
-	
+	ipengine::MessageEndpoint* collisionMessageEp;	
 };
 
 

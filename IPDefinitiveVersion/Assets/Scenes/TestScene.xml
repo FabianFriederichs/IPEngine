@@ -173,10 +173,10 @@
       <Path>../assets/models/uglypot.obj</Path>
       <Materials>
         <Material>
-          <MaterialId>0</MaterialId>
+          <MaterialId>1</MaterialId>
         </Material>
         <Material>
-          <MaterialId>1</MaterialId>
+          <MaterialId>0</MaterialId>
         </Material>
       </Materials>
     </Mesh>

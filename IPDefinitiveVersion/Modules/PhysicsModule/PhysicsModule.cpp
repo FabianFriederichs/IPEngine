@@ -32,6 +32,8 @@ void PhysicsModule::update(ipengine::TaskContext & context)
 	ipengine::TaskHandle updateMainTask = context.getPool()->createEmpty();
 	for (Cloth& cloth : clothInstances)
 	{
+		cloth.m_collidedEntities.clear();
+		cloth.m_currentCollision.store(IPID_INVALID, std::memory_order_relaxed);
 		ClothUpdateInfo ub{
 			&cloth,
 			dt
@@ -43,6 +45,34 @@ void PhysicsModule::update(ipengine::TaskContext & context)
 	}
 	updateMainTask.spawn(&context);
 	updateMainTask.wait(&context);
+
+	//filter cloth-entity collisions and send a message for each unique one.
+	
+	for (Cloth& cloth : clothInstances)
+	{
+		SCM::EntityId lastcol = IPID_INVALID;
+		SCM::EntityId curcol = IPID_INVALID;
+		while (cloth.m_collisionqueue.try_dequeue(curcol)) //collect all collisions and do prefiltering
+		{
+			if (curcol != lastcol) //don't include consecutive copies
+			{
+				cloth.m_collidedEntities.push_back(curcol);
+				lastcol = curcol;
+			}
+		}
+		std::sort(cloth.m_collidedEntities.begin(), cloth.m_collidedEntities.end()); //sort the collision buffer
+		auto it = std::unique(cloth.m_collidedEntities.begin(), cloth.m_collidedEntities.end()); //uniquify it
+		for (auto i = cloth.m_collidedEntities.begin(); i != it; ++i) //and send a message for each unque cloth-entity collision
+		{
+			ipengine::Message msg;
+			msg.type = IPMSG_CLOTH_ENTITY_COLLISION;
+			msg.senderid = collisionMessageEp->getID();
+			msg.payload = Collision{cloth.id, *i};
+			collisionMessageEp->enqueueMessage(msg);
+		}
+	}
+
+	collisionMessageEp->sendPendingMessages();
 }
 
 //Cloth update -----------------------------------------------------------------------------------------------------------------
@@ -86,7 +116,6 @@ void PhysicsModule::updateCloth(Cloth * cloth, double dt, ipengine::TaskContext 
 		//cloth->swapBuffers();
 	}
 
-	//collisions
 	ipengine::TaskHandle collisionContext = parentContext.getPool()->createEmpty();
 	for (size_t p = 0; p < cloth->particleCount(); p += PARTICLES_PER_TASK)
 	{
@@ -146,10 +175,6 @@ void PhysicsModule::updateCloth(Cloth * cloth, double dt, ipengine::TaskContext 
 	updateMainTask2.wait(&parentContext);
 	//updateParticleBatchPass2(ipengine::TaskContext(ub));
 	cloth->swapBuffers();
-
-
-
-
 }
 
 void PhysicsModule::updateCloth(ipengine::TaskContext & context)
@@ -383,7 +408,7 @@ void PhysicsModule::handleCollisions(ipengine::TaskContext & context)
 	{
 		Particle& p = preadbuf[pid];
 		Particle& wp = pwritebuf[pid];
-
+		bool c = false;
 		auto &  entities = contentmodule->getThreeDimEntities();
 		for (auto& e : entities)
 		{
@@ -394,11 +419,21 @@ void PhysicsModule::handleCollisions(ipengine::TaskContext & context)
 			{
 				if (entity->isBoundingBox)
 				{
-					wp.m_velocity += tryCollide(ub.m_cloth, p, entity->m_boundingData.box, ub.dt);
+					glm::vec3 cvec = tryCollide(ub.m_cloth, p, entity->m_boundingData.box, ub.dt, c);
+					wp.m_velocity += cvec;
 				}
 				else
 				{
-					wp.m_velocity += tryCollide(ub.m_cloth, p, entity->m_boundingData.sphere, ub.dt);
+					glm::vec3 cvec = tryCollide(ub.m_cloth, p, entity->m_boundingData.sphere, ub.dt, c);
+					wp.m_velocity += cvec;
+				}
+
+				if (c)
+				{
+					if (ub.m_cloth->m_currentCollision.load(std::memory_order::memory_order_relaxed) != entity->m_entityId)
+					{
+						ub.m_cloth->m_collisionqueue.enqueue(entity->m_entityId);
+					}
 				}
 			}
 		}
@@ -410,13 +445,16 @@ void PhysicsModule::handleCollisions(ipengine::TaskContext & context)
 
 }
 
-glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::BoundingBox & collider, float dt)
+glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::BoundingBox & collider, float dt, bool& collided)
 {
 	//do an optimistic test at the beginning. construct a sphere from the largest half-size of the box and
 	//do a quick sphere-sphere intersection test. quit early if the test renders negative
 
-	/*if (glm::length(particle.m_position - collider.m_center) > particle.m_radius + (glm::max(collider.m_size.x* 0.5f, glm::max(collider.m_size.y* 0.5f, collider.m_size.z* 0.5f)) ))
-	return glm::vec3(0.0f, 0.0f, 0.0f);*/
+	if (glm::length(particle.m_position - collider.m_center) > particle.m_radius + (glm::max(collider.m_size.x, glm::max(collider.m_size.y, collider.m_size.z))))
+	{
+		collided = false;
+		return glm::vec3(0.0f, 0.0f, 0.0f);
+	}
 
 	//Calculate planes from bounding box
 	glm::mat3 rotmat = glm::mat3(collider.m_rotation);
@@ -504,13 +542,15 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Bou
 		//calculate penetration depth
 		//wrong if particle is completely inside box
 		float penetrationDepth = ((maxprojbox - minprojbox) + (maxprojparticle - minprojparticle)) - (maxproj - minproj);//glm::length((particle.m_position + (sataxis * particle.m_radius)) - nearestPointOnBox);
-																														 //std::cout << penetrationDepth << "\n";
+													
+		collided = true;																												//std::cout << penetrationDepth << "\n";
 		return (penetrationDepth * -sataxis) / dt;//planes[minpidx].n) / dt;
 	}
+	collided = false;
 	return glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
-glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::BoundingSphere & collider, float dt)
+glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::BoundingSphere & collider, float dt, bool& collided)
 {
 	glm::vec3 psvec = particle.m_position - collider.m_center;
 	float pslth = glm::length(psvec);
@@ -520,9 +560,11 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Bou
 		float penetrationDepth = (particle.m_radius + collider.m_radius) - pslth;
 		//calculate a velocity that puishes the particle penetrationDepth in collisionNormal direction. apply some fiction thingy
 		//std::cout << penetrationDepth << "\n";
-		glm::vec3 cvel = (collisionNormal * penetrationDepth) / dt;
+		glm::vec3 cvel = (collisionNormal * penetrationDepth) / dt;	
+		collided = true;
 		return cvel;
 	}
+	collided = false;
 	return glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
