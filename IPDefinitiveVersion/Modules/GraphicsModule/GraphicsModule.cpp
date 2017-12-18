@@ -85,10 +85,7 @@ void GraphicsModule::render()
 					auto transdata = cent->m_transformData.getData();
 					viewmat = ViewFromTransData(transdata);//glm::inverse(transdata->m_transformMatrix);//glm::toMat4(transdata->m_rotation) * translate(glm::mat4(1.0f), -transdata->m_location);
 				}
-				else
-				{
-					viewmat = glm::mat4(glm::quat(1.0f, 0.0f, .0f, .0f))*translate(glm::mat4(1.0f), -camerapos);
-				}
+
 
 				shader->setUniform("view", viewmat, false);
 				
@@ -128,14 +125,28 @@ void GraphicsModule::render()
 	}
 	/*SDL_Event e;
 	while (SDL_PollEvent(&e) != 0) {}*/
-	SDL_GL_SwapWindow(window);
+	
 	//wglMakeCurrent(NULL, NULL);
 
 }
 
 void GraphicsModule::render(ipengine::TaskContext & c)
 {
+	std::vector<ipengine::any> anyvector;
+	anyvector.push_back(static_cast<IGraphics_API*>(this));
+	anyvector.push_back(&m_scmID);
+	m_info.expoints.execute("PreRender", { "this"}, anyvector);
+	anyvector.clear();
+
 	render();
+
+	anyvector.push_back(static_cast<IGraphics_API*>(this));
+	anyvector.push_back(&m_scmID);
+	m_info.expoints.execute("PostRender", { "this" }, anyvector);
+
+
+	SDL_GL_SwapWindow(window);
+	
 }
 
 std::vector<SCM::EntityId> GraphicsModule::getActiveEntityNames(SCM::ISimpleContentModule_API & scm)
@@ -325,4 +336,26 @@ glm::mat4 GraphicsModule::ViewFromTransData(const SCM::TransformData *transform)
 void GraphicsModule::recalcProj()
 {
 	projmat = glm::perspective(m_fov, width / height, znear, zfar);
+}
+
+uint32_t GraphicsModule::getCameraEntity()
+{
+	return cameraentity;
+}
+
+uint32_t GraphicsModule::getFOV()
+{
+	return m_fov;
+}
+
+void GraphicsModule::getResolution(uint32_t &w, uint32_t &h)
+{
+	w = width;
+	h = height;
+}
+
+void GraphicsModule::getClipRange(uint32_t &n, uint32_t &f)
+{
+	n = znear;
+	f = zfar;
 }
