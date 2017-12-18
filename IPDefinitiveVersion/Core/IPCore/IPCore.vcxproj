@@ -80,7 +80,7 @@
     <OutDir>$(SolutionDir)/Output/$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)\libs;$(IncludePath);$(SolutionDir)/Core;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\libs;$(IncludePath);$(ProjectDir)</IncludePath>
     <OutDir>$(SolutionDir)/Output/$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,9 +133,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Core\ICore.h" />
+    <ClInclude Include="Core\ICoreTypes.h" />
     <ClInclude Include="core_config.h" />
     <ClInclude Include="Memory\allocators.h" />
     <ClInclude Include="Memory\memory_utils.h" />
+    <ClInclude Include="Messaging\EndpointRegistry.h" />
+    <ClInclude Include="Messaging\Message.h" />
+    <ClInclude Include="Messaging\MessageEndpoint.h" />
+    <ClInclude Include="Messaging\MessageQueue.h" />
     <ClInclude Include="PAL\PAL.h" />
     <ClInclude Include="RuntimeControl\Console.h" />
     <ClInclude Include="RuntimeControl\Scheduler.h" />
@@ -156,6 +161,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\ICore.cpp" />
+    <ClCompile Include="Messaging\EndpointRegistry.cpp" />
+    <ClCompile Include="Messaging\MessageEndpoint.cpp" />
+    <ClCompile Include="Messaging\MessageQueue.cpp" />
     <ClCompile Include="RuntimeControl\Console.cpp" />
     <ClCompile Include="RuntimeControl\Scheduler.cpp" />
     <ClCompile Include="ThreadingServices\TaskHandle.cpp" />

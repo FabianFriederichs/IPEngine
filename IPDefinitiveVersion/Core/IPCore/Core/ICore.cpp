@@ -3,7 +3,9 @@
 ipengine::Core::Core() :
 	cmodule_console(std::cout),
 	cmodule_scheduler(),
-	cmodule_threadingservices(std::thread::hardware_concurrency() - 6)
+	cmodule_threadingservices(0),// std::thread::hardware_concurrency() - 1)
+	cmodule_endpointregistry(),
+	core_idgen(1)
 {
 }
 
@@ -13,12 +15,17 @@ ipengine::Core::~Core()
 
 void ipengine::Core::initialize()
 {
-
+	core_msgep = cmodule_endpointregistry.createEndpoint("CORE");
 }
 
 void ipengine::Core::shutdown()
 {
 
+}
+
+ipengine::ipid ipengine::Core::createID()
+{
+	return core_idgen.fetch_add(1, std::memory_order_relaxed);
 }
 
 ipengine::Scheduler & ipengine::Core::getScheduler()
@@ -35,4 +42,9 @@ ipengine::Console & ipengine::Core::getConsole()
 ipengine::ThreadPool & ipengine::Core::getThreadPool()
 {
 	return cmodule_threadingservices;
+}
+
+ipengine::EndpointRegistry & ipengine::Core::getEndpointRegistry()
+{
+	return cmodule_endpointregistry;
 }

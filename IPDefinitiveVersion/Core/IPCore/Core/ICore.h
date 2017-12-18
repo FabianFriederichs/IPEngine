@@ -4,6 +4,7 @@
 #include <IPCore/ThreadingServices/TaskLib.h>
 #include <IPCore/RuntimeControl/Scheduler.h>
 #include <IPCore/RuntimeControl/Console.h>
+#include <IPCore/Messaging/EndpointRegistry.h>
 
 namespace ipengine
 {
@@ -19,8 +20,8 @@ namespace ipengine
 		void initialize();
 		void shutdown();
 
-
-
+		//id stuff
+		ipid createID();
 
 		//Timing -
 
@@ -34,6 +35,7 @@ namespace ipengine
 		//Data Store/Repository -
 		//?
 		//Messaging Services -
+		EndpointRegistry& getEndpointRegistry();
 
 		//Memory Manager  
 
@@ -46,10 +48,17 @@ namespace ipengine
 	private:
 		//Subsystem implementing class-objects
 		//Question: abtract interface for each subsystem? (This way we could simply publish those interfaces and reduce the uglyness of this header.
+		//TODO: pimpl the core!
 		ThreadPool cmodule_threadingservices;
 		Scheduler cmodule_scheduler;
 		Console cmodule_console;
+		EndpointRegistry cmodule_endpointregistry;
+		
+		
+		MessageEndpoint* core_msgep;
 
+		//single atomic for generating global ids. 0 is always an invalid id.
+		std::atomic<ipid> core_idgen;
 	};
 }
 
