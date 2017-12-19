@@ -70,21 +70,27 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)/Output/$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\</OutDir>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(BOOST);$(SolutionDir)/ExternalDependencies;</IncludePath>
+    <IntDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\$(ProjectName)_int\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(BOOST);$(SolutionDir)/ExternalDependencies;</IncludePath>
+    <OutDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\$(ProjectName)_int\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(BOOST);$(SolutionDir)/ExternalDependencies;</IncludePath>
-    <OutDir>$(SolutionDir)\Output\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\$(ProjectName)_int\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(BOOST);$(SolutionDir)/ExternalDependencies;</IncludePath>
+    <OutDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\$(ProjectName)_int\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,6 +99,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(VULKAN_SDK)\Third-Party\Include;$(SolutionDir)/ExternalDependencies/glew/include;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -100,6 +107,9 @@
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Third-Party\Bin32;$(OutDir);</AdditionalLibraryDirectories>
       <AdditionalDependencies>IPCore.lib;SDL2.lib;glu32.lib;opengl32.lib;gluew.lib;</AdditionalDependencies>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -167,6 +177,11 @@
     <ClCompile Include="glerror.cpp" />
     <ClCompile Include="GraphicsModule.cpp" />
     <ClCompile Include="Utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\LibraryProjects\gluew\gluew\gluew.vcxproj">
+      <Project>{8f5d02fd-b9ec-4a98-a576-264ec8224d34}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

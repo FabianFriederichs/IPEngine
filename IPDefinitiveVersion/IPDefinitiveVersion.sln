@@ -12,14 +12,29 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{B1BE8738-7475-42FB-86E6-804456EC531F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GraphicsModule", "Modules\GraphicsModule\Plugin2.vcxproj", "{44C14CF2-2BD7-4AE7-A273-940988848344}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9} = {7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InputModule", "Modules\InputModule\Plugin1.vcxproj", "{94C77395-D81F-4F00-B33B-94BD9ADEDFE4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9} = {7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleSceneModule", "Modules\SimpleSceneModule\SimpleSceneModule.vcxproj", "{87A4AD35-C8B3-433A-A98E-5C216D82E2F4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9} = {7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleContentModule", "Modules\SimpleContentModule\SimpleContentModule.vcxproj", "{E48F70E5-1CCF-4125-85F8-EE173A9092D1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9} = {7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BasicOpenVRModule", "Modules\BasicOpenVRModule\BasicOpenVRModule.vcxproj", "{91980E4E-CFB0-4DB7-881B-6BBC1C79ECCF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9} = {7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Application", "Application\Demo.vcxproj", "{77CD555C-10E3-4D41-A486-099BC5822B23}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -61,14 +76,28 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExtensionTest", "Extensions\ExtensionTest\ExtensionTest.vcxproj", "{96D455B5-B90F-4E0A-9CE4-D1AFA32636A9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameLogicModule", "Modules\GameLogicModule\GameLogicModule.vcxproj", "{85A47735-85C6-4C1E-A41E-59C7CC3BDA4F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9} = {7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GraphicsModulePostRenderVR", "Extensions\GraphicsModulePostRenderVR\GraphicsModulePostRenderVR.vcxproj", "{258089BD-269F-4DAB-BB8B-6BFEE1471CCC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GraphicsModulePreRenderVR", "Extensions\GraphicsModulePreRenderVR\GraphicsModulePreRenderVR.vcxproj", "{BB16A050-B1F2-4BF6-BC0F-5470AA570735}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DataStoreModule", "Modules\DataStoreModule\DataStoreModule.vcxproj", "{4C1BAB59-3F08-428F-AEB3-DD9B35C083AB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9} = {7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ApplicationBase", "ApplicationBase\ApplicationBase\ApplicationBase.vcxproj", "{ED6849F2-DA13-4A87-BC05-C217D81DCAD9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CE569EEF-AECB-48FA-AD84-97D0A89E789E} = {CE569EEF-AECB-48FA-AD84-97D0A89E789E}
+		{7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9} = {7637F4FC-B795-4B7D-89FC-AB7F8D2E02A9}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LibraryProjects", "LibraryProjects", "{613BA2EF-077C-4E18-9DDE-2EB2CDB335B0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gluew", "LibraryProjects\gluew\gluew\gluew.vcxproj", "{8F5D02FD-B9EC-4A98-A576-264EC8224D34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -198,6 +227,14 @@ Global
 		{ED6849F2-DA13-4A87-BC05-C217D81DCAD9}.Release|x64.Build.0 = Release|x64
 		{ED6849F2-DA13-4A87-BC05-C217D81DCAD9}.Release|x86.ActiveCfg = Release|Win32
 		{ED6849F2-DA13-4A87-BC05-C217D81DCAD9}.Release|x86.Build.0 = Release|Win32
+		{8F5D02FD-B9EC-4A98-A576-264EC8224D34}.Debug|x64.ActiveCfg = Debug|x64
+		{8F5D02FD-B9EC-4A98-A576-264EC8224D34}.Debug|x64.Build.0 = Debug|x64
+		{8F5D02FD-B9EC-4A98-A576-264EC8224D34}.Debug|x86.ActiveCfg = Debug|Win32
+		{8F5D02FD-B9EC-4A98-A576-264EC8224D34}.Debug|x86.Build.0 = Debug|Win32
+		{8F5D02FD-B9EC-4A98-A576-264EC8224D34}.Release|x64.ActiveCfg = Release|x64
+		{8F5D02FD-B9EC-4A98-A576-264EC8224D34}.Release|x64.Build.0 = Release|x64
+		{8F5D02FD-B9EC-4A98-A576-264EC8224D34}.Release|x86.ActiveCfg = Release|Win32
+		{8F5D02FD-B9EC-4A98-A576-264EC8224D34}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -216,6 +253,7 @@ Global
 		{258089BD-269F-4DAB-BB8B-6BFEE1471CCC} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
 		{BB16A050-B1F2-4BF6-BC0F-5470AA570735} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
 		{4C1BAB59-3F08-428F-AEB3-DD9B35C083AB} = {B1BE8738-7475-42FB-86E6-804456EC531F}
+		{8F5D02FD-B9EC-4A98-A576-264EC8224D34} = {613BA2EF-077C-4E18-9DDE-2EB2CDB335B0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8D852F7-90CA-4379-BF8E-6B6E1D793FA0}

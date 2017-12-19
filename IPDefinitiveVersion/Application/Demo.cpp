@@ -14,9 +14,9 @@ boost::shared_ptr<IInput_API> input;
 
 #define DEP_GRAPH_PATH "../Assets/Dependencygraph/TestDepGraph.xml"
 #ifdef _DEBUG
-#define MODULE_PATH "../Output/Debug"
+#define MODULE_PATH "../Output/Win32/Debug"
 #else
-#define MODULE_PATH "../Output/Release"
+#define MODULE_PATH "../Output/Win32/Release"
 #endif
 
 

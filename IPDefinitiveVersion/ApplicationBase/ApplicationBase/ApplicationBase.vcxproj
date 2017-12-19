@@ -71,23 +71,27 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies;$(BOOST);$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)\Output\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\</OutDir>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(BOOST)\stage\lib;$(OutDir);</LibraryPath>
+    <IntDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\$(ProjectName)_int\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies;$(BOOST);$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)\Output\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\</OutDir>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(BOOST)\stage\lib;$(OutDir);</LibraryPath>
+    <IntDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\$(ProjectName)_int\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies;$(BOOST);$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\</OutDir>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(BOOST)\stage\lib;$(OutDir);</LibraryPath>
+    <IntDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\$(ProjectName)_int\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies;$(BOOST);$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\</OutDir>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(BOOST)\stage\lib;$(OutDir);</LibraryPath>
+    <IntDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\$(ProjectName)_int\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -95,10 +99,14 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);EXPORT_APPLICATION</PreprocessorDefinitions>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>IPCore.lib;Injector.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
