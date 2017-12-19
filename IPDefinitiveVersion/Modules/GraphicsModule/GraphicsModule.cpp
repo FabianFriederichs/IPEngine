@@ -40,10 +40,10 @@ void GraphicsModule::render()
 	anyvector.push_back(&m_scmID);
 	m_info.expoints.execute("TestPoint", { "this", "test" }, anyvector);
 	bool res;
-	if (wglGetCurrentContext() == NULL)
-	{
-		res = wglMakeCurrent(info.info.win.hdc, wincontext);
-	}
+	//if (wglGetCurrentContext() == NULL)
+	//{
+	//	res = wglMakeCurrent(info.info.win.hdc, wincontext);
+	//}
 
 	updateData();
 	//stuff
@@ -79,11 +79,16 @@ void GraphicsModule::render()
 				//set uniforms/light/transform/view/proj/camera pos
 				shader->setUniform("model", mO->m_transformData.getData()->m_transformMatrix, false);
 				
-				if (cameraentity != SCM::EntityId(-1))
+				if (cameraentity != 100)
 				{
+					
 					auto cent = m_scm->getEntityById(cameraentity);
-					auto transdata = cent->m_transformData.getData();
-					viewmat = ViewFromTransData(transdata);//glm::inverse(transdata->m_transformMatrix);//glm::toMat4(transdata->m_rotation) * translate(glm::mat4(1.0f), -transdata->m_location);
+					if (cent != nullptr)
+					{
+
+						auto transdata = cent->m_transformData.getData();
+						viewmat = ViewFromTransData(transdata);//glm::inverse(transdata->m_transformMatrix);//glm::toMat4(transdata->m_rotation) * translate(glm::mat4(1.0f), -transdata->m_location);
+					}
 				}
 
 
@@ -192,7 +197,7 @@ void GraphicsModule::setupSDL()
 	SDL_GL_SetSwapInterval(0);
 	glewExperimental = GL_TRUE;
 	glewInit();
-	wglMakeCurrent(NULL, NULL);
+	//wglMakeCurrent(NULL, NULL);
 	//bla
 }
 
@@ -277,8 +282,8 @@ void GraphicsModule::drawSCMMesh(SCM::IdType meshid)
 
 void GraphicsModule::setCameraEntity(uint32_t v)
 {
-	if(m_scm->getEntityById(v) !=nullptr)
-		cameraentity = v;
+	//if(m_scm->getEntityById(v) !=nullptr)
+	cameraentity = v;
 }
 
 void GraphicsModule::setFOV(uint32_t v)
