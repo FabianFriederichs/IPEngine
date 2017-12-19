@@ -1,3 +1,6 @@
+#ifndef _INJECTOR_H_
+#define _INJECTOR_H_
+
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/dll/import.hpp>
 #include <boost/dll/alias.hpp>
@@ -97,3 +100,5 @@ public:
 	}
 
 };
+
+#endif

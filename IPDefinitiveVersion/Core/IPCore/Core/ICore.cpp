@@ -16,11 +16,24 @@ ipengine::Core::~Core()
 void ipengine::Core::initialize()
 {
 	core_msgep = cmodule_endpointregistry.createEndpoint("CORE");
+	cmodule_threadingservices.startWorkers();
 }
 
 void ipengine::Core::shutdown()
 {
+	cmodule_threadingservices.stopWorkers();
+}
 
+ipengine::Time ipengine::Core::tick(bool& shouldstop)
+{
+	auto t1 = Time::now();
+
+	cmodule_scheduler.schedule();
+	core_msgep->sendPendingMessages();
+	core_msgep->dispatch();
+
+	auto t2 = Time::now();
+	return Time(t2.nano() - t1.nano());
 }
 
 ipengine::ipid ipengine::Core::createID()
@@ -35,7 +48,6 @@ ipengine::Scheduler & ipengine::Core::getScheduler()
 
 ipengine::Console & ipengine::Core::getConsole()
 {
-	// TODO: hier Rückgabeanweisung eingeben
 	return cmodule_console;
 }
 

@@ -70,21 +70,21 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies; $(BOOST);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies;$(BOOST);$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/ApplicationBase</IncludePath>
     <OutDir>$(SolutionDir)/Output/$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies; $(BOOST);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies;$(BOOST);$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/ApplicationBase</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies; $(BOOST);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies;$(BOOST);$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/ApplicationBase</IncludePath>
     <OutDir>$(SolutionDir)\Output\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies; $(BOOST);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies;$(BOOST);$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/ApplicationBase</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -162,6 +162,9 @@
     <ClCompile Include="Demo.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ApplicationBase\ApplicationBase\ApplicationBase.vcxproj">
+      <Project>{ed6849f2-da13-4a87-bc05-c217d81dcad9}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Injector\Injector.vcxproj">
       <Project>{ce569eef-aecb-48fa-ad84-97d0a89e789e}</Project>
     </ProjectReference>
