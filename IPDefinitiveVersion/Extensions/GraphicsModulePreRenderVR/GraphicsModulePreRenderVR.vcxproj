@@ -165,9 +165,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="glerror.h" />
     <ClInclude Include="GraphicsModulePreRenderVR.h" />
+    <ClInclude Include="libheaders.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="glerror.cpp" />
     <ClCompile Include="GraphicsModulePreRenderVR.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

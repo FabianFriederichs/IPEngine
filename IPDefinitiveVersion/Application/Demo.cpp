@@ -10,6 +10,7 @@
 #include <ISimpleSceneModule_API.h>
 #include <ISimpleContentModule_API.h>
 #include <ApplicationBase/Application.h>
+#include <IPhysicsModule_API.h>
 boost::shared_ptr<IInput_API> input;
 
 #define DEP_GRAPH_PATH "../Assets/Dependencygraph/TestDepGraph.xml"
@@ -45,8 +46,10 @@ public:
 		auto mods = getInjector().getLoadedModules();
 		auto ssm = boost::dynamic_pointer_cast<ISimpleSceneModule_API>(mods["SimpleSceneModule"]);
 		auto scm = boost::dynamic_pointer_cast<SCM::ISimpleContentModule_API>(mods["SimpleContentModule"]);
+		auto phys = boost::dynamic_pointer_cast<IPhysicsModule_API>(mods["PhysicsModule"]);
 		auto sceneid = ssm->LoadSceneFromFile("../Assets/Scenes/TestScene.xml");
 		ssm->SwitchActiveScene(sceneid);
+		phys->createcloth();
 		auto entity = scm->getEntityById(0);
 		std::cout << sceneid << "\n";
 		std::cout << SCM::allEntitiesAsString(*scm, true);

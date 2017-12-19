@@ -19,7 +19,7 @@ void PhysicsModule::update(ipengine::TaskContext & context)
 {
 	//context.getPool()->t_end.store(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count());
 	//std::cout << context.getPool()->t_end - context.getPool()->t_start << "us\n";
-	ipengine::Scheduler::SchedInfo si = context;
+	ipengine::Scheduler::SchedInfo& si = context;
 	float dt = si.dt.sec();
 	/*for (Cloth& cloth : clothInstances)
 	{
@@ -659,7 +659,7 @@ SCM::EntityId PhysicsModule::createCloth(const std::string &name,size_t width,
 	cloth.m_width = width;
 	cloth.m_height = height;
 	cloth.m_distance = physicsContext.particleDistance;
-	cloth.id = contentmodule->generateNewEntityId();
+	cloth.id = SCM::EntityId(20);
 
 	//setup buffers
 	cloth.m_particles_buf1 = ipengine::alloc_aligned_array<Particle, TS_CACHE_LINE_SIZE>(width * height);
@@ -925,7 +925,7 @@ SCM::EntityId PhysicsModule::createCloth(const std::string &name,size_t width,
 	mdata.m_dynamic = true;
 	mdata.m_dirty = false;
 	
-	mdata.m_material = contentmodule->getMaterialById(materialid);
+	mdata.m_material = &contentmodule->getMaterials().front();
 
 	meshes.push_back(mdata);
 	meshedobjects.push_back(SCM::MeshedObject(std::vector<SCM::MeshData*>({ &meshes.back() }), contentmodule->generateNewGeneralId()));

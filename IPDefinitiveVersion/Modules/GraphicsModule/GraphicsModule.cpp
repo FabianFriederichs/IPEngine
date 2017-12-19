@@ -79,7 +79,7 @@ void GraphicsModule::render()
 				//set uniforms/light/transform/view/proj/camera pos
 				shader->setUniform("model", mO->m_transformData.getData()->m_transformMatrix, false);
 				
-				if (cameraentity != 100)
+				if (cameraentity != SCM::EntityId(-1))
 				{
 					
 					auto cent = m_scm->getEntityById(cameraentity);
@@ -216,6 +216,7 @@ void GraphicsModule::updateData()
 
 			for (auto mesh : mO->m_mesheObjects->m_meshes)
 			{
+				//TODO Check for NULL material
 				for (auto texts : mesh->m_material->m_textures)
 				{
 					if (m_scmtexturetot2d.count(texts.second.m_texturefileId) < 1)

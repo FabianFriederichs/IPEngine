@@ -52,6 +52,7 @@ public:
 					 const PhysicsContext& physicsContext, const SCM::IdType materialid) = 0;
 	virtual void destroyCloth(const SCM::EntityId) = 0;
 	virtual void fixParticle(const SCM::EntityId id, size_t x, size_t y, bool fixed) = 0;
+	virtual void createcloth() = 0;
 };
 
 #endif

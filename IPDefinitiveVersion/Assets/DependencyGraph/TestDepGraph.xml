@@ -27,7 +27,7 @@
 <DependencyGraph>
   <Modules>
     <Module>
-      <ignore>false</ignore>
+      <ignore>true</ignore>
       <identifier>BasicOpenVRModule</identifier>
     </Module>
     <Module>
@@ -76,7 +76,7 @@
       </dependencies>
     </Module>
     <Module>
-      <ignore>true</ignore>
+      <ignore>false</ignore>
       <identifier>PhysicsModule</identifier>
       <dependencies>
         <dependency>
@@ -92,7 +92,7 @@
       </dependencies>
     </Module>
     <Module>
-      <ignore>false</ignore>
+      <ignore>true</ignore>
       <identifier>GraphicsModulePreRenderVR</identifier>
       <isExPoint>true</isExPoint>
       <dependencies>

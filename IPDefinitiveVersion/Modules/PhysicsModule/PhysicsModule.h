@@ -31,47 +31,7 @@ public:
 	}
 	bool startUp()
 	{
-		contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
-		scenemodule = m_info.dependencies.getDep<ISimpleSceneModule_API>("SSM");
-		auto id = createCloth(
-			"testcloth",
-			50,
-			50,
-			SCM::TransformData{
-				glm::vec3(0.0f, 0.0f, 0.0f),
-				glm::quat(),
-				glm::vec3(1.0f, 1.0f, 1.0f),
-				glm::vec3(0.0f, 1.0f, 0.0f),
-				glm::vec3(1.0f, 0.0f, 0.0f),
-				glm::vec3(0.0f, 0.0f, 1.0f),
-				glm::mat4(1.0f),
-				false
-			},
-			IPhysicsModule_API::PhysicsContext{
-				glm::vec3(0.0f, -9.81f, 0.2f),
-				1.45f,
-				0.6f,
-				40.0f,
-				0.12f,
-				40.0f,
-				0.12f,
-				30.0f,
-				0.12f,
-				true,
-				true,
-				true,
-				true,
-				0.02f,
-				5,
-				0.12f,
-				true
-			},
-			0
-		);
-
-		clothentities.push_back(id);
-		scenemodule->AddEntity(id);
-
+		
 		//Setup messaging
 		collisionMessageEp = m_core->getEndpointRegistry().createEndpoint("PHYSICS_MODULE_ENDPOINT");
 
@@ -86,6 +46,52 @@ public:
 		));
 		return true;
 	} //do stuff?
+
+	void createcloth()
+	{
+		contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
+		scenemodule = m_info.dependencies.getDep<ISimpleSceneModule_API>("SSM");
+		auto id = createCloth(
+			"testcloth",
+			20,
+			20,
+			SCM::TransformData{
+			glm::vec3(0.0f, 0.0f, -1.0f),
+			glm::quat(),
+			glm::vec3(1.0f, 1.0f, 1.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f),
+			glm::vec3(1.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 0.0f, 1.0f),
+			glm::mat4(1.0f),
+			false
+		},
+			IPhysicsModule_API::PhysicsContext{
+			glm::vec3(0.0f, -3.51f, 0.2f),
+			1.45f,
+			0.6f,
+			40.0f,
+			0.12f,
+			40.0f,
+			0.12f,
+			30.0f,
+			0.12f,
+			true,
+			true,
+			true,
+			true,
+			0.02f,
+			5,
+			0.12f,
+			true
+		},
+			0
+		);
+
+		clothentities.push_back(id);
+		scenemodule->AddEntity(id);
+		contentmodule->getEntityById(id)->isActive = true;
+
+	}
 private:
 	ModuleInformation m_info;
 	//scheduler subscription
