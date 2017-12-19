@@ -50,7 +50,7 @@ private:
 	std::vector<ipengine::Scheduler::SubHandle> handles;
 	SCM::EntityId cameraentity = -1;
 	//constants
-	glm::vec4 m_clearcolor = { 0.15f, 0.15f, 0.18f, 1.0f };
+	glm::vec4 m_clearcolor = { 0.20f, 0.15f, 0.18f, 1.0f };
 	float width = 1280; float height = 720; float znear = 0.1f; float zfar = 100;
 	float m_fov = glm::pi<float>() / 2;
 	glm::vec3 camerapos = glm::vec3(3, 3, 20);

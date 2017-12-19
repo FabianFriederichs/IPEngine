@@ -25,12 +25,13 @@ const GLfloat GraphicsModulePreRenderVR::QuadVerts[] = {   // Vertex attributes 
 void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::vector<ipengine::any>& args)
 {
 	int i = 0;
+	vr::EVRInitError vrerr;
 	if (!init)
 	{
 		//create frame buffers and memes
 		init = true;
 		
-		vr::EVRInitError vrerr;
+		
 		//ipengine::Scheduler& sched = m_core->getScheduler();
 		//auto time = ipengine::Time(1.f, 1);
 		scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
@@ -51,10 +52,15 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 		ovrmodule->getSystem()->GetRecommendedRenderTargetSize(&renderWidth, &renderHeight);
 
-		ovrmodule->getCompositor()->WaitGetPoses(lastposes, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
-		CreateFrameBuffer(renderWidth, renderHeight, leftEyeDesc);
-		CreateFrameBuffer(renderWidth, renderHeight, rightEyeDesc);
+		if (!CreateFrameBuffer(renderWidth, renderHeight, leftEyeDesc))
+		{
+			throw;
+		}
+		if (!CreateFrameBuffer(renderWidth, renderHeight, rightEyeDesc))
+		{
+			throw;
+		}
 
 	}
 
@@ -67,9 +73,11 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	{
 		return; 
 	}
+
 	auto graphicsmodule = args[0].cast<IGraphics_API*>();
 	auto matrices = args[1].cast<IGraphics_API::renderMatrixes>();
 	auto preproj = glm::mat4(*matrices.proj);
+	auto preview = glm::mat4(*matrices.view);
 	SCM::Entity* cam;
 	auto cameraentity = graphicsmodule->getCameraEntity();
 	datastore->set("cameraid",cameraentity);
@@ -83,6 +91,8 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	graphicsmodule->getResolution(prew, preh);
 	graphicsmodule->setResolution(renderWidth, renderHeight);
 
+	ovrmodule->getCompositor()->WaitGetPoses(lastposes, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+
 	auto trans = cam->m_transformData.getData()->m_location;
 	auto hmdView = glm::mat4(convert(lastposes[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking));
 
@@ -91,7 +101,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	hmdView[3][2] += trans.z;
 	hmdView = inverse(hmdView);
 
-	graphicsmodule->setCameraEntity(SCM::EntityId(-1));
+	graphicsmodule->setCameraEntity(SCM::EntityId(100));
 
 	//LeftEye
 	glEnable(GL_MULTISAMPLE); //GLERR;
@@ -120,15 +130,26 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 	resolveFB(rightEyeDesc.m_nRenderFramebufferId, rightEyeDesc.m_nResolveFramebufferId, renderWidth, renderHeight);
 
+	vr::EVRCompositorError comperr;
+
 	vr::Texture_t leftEyeTexture = { (void*)leftEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+	comperr=vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+
+	if (comperr != vr::EVRCompositorError::VRCompositorError_None)
+	{
+		throw;
+	}
 
 	vr::Texture_t rightEyeTexture = { (void*)rightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+	comperr= vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+	if (comperr != vr::EVRCompositorError::VRCompositorError_None)
+	{
+		throw;
+	}
 	//vrcomp->PostPresentHandoff();
 
-	vr::TrackedDevicePose_t pose[vr::k_unMaxTrackedDeviceCount];
-	ovrmodule->getCompositor()->WaitGetPoses(pose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+	//vr::TrackedDevicePose_t pose[vr::k_unMaxTrackedDeviceCount];
+	//ovrmodule->getCompositor()->WaitGetPoses(pose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
 	float fSecondsSinceLastVsync;
 	ovrmodule->getSystem()->GetTimeSinceLastVsync(&fSecondsSinceLastVsync, NULL);
@@ -140,10 +161,12 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	float fPredictedSecondsFromNow = fFrameDuration - fSecondsSinceLastVsync + fVsyncToPhotons;
 
 	ovrmodule->getSystem()->GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin::TrackingUniverseStanding, fPredictedSecondsFromNow, lastposes, vr::k_unMaxTrackedDeviceCount);
-
-
+	glDisable(GL_MULTISAMPLE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, prew, preh);
 	graphicsmodule->setCameraEntity(cameraentity);
 	*matrices.proj = preproj;
+	*matrices.view = preview;
 	graphicsmodule->setResolution(prew, preh);
 	datastore->set("renderw", renderWidth);
 	datastore->set("renderh", renderHeight);
