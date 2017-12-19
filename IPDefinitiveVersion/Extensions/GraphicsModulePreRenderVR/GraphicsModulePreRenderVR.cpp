@@ -29,6 +29,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	{
 		//create frame buffers and memes
 		init = true;
+		
 		vr::EVRInitError vrerr;
 		//ipengine::Scheduler& sched = m_core->getScheduler();
 		//auto time = ipengine::Time(1.f, 1);
@@ -36,16 +37,16 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		//args[0].cast<IGraphics_API*>()->setCameraEntity(scm->getEntityByName("Camera")->m_entityId);
 		ovrmodule = m_info.dependencies.getDep<IBasicOpenVRModule_API>("openvr");
 		datastore = m_info.dependencies.getDep<IDataStoreModuleh_API>("datastore");
-		glGenVertexArrays(1, &quadVAO); //GLERR;
-		glGenBuffers(1, &quadVBO); //GLERR;
-		glBindVertexArray(quadVAO); //GLERR;
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);// GLERR;
-		glBufferData(GL_ARRAY_BUFFER, sizeof(QuadVerts), &QuadVerts, GL_STATIC_DRAW);// GLERR;
-		glEnableVertexAttribArray(0);// GLERR;
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0); //GLERR;
-		glEnableVertexAttribArray(1);// GLERR;
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat))); //GLERR;
-		glBindVertexArray(0); //GLERR;
+		//glGenVertexArrays(1, &quadVAO); //GLERR;
+		//glGenBuffers(1, &quadVBO); //GLERR;
+		//glBindVertexArray(quadVAO); //GLERR;
+		//glBindBuffer(GL_ARRAY_BUFFER, quadVBO);// GLERR;
+		//glBufferData(GL_ARRAY_BUFFER, sizeof(QuadVerts), &QuadVerts, GL_STATIC_DRAW);// GLERR;
+		//glEnableVertexAttribArray(0);// GLERR;
+		//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0); //GLERR;
+		//glEnableVertexAttribArray(1);// GLERR;
+		//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat))); //GLERR;
+		//glBindVertexArray(0); //GLERR;
 		vr::VR_GetGenericInterface(vr::IVRRenderModels_Version, &vrerr);
 
 		ovrmodule->getSystem()->GetRecommendedRenderTargetSize(&renderWidth, &renderHeight);
@@ -58,12 +59,17 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	}
 
 	//Set framebuffer 1 and set igraphics matrixes and call render 
-	if (argnames.size() < 1 || argnames[0] == "this")
+	if (argnames.size() < 1 || argnames[0] != "this")
 	{
 		return;
 	}
-	auto graphicsmodule = args[0].cast<GraphicsModule*>();
-	auto preproj = graphicsmodule->projmat;
+	if(argnames.size() <2 || argnames[1] !="rendermatrixes")
+	{
+		return; 
+	}
+	auto graphicsmodule = args[0].cast<IGraphics_API*>();
+	auto matrices = args[1].cast<IGraphics_API::renderMatrixes>();
+	auto preproj = glm::mat4(*matrices.proj);
 	SCM::Entity* cam;
 	auto cameraentity = graphicsmodule->getCameraEntity();
 	datastore->set("cameraid",cameraentity);
@@ -72,7 +78,6 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	if (cam == nullptr)
 	{
 		return;
-
 	}
 	uint32_t prew, preh;
 	graphicsmodule->getResolution(prew, preh);
@@ -97,8 +102,8 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	graphicsmodule->getClipRange(znear, zfar);
 
 	auto proj = convert(ovrmodule->getSystem()->GetProjectionMatrix(vr::EVREye::Eye_Left, znear,zfar));
-	graphicsmodule->viewmat = hmdView*glm::inverse(glm::mat4(convert(ovrmodule->getSystem()->GetEyeToHeadTransform(vr::EVREye::Eye_Left))));
-	graphicsmodule->projmat = proj;
+	*matrices.view= hmdView*glm::inverse(glm::mat4(convert(ovrmodule->getSystem()->GetEyeToHeadTransform(vr::EVREye::Eye_Left))));
+	*matrices.proj= proj;
 	graphicsmodule->render();
 	//renderer->render(_scene, nullptr, &tview, &proj);
 
@@ -109,8 +114,8 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	glBindFramebuffer(GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId); //GLERR;
 	glViewport(0, 0, renderWidth, renderHeight);
 	proj = convert(ovrmodule->getSystem()->GetProjectionMatrix(vr::EVREye::Eye_Right, znear, zfar));
-	graphicsmodule->viewmat = hmdView*glm::inverse(glm::mat4(convert(ovrmodule->getSystem()->GetEyeToHeadTransform(vr::EVREye::Eye_Right))));
-	graphicsmodule->projmat = proj;
+	*matrices.view = hmdView*glm::inverse(glm::mat4(convert(ovrmodule->getSystem()->GetEyeToHeadTransform(vr::EVREye::Eye_Right))));
+	*matrices.proj = proj;
 	graphicsmodule->render();
 
 	resolveFB(rightEyeDesc.m_nRenderFramebufferId, rightEyeDesc.m_nResolveFramebufferId, renderWidth, renderHeight);
@@ -138,7 +143,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 
 	graphicsmodule->setCameraEntity(cameraentity);
-	graphicsmodule->projmat = preproj;
+	*matrices.proj = preproj;
 	graphicsmodule->setResolution(prew, preh);
 	datastore->set("renderw", renderWidth);
 	datastore->set("renderh", renderHeight);

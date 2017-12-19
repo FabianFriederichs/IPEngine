@@ -27,7 +27,7 @@
 <DependencyGraph>
   <Modules>
     <Module>
-      <ignore>true</ignore>
+      <ignore>false</ignore>
       <identifier>BasicOpenVRModule</identifier>
     </Module>
     <Module>
@@ -41,10 +41,10 @@
       </dependencies>
       <ExtensionPoints>
         <Point>
-          <identifier>TestPoint</identifier>
+          <identifier>PreRender</identifier>
           <Extensions>
             <Extension>
-              <extensionname>ExtensionTest</extensionname>
+              <extensionname>GraphicsModulePreRenderVR</extensionname>
               <priority>0</priority>
             </Extension>
           </Extensions>
@@ -92,14 +92,24 @@
       </dependencies>
     </Module>
     <Module>
-      <ignore>true</ignore>
-      <identifier>ExtensionTest</identifier>
+      <ignore>false</ignore>
+      <identifier>GraphicsModulePreRenderVR</identifier>
       <isExPoint>true</isExPoint>
       <dependencies>
         <dependency>
           <inject>true</inject>
           <identifier>SCM</identifier>
           <moduleID>SimpleContentModule</moduleID>
+        </dependency>
+        <dependency>
+          <inject>true</inject>
+          <identifier>datastore</identifier>
+          <moduleID>DataStoreModule</moduleID>
+        </dependency>
+        <dependency>
+          <inject>true</inject>
+          <identifier>openvr</identifier>
+          <moduleID>BasicOpenVRModule</moduleID>
         </dependency>
       </dependencies>
     </Module>
@@ -123,6 +133,10 @@
           <moduleID>GraphicsModule</moduleID>
         </dependency>
       </dependencies>
+    </Module>
+    <Module>
+      <ignore>false</ignore>
+      <identifier>DataStoreModule</identifier>
     </Module>
   </Modules>
   <!--<Extensions>
