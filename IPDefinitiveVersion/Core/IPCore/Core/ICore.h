@@ -20,6 +20,7 @@ namespace ipengine
 		//core
 		void initialize();
 		void shutdown();
+		Time tick(bool& shouldstop);
 
 		//id stuff
 		ipid createID();

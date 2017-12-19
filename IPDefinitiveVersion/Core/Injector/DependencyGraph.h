@@ -1,3 +1,6 @@
+#ifndef _DEPENDENCY_GRAPH_H_
+#define _DEPENDENCY_GRAPH_H_
+
 #include <string>
 #include <vector>
 #include <map>
@@ -57,3 +60,5 @@ namespace  DGStuff
 		}*/
 	};
 }
+
+#endif

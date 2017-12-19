@@ -1,11 +1,12 @@
 #ifndef _TIME_H_
 #define _TIME_H_
 #include <cstdint>
+#include <chrono>
 
 namespace ipengine
 {
 	using time_t = int64_t;
-
+	//TODO: arithmetic operators
 	class Time
 	{
 	public:
@@ -125,15 +126,15 @@ namespace ipengine
 			m_timescale = timescale;
 		}
 
+		inline static Time now()
+		{
+			return Time(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count());
+		}
+
 	private:
 		time_t m_nanoseconds;
 		float m_timescale;
 	};
-
-
-
-
-
 }
 
 #endif // !_TIME_H_
