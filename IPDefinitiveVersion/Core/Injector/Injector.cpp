@@ -262,6 +262,7 @@ void Injector::LoadModules(ipengine::Core * core, bool reload, std::string path)
 	std::vector<std::string> processedModules;
 	std::queue<const DGStuff::Module*> toProcess;
 	std::list<const DGStuff::Module*> injectOrderList;
+	std::map<std::string, int> duplis;
 	//for (auto mnd = )
 	for (auto&& modnode : *(depgraph.getRoots()))
 	{
@@ -286,13 +287,32 @@ void Injector::LoadModules(ipengine::Core * core, bool reload, std::string path)
 		{
 			if (modnode.second != nullptr)
 			{
+				if (duplis.count(modnode.second->identifier) > 0)
+				{
+					auto toremove = injectOrderList.begin();
+					std::advance(toremove, duplis[modnode.second->identifier]);
+					injectOrderList.erase(toremove);
+					for (auto ds : duplis)
+					{
+						if (ds.second > duplis[modnode.second->identifier])
+						{
+							duplis[ds.first] = duplis[ds.first] - 1;
+						}
+					}
+				}
 				toProcess.push(modnode.second);
 				injectOrderList.push_back(modnode.second);
+				duplis[modnode.second->identifier] = injectOrderList.size() - 1;
 			}
 		}
 	}
 	injectOrderList.reverse();
-	injectOrderList.unique();
+	
+	
+
+	//Remove duplicates
+
+
 
 	for (auto modnode : injectOrderList)
 	{

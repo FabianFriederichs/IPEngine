@@ -5,7 +5,7 @@
 
 // This is the constructor of a class that has been exported.
 // see Plugin2.h for the class definition
-GraphicsModule::GraphicsModule()
+GraphicsModule::GraphicsModule(void)
 {
 	DataDepName = "Data";
 	m_info.identifier = "GraphicsModule";
@@ -134,8 +134,8 @@ void GraphicsModule::render(ipengine::TaskContext & c)
 {
 	std::vector<ipengine::any> anyvector;
 	anyvector.push_back(static_cast<IGraphics_API*>(this));
-	anyvector.push_back(&m_scmID);
-	m_info.expoints.execute("PreRender", { "this"}, anyvector);
+	anyvector.push_back(renderMatrixes({ &projmat, &viewmat }));
+	m_info.expoints.execute("PreRender", { "this", "rendermatrixes"}, anyvector);
 	anyvector.clear();
 
 	render();

@@ -15,6 +15,12 @@ public:
 	virtual uint32_t getFOV() = 0;
 	virtual void getResolution(uint32_t&, uint32_t&) = 0;
 	virtual void getClipRange(uint32_t&, uint32_t&) = 0;
+
+	struct renderMatrixes
+	{
+		glm::mat4* proj;
+		glm::mat4* view;
+	};
 };
 
 #endif // !_IGRAPHICS_API_H_

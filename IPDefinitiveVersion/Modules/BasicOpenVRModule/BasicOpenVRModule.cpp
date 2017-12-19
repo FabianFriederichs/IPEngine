@@ -17,7 +17,8 @@ bool BasicOpenVRModule::initVR()
 {
 	
 	vr::EVRInitError vrerr;
-	vrsystem = boost::shared_ptr<vr::IVRSystem>(vr::VR_Init(&vrerr, vr::EVRApplicationType::VRApplication_Scene));
+	auto vrs = vr::VR_Init(&vrerr, vr::EVRApplicationType::VRApplication_Scene);
+	vrsystem = boost::shared_ptr<vr::IVRSystem>(vrs);
 	if (!(vrerr == vr::VRInitError_None)) {
 		fprintf(stderr, "OpenVR initialization failed.\n");
 		vr::VR_Shutdown();

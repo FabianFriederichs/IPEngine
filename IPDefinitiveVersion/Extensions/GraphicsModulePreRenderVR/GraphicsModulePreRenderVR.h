@@ -4,8 +4,8 @@
 #include <boost/config.hpp>
 #include <IModule_API.h>
 #include <ISimpleContentModule_API.h>
-#include <GraphicsModule.h>
 #include <IBasicOpenVRModule_API.h>
+#include <IGraphics_API.h>
 #include <glm/glm.hpp>
 #include <glew\include\GL\glew.h>
 #include <IDataStoreModuleh_API.h>
