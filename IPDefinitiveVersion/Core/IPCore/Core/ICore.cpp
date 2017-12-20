@@ -3,7 +3,7 @@
 ipengine::Core::Core() :
 	cmodule_console(std::cout),
 	cmodule_scheduler(),
-	cmodule_threadingservices(std::thread::hardware_concurrency() - 5),
+	cmodule_threadingservices(std::thread::hardware_concurrency() - 1),
 	cmodule_endpointregistry(),
 	core_idgen(1)
 {

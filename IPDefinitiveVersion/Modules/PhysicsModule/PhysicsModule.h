@@ -53,8 +53,8 @@ public:
 		scenemodule = m_info.dependencies.getDep<ISimpleSceneModule_API>("SSM");
 		auto id = createCloth(
 			"testcloth",
-			20,
-			20,
+			50,
+			50,
 			SCM::TransformData{
 			glm::vec3(0.0f, 0.0f, -1.0f),
 			glm::quat(),

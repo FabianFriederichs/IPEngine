@@ -1057,4 +1057,3 @@ ipengine::aligned_ptr<PhysicsModule::Particle>& PhysicsModule::Cloth::newBuf()
 {
 	return (m_current_old == PBUF1 ? m_particles_buf2 : m_particles_buf1);
 }
-
