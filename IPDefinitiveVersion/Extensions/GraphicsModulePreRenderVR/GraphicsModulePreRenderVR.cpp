@@ -108,7 +108,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	glBindFramebuffer(GL_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId); //GLERR;
 	glViewport(0, 0, renderWidth, renderHeight);
 
-	uint32_t znear, zfar;
+	float znear, zfar;
 	graphicsmodule->getClipRange(znear, zfar);
 
 	auto proj = convert(ovrmodule->getSystem()->GetProjectionMatrix(vr::EVREye::Eye_Left, znear,zfar));
