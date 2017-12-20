@@ -29,11 +29,11 @@ public:
 	virtual void setCameraEntity(uint32_t v) override;
 	virtual void setFOV(uint32_t v) override;
 	virtual void setResolution(uint32_t x, uint32_t y) override;
-	virtual void setClipRange(uint32_t n, uint32_t f) override;
+	virtual void setClipRange(float n,float f) override;
 	virtual uint32_t getCameraEntity() override;
 	virtual uint32_t getFOV() override;
 	virtual void getResolution(uint32_t &, uint32_t &) override;
-	virtual void getClipRange(uint32_t &, uint32_t &) override;
+	virtual void getClipRange(float &, float&) override;
 	
 	
 

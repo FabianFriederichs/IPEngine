@@ -300,7 +300,7 @@ void GraphicsModule::setResolution(uint32_t x, uint32_t y)
 	recalcProj();
 }
 
-void GraphicsModule::setClipRange(uint32_t n, uint32_t f)
+void GraphicsModule::setClipRange(float n, float f)
 {
 	znear = n; zfar = f;
 	recalcProj();
@@ -360,7 +360,7 @@ void GraphicsModule::getResolution(uint32_t &w, uint32_t &h)
 	h = height;
 }
 
-void GraphicsModule::getClipRange(uint32_t &n, uint32_t &f)
+void GraphicsModule::getClipRange(float &n,float&f)
 {
 	n = znear;
 	f = zfar;
