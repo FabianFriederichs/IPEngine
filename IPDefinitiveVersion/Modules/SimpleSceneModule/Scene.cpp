@@ -1,11 +1,11 @@
 #include "Scene.h"
 
-const std::vector<SCM::EntityId> Scene::getEntities()
+const std::vector<ipengine::ipid> Scene::getEntities()
 {
 	return m_entities; //double buffer this later TO-DO
 }
 
-int Scene::addEntity(SCM::EntityId id)
+int Scene::addEntity(ipengine::ipid id)
 {
 	auto f = std::find(m_entities.begin(), m_entities.end(), id);
 	if (f == m_entities.end())
@@ -16,7 +16,7 @@ int Scene::addEntity(SCM::EntityId id)
 	return 0; //didn't add because already existing
 }
 
-int Scene::removeEntity(SCM::EntityId id)
+int Scene::removeEntity(ipengine::ipid id)
 {
 	auto f = std::find(m_entities.begin(), m_entities.end(), id);
 	if (f != m_entities.end())

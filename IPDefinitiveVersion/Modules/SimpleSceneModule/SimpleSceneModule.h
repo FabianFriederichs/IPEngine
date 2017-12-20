@@ -24,19 +24,19 @@ public:
 private:
 	ModuleInformation m_info;
 	std::string contentmoduleidentifier = "SCM";
-	std::unordered_map<SceneId, Scene> m_scenes;
-	SceneId m_activeScene;
-	SceneId m_maxId = std::numeric_limits<SceneId>::max();
+	std::unordered_map<ipengine::ipid, Scene> m_scenes;
+	ipengine::ipid m_activeScene;
+	ipengine::ipid m_maxId = std::numeric_limits<ipengine::ipid>::max();
 	// Inherited via ISimpleSceneModule_API
-	virtual SceneId LoadSceneFromFile(std::string filepath) override;
-	virtual std::vector<SceneId> LoadSceneFromFile(std::vector<std::string>::const_iterator filepathstart, std::vector<std::string>::const_iterator filepathend) override;
-	virtual bool RemoveScene(SceneId id) override;
-	virtual int RemoveScene(std::vector<SceneId>::const_iterator idstart, std::vector<SceneId>::const_iterator idend) override;
-	virtual bool SwitchActiveScene(SceneId id) override;
-	virtual bool AddEntity(SCM::EntityId entityid, SceneId sceneid = std::numeric_limits<SceneId>::max()) override;
-	virtual int AddEntity(std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator entityidend, SceneId sceneid = std::numeric_limits<SceneId>::max()) override;
-	virtual bool RemoveEntity(SCM::EntityId entityid, SceneId sceneid = std::numeric_limits<SceneId>::max()) override;
-	virtual int RemoveEntity(std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator entityidend, SceneId sceneid=std::numeric_limits<SceneId>::max()) override;
+	virtual ipengine::ipid LoadSceneFromFile(std::string filepath) override;
+	virtual std::vector<ipengine::ipid> LoadSceneFromFile(std::vector<std::string>::const_iterator filepathstart, std::vector<std::string>::const_iterator filepathend) override;
+	virtual bool RemoveScene(ipengine::ipid id) override;
+	virtual int RemoveScene(std::vector<ipengine::ipid>::const_iterator idstart, std::vector<ipengine::ipid>::const_iterator idend) override;
+	virtual bool SwitchActiveScene(ipengine::ipid id) override;
+	virtual bool AddEntity(ipengine::ipid entityid, ipengine::ipid sceneid = IPID_INVALID) override;
+	virtual int AddEntity(std::vector<ipengine::ipid>::const_iterator entityidstart, std::vector<ipengine::ipid>::const_iterator entityidend, ipengine::ipid sceneid = IPID_INVALID) override;
+	virtual bool RemoveEntity(ipengine::ipid entityid, ipengine::ipid sceneid = IPID_INVALID) override;
+	virtual int RemoveEntity(std::vector<ipengine::ipid>::const_iterator entityidstart, std::vector<ipengine::ipid>::const_iterator entityidend, ipengine::ipid sceneid=IPID_INVALID) override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT SimpleSceneModule module;

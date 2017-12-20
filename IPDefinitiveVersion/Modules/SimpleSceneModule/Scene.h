@@ -5,16 +5,16 @@
 class Scene
 {
 public:
-	Scene():m_sceneid(-1) {}
+	Scene():m_sceneid(IPID_INVALID) {}
 	Scene(const Scene &sc) : m_entities(sc.m_entities), m_sceneid(sc.m_sceneid) {}
-	Scene(ISimpleSceneModule_API::SceneId id) :m_sceneid(id) {};
-	const ISimpleSceneModule_API::SceneId m_sceneid;
+	Scene(ipengine::ipid id) :m_sceneid(id) {};
+	ipengine::ipid m_sceneid;
 
-	const std::vector<SCM::EntityId> getEntities();
-	int addEntity(SCM::EntityId);
-	int removeEntity(SCM::EntityId);
+	const std::vector<ipengine::ipid> getEntities();
+	int addEntity(ipengine::ipid);
+	int removeEntity(ipengine::ipid);
 private:
-	std::vector<SCM::EntityId> m_entities;
+	std::vector<ipengine::ipid> m_entities;
 };
 
 

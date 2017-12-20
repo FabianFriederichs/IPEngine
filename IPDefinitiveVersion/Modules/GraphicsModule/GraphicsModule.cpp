@@ -79,7 +79,7 @@ void GraphicsModule::render()
 				//set uniforms/light/transform/view/proj/camera pos
 				shader->setUniform("model", mO->m_transformData.getData()->m_transformMatrix, false);
 				
-				if (cameraentity != SCM::EntityId(-1))
+				if (cameraentity != IPID_INVALID)
 				{
 					
 					auto cent = m_scm->getEntityById(cameraentity);
@@ -154,10 +154,10 @@ void GraphicsModule::render(ipengine::TaskContext & c)
 	
 }
 
-std::vector<SCM::EntityId> GraphicsModule::getActiveEntityNames(SCM::ISimpleContentModule_API & scm)
+std::vector<ipengine::ipid> GraphicsModule::getActiveEntityNames(SCM::ISimpleContentModule_API & scm)
 {
 	auto& entities = scm.getEntities();
-	std::vector<SCM::EntityId> ids;
+	std::vector<ipengine::ipid> ids;
 	for (auto e : entities)
 	{
 		if (e.second->isActive)
@@ -265,7 +265,7 @@ void GraphicsModule::updateData()
 	//bla
 }
 
-void GraphicsModule::drawSCMMesh(SCM::IdType meshid)
+void GraphicsModule::drawSCMMesh(ipengine::ipid meshid)
 {
 	auto vao = m_scmmeshtovao[meshid];
 	if (vao->vao != 0)

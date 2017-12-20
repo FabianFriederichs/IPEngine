@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{770ECB8E-2A31-4041-B686-042C6865CDF9}"
 EndProject
@@ -99,6 +99,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LibraryProjects", "LibraryProjects", "{613BA2EF-077C-4E18-9DDE-2EB2CDB335B0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gluew", "LibraryProjects\gluew\gluew\gluew.vcxproj", "{8F5D02FD-B9EC-4A98-A576-264EC8224D34}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VREntitySceneLoader", "Extensions\VREntitySceneLoader\VREntitySceneLoader.vcxproj", "{56BA1EF9-DDA3-4598-96F2-32F998998A51}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -236,6 +238,14 @@ Global
 		{8F5D02FD-B9EC-4A98-A576-264EC8224D34}.Release|x64.Build.0 = Release|x64
 		{8F5D02FD-B9EC-4A98-A576-264EC8224D34}.Release|x86.ActiveCfg = Release|Win32
 		{8F5D02FD-B9EC-4A98-A576-264EC8224D34}.Release|x86.Build.0 = Release|Win32
+		{56BA1EF9-DDA3-4598-96F2-32F998998A51}.Debug|x64.ActiveCfg = Debug|x64
+		{56BA1EF9-DDA3-4598-96F2-32F998998A51}.Debug|x64.Build.0 = Debug|x64
+		{56BA1EF9-DDA3-4598-96F2-32F998998A51}.Debug|x86.ActiveCfg = Debug|Win32
+		{56BA1EF9-DDA3-4598-96F2-32F998998A51}.Debug|x86.Build.0 = Debug|Win32
+		{56BA1EF9-DDA3-4598-96F2-32F998998A51}.Release|x64.ActiveCfg = Release|x64
+		{56BA1EF9-DDA3-4598-96F2-32F998998A51}.Release|x64.Build.0 = Release|x64
+		{56BA1EF9-DDA3-4598-96F2-32F998998A51}.Release|x86.ActiveCfg = Release|Win32
+		{56BA1EF9-DDA3-4598-96F2-32F998998A51}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -255,6 +265,7 @@ Global
 		{BB16A050-B1F2-4BF6-BC0F-5470AA570735} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
 		{4C1BAB59-3F08-428F-AEB3-DD9B35C083AB} = {B1BE8738-7475-42FB-86E6-804456EC531F}
 		{8F5D02FD-B9EC-4A98-A576-264EC8224D34} = {613BA2EF-077C-4E18-9DDE-2EB2CDB335B0}
+		{56BA1EF9-DDA3-4598-96F2-32F998998A51} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8D852F7-90CA-4379-BF8E-6B6E1D793FA0}

@@ -15,8 +15,8 @@ public:
 	class Collision
 	{
 	public:
-		SCM::EntityId e1;
-		SCM::EntityId e2;
+		ipengine::ipid e1;
+		ipengine::ipid e2;
 	};
 
 	class PhysicsContext
@@ -46,12 +46,12 @@ public:
 
 	using ClothIndex = SCM::index;
 
-	virtual SCM::EntityId createCloth(const std::string& name, size_t width,
+	virtual ipengine::ipid createCloth(const std::string& name, size_t width,
 					 size_t height,
 					 const SCM::TransformData& transform,
-					 const PhysicsContext& physicsContext, const SCM::IdType materialid) = 0;
-	virtual void destroyCloth(const SCM::EntityId) = 0;
-	virtual void fixParticle(const SCM::EntityId id, size_t x, size_t y, bool fixed) = 0;
+					 const PhysicsContext& physicsContext, const ipengine::ipid materialid) = 0;
+	virtual void destroyCloth(const ipengine::ipid) = 0;
+	virtual void fixParticle(const ipengine::ipid id, size_t x, size_t y, bool fixed) = 0;
 	virtual void createcloth() = 0;
 };
 

@@ -19,16 +19,16 @@ public:
 
 	bool startUp();// { return true;/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */ } //do stuff?
 																																													  // Inherited via ISimpleContentModule_API
-	virtual SCM::IdType addMeshFromFile(std::string path, std::string format, std::vector<SCM::IdType> mats) override;
-	virtual SCM::IdType getDefaultShaderId() override;
+	virtual ipengine::ipid addMeshFromFile(std::string path, std::string format, std::vector<ipengine::ipid> mats) override;
+	virtual ipengine::ipid getDefaultShaderId() override;
 private:
 	ModuleInformation m_info;
 
-	SCM::IdType generateDefaultTexture();
-	SCM::IdType generateDefaultShader();
+	ipengine::ipid generateDefaultTexture();
+	ipengine::ipid generateDefaultShader();
 
 	// Inherited via ISimpleContentModule_API
-	virtual SCM::IdType getDefaultTextureId() override;
+	virtual ipengine::ipid getDefaultTextureId() override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT SimpleContentModule module;

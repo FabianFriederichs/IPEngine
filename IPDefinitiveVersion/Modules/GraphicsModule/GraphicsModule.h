@@ -38,7 +38,7 @@ public:
 	
 
 private:
-	std::vector<SCM::EntityId> getActiveEntityNames(SCM::ISimpleContentModule_API&);
+	std::vector<ipengine::ipid> getActiveEntityNames(SCM::ISimpleContentModule_API&);
 	ModuleInformation m_info;
 	std::string DataDepName;
 	SDL_Window* window;
@@ -48,7 +48,7 @@ private:
 	std::string m_scmID = "SCM";
 	boost::shared_ptr<SCM::ISimpleContentModule_API> m_scm;
 	std::vector<ipengine::Scheduler::SubHandle> handles;
-	SCM::EntityId cameraentity = -1;
+	ipengine::ipid cameraentity = IPID_INVALID;
 	//constants
 	glm::vec4 m_clearcolor = { 0.20f, 0.15f, 0.18f, 1.0f };
 	float width = 1280; float height = 720; float znear = 0.1f; float zfar = 100;
@@ -62,10 +62,10 @@ private:
 	void setupSDL();
 	void loadShaders();
 	void updateData();
-	std::unordered_map<SCM::IdType, std::shared_ptr<VAO>> m_scmmeshtovao;
-	std::unordered_map<SCM::IdType, std::shared_ptr<ShaderProgram>> m_scmshadertoprogram;
-	std::unordered_map < SCM::IdType, std::shared_ptr<Texture2D>> m_scmtexturetot2d;
-	void drawSCMMesh(SCM::IdType);
+	std::unordered_map<ipengine::ipid, std::shared_ptr<VAO>> m_scmmeshtovao;
+	std::unordered_map<ipengine::ipid, std::shared_ptr<ShaderProgram>> m_scmshadertoprogram;
+	std::unordered_map <ipengine::ipid, std::shared_ptr<Texture2D>> m_scmtexturetot2d;
+	void drawSCMMesh(ipengine::ipid);
 
 	// Inherited via IGraphics_API
 	glm::mat4 ViewFromTransData(const SCM::TransformData*);

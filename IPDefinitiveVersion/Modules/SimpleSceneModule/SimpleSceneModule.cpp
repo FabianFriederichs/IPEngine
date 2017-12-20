@@ -52,7 +52,7 @@ glm::quat parseQuatFromString(std::string s)
 	return q;
 }
 
-SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string filepath)
+ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 {
 	/*
 	What is in a scene file?
@@ -76,11 +76,11 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 	boost::property_tree::read_xml(filepath, tree,boost::property_tree::xml_parser::no_comments);
 	auto contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
 	auto& entitystorage = contentmodule->getEntities();
-	std::unordered_map<int, SCM::IdType> meshtointernid;
-	std::unordered_map<int, SCM::EntityId> entitytointernid;
-	std::unordered_map<int, SCM::IdType> shadertointernid;
-	std::unordered_map<int, SCM::IdType> materialtointernid;
-	std::unordered_map<int, SCM::IdType> texturetointernid;
+	std::unordered_map<int, ipengine::ipid> meshtointernid;
+	std::unordered_map<int, ipengine::ipid> entitytointernid;
+	std::unordered_map<int, ipengine::ipid> shadertointernid;
+	std::unordered_map<int, ipengine::ipid> materialtointernid;
+	std::unordered_map<int, ipengine::ipid> texturetointernid;
 
 	auto& shaders = contentmodule->getShaders();
 	auto& textures = contentmodule->getTextures();
@@ -88,13 +88,13 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 	{
 		std::string path;
 		int textureid;
-		textureid = node.second.get<SCM::IdType>("Id", -1);
+		textureid = node.second.get<ipengine::ipid>("Id", IPID_INVALID);
 		if (texturetointernid.count(textureid) > 0)
 		{
 			continue; //Skip because scenes meshid is a duplicate.
 		}
 		path = node.second.get<std::string>("TexturePath", "");
-		auto id = contentmodule->generateNewGeneralId();
+		auto id = m_core->createID();
 		textures.push_back(SCM::TextureFile(id, path));
 		texturetointernid[textureid] = id;
 	}
@@ -102,14 +102,14 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 	{
 		std::string fsp, vsp;
 		int shaderid;
-		shaderid = node.second.get<SCM::IdType>("Id", -1);
+		shaderid = node.second.get<ipengine::ipid>("Id", IPID_INVALID);
 		if (shadertointernid.count(shaderid) > 0)
 		{
 			continue; //Skip because scenes meshid is a duplicate.
 		}
 		vsp = node.second.get<std::string>("VSPath", "");
 		fsp = node.second.get<std::string>("FSPath", "");
-		auto id = contentmodule->generateNewGeneralId();
+		auto id = m_core->createID();
 		shaders.push_back(SCM::ShaderData(id, vsp, fsp));
 		shadertointernid[shaderid] = id;
 	}
@@ -119,25 +119,25 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 	for (auto node : tree.get_child("Scene.Materials"))
 	{
 		int matid, shaderid;
-		matid = node.second.get<SCM::IdType>("Id", -1);
+		matid = node.second.get<ipengine::ipid>("Id", IPID_INVALID);
 		std::unordered_map<std::string, int> texts;
 		if (materialtointernid.count(matid) > 0)
 		{
 			continue; //Skip because scenes meshid is a duplicate.
 		}
 		//texturepath = node.second.get<std::string>("TexturePath", "");
-		shaderid = node.second.get<SCM::IdType>("ShaderId", -1);
+		shaderid = node.second.get<ipengine::ipid>("ShaderId", IPID_INVALID);
 		if (shaderid == -1)
 		{
 			shaderid = contentmodule->getDefaultShaderId();
 		}
-		auto id = contentmodule->generateNewGeneralId();
+		auto id = m_core->createID();
 		SCM::TextureMap tids;
 		for (auto node2 : node.second.get_child("Textures"))
 		{
 			auto tname = node2.second.get<std::string>("Name", "");
-			auto tid = node2.second.get<SCM::IdType>("Id", -1);
-			if (tid == SCM::IdType(-1) || tname == "")
+			auto tid = node2.second.get<ipengine::ipid>("Id", IPID_INVALID);
+			if (tid == ipengine::ipid(-1) || tname == "")
 				continue;
 			tids[tname] = SCM::TextureData(texturetointernid[tid]);
 		}
@@ -150,7 +150,7 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 	{
 		std::string meshpath;
 		int meshid;
-		meshid = node.second.get<SCM::IdType>("Id", -1);
+		meshid = node.second.get<ipengine::ipid>("Id", IPID_INVALID);
 		if (meshtointernid.count(meshid) > 0)
 		{
 			continue; //Skip because scenes meshid is a duplicate.
@@ -159,11 +159,11 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		auto pos = meshpath.find_last_of('.');
 		std::string extension = pos != std::string::npos ? meshpath.substr(pos + 1) : "";
 
-		std::vector<SCM::IdType> materials;
+		std::vector<ipengine::ipid> materials;
 		//materials
 		for (auto matnode : node.second.get_child("Materials"))
 		{
-			int matid = matnode.second.get<SCM::IdType>("MaterialId", -1);
+			int matid = matnode.second.get<ipengine::ipid>("MaterialId", IPID_INVALID);
 			if(materialtointernid.count(matid)>0)
 				materials.push_back(materialtointernid[matid]);
 		}
@@ -190,7 +190,7 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		//{
 		//	continue; //Skip because scenes meshid is a duplicate.
 		//}
-		entityid = node.second.get<SCM::IdType>("Id", -1);
+		entityid = node.second.get<ipengine::ipid>("Id", IPID_INVALID);
 		if (entityid == -1 || entitytointernid.count(entityid) > 0)
 		{
 			continue; //Entity skipped because faulty input data or duplicate
@@ -232,7 +232,7 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		//Check Mesh id
 		if (meshtointernid.find(meshid) != meshtointernid.end())
 		{
-			entitystorage[entityname] = new SCM::ThreeDimEntity(contentmodule->generateNewEntityId(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
+			entitystorage[entityname] = new SCM::ThreeDimEntity(m_core->createID(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
 			entitystorage[entityname]->m_name = entityname;
 			contentmodule->getThreeDimEntities()[entitystorage[entityname]->m_entityId] = static_cast<SCM::ThreeDimEntity*>(entitystorage[entityname]);
 			entitytointernid[entityid] = entitystorage[entityname]->m_entityId;
@@ -240,7 +240,7 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		else
 		{
 			entitystorage[entityname] = new SCM::Entity();// SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
-			entitystorage[entityname]->m_entityId = contentmodule->generateNewEntityId();
+			entitystorage[entityname]->m_entityId = m_core->createID();
 			entitystorage[entityname]->m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
 			entitystorage[entityname]->isBoundingBox = boxorsphere;
 			entitystorage[entityname]->m_transformData = SCM::Transform(transdata);
@@ -252,18 +252,18 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 		//meshtointernid[meshid] = contentmodule->addMeshFromFile(meshpath, extension);
 	}
 
-	Scene sc(generateNewSceneId());
+	Scene sc(m_core->createID());
 	m_scenes.insert({ sc.m_sceneid,sc });
 	for (auto node : tree.get_child("Scene.Entities"))
 	{
-		int entityid;
-		int parentid;
-		entityid = node.second.get<SCM::IdType>("Id", -1);
-		parentid = node.second.get<int>("ParentId", -1);
-		if (entitytointernid.count(entityid) > 0)
+		ipengine::ipid entityid;
+		ipengine::ipid parentid;
+		entityid = node.second.get<ipengine::ipid>("Id", IPID_INVALID);
+		parentid = node.second.get<ipengine::ipid>("ParentId", IPID_INVALID);
+		if (entitytointernid.count(entityid)!=IPID_INVALID)
 		{
-			m_scenes[sc.m_sceneid].addEntity(entityid);
-			if (entitytointernid.count(parentid) > 0)
+			m_scenes[sc.m_sceneid].addEntity(entitytointernid[entityid]);
+			if (parentid!=IPID_INVALID && entitytointernid.count(parentid)>0)
 			{
 				contentmodule->setEntityParent(entitytointernid[entityid], entitytointernid[parentid]);
 			}
@@ -273,9 +273,9 @@ SimpleSceneModule::SceneId SimpleSceneModule::LoadSceneFromFile(std::string file
 	return sc.m_sceneid;
 }
 
-std::vector<SimpleSceneModule::SceneId> SimpleSceneModule::LoadSceneFromFile(std::vector<std::string>::const_iterator filepathstart, std::vector<std::string>::const_iterator filepathend)
+std::vector<ipengine::ipid> SimpleSceneModule::LoadSceneFromFile(std::vector<std::string>::const_iterator filepathstart, std::vector<std::string>::const_iterator filepathend)
 {
-	std::vector<SceneId> ids;
+	std::vector<ipengine::ipid> ids;
 	for (; filepathstart < filepathend; filepathstart++)
 	{
 		auto c = LoadSceneFromFile(*filepathstart);
@@ -285,7 +285,7 @@ std::vector<SimpleSceneModule::SceneId> SimpleSceneModule::LoadSceneFromFile(std
 	return ids;
 }
 
-bool SimpleSceneModule::RemoveScene(SceneId id)
+bool SimpleSceneModule::RemoveScene(ipengine::ipid id)
 {
 	auto it = m_scenes.find(id);
 	if (it != m_scenes.end())
@@ -296,7 +296,7 @@ bool SimpleSceneModule::RemoveScene(SceneId id)
 	return false;
 }
 
-int SimpleSceneModule::RemoveScene(std::vector<SceneId>::const_iterator idstart, std::vector<SceneId>::const_iterator idend)
+int SimpleSceneModule::RemoveScene(std::vector<ipengine::ipid>::const_iterator idstart, std::vector<ipengine::ipid>::const_iterator idend)
 {
 	int c;
 	for (; idstart < idend; idstart++)
@@ -306,7 +306,7 @@ int SimpleSceneModule::RemoveScene(std::vector<SceneId>::const_iterator idstart,
 	return c;
 }
 
-bool SimpleSceneModule::SwitchActiveScene(SceneId id)
+bool SimpleSceneModule::SwitchActiveScene(ipengine::ipid id)
 {
 	if (m_scenes.find(id) == m_scenes.end())
 	{
@@ -317,9 +317,9 @@ bool SimpleSceneModule::SwitchActiveScene(SceneId id)
 	{
 		auto newents = m_scenes[id].getEntities();
 
-		for (auto id : newents)
+		for (auto ide : newents)
 		{
-			scm->getEntityById(id)->isActive = true;
+			scm->getEntityById(ide)->isActive = true;
 		}
 		
 	}
@@ -332,17 +332,17 @@ bool SimpleSceneModule::SwitchActiveScene(SceneId id)
 		//switch active scene will need to change active state of entities in SCM
 
 		//get set of entities not in new scene
-		std::vector<SCM::EntityId> missing;
+		std::vector<ipengine::ipid> missing;
 		std::set_difference(activeents.begin(), activeents.end(), newents.begin(), newents.end(), std::inserter(missing, missing.begin()));
 
 		//get set of entities new in scene
-		std::vector<SCM::EntityId> news;
+		std::vector<ipengine::ipid> news;
 		std::set_difference(newents.begin(), newents.end(), activeents.begin(), activeents.end(), std::inserter(news, news.begin()));
 
 		
 		if (missing.size() > 0)
 		{
-			for (auto id : missing)
+			for (auto ide : missing)
 			{
 				scm->getEntityById(id)->isActive = false;
 			}
@@ -350,7 +350,7 @@ bool SimpleSceneModule::SwitchActiveScene(SceneId id)
 
 		if (news.size() > 0)
 		{
-			for (auto id : missing)
+			for (auto ide : missing)
 			{
 				scm->getEntityById(id)->isActive = true;
 			}
@@ -359,7 +359,7 @@ bool SimpleSceneModule::SwitchActiveScene(SceneId id)
 	m_activeScene = id;
 }
 
-bool SimpleSceneModule::AddEntity(SCM::EntityId entityid, SceneId sceneid)
+bool SimpleSceneModule::AddEntity(ipengine::ipid entityid, ipengine::ipid sceneid)
 {
 	if (sceneid == m_maxId)
 	{
@@ -382,7 +382,7 @@ bool SimpleSceneModule::AddEntity(SCM::EntityId entityid, SceneId sceneid)
 	return false;
 }
 
-int SimpleSceneModule::AddEntity(std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator entityidend, SceneId sceneid)
+int SimpleSceneModule::AddEntity(std::vector<ipengine::ipid>::const_iterator entityidstart, std::vector<ipengine::ipid>::const_iterator entityidend, ipengine::ipid sceneid)
 {
 	if (sceneid == m_maxId)
 	{
@@ -396,7 +396,7 @@ int SimpleSceneModule::AddEntity(std::vector<SCM::EntityId>::const_iterator enti
 	return c;
 }
 
-bool SimpleSceneModule::RemoveEntity(SCM::EntityId entityid, SceneId sceneid)
+bool SimpleSceneModule::RemoveEntity(ipengine::ipid entityid, ipengine::ipid sceneid)
 {
 	if (sceneid == m_maxId)
 	{
@@ -419,7 +419,7 @@ bool SimpleSceneModule::RemoveEntity(SCM::EntityId entityid, SceneId sceneid)
 	return false;
 }
 
-int SimpleSceneModule::RemoveEntity(std::vector<SCM::EntityId>::const_iterator entityidstart, std::vector<SCM::EntityId>::const_iterator entityidend, SceneId sceneid)
+int SimpleSceneModule::RemoveEntity(std::vector<ipengine::ipid>::const_iterator entityidstart, std::vector<ipengine::ipid>::const_iterator entityidend, ipengine::ipid sceneid)
 {
 	if (sceneid == m_maxId)
 	{

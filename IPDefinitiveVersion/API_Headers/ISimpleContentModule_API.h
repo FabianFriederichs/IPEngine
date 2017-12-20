@@ -8,8 +8,6 @@
 namespace SCM
 {
 	class TextureData;
-	using IdType = int64_t;
-	using EntityId = IdType;
 	using index = uint32_t;
 	using TextureMap = std::unordered_map<std::string, TextureData>;
 	
@@ -92,12 +90,12 @@ namespace SCM
 	{
 	public:
 		ShaderData() = default;
-		ShaderData(IdType id, std::string v, std::string f):m_shaderId(id), m_shaderFiles({v,f})
+		ShaderData(ipengine::ipid id, std::string v, std::string f):m_shaderId(id), m_shaderFiles({v,f})
 		{
 
 		}
 		std::vector<std::string> m_shaderFiles;
-		SCM::IdType m_shaderId;
+		ipengine::ipid m_shaderId;
 		//Uniform descriptors maybe?
 	};
 
@@ -106,18 +104,18 @@ namespace SCM
 	public:
 		
 		MaterialData() = default;
-		MaterialData(SCM::IdType id, SCM::IdType shaderid, const TextureMap &textures) : m_materialId(id), m_shaderId(shaderid), m_textures(textures) {};
+		MaterialData(ipengine::ipid id, ipengine::ipid shaderid, const TextureMap &textures) : m_materialId(id), m_shaderId(shaderid), m_textures(textures) {};
 		SCM::TextureMap m_textures; //textures plus name
-		SCM::IdType m_shaderId;
-		SCM::IdType m_materialId;
+		ipengine::ipid m_shaderId;
+		ipengine::ipid m_materialId;
 	};
 
 	class TextureFile
 	{
 	public:
 		TextureFile() = default;
-		TextureFile(SCM::IdType id, std::string path, bool isCube = false) : m_textureId(id), m_path(path), m_isCube(isCube){};
-		SCM::IdType m_textureId;
+		TextureFile(ipengine::ipid id, std::string path, bool isCube = false) : m_textureId(id), m_path(path), m_isCube(isCube){};
+		ipengine::ipid m_textureId;
 		std::string m_path;
 		bool m_isCube;
 	};
@@ -126,8 +124,8 @@ namespace SCM
 	{
 	public:
 		TextureData() = default;
-		TextureData(SCM::IdType fileid, glm::vec2 offset = glm::vec2( 0,0 ), glm::vec2 size= glm::vec2(0,0)) :m_texturefileId(fileid), m_offset(offset), m_size(size) {}
-		SCM::IdType m_texturefileId;
+		TextureData(ipengine::ipid fileid, glm::vec2 offset = glm::vec2( 0,0 ), glm::vec2 size= glm::vec2(0,0)) :m_texturefileId(fileid), m_offset(offset), m_size(size) {}
+		ipengine::ipid m_texturefileId;
 		glm::vec2 m_offset;
 		glm::vec2 m_size;
 	};
@@ -171,7 +169,7 @@ namespace SCM
 		VertexVector m_vertices;
 		std::vector<index> m_indices;
 		MaterialData* m_material;
-		IdType m_meshId;
+		ipengine::ipid m_meshId;
 		bool m_dynamic;
 		bool m_dirty;
 
@@ -180,8 +178,8 @@ namespace SCM
 	class MeshedObject
 	{
 	public:
-		MeshedObject(std::vector<MeshData*>& mdata, IdType id) :m_meshes(mdata), m_meshObjectId(id) {}
-		IdType m_meshObjectId;
+		MeshedObject(std::vector<MeshData*>& mdata, ipengine::ipid id) :m_meshes(mdata), m_meshObjectId(id) {}
+		ipengine::ipid m_meshObjectId;
 		std::vector<MeshData*> m_meshes;
 		virtual void swap()
 		{
@@ -206,7 +204,7 @@ namespace SCM
 		{
 			m_entityId = -1;
 		}
-		Entity(EntityId id, Transform& transform, BoundingData& boundingdata, bool boundingbox, bool active) :m_transformData(transform), m_boundingData(boundingdata)
+		Entity(ipengine::ipid id, Transform& transform, BoundingData& boundingdata, bool boundingbox, bool active) :m_transformData(transform), m_boundingData(boundingdata)
 		{
 			m_entityId = id;
 			m_parent = nullptr;
@@ -218,7 +216,7 @@ namespace SCM
 
 		Transform m_transformData;
 		Entity* m_parent;
-		EntityId m_entityId;
+		ipengine::ipid m_entityId;
 		std::string m_name;
 		BoundingData m_boundingData;
 		bool isBoundingBox; //True for Box, False for Sphere in Union BoundingData
@@ -231,7 +229,7 @@ namespace SCM
 	{
 
 	public:
-		ThreeDimEntity(EntityId id, Transform& transform, BoundingData& boundingdata, bool boundingbox, bool active, MeshedObject* meshes) :Entity(id, transform, boundingdata, boundingbox, active), m_mesheObjects(meshes)
+		ThreeDimEntity(ipengine::ipid id, Transform& transform, BoundingData& boundingdata, bool boundingbox, bool active, MeshedObject* meshes) :Entity(id, transform, boundingdata, boundingbox, active), m_mesheObjects(meshes)
 		{
 		}
 		MeshedObject* m_mesheObjects;
@@ -258,7 +256,7 @@ namespace SCM
 			return entities;
 		}
 
-		virtual std::unordered_map<EntityId, ThreeDimEntity*>& getThreeDimEntities()
+		virtual std::unordered_map<ipengine::ipid, ThreeDimEntity*>& getThreeDimEntities()
 		{
 			return threedimentities;
 		}
@@ -288,7 +286,7 @@ namespace SCM
 			return meshedobjects;
 		}
 
-		virtual TextureFile* getTextureById(IdType id)
+		virtual TextureFile* getTextureById(ipengine::ipid id)
 		{
 			auto itF = std::find_if(texturefiles.begin(), texturefiles.end(), [id](TextureFile& a)->bool {return a.m_textureId == id; });
 			if (itF != texturefiles.end())
@@ -298,7 +296,7 @@ namespace SCM
 			else
 				return nullptr;
 		}
-		virtual MaterialData* getMaterialById(IdType id) 
+		virtual MaterialData* getMaterialById(ipengine::ipid id)
 		{ 
 			auto itF = std::find_if(materials.begin(), materials.end(), [id](MaterialData& a)->bool {return a.m_materialId == id; });
 			if (itF != materials.end())
@@ -308,7 +306,7 @@ namespace SCM
 			else
 				return nullptr; 
 		};
-		virtual ShaderData* getShaderById(IdType id) 
+		virtual ShaderData* getShaderById(ipengine::ipid id)
 		{ 
 			auto itF = std::find_if(shaders.begin(), shaders.end(), [id](ShaderData& a)->bool {return a.m_shaderId == id; });
 			if (itF != shaders.end())
@@ -318,7 +316,7 @@ namespace SCM
 			else
 				return nullptr;
 		};
-		virtual Entity* getEntityById(EntityId id)
+		virtual Entity* getEntityById(ipengine::ipid id)
 		{ 
 			auto itF = std::find_if(entities.begin(), entities.end(), [id](std::pair<const std::string, Entity*>& a)->bool {return a.second->m_entityId== id; });
 			if (itF != entities.end())
@@ -332,7 +330,7 @@ namespace SCM
 		{ 
 			return entities.count(name) ? entities[name] : nullptr; 
 		};
-		virtual MeshData* getMeshById(IdType id)
+		virtual MeshData* getMeshById(ipengine::ipid id)
 		{ 
 			auto itF = std::find_if(meshes.begin(), meshes.end(), [id](MeshData& a)->bool {return a.m_meshId == id; });
 			if (itF != meshes.end())
@@ -342,7 +340,7 @@ namespace SCM
 			else
 				return nullptr;
 		}
-		virtual MeshedObject* getMeshedObjectById(IdType id)
+		virtual MeshedObject* getMeshedObjectById(ipengine::ipid id)
 		{ 
 			auto itF = std::find_if(meshedobjects.begin(), meshedobjects.end(), [id](MeshedObject& a)->bool {return a.m_meshObjectId == id; });
 			if (itF != meshedobjects.end())
@@ -352,22 +350,11 @@ namespace SCM
 			else
 				return nullptr;
 		}
-		virtual IdType addMeshFromFile(std::string path, std::string format, std::vector<IdType> mats) = 0;
-		virtual SCM::IdType getDefaultShaderId() = 0;
-		virtual SCM::IdType getDefaultTextureId() = 0;
+		virtual ipengine::ipid addMeshFromFile(std::string path, std::string format, std::vector<ipengine::ipid> mats) = 0;
+		virtual ipengine::ipid getDefaultShaderId() = 0;
+		virtual ipengine::ipid getDefaultTextureId() = 0;
 
-		static IdType generateNewGeneralId()
-		{
-			static IdType lastId = 0;
-			return lastId++;
-		}
-		static EntityId generateNewEntityId()
-		{
-			static IdType lastId = 0;
-			return lastId++;
-		}
-
-		virtual bool setEntityParent(EntityId child, EntityId parent)
+		virtual bool setEntityParent(ipengine::ipid child, ipengine::ipid parent)
 		{
 			auto ent = getEntityById(child);
 			auto ent2 = getEntityById(parent);
@@ -383,7 +370,7 @@ namespace SCM
 	private:
 
 		std::unordered_map<std::string, Entity*> entities;
-		std::unordered_map<EntityId, ThreeDimEntity*> threedimentities;
+		std::unordered_map<ipengine::ipid, ThreeDimEntity*> threedimentities;
 		std::vector<ShaderData> shaders;
 		std::vector<MaterialData> materials;
 		std::vector<TextureFile> texturefiles;

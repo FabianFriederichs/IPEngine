@@ -1,16 +1,16 @@
 // Plugin2.cpp : Defines the exported functions for the DLL application.
 //1
 
-#include "GraphicsModulePreRenderVR.h"
+#include "VREntitySceneLoader.h"
 
 // This is the constructor of a class that has been exported.
 // see Plugin2.h for the class definition
-GraphicsModulePreRenderVR::GraphicsModulePreRenderVR()
+VREntitySceneLoader::VREntitySceneLoader()
 {
 	//m_info.
 }
 
-const GLfloat GraphicsModulePreRenderVR::QuadVerts[] = {   // Vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+const GLfloat VREntitySceneLoader::QuadVerts[] = {   // Vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 									   // Positions   // TexCoords
 	-1.0f, 1.0f, 0.0f, 1.0f,
 	-1.0f, -1.0f, 0.0f, 0.0f,
@@ -22,7 +22,7 @@ const GLfloat GraphicsModulePreRenderVR::QuadVerts[] = {   // Vertex attributes 
 };
 
 
-void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::vector<ipengine::any>& args)
+void VREntitySceneLoader::execute(std::vector<std::string> argnames, std::vector<ipengine::any>& args)
 {
 	int i = 0;
 	vr::EVRInitError vrerr;
@@ -101,7 +101,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	hmdView[3][2] += trans.z;
 	hmdView = inverse(hmdView);
 
-	graphicsmodule->setCameraEntity(IPID_INVALID);
+	graphicsmodule->setCameraEntity(SCM::EntityId(100));
 
 	//LeftEye
 	glEnable(GL_MULTISAMPLE); //GLERR;
@@ -196,7 +196,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 }
 
-ExtensionInformation * GraphicsModulePreRenderVR::getInfo()
+ExtensionInformation * VREntitySceneLoader::getInfo()
 {
 	return &m_info;
 }

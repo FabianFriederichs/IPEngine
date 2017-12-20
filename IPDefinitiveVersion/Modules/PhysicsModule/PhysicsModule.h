@@ -96,7 +96,7 @@ private:
 	ModuleInformation m_info;
 	//scheduler subscription
 	std::vector<ipengine::Scheduler::SubHandle> schedulerSubscriptionHandle;
-	std::vector<SCM::EntityId> clothentities;
+	std::vector<ipengine::ipid> clothentities;
 	boost::shared_ptr<SCM::ISimpleContentModule_API> contentmodule;
 	boost::shared_ptr<ISimpleSceneModule_API> scenemodule;
 
@@ -135,7 +135,7 @@ private:
 		Cloth(Cloth&& other);
 		~Cloth();
 
-		SCM::EntityId id;
+		ipengine::ipid id;
 		size_t m_width;
 		size_t m_height;
 		size_t particleCount();
@@ -154,9 +154,9 @@ private:
 
 		std::vector<size_t> m_csidx;
 		//std::vector<size_t> m_fixedparticles;
-		moodycamel::ConcurrentQueue<SCM::EntityId> m_collisionqueue;
-		std::atomic<SCM::EntityId> m_currentCollision; //hmmm
-		std::vector<SCM::EntityId> m_collidedEntities; //for uniqifying
+		moodycamel::ConcurrentQueue<ipengine::ipid> m_collisionqueue;
+		std::atomic<ipengine::ipid> m_currentCollision; //hmmm
+		std::vector<ipengine::ipid> m_collidedEntities; //for uniqifying
 	};
 
 	class UpdateBatch //32 bytes
@@ -219,14 +219,14 @@ private:
 	bool intersectsPlane(const glm::vec3& p, float radius, const Plane& plane);
 
 public:
-	Particle& getParticle(const SCM::EntityId name, size_t x, size_t y);
+	Particle& getParticle(const ipengine::ipid name, size_t x, size_t y);
 	//creation
-	SCM::EntityId createCloth(const std::string& name, size_t width,
+	ipengine::ipid createCloth(const std::string& name, size_t width,
 					 size_t height,
 					 const  SCM::TransformData& transform,
-					 const PhysicsContext& physicsContext, const SCM::IdType materialid) override;
-	void destroyCloth(const SCM::EntityId id) override;
-	void fixParticle(const SCM::EntityId id, size_t x, size_t y, bool fixed) override;
+					 const PhysicsContext& physicsContext, const ipengine::ipid materialid) override;
+	void destroyCloth(const ipengine::ipid id) override;
+	void fixParticle(const ipengine::ipid id, size_t x, size_t y, bool fixed) override;
 
 private:
 	//private data

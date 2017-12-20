@@ -50,8 +50,8 @@ void PhysicsModule::update(ipengine::TaskContext & context)
 	
 	for (Cloth& cloth : clothInstances)
 	{
-		SCM::EntityId lastcol = IPID_INVALID;
-		SCM::EntityId curcol = IPID_INVALID;
+		ipengine::ipid lastcol = IPID_INVALID;
+		ipengine::ipid curcol = IPID_INVALID;
 		while (cloth.m_collisionqueue.try_dequeue(curcol)) //collect all collisions and do prefiltering
 		{
 			if (curcol != lastcol) //don't include consecutive copies
@@ -596,7 +596,7 @@ glm::vec3 PhysicsModule::externalForces(Cloth * cloth, Particle & particle)
 
 	return forceaccum;
 }
-PhysicsModule::Particle & PhysicsModule::getParticle(const SCM::EntityId name, size_t  x, size_t y)
+PhysicsModule::Particle & PhysicsModule::getParticle(const ipengine::ipid name, size_t  x, size_t y)
 {
 	// TODO: hier Rückgabeanweisung eingeben
 	for (Cloth& c : clothInstances)
@@ -649,17 +649,17 @@ void PhysicsModule::updateMesh(Cloth* cloth)
 
 //Cloth creation/destruction ---------------------------------------------------------------------------------------------------
 
-SCM::EntityId PhysicsModule::createCloth(const std::string &name,size_t width,
+ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 								size_t height,
 								const SCM::TransformData& transform,
-								const PhysicsContext & physicsContext, const SCM::IdType materialid)
+								const PhysicsContext & physicsContext, const ipengine::ipid materialid)
 {
 	Cloth cloth;
 	cloth.m_pctx = physicsContext;
 	cloth.m_width = width;
 	cloth.m_height = height;
 	cloth.m_distance = physicsContext.particleDistance;
-	cloth.id = SCM::EntityId(20);
+	cloth.id = m_core->createID();
 
 	//setup buffers
 	cloth.m_particles_buf1 = ipengine::alloc_aligned_array<Particle, TS_CACHE_LINE_SIZE>(width * height);
@@ -918,7 +918,7 @@ SCM::EntityId PhysicsModule::createCloth(const std::string &name,size_t width,
 	auto& meshedobjects = contentmodule->getMeshedObjects();
 	auto& meshes = contentmodule->getMeshes();
 	SCM::MeshData mdata;
-	mdata.m_meshId = contentmodule->generateNewGeneralId();
+	mdata.m_meshId = m_core->createID();
 	auto &tcloth = clothInstances.back();
 	mdata.m_indices = m_indices;
 	mdata.m_vertices.setData().swap(m_vertices);
@@ -928,19 +928,19 @@ SCM::EntityId PhysicsModule::createCloth(const std::string &name,size_t width,
 	mdata.m_material = &contentmodule->getMaterials().front();
 
 	meshes.push_back(mdata);
-	meshedobjects.push_back(SCM::MeshedObject(std::vector<SCM::MeshData*>({ &meshes.back() }), contentmodule->generateNewGeneralId()));
+	meshedobjects.push_back(SCM::MeshedObject(std::vector<SCM::MeshData*>({ &meshes.back() }), m_core->createID()));
 	SCM::ThreeDimEntity* dimentity = new SCM::ThreeDimEntity(tcloth.id, SCM::Transform(transform), SCM::BoundingData(), true, false, &meshedobjects.back());
 	thrde[tcloth.id] = dimentity;
 	entities[name] = dimentity;
 	return tcloth.id;
 }
 
-void PhysicsModule::destroyCloth(SCM::EntityId id)
+void PhysicsModule::destroyCloth(ipengine::ipid id)
 {
 	//search for cloth with entity id, remove the entity and then free the internal buffers
 }
 
-void PhysicsModule::fixParticle(const SCM::EntityId name, size_t x, size_t y, bool fixed)
+void PhysicsModule::fixParticle(const ipengine::ipid name, size_t x, size_t y, bool fixed)
 {
 	for (Cloth& c : clothInstances)
 	{

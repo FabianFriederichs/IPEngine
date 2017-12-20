@@ -18,7 +18,7 @@ SimpleContentModule::SimpleContentModule(void)
 bool SimpleContentModule::startUp()
 {
 	//Setup default material
-	//auto id = SCM::generateNewGeneralId();
+	//auto id = SCM::m_core->createID();
 	generateDefaultShader();
 	generateDefaultTexture();
 
@@ -26,7 +26,7 @@ bool SimpleContentModule::startUp()
 }
 
 //One OBJ per .obj
-SCM::IdType SimpleContentModule::addMeshFromFile(std::string path, std::string format, std::vector<SCM::IdType> mats)
+ipengine::ipid SimpleContentModule::addMeshFromFile(std::string path, std::string format, std::vector<ipengine::ipid> mats)
 {
 	if (format == "obj")
 	{
@@ -44,7 +44,7 @@ SCM::IdType SimpleContentModule::addMeshFromFile(std::string path, std::string f
 				data->m_vertices.setData().push_back(SCM::VertexData(v.position, v.uv, v.normal, v.tangent));
 			}
 			//data->m_vertices.swap(); //Does this make sense?
-			data->m_meshId = generateNewGeneralId();
+			data->m_meshId = m_core->createID();
 			if (mats.size() <= meshindex)
 			{
 				auto & materials = getMaterials();
@@ -64,7 +64,7 @@ SCM::IdType SimpleContentModule::addMeshFromFile(std::string path, std::string f
 			scmmeshes.push_back(*data);
 			meshindex++;
 		}
-		auto id = generateNewGeneralId();
+		auto id = m_core->createID();
 		getMeshedObjects().push_back(SCM::MeshedObject(meshes,id));
 		return id;
 	}
@@ -73,18 +73,18 @@ SCM::IdType SimpleContentModule::addMeshFromFile(std::string path, std::string f
 	return -1;
 }
 
-SCM::IdType SimpleContentModule::getDefaultShaderId()
+ipengine::ipid SimpleContentModule::getDefaultShaderId()
 {	//TODO
 	return getShaders().front().m_shaderId;
 }
 
-SCM::IdType SimpleContentModule::generateDefaultTexture()
+ipengine::ipid SimpleContentModule::generateDefaultTexture()
 {
 	//
 	return -1;
 }
 
-SCM::IdType SimpleContentModule::generateDefaultShader()
+ipengine::ipid SimpleContentModule::generateDefaultShader()
 {
 	std::string vert = "#version 330 core\nlayout(location = 0) in vec3 position;\nuniform mat4 model;\nuniform mat4 view;\nuniform mat4 projection;\nvoid main()\n{vec4 worldpos = model * vec4(position.x, position.y, position.z, 1.0);\ngl_Position = projection * view * worldpos;\n}";
 	std::string frag = "#version 330 core\nout vec4 color; \nvoid main()\n{\ncolor = vec4(0.0f, 1.0f, 1.0f, 1.0f); \n}";
@@ -108,12 +108,12 @@ SCM::IdType SimpleContentModule::generateDefaultShader()
 	
 
 	auto& shaders = getShaders();
-	SCM::ShaderData data(generateNewGeneralId(), vfFname, ffFname);
+	SCM::ShaderData data(m_core->createID(), vfFname, ffFname);
 	shaders.insert(shaders.begin(), data);
 	return data.m_shaderId;
 }
 
-SCM::IdType SimpleContentModule::getDefaultTextureId()
+ipengine::ipid SimpleContentModule::getDefaultTextureId()
 {
 	return getTextures().front().m_textureId;
 }
