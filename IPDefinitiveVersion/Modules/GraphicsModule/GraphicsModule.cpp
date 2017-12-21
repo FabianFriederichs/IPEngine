@@ -281,7 +281,7 @@ void GraphicsModule::drawSCMMesh(ipengine::ipid meshid)
 	}
 }
 
-void GraphicsModule::setCameraEntity(uint32_t v)
+void GraphicsModule::setCameraEntity(ipengine::ipid v)
 {
 	//if(m_scm->getEntityById(v) !=nullptr)
 	cameraentity = v;
@@ -344,7 +344,7 @@ void GraphicsModule::recalcProj()
 	projmat = glm::perspective(m_fov, width / height, znear, zfar);
 }
 
-uint32_t GraphicsModule::getCameraEntity()
+ipengine::ipid GraphicsModule::getCameraEntity()
 {
 	return cameraentity;
 }

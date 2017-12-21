@@ -70,7 +70,7 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 			break;
 		case IInput::InputType::INPUT_MOUSEMOVE:
 			extrec.execute("mousemove", paras, anyvector);
-			mousemoveUpdate(i);
+			//mousemoveUpdate(i);
 			break;
 		case IInput::InputType::INPUT_MOUSESCROLL:
 			extrec.execute("mousescroll", paras, anyvector);
@@ -303,7 +303,7 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 		auto 	x = e->m_transformData.getData()->m_localX*(float)(((a ? -1 : 0 )+(d ? 1 : 0))*modifier);
 		auto	y = e->m_transformData.getData()->m_localZ*(float)(((w ? -1 : 0 )+ (s ? 1 : 0))*modifier);
 
-		if (glm::length(x) != 0 || glm::length(y))
+		if (glm::length(x) != 0 || glm::length(y) !=0)
 		{
 			e->m_transformData.setData()->m_location += x + y;
 			e->m_transformData.setData()->m_isMatrixDirty = true;

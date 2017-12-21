@@ -26,11 +26,11 @@ public:
 	bool startUp();// {/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); */return true;  } //do stuff?
 	void render();
 	void render(ipengine::TaskContext& c);
-	virtual void setCameraEntity(uint32_t v) override;
+	virtual void setCameraEntity(ipengine::ipid v) override;
 	virtual void setFOV(uint32_t v) override;
 	virtual void setResolution(uint32_t x, uint32_t y) override;
 	virtual void setClipRange(float n,float f) override;
-	virtual uint32_t getCameraEntity() override;
+	virtual ipengine::ipid getCameraEntity() override;
 	virtual uint32_t getFOV() override;
 	virtual void getResolution(uint32_t &, uint32_t &) override;
 	virtual void getClipRange(float &, float&) override;

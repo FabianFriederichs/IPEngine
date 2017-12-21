@@ -6,12 +6,12 @@ class IGraphics_API : public IModule_API
 {
 public:
 	virtual void render() = 0;
-	virtual void setCameraEntity(uint32_t) = 0;
+	virtual void setCameraEntity(ipengine::ipid) = 0;
 	virtual void setFOV(uint32_t) = 0;
 	virtual void setResolution(uint32_t, uint32_t) = 0;
 	virtual void setClipRange(float, float) = 0;
 
-	virtual uint32_t getCameraEntity() = 0;
+	virtual ipengine::ipid getCameraEntity() = 0;
 	virtual uint32_t getFOV() = 0;
 	virtual void getResolution(uint32_t&, uint32_t&) = 0;
 	virtual void getClipRange(float&, float&) = 0;
