@@ -21,6 +21,29 @@ const GLfloat GraphicsModulePreRenderVR::QuadVerts[] = {   // Vertex attributes 
 	1.0f, 1.0f, 1.0f, 1.0f
 };
 
+glm::vec3 hmdvec3toglm(const vr::HmdVector3_t& v)
+{
+	return { v.v[0], v.v[1], v.v[2] };
+}
+
+void vrrendermodeltoscmmeshobject(vr::RenderModel_t* model, SCM::MeshData* mesh)
+{
+	for (int iv = 0; iv < model->unVertexCount; ++iv)
+	{
+		auto vert = model->rVertexData + iv;
+		auto pos = hmdvec3toglm(vert->vPosition);
+		auto norm = hmdvec3toglm(vert->vNormal);
+		SCM::VertexData dat(pos, { vert->rfTextureCoord[0], vert->rfTextureCoord[1] }, norm, { 0,0,0 });
+		mesh->m_vertices.setData().push_back(dat);
+	}
+	mesh->m_dynamic = false;
+	for (int ii = 0; ii < 3*model->unTriangleCount; ++ii)
+	{
+		mesh->m_indices.push_back(*(model->rIndexData + ii));
+	}
+	mesh->m_dirty = true;
+}
+
 
 void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::vector<ipengine::any>& args)
 {
@@ -38,6 +61,8 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		//args[0].cast<IGraphics_API*>()->setCameraEntity(scm->getEntityByName("Camera")->m_entityId);
 		ovrmodule = m_info.dependencies.getDep<IBasicOpenVRModule_API>("openvr");
 		datastore = m_info.dependencies.getDep<IDataStoreModuleh_API>("datastore");
+		scenemodule = m_info.dependencies.getDep<ISimpleSceneModule_API>("scene");
+
 		//glGenVertexArrays(1, &quadVAO); //GLERR;
 		//glGenBuffers(1, &quadVBO); //GLERR;
 		//glBindVertexArray(quadVAO); //GLERR;
@@ -48,7 +73,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		//glEnableVertexAttribArray(1);// GLERR;
 		//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat))); //GLERR;
 		//glBindVertexArray(0); //GLERR;
-		vr::VR_GetGenericInterface(vr::IVRRenderModels_Version, &vrerr);
+		//vr::VR_GetGenericInterface(vr::IVRRenderModels_Version, &vrerr);
 
 		ovrmodule->getSystem()->GetRecommendedRenderTargetSize(&renderWidth, &renderHeight);
 
@@ -61,6 +86,93 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		{
 			throw;
 		}
+
+		//Add HMD and COntroller entities to SCM
+		
+		//HMD 
+		auto &ents = scm->getEntities();
+		if (ents.count("OpenVRHMD") == 0)
+		{
+			ents["OpenVRHMD"] = new SCM::Entity();
+			auto hmdent = ents["OpenVRHMD"];
+			hmdent->m_entityId = m_core->createID();
+			hmdent->m_boundingData = SCM::BoundingData(SCM::BoundingSphere());
+			hmdent->isBoundingBox = false;
+			hmdent->m_transformData = SCM::Transform();
+			hmdent->m_transformData.setData()->m_location.x = 0;
+			hmdent->m_transformData.setData()->m_location.y = 0;
+			hmdent->m_transformData.setData()->m_location.z = 5;
+			hmdent->m_name = "OpenVRHMD";
+		}
+		//Do the controller model stuff
+		if (ents.count("OpenVRControllerLeft") == 0)
+		{
+			auto cntrid = m_core->createID();
+			auto cntrtrans = SCM::Transform();
+			auto cntrbounding = SCM::BoundingData(SCM::BoundingSphere());
+
+			//Create mesh from VR render model
+			auto rendermodels = ovrmodule->getRenderModels();
+			auto modelc = rendermodels->GetRenderModelCount();
+			int rmit = 0;
+			int rmnamel = 0;
+			size_t bufsize;
+			int controllermodelindex = -1;
+			std::map< std::string, int> rendermodelnames;
+			while ((bufsize = rendermodels->GetRenderModelName(rmit, nullptr, 0)) > 0)
+			{
+				char* realname = new char[bufsize];
+				rendermodels->GetRenderModelName(rmit++, realname, bufsize);
+				//std::cout << std::string(realname);
+				rendermodelnames[std::string(realname)] =rmit-1;
+				delete realname;
+			}
+			controllermodelindex = rendermodelnames["vr_controller_vive_1_5"];
+			vr::EVRRenderModelError rendermodelerr;
+			auto origpathsize = rendermodels->GetRenderModelOriginalPath("vr_controller_vive_1_5", nullptr, 0, &rendermodelerr);
+			char* origrendermodelpath = new char[origpathsize];
+			rendermodels->GetRenderModelOriginalPath("vr_controller_vive_1_5", origrendermodelpath, origpathsize, &rendermodelerr);
+			vr::RenderModel_t *controllermodel = new vr::RenderModel_t();
+			while(rendermodels->LoadRenderModel_Async("vr_controller_vive_1_5", &controllermodel)!= vr::EVRRenderModelError::VRRenderModelError_None);
+
+			//get rendermodel components
+			int cmpit = 0;
+			int cmpnamel = 0;
+			std::map<std::string, int> componentnames;
+			while ((bufsize = rendermodels->GetComponentName("vr_controller_vive_1_5", cmpit, nullptr, 0)) > 0)
+			{
+				char* realname = new char[bufsize];
+				rendermodels->GetComponentName("vr_controller_vive_1_5", cmpit++, realname, bufsize);
+				//std::cout << std::string(realname);
+				componentnames[std::string(realname)] = cmpit-1;
+				delete realname;
+			}
+
+			auto &mobs = scm->getMeshes();
+			mobs.push_back(SCM::MeshData());
+			mobs.back().m_meshId = m_core->createID();
+			vrrendermodeltoscmmeshobject(controllermodel, &mobs.back());
+			//controller material????
+			mobs.back().m_material = &scm->getMaterials().front();
+			std::vector<SCM::MeshData*> meshes;
+			//For every component?
+			meshes.push_back(&mobs.back());
+			scm->getMeshedObjects().push_back((SCM::MeshedObject(meshes, m_core->createID())));
+
+			auto &cntrmeshes = scm->getMeshedObjects().back();
+			ents["OpenVRControllerLeft"] = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
+			
+			auto cntrent = ents["OpenVRControllerLeft"];
+			cntrent->m_name = "OpenVRControllerLeft";
+			scm->getThreeDimEntities()[cntrent->m_entityId] = static_cast<SCM::ThreeDimEntity*>(cntrent);
+		}
+		if (ents.count("OpenVRControllerRight") == 0)
+		{
+
+		}
+
+		//auto rendermodels = ovrmodule->getRenderModels();
+		//rendermodels->LoadRenderModel_Async(rendermodels)
 
 	}
 
@@ -92,6 +204,12 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	graphicsmodule->setResolution(renderWidth, renderHeight);
 
 	ovrmodule->getCompositor()->WaitGetPoses(lastposes, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+
+	//TODO update controller states
+	auto contr = scm->getEntityByName("OpenVRControllerLeft");
+	contr->m_transformData.setData()->m_scale = { 1,1,1 };
+	contr->m_transformData.setData()->m_location = { 0,0,5 };
+	contr->m_transformData.setData()->m_isMatrixDirty = true;
 
 	auto trans = cam->m_transformData.getData()->m_location;
 	auto hmdView = glm::mat4(convert(lastposes[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking));

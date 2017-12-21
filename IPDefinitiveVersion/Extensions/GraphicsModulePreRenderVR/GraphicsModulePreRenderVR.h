@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <glew\include\GL\glew.h>
 #include <IDataStoreModuleh_API.h>
+#include <ISimpleSceneModule_API.h>
 #include "glerror.h"
 class GraphicsModulePreRenderVR : public IExtensionPoint {
 public:
@@ -107,6 +108,7 @@ private:
 
 	boost::shared_ptr<IBasicOpenVRModule_API> ovrmodule;
 	boost::shared_ptr<IDataStoreModuleh_API> datastore;
+	boost::shared_ptr<ISimpleSceneModule_API> scenemodule;
 	ExtensionInformation m_info;
 	std::vector<ipengine::Scheduler::SubHandle> handle;
 	bool init = false;
