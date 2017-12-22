@@ -15,27 +15,19 @@ namespace ipengine
 		//ctors
 		Core();
 		~Core();
-		//TODO:something like core::tick() function that'll be called from the application repeatedly.
-		//tick should trigger all actions that must run continuously (e.g. Scheduler::schedule()...)
-		//core
+
 		void initialize();
 		void shutdown();
 		Time tick(bool& shouldstop);
 
 		//id stuff
 		ipid createID();
-
-		//Timing -
-
 		//Console  
 		Console& getConsole();
 		//Runtime Control 
 		Scheduler& getScheduler();		
 		//Threading Services
 		ThreadPool& getThreadPool();
-
-		//Data Store/Repository -
-		//?
 		//Messaging Services -
 		EndpointRegistry& getEndpointRegistry();
 

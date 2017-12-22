@@ -144,6 +144,7 @@
     <ClInclude Include="Core\ICoreTypes.h" />
     <ClInclude Include="core_config.h" />
     <ClInclude Include="Memory\allocators.h" />
+    <ClInclude Include="Memory\MemoryManager.h" />
     <ClInclude Include="Memory\memory_utils.h" />
     <ClInclude Include="Messaging\EndpointRegistry.h" />
     <ClInclude Include="Messaging\Message.h" />
@@ -169,6 +170,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\ICore.cpp" />
+    <ClCompile Include="Memory\MemoryManager.cpp" />
     <ClCompile Include="Messaging\EndpointRegistry.cpp" />
     <ClCompile Include="Messaging\MessageEndpoint.cpp" />
     <ClCompile Include="Messaging\MessageQueue.cpp" />

@@ -107,6 +107,9 @@
     <ClInclude Include="Core\ICoreTypes.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="Memory\MemoryManager.h">
+      <Filter>CoreModules\Memory</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThreadingServices\TaskHandle.cpp">
@@ -132,6 +135,9 @@
     </ClCompile>
     <ClCompile Include="Messaging\EndpointRegistry.cpp">
       <Filter>CoreModules\Messaging</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory\MemoryManager.cpp">
+      <Filter>CoreModules\Memory</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

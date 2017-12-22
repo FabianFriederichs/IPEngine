@@ -391,7 +391,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	graphicsmodule->getClipRange(znear, zfar);
 
 	auto proj = convert(ovrmodule->getSystem()->GetProjectionMatrix(vr::EVREye::Eye_Left, znear,zfar));
-	*matrices.view= hmdView*glm::inverse(glm::mat4(convert(ovrmodule->getSystem()->GetEyeToHeadTransform(vr::EVREye::Eye_Left))));
+	*matrices.view= glm::inverse(glm::mat4(convert(ovrmodule->getSystem()->GetEyeToHeadTransform(vr::EVREye::Eye_Left)))) * hmdView;
 	*matrices.proj= proj;
 	graphicsmodule->render();
 
@@ -402,7 +402,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	glBindFramebuffer(GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId); //GLERR;
 	glViewport(0, 0, renderWidth, renderHeight);
 	proj = convert(ovrmodule->getSystem()->GetProjectionMatrix(vr::EVREye::Eye_Right, znear, zfar));
-	*matrices.view = hmdView*glm::inverse(glm::mat4(convert(ovrmodule->getSystem()->GetEyeToHeadTransform(vr::EVREye::Eye_Right))));
+	*matrices.view = glm::inverse(glm::mat4(convert(ovrmodule->getSystem()->GetEyeToHeadTransform(vr::EVREye::Eye_Right)))) * hmdView;
 	*matrices.proj = proj;
 	graphicsmodule->render();
 
