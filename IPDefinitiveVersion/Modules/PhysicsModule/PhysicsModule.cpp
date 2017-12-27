@@ -419,12 +419,12 @@ void PhysicsModule::handleCollisions(ipengine::TaskContext & context)
 			{
 				if (entity->isBoundingBox)
 				{
-					glm::vec3 cvec = tryCollide(ub.m_cloth, p, entity->m_boundingData.box, ub.dt, c);
+					glm::vec3 cvec = tryCollide(ub.m_cloth, p, entity->m_boundingData.box, entity->m_transformData.getData()->m_location, ub.dt, c);
 					wp.m_velocity += cvec;
 				}
 				else
 				{
-					glm::vec3 cvec = tryCollide(ub.m_cloth, p, entity->m_boundingData.sphere, ub.dt, c);
+					glm::vec3 cvec = tryCollide(ub.m_cloth, p, entity->m_boundingData.sphere, entity->m_transformData.getData()->m_location, ub.dt, c);
 					wp.m_velocity += cvec;
 				}
 
@@ -445,12 +445,12 @@ void PhysicsModule::handleCollisions(ipengine::TaskContext & context)
 
 }
 
-glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::BoundingBox & collider, float dt, bool& collided)
+glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::BoundingBox & collider, const glm::vec3& wpos, float dt, bool& collided)
 {
 	//do an optimistic test at the beginning. construct a sphere from the largest half-size of the box and
 	//do a quick sphere-sphere intersection test. quit early if the test renders negative
 
-	if (glm::length(particle.m_position - collider.m_center) > particle.m_radius + (glm::max(collider.m_size.x, glm::max(collider.m_size.y, collider.m_size.z))))
+	if (glm::length(particle.m_position - collider.m_center + wpos) > particle.m_radius + (glm::max(collider.m_size.x, glm::max(collider.m_size.y, collider.m_size.z))))
 	{
 		collided = false;
 		return glm::vec3(0.0f, 0.0f, 0.0f);
@@ -477,14 +477,14 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Bou
 	glm::vec3 yoff = localy * (collider.m_size.y * 0.5f);
 	glm::vec3 zoff = localz * (collider.m_size.z * 0.5f);
 
-	boxpoints[0] = collider.m_center + zoff - xoff - yoff;
-	boxpoints[1] = collider.m_center + zoff + xoff - yoff;
-	boxpoints[2] = collider.m_center + zoff - xoff + yoff;
-	boxpoints[3] = collider.m_center + zoff + xoff + yoff;
-	boxpoints[4] = collider.m_center - zoff - xoff - yoff;
-	boxpoints[5] = collider.m_center - zoff + xoff - yoff;
-	boxpoints[6] = collider.m_center - zoff - xoff + yoff;
-	boxpoints[7] = collider.m_center - zoff + xoff + yoff;
+	boxpoints[0] = collider.m_center + wpos + zoff - xoff - yoff;
+	boxpoints[1] = collider.m_center + wpos + zoff + xoff - yoff;
+	boxpoints[2] = collider.m_center + wpos + zoff - xoff + yoff;
+	boxpoints[3] = collider.m_center + wpos + zoff + xoff + yoff;
+	boxpoints[4] = collider.m_center + wpos - zoff - xoff - yoff;
+	boxpoints[5] = collider.m_center + wpos - zoff + xoff - yoff;
+	boxpoints[6] = collider.m_center + wpos - zoff - xoff + yoff;
+	boxpoints[7] = collider.m_center + wpos - zoff + xoff + yoff;
 
 
 	//use sat to detect collision
@@ -492,9 +492,9 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Bou
 
 	//project particle position on every axis and clamp them to box bounds
 	glm::vec3 projectedPosition(
-		glm::dot(particle.m_position - collider.m_center, localx),
-		glm::dot(particle.m_position - collider.m_center, localy),
-		glm::dot(particle.m_position - collider.m_center, localz)
+		glm::dot(particle.m_position - collider.m_center + wpos, localx),
+		glm::dot(particle.m_position - collider.m_center + wpos, localy),
+		glm::dot(particle.m_position - collider.m_center + wpos, localz)
 	);
 
 	//something goes wrong here
@@ -508,7 +508,7 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Bou
 		localz * projectedPosition.z
 	);
 
-	nearestPointOnBox += collider.m_center;
+	nearestPointOnBox += collider.m_center + wpos;
 
 	float mindistance = glm::length(nearestPointOnBox - particle.m_position);
 
@@ -550,9 +550,9 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Bou
 	return glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
-glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::BoundingSphere & collider, float dt, bool& collided)
+glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::BoundingSphere & collider, const glm::vec3& wpos, float dt, bool& collided)
 {
-	glm::vec3 psvec = particle.m_position - collider.m_center;
+	glm::vec3 psvec = particle.m_position - (collider.m_center + wpos);
 	float pslth = glm::length(psvec);
 	if (pslth <= (particle.m_radius + collider.m_radius))
 	{

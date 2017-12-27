@@ -7,7 +7,7 @@
 #include <mutex>
 #include <unordered_map>
 #include <IPCore/Util/function.h>
-#include <IPCore/Memory/allocators.h>
+#include <IPCore/Memory/lowlevel_allocators.h>
 
 #define MT_ALLMESSAGES 0
 //TODO: Create some kind of endpoint class. The class should be returned when subscribing to a

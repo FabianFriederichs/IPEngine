@@ -200,8 +200,8 @@ private:
 	void handleCollisions(ipengine::TaskContext& context);
 
 														//Put SCM types here
-	glm::vec3 tryCollide(Cloth* cloth, Particle& particle, SCM::BoundingBox& collider, float dt, bool&);
-	glm::vec3 tryCollide(Cloth* cloth, Particle& particle, SCM::BoundingSphere& collider, float dt, bool&);
+	glm::vec3 tryCollide(Cloth* cloth, Particle& particle, SCM::BoundingBox& collider, const glm::vec3& wpos, float dt, bool&);
+	glm::vec3 tryCollide(Cloth* cloth, Particle& particle, SCM::BoundingSphere& collider, const glm::vec3& wpos, float dt, bool&);
 	//void updateParticleBatch(ipengine::TaskContext& context);	//context is update batch
 	glm::vec3 accumulateForces(Cloth* cloth, Particle& particle);
 	inline glm::vec3 externalForces(Cloth* cloth, Particle& particle);

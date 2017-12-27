@@ -144,6 +144,7 @@
     <ClInclude Include="Core\ICoreTypes.h" />
     <ClInclude Include="core_config.h" />
     <ClInclude Include="Memory\allocators.h" />
+    <ClInclude Include="Memory\lowlevel_allocators.h" />
     <ClInclude Include="Memory\MemoryManager.h" />
     <ClInclude Include="Memory\memory_utils.h" />
     <ClInclude Include="Messaging\EndpointRegistry.h" />

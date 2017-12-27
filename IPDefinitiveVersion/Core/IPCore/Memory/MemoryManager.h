@@ -10,10 +10,11 @@ namespace ipengine
 		MemoryManager();
 		~MemoryManager();
 
-		void* alloc(size_t size);
-		void free(void* ptr);
+		//use a more sophisticated gp allocator later
+		void* alloc(size_t size, size_t alignment = 0);
+		//add alloc version for aligned memory
+		void free(void* ptr, size_t size = 0);
 	};
-
 }
 #endif // !_MEMORY_MANAGER_H_
 

@@ -8,7 +8,7 @@
 #include <random>
 #include <vector>
 #include <iostream>
-#include <IPCore/Memory/allocators.h>
+#include <IPCore/Memory/lowlevel_allocators.h>
 #include <atomic>
 #include <IPCore/Util/LFDS.h>
 #include <assert.h>

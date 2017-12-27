@@ -49,9 +49,6 @@
     <ClInclude Include="RuntimeControl\Console.h">
       <Filter>CoreModules\RuntimeControl</Filter>
     </ClInclude>
-    <ClInclude Include="Memory\allocators.h">
-      <Filter>CoreModules\Memory</Filter>
-    </ClInclude>
     <ClInclude Include="Util\function.h">
       <Filter>Util</Filter>
     </ClInclude>
@@ -108,6 +105,12 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Memory\MemoryManager.h">
+      <Filter>CoreModules\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\lowlevel_allocators.h">
+      <Filter>CoreModules\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\allocators.h">
       <Filter>CoreModules\Memory</Filter>
     </ClInclude>
   </ItemGroup>

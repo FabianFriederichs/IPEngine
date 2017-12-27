@@ -4,6 +4,8 @@
 #include <cassert>
 namespace ipengine
 {
+	//some utility stuff for working with aligned memory
+
 	constexpr size_t getCacheAlignedSize(size_t size)
 	{
 		return size + ((TS_CACHE_LINE_SIZE - (size & (TS_CACHE_LINE_SIZE - 1))) & (TS_CACHE_LINE_SIZE - 1));
@@ -20,7 +22,7 @@ namespace ipengine
 	}
 
 	template<typename T>
-	class aligned_ptr
+	class aligned_ptr //TODO: make this thing std::nullable_pointer conform
 	{
 	private:
 		template <typename T, size_t alignment, typename ... ARGS>
