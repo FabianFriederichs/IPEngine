@@ -1,7 +1,3 @@
-Finish config manager
-	active file switching
-	spinlock for thread safety
-use config manager for core settings
 async/general thread management
 finish memory management concept
 refactor console

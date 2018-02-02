@@ -1,4 +1,5 @@
 #include <IPCore/Config/ConfigManager.h>
+#include <IPCore/Util/spinlock.h>
 #include <unordered_map>
 #include <iostream>
 #include <sstream>
@@ -6,6 +7,7 @@
 #include <cmath>
 #include <fstream>
 #include <algorithm>
+#include <mutex>
 
 //implementation
 
@@ -615,7 +617,8 @@ public:
 	ipstring currentFile;
 	Entry sentinel;
 	std::unordered_map<ipstring, Entry> entries;
-	bool configDirty;
+	YieldingSpinLock<4000> lock;
+	using lckgrd = std::lock_guard<YieldingSpinLock<4000>>;
 
 	//input validation -------------------------------------------------------------------------------
 
@@ -680,10 +683,18 @@ public:
 	}
 
 	//get/set methods --------------------------------------------------------------------------------
+	const ipstring& getCurrentFile()
+	{
+		lckgrd lg(lock);
+		return currentFile;
+	}
+	
 	ipbool getBool(const iprstr configstring)
 	{
+		
 		if (!isValidValueName(configstring))
 			return false;
+		lckgrd lg(lock);
 		auto e = entries.find(configstring);
 		if (e != entries.end() && e->second.type == EntryType::Bool)
 		{
@@ -699,6 +710,7 @@ public:
 	{
 		if (!isValidValueName(configstring))
 			return 0ll;
+		lckgrd lg(lock);
 		auto e = entries.find(configstring);
 		if (e != entries.end() && e->second.type == EntryType::Int)
 		{
@@ -714,6 +726,7 @@ public:
 	{
 		if (!isValidValueName(configstring))
 			return 0.0;
+		lckgrd lg(lock);
 		auto e = entries.find(configstring);
 		if (e != entries.end() && e->second.type == EntryType::Float)
 		{
@@ -729,6 +742,7 @@ public:
 	{
 		if (!isValidValueName(configstring))
 			return "";
+		lckgrd lg(lock);
 		auto e = entries.find(configstring);
 		if (e != entries.end() && e->second.type == EntryType::String)
 		{
@@ -745,6 +759,7 @@ public:
 	{
 		if (!isValidValueName(configstring))
 			return false;
+		lckgrd lg(lock);
 		entries[configstring] = Entry(configstring, (value ? "true" : "false"), value);
 		return true;
 	}
@@ -753,6 +768,7 @@ public:
 	{
 		if (!isValidValueName(configstring))
 			return false;
+		lckgrd lg(lock);
 		entries[configstring] = Entry(configstring, std::to_string(value), value);
 		return true;
 	}
@@ -761,6 +777,7 @@ public:
 	{
 		if (!isValidValueName(configstring))
 			return false;
+		lckgrd lg(lock);
 		entries[configstring] = Entry(configstring, std::to_string(value), value);
 		return true;
 	}
@@ -769,6 +786,7 @@ public:
 	{
 		if (!isValidValueName(configstring))
 			return false;
+		lckgrd lg(lock);
 		entries[configstring] = Entry(configstring, value);
 		return true;
 	}
@@ -778,6 +796,7 @@ public:
 	{
 		try
 		{			
+			lckgrd lg(lock);
 			std::ifstream fs(path, std::ios::in | std::ios::binary);
 			if (!fs.is_open())
 				return false;
@@ -785,6 +804,7 @@ public:
 			Scanner scan(fs);
 			//some data structure
 			parseFile(scan, entries);
+			currentFile = path;
 			return true;
 		}
 		catch (const std::exception& ex)
@@ -944,13 +964,17 @@ public:
 	{
 		try
 		{			
+			lckgrd lg(lock);
 			Section root("", 0);
 			for (const auto& e : entries)
 			{
 				insertIntoWriteTree(root, e.second);
 			}
 
-			std::ofstream stream(path, std::ios::trunc | std::ios::out | std::ios::binary);
+			ipstring fp = path;
+			if (fp == "")
+				fp = currentFile;
+			std::ofstream stream(fp, std::ios::trunc | std::ios::out | std::ios::binary);
 			if (!stream.is_open())
 				return false;
 
@@ -1040,11 +1064,15 @@ public:
 
 // interface ----------------------------------------------------------------------------------------------
 
-ipengine::ConfigManager::ConfigManager()
+ipengine::ConfigManager::ConfigManager() :
+	m_impl(new ConfigManager::ConfigImpl())
 {}
 
 ipengine::ConfigManager::~ConfigManager()
-{}
+{
+	if (m_impl)
+		delete m_impl;
+}
 
 ipengine::ipbool ipengine::ConfigManager::loadConfigFile(const iprstr path)
 {
@@ -1054,6 +1082,11 @@ ipengine::ipbool ipengine::ConfigManager::loadConfigFile(const iprstr path)
 ipengine::ipbool ipengine::ConfigManager::saveConfigFile(const iprstr path)
 {
 	return m_impl->saveConfigFile(path);
+}
+
+ipengine::ipstring ipengine::ConfigManager::getCurrentFile()
+{
+	return m_impl->getCurrentFile();
 }
 
 ipengine::ipbool ipengine::ConfigManager::getBool(const iprstr configstring)

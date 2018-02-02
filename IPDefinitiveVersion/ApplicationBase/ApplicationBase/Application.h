@@ -30,7 +30,7 @@ namespace ipengine
 		Application& operator=(const Application&) = delete;
 		Application& operator=(Application&&);
 
-		void init(const char _depGraphPath[], const char _modulePath[], const char _assetPath[]);
+		void init(const iprstr configPath);
 		void run();
 		Injector& getInjector();
 		Core& getCore();

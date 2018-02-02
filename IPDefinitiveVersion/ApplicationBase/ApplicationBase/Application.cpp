@@ -23,12 +23,14 @@ private:
 			delete core;
 	}
 
-	void init(const char _depgraphPath[], const char _modulePath[], const char _assetPath[])
+	void init(const iprstr _configPath)
 	{
-		core = new ipengine::Core(); //when core config stuff is ready put asset path in here
-		inj = new Injector(_depgraphPath, _modulePath);
-		core->initialize();
-		inj->LoadModules(core);
+		core = new ipengine::Core();
+		core->initialize(_configPath);
+
+		inj = new Injector(core->getConfigManager().getString("core.injector.depgraph_path"),
+						   core->getConfigManager().getString("core.injector.module_path"));
+		inj->LoadModules(core);		
 	}
 
 	void shutdown()
@@ -38,6 +40,7 @@ private:
 
 	void run(Application& app)
 	{
+		core->run();
 		app.initialize();
 		bool shouldstop = false;
 		while (!shouldstop)
@@ -92,9 +95,9 @@ ipengine::Application & ipengine::Application::operator=(Application && app)
 	return *this;
 }
 
-void ipengine::Application::init(const char _depgraphPath[], const char _modulePath[], const char _assetPath[])
+void ipengine::Application::init(const iprstr configPath)
 {
-	m_pimpl->init(_depgraphPath, _modulePath, _assetPath);
+	m_pimpl->init(configPath);
 }
 
 void ipengine::Application::run()

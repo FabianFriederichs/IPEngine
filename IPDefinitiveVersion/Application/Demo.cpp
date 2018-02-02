@@ -80,7 +80,7 @@ public:
 int _tmain(int argc, _TCHAR* argv[])
 {
 	MyApp app;
-	app.init(DEP_GRAPH_PATH, MODULE_PATH, "");
+	app.init("../Assets/Config/config.cfg");
 	app.run();
 
 //#ifdef _DEBUG

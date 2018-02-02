@@ -14,6 +14,7 @@ namespace ipengine
 		bool loadConfigFile(const iprstr path);
 		//writes cached config data to last loaded file (per default) or to given new config file
 		bool saveConfigFile(const iprstr path = nullptr);
+		ipstring getCurrentFile();
 		
 		ipbool			getBool(const iprstr configstring);
 		ipint64			getInt(const iprstr configstring);
