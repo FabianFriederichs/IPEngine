@@ -1,6 +1,5 @@
 #ifndef _CORE_CONFIG_H_
 #define _CORE_CONFIG_H_
-#include <IPCore/Core/ICoreTypes.h>
 
 //general stuff
 #ifdef _MSC_VER

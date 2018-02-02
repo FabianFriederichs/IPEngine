@@ -6,6 +6,8 @@
 #include <IPCore/RuntimeControl/Console.h>
 #include <IPCore/Messaging/EndpointRegistry.h>
 
+#include <IPCore/Core/ICoreTypes.h>
+
 namespace ipengine
 {
 	//this interface contains the core functionality

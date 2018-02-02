@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Config\ConfigManager.h" />
     <ClInclude Include="Core\ICore.h" />
     <ClInclude Include="Core\ICoreTypes.h" />
     <ClInclude Include="core_config.h" />
@@ -166,10 +167,12 @@
     <ClInclude Include="Util\hazard_pointer.h" />
     <ClInclude Include="Util\LFDS.h" />
     <ClInclude Include="Util\refctr.h" />
+    <ClInclude Include="Util\Scanner.h" />
     <ClInclude Include="Util\spinlock.h" />
     <ClInclude Include="Util\stack.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Config\ConfigManager.cpp" />
     <ClCompile Include="Core\ICore.cpp" />
     <ClCompile Include="Memory\MemoryManager.cpp" />
     <ClCompile Include="Messaging\EndpointRegistry.cpp" />

@@ -3,6 +3,7 @@
 #include <IPCore/core_config.h>
 #include <IPCore/Messaging/MessageEndpoint.h>
 #include <IPCore/Util/spinlock.h>
+#include <IPCore/Core/ICoreTypes.h>
 #include <map>
 
 namespace ipengine

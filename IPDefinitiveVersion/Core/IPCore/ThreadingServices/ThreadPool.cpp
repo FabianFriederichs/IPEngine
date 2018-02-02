@@ -57,14 +57,14 @@ void ipengine::ThreadPool::execute(Task * task)
 	}
 	catch (std::exception& ex)
 	{
-		size_t exlth = std::char_traits<char>::length(ex.what());
+		size_t exlth = std::char_traits<char>::length(ex.what()) + 1;
 		char* ex_msg = new char[exlth];
 		strncpy_s(ex_msg, exlth, ex.what(), exlth);
 		task->m_context.ex.reset(ex_msg);				//store exceptions inside task context for later rethrowing
 	}
 	catch (...)
 	{
-		size_t exlth = std::char_traits<char>::length("Unknown exception");
+		size_t exlth = std::char_traits<char>::length("Unknown exception") + 1;
 		char* ex_msg = new char[exlth];
 		strncpy_s(ex_msg, exlth, "Unknown exception", exlth);
 		task->m_context.ex.reset(ex_msg);
@@ -82,14 +82,14 @@ void ipengine::ThreadPool::execute(Task * task, Worker* worker)
 	}
 	catch (std::exception& ex)
 	{
-		size_t exlth = std::char_traits<char>::length(ex.what());
+		size_t exlth = std::char_traits<char>::length(ex.what()) + 1;
 		char* ex_msg = new char[exlth];
 		strncpy_s(ex_msg, exlth, ex.what(), exlth);
 		task->m_context.ex.reset(ex_msg);				//store exceptions inside task context for later rethrowing
 	}
 	catch (...)
 	{
-		size_t exlth = std::char_traits<char>::length("Unknown exception");
+		size_t exlth = std::char_traits<char>::length("Unknown exception") + 1;
 		char* ex_msg = new char[exlth];
 		strncpy_s(ex_msg, exlth, "Unknown exception", exlth);
 		task->m_context.ex.reset(ex_msg);

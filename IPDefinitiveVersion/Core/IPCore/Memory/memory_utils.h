@@ -22,7 +22,7 @@ namespace ipengine
 	}
 
 	template<typename T>
-	class aligned_ptr //TODO: make this thing std::nullable_pointer conform
+	class aligned_ptr //TODO: do pointer_traits stuff
 	{
 	private:
 		template <typename T, size_t alignment, typename ... ARGS>
@@ -43,6 +43,15 @@ namespace ipengine
 		size_t elem_size;
 	public:
 		aligned_ptr() :
+			ptr(nullptr),
+			mem_ptr(nullptr),
+			array_length(0),
+			elem_size(0)
+		{
+
+		}
+
+		aligned_ptr(std::nullptr_t p) :
 			ptr(nullptr),
 			mem_ptr(nullptr),
 			array_length(0),
@@ -168,7 +177,27 @@ namespace ipengine
 			ptr = nullptr;
 			mem_ptr = nullptr;
 		}
+
+		explicit operator bool()
+		{
+			return ptr != nullptr && mem_ptr != nullptr;
+		}
+
+		friend bool operator==(const aligned_ptr<T>& lhs, const aligned_ptr<T>& rhs);
+		friend bool operator!=(const aligned_ptr<T>& lhs, const aligned_ptr<T>& rhs);
 	};
+
+	template <typename T>
+	bool operator==(const aligned_ptr<T>& lhs, const aligned_ptr<T>& rhs)
+	{
+		return lhs.mem_ptr == rhs.mem_ptr && lhs.ptr == rhs.ptr;
+	}
+
+	template <typename T>
+	bool operator!=(const aligned_ptr<T>& lhs, const aligned_ptr<T>& rhs)
+	{
+		return !(lhs.mem_ptr == rhs.mem_ptr && lhs.ptr == rhs.ptr);
+	}
 
 	template <typename T, size_t alignment, typename ... ARGS>
 	inline aligned_ptr<T> alloc_aligned(ARGS&& ... args)

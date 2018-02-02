@@ -29,6 +29,9 @@
     <Filter Include="CoreModules\Messaging">
       <UniqueIdentifier>{2bda6352-9b56-4b82-a1ed-0a7e224fb27f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CoreModules\Config">
+      <UniqueIdentifier>{bbaef9a0-23f6-44ae-b542-e8ea6b7f91df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThreadingServices\Task.h">
@@ -113,6 +116,12 @@
     <ClInclude Include="Memory\allocators.h">
       <Filter>CoreModules\Memory</Filter>
     </ClInclude>
+    <ClInclude Include="Util\Scanner.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Config\ConfigManager.h">
+      <Filter>CoreModules\Config</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThreadingServices\TaskHandle.cpp">
@@ -141,6 +150,9 @@
     </ClCompile>
     <ClCompile Include="Memory\MemoryManager.cpp">
       <Filter>CoreModules\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Config\ConfigManager.cpp">
+      <Filter>CoreModules\Config</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

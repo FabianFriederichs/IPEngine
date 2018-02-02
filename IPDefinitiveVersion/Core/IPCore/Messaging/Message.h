@@ -3,6 +3,7 @@
 #include <IPCore/RuntimeControl/Time.h>
 #include <IPCore/core_config.h>
 #include <IPCore/Util/any.h>
+#include <IPCore/Core/ICoreTypes.h>
 
 //TODO: Create some class "Message". Possible attributes of such a thing:
 //		Type
