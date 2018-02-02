@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <list>
 #include <queue>
+#include "XMLParser.h"
 /*
 Stuff to do:
 	flags?
@@ -65,11 +66,20 @@ public:
 
 	Injector(std::string dependencyXMLPath, std::string libraryFolderpath)
 	{
-		if (parseDepGraphFromPropertyTree(parsePropTreeFromXML(dependencyXMLPath)))
+		XMLParser parser{};
+		auto g = parser.parse(dependencyXMLPath);
+		if (parser.getResult() != DependencyParser::READING_SUCCESS)
 		{
 			//TODO
-			//do error handling and memes
+			//error handling
 		}
+		depgraph = *g; //? will this delete the object after g and thus the last shared_ptr is destroyed by exiting scope?
+		
+		 //if (parseDepGraphFromPropertyTree(parsePropTreeFromXML(dependencyXMLPath)))
+		//{
+		//	//TODO
+		//	//do error handling and memes
+		//}
 		libFolderPath = libraryFolderpath;
 	};
 
@@ -99,6 +109,8 @@ public:
 		}
 	}
 
+	//Save the current dependency graph to it's source file it was loaded from
+	bool saveDependencyGraph();
 };
 
 #endif
