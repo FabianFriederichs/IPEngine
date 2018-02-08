@@ -10,7 +10,8 @@ private:
 
 	ApplicationImpl() :
 		core(nullptr),
-		inj(nullptr)
+		inj(nullptr),
+		shouldStopFlag(false)
 	{
 
 	}
@@ -38,10 +39,28 @@ private:
 		core->shutdown();
 	}
 
+	void consoleThreadFunc(Application& app)
+	{
+		auto sleepinterval = core->getConfigManager().getInt("core.application.console_thread_sleep_interval");
+		while (!shouldStopFlag.load(std::memory_order_acquire))
+		{
+			//some callback to application and management of core console
+			//TODO: wire up application callback and core console
+			app.onConsole();
+			std::this_thread::sleep_for(std::chrono::milliseconds(sleepinterval));
+		}
+	}
+
 	void run(Application& app)
 	{
 		core->run();
 		app.initialize();
+
+		bool enableConsole = core->getConfigManager().getBool("core.application.enable_native_console");
+		std::thread consoleThread;
+		if(enableConsole)
+			consoleThread = std::move(std::thread(&ApplicationImpl::consoleThreadFunc, this, std::ref(app)));
+
 		bool shouldstop = false;
 		while (!shouldstop)
 		{
@@ -49,6 +68,11 @@ private:
 			ipengine::Time t = core->tick(shouldstop);
 			app.postTick(t);
 		}
+
+		shouldStopFlag.store(true, std::memory_order_release);
+		if(enableConsole)
+			consoleThread.join();
+
 		shutdown();
 		app.onShutdown();
 	}
@@ -66,6 +90,7 @@ private:
 private:
 	Injector* inj;
 	ipengine::Core* core;
+	std::atomic_bool shouldStopFlag;
 };
 
 ipengine::Application::Application() :

@@ -71,6 +71,11 @@ public:
 
 	}
 
+	virtual void onConsole() override
+	{
+		//Do console stuff here
+	}
+
 	void runapp()
 	{
 		run();

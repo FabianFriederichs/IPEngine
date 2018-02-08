@@ -1,5 +1,5 @@
 #include <IPCore/RuntimeControl/Console.h>
-
+#include <mutex>
 ipengine::ConsoleCommand::ConsoleCommand()
 {
 }
@@ -25,18 +25,26 @@ ipengine::Console::Console(std::ostream & ostr) :
 {
 }
 
-void ipengine::Console::addCommand(const char * name, const CommandFunc & cfunc)
+bool ipengine::Console::addCommand(const char * name, const CommandFunc & cfunc)
 {
-	m_commands[std::string(name)] = ConsoleCommand(name, cfunc);
+	std::lock_guard<YieldingSpinLock<4000>> lock(m_mtx);
+	if (std::strlen(name) <= MAX_COMMAND_LENGTH)
+	{
+		m_commands[std::string(name)] = ConsoleCommand(name, cfunc);
+		return true;
+	}
+	return false;
 }
 
-void ipengine::Console::removeCommand(const char * name)
+bool ipengine::Console::removeCommand(const char * name)
 {
-	m_commands.erase(std::string(name));
+	std::lock_guard<YieldingSpinLock<4000>> lock(m_mtx);
+	return m_commands.erase(std::string(name)) > 0;
 }
 
 bool ipengine::Console::call(const char * name, int argc, char ** argv)
 {
+	std::lock_guard<YieldingSpinLock<4000>> lock(m_mtx);
 	if (m_commands.find(std::string(name)) != m_commands.end())
 	{
 		m_commands[std::string(name)].call(argc, argv);
@@ -45,7 +53,15 @@ bool ipengine::Console::call(const char * name, int argc, char ** argv)
 	return false;
 }
 
+bool ipengine::Console::in(const char * line)
+{
+	std::lock_guard<YieldingSpinLock<4000>> lock(m_mtx);
+	//TODO: do parsing of one line here and call the command
+	return false;
+}
+
 void ipengine::Console::print(const char * text)
 {
+	std::lock_guard<YieldingSpinLock<4000>> lock(m_mtx);
 	outstream << text;
 }

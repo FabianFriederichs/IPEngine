@@ -5,8 +5,9 @@
 #include <IPCore/Util/function.h>
 #include <unordered_map>
 #include <iostream>
+#include <IPCore/Util/spinlock.h>
 
-#define MAX_COMMAND_LENGTH 256
+#define MAX_COMMAND_LENGTH 127
 
 
 namespace ipengine
@@ -26,7 +27,7 @@ namespace ipengine
 		void call(int argc, char** argv);
 	private:
 		CommandFunc comfunc;
-		char name[MAX_COMMAND_LENGTH];
+		char name[MAX_COMMAND_LENGTH + 1];
 	
 	};
 
@@ -34,13 +35,15 @@ namespace ipengine
 	{
 	public:
 		Console(std::ostream&);
-		void addCommand(const char* name, const CommandFunc& cfunc);
-		void removeCommand(const char* name);
+		bool addCommand(const char* name, const CommandFunc& cfunc);
+		bool removeCommand(const char* name);
 		bool call(const char* name, int argc, char** argv);
+		bool in(const char* line);
 		void print(const char* text);
 	private:
 		std::unordered_map<std::string, ConsoleCommand> m_commands;
 		std::ostream& outstream;
+		YieldingSpinLock<4000> m_mtx;
 	};
 }
 

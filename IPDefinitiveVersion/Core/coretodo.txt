@@ -1,7 +1,7 @@
-async/general thread management
-finish memory management concept
-refactor console
-add debug/monitoring stuff
-implement PAL
-put all that stuff together in a consistent manner
-implement basic containers
+1	async/general thread management
+5	finish memory management concept
+4	refactor console
+2	add debug/monitoring stuff
+3	implement PAL
+7	put all that stuff together in a consistent manner
+6	implement basic containers

@@ -39,6 +39,7 @@ namespace ipengine
 		virtual void preTick() {};
 		virtual void postTick(const ipengine::Time& t) {};
 		virtual void onShutdown() = 0;
+		virtual void onConsole() {};
 	private:
 		class ApplicationImpl; ApplicationImpl* m_pimpl; 
 	};

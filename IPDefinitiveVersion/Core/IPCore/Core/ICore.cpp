@@ -15,6 +15,7 @@ ipengine::Core::~Core()
 
 void ipengine::Core::initialize(const iprstr configpath)
 {
+	cmodule_memorymanager = new MemoryManager();
 	cmodule_configmanager = new ConfigManager();
 	if (!cmodule_configmanager->loadConfigFile(configpath))
 	{
@@ -73,6 +74,11 @@ ipengine::ThreadPool & ipengine::Core::getThreadPool()
 ipengine::EndpointRegistry & ipengine::Core::getEndpointRegistry()
 {
 	return *cmodule_endpointregistry;
+}
+
+ipengine::MemoryManager & ipengine::Core::getMemoryManager()
+{
+	return *cmodule_memorymanager;
 }
 
 ipengine::ConfigManager & ipengine::Core::getConfigManager()

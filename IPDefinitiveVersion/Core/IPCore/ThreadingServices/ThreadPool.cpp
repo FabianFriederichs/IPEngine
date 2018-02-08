@@ -397,7 +397,6 @@ bool ipengine::ThreadPool::spawn(TaskHandle& handle, TaskContext* tcptr)
 			m_helperqueue.push_left(handle.m_task);					//and that
 			return true;
 		}
-		//TODO: spawning a task from a non-worker thread?
 	}
 	return false;
 }

@@ -6,6 +6,7 @@
 #include <IPCore/RuntimeControl/Console.h>
 #include <IPCore/Messaging/EndpointRegistry.h>
 #include <IPCore/Config/ConfigManager.h>
+#include <IPCore/Memory/MemoryManager.h>
 
 #include <IPCore/Core/ICoreTypes.h>
 
@@ -32,12 +33,11 @@ namespace ipengine
 		Scheduler& getScheduler();		
 		//Threading Services
 		ThreadPool& getThreadPool();
-		//Messaging Services -
+		//Messaging Services
 		EndpointRegistry& getEndpointRegistry();
-
 		//Memory Manager  
-
-		//Configuration Manager -                
+		MemoryManager& getMemoryManager();
+		//Configuration Manager                
 		ConfigManager& getConfigManager();
 		//Debug/Monitoring 
 
@@ -52,8 +52,10 @@ namespace ipengine
 		Console* cmodule_console;
 		EndpointRegistry* cmodule_endpointregistry;
 		ConfigManager* cmodule_configmanager;
+		MemoryManager* cmodule_memorymanager;
+
 		
-		
+		//Core messaging endpoint
 		MessageEndpoint* core_msgep;
 
 		//single atomic for generating global ids. 0 is always an invalid id.
