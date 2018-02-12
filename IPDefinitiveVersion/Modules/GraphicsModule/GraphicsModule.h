@@ -49,7 +49,6 @@ private:
 	boost::shared_ptr<SCM::ISimpleContentModule_API> m_scm;
 	std::vector<ipengine::Scheduler::SubHandle> handles;
 	ipengine::ipid cameraentity = IPID_INVALID;
-	//constants
 	glm::vec4 m_clearcolor = { 0.20f, 0.15f, 0.18f, 1.0f };
 	float width = 1280; float height = 720; float znear = 0.1f; float zfar = 100;
 	float m_fov = glm::pi<float>() / 2;
@@ -57,7 +56,6 @@ private:
 	glm::mat4 projmat = glm::perspective(m_fov, width / height, znear, zfar);
 	glm::mat4 viewmat = glm::mat4(glm::quat(1.0f, 0.0f, .0f, .0f))*translate(glm::mat4(1.0f), -camerapos);
 
-	//
 
 	void setupSDL();
 	void loadShaders();
@@ -74,6 +72,9 @@ private:
 	// Inherited via IGraphics_API
 
 	//container with vao to scm mesh id
+
+	//rendering helpers
+	void drawEntities();
 };
 
 extern "C" BOOST_SYMBOL_EXPORT GraphicsModule module;

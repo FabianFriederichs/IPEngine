@@ -36,9 +36,9 @@ void GraphicsModule::loadShaders()
 void GraphicsModule::render()
 {
 	std::vector<ipengine::any> anyvector;
-	anyvector.push_back(static_cast<IGraphics_API*>(this));
-	anyvector.push_back(&m_scmID);
-	m_info.expoints.execute("TestPoint", { "this", "test" }, anyvector);
+	//anyvector.push_back(static_cast<IGraphics_API*>(this));
+	//anyvector.push_back(&m_scmID);
+	//m_info.expoints.execute("TestPoint", { "this", "test" }, anyvector);
 	bool res;
 	//if (wglGetCurrentContext() == NULL)
 	//{
@@ -49,13 +49,13 @@ void GraphicsModule::render()
 	//stuff
 	//Clear buffer
 	glClearColor(m_clearcolor.r, m_clearcolor.g, m_clearcolor.b, m_clearcolor.a); GLERR
-		glEnable(GL_CULL_FACE); GLERR
-		glFrontFace(GL_CCW); GLERR
-		glCullFace(GL_BACK); GLERR
-		glEnable(GL_DEPTH_TEST); GLERR
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GLERR
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); GLERR
-		glDepthFunc(GL_LESS); GLERR;
+	glEnable(GL_CULL_FACE); GLERR
+	glFrontFace(GL_CCW); GLERR
+	glCullFace(GL_BACK); GLERR
+	glEnable(GL_DEPTH_TEST); GLERR
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GLERR
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); GLERR
+	glDepthFunc(GL_LESS); GLERR;
 	//go through meshes
 	auto& activeentitynames = getActiveEntityNames(*m_scm);
 	auto& entities = m_scm->getThreeDimEntities();
@@ -77,7 +77,7 @@ void GraphicsModule::render()
 				shader->use();
 
 				//set uniforms/light/transform/view/proj/camera pos
-				shader->setUniform("model", mO->m_transformData.getData()->m_transformMatrix, false);
+				shader->setUniform("model_matrix", mO->m_transformData.getData()->m_transformMatrix, false);
 				
 				if (cameraentity != IPID_INVALID)
 				{
@@ -92,11 +92,11 @@ void GraphicsModule::render()
 				}
 
 
-				shader->setUniform("view", viewmat, false);
+				shader->setUniform("view_matrix", viewmat, false);
 				
-				shader->setUniform("projection", projmat, false);
+				shader->setUniform("projection_matrix", projmat, false);
 				
-				shader->setUniform("camerapos", camerapos);
+				//shader->setUniform("camerapos", camerapos);
 
 				//set material uniforms
 				GLint inndex = 0;
@@ -110,9 +110,9 @@ void GraphicsModule::render()
 
 					shader->setUniform(tdata.first, inndex);
 
-					shader->setUniform("offset", tdata.second.m_offset);
+					shader->setUniform("tc_offset", tdata.second.m_offset);
 
-					shader->setUniform("size", tdata.second.m_size);
+					shader->setUniform("tc_scale", tdata.second.m_size);
 
 					//_material->getTextures()[i]->bindToTextureUnit(i);
 				}
@@ -343,6 +343,9 @@ void GraphicsModule::recalcProj()
 {
 	projmat = glm::perspective(m_fov, width / height, znear, zfar);
 }
+
+void GraphicsModule::drawEntities()
+{}
 
 ipengine::ipid GraphicsModule::getCameraEntity()
 {

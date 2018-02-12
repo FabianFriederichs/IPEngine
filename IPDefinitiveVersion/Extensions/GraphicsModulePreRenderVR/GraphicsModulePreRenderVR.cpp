@@ -417,7 +417,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	{
 		throw;
 	}
-
+	
 	vr::Texture_t rightEyeTexture = { (void*)rightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
 	comperr= vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 	if (comperr != vr::EVRCompositorError::VRCompositorError_None)
