@@ -44,6 +44,9 @@ public:
 				1.0f,
 				&m_core->getThreadPool()
 		));
+
+		particles_per_task = m_core->getConfigManager().getInt("physics.cloth_simulation.particles_per_task");
+		particles_per_task = particles_per_task != 0 ? particles_per_task : PARTICLES_PER_TASK;
 		return true;
 	} //do stuff?
 
@@ -55,35 +58,30 @@ public:
 			"testcloth",
 			50,
 			50,
-			SCM::TransformData{
-			glm::vec3(0.0f, 0.0f, -1.0f),
-			glm::quat(),
-			glm::vec3(1.0f, 1.0f, 1.0f),
-			glm::vec3(0.0f, 1.0f, 0.0f),
-			glm::vec3(1.0f, 0.0f, 0.0f),
-			glm::vec3(0.0f, 0.0f, 1.0f),
-			glm::mat4(1.0f),
-			false
-		},
+			SCM::TransformData(
+				glm::vec3(0.0f, 0.0f, -1.0f),
+				glm::quat(),
+				glm::vec3(1.0f, 1.0f, 1.0f)
+			),
 			IPhysicsModule_API::PhysicsContext{
-			glm::vec3(0.0f, -3.51f, 0.2f),
-			1.45f,
-			0.6f,
-			40.0f,
-			0.12f,
-			40.0f,
-			0.12f,
-			30.0f,
-			0.12f,
-			true,
-			true,
-			true,
-			true,
-			0.02f,
-			5,
-			0.12f,
-			true
-		},
+				glm::vec3(0.0f, -3.51f, 0.01f),
+				1.45f,
+				0.6f,
+				40.0f,
+				0.12f,
+				40.0f,
+				0.12f,
+				30.0f,
+				0.12f,
+				true,
+				true,
+				true,
+				true,
+				0.02f,
+				5,
+				0.12f,
+				true
+			},
 			0
 		);
 
@@ -232,6 +230,7 @@ private:
 	//private data
 	std::vector<Cloth> clothInstances;
 	ipengine::MessageEndpoint* collisionMessageEp;	
+	int particles_per_task;
 };
 
 

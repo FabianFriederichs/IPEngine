@@ -3,13 +3,11 @@
 
 
 OBJLoader::OBJLoader()
-{
-}
+{}
 
 
 OBJLoader::~OBJLoader()
-{
-}
+{}
 
 OBJResult OBJLoader::loadOBJ(const std::string & objpath, bool calcnormals, bool calctangents)
 {
@@ -18,10 +16,12 @@ OBJResult OBJLoader::loadOBJ(const std::string & objpath, bool calcnormals, bool
 	{
 		std::ifstream stream(objpath, std::ios_base::in | std::ios_base::binary);
 		stream.exceptions(std::ifstream::badbit);
+		if (!stream.is_open())
+			throw std::logic_error("OBJ file not found.");
 		std::string command = "";
 		DataCache cache;
 		while (istreamhelper::peekString(stream, command))
-		{			
+		{
 			if (command == "o")
 			{
 				result.objects.push_back(parseObject(cache, stream, calcnormals, calctangents));
@@ -31,7 +31,7 @@ OBJResult OBJLoader::loadOBJ(const std::string & objpath, bool calcnormals, bool
 				result.objects.push_back(parseObject(cache, stream, calcnormals, calctangents));
 			}
 			else
-			{				
+			{
 				stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			}
 		}
@@ -58,7 +58,9 @@ OBJObject OBJLoader::parseObject(DataCache& cache, std::ifstream & stream, bool 
 
 		if (command == "o")
 		{
-			if (!(stream >> command >> object.name))
+			if (!(stream >> command))
+				throw OBJException("Error parsing object name.");
+			if (!std::getline(stream, object.name))
 				throw OBJException("Error parsing object name.");
 		}
 		else
@@ -119,12 +121,12 @@ glm::vec3 OBJLoader::parsePosition(std::ifstream & stream)
 	try
 	{
 		std::string command;
-		glm::vec3 pos;
-		if (!(stream >> command >> pos.x >> pos.y >> pos.z) || command != "v")
+		double x, y, z;
+		if (!(stream >> command >> x >> y >> z) || command != "v")
 		{
 			throw OBJException("Error parsing v command.");
 		}
-		return pos;
+		return glm::vec3(x, y, z);
 	}
 	catch (const std::exception& ex)
 	{
@@ -137,12 +139,12 @@ glm::vec3 OBJLoader::parseNormal(std::ifstream & stream)
 	try
 	{
 		std::string command;
-		glm::vec3 normal;
-		if (!(stream >> command >> normal.x >> normal.y >> normal.z) || command != "vn")
+		double x, y, z;
+		if (!(stream >> command >> x >> y >> z) || command != "vn")
 		{
 			throw OBJException("Error parsing vn command.");
 		}
-		return normal;
+		return glm::vec3(x, y, z);
 	}
 	catch (const std::exception& ex)
 	{
@@ -155,12 +157,12 @@ glm::vec2 OBJLoader::parseUV(std::ifstream & stream)
 	try
 	{
 		std::string command;
-		glm::vec2 uv;
-		if (!(stream >> command >> uv.x >> uv.y) || command != "vt")
+		double u, v;
+		if (!(stream >> command >> u >> v) || command != "vt")
 		{
 			throw OBJException("Error parsing vt command.");
 		}
-		return uv;
+		return glm::vec2(u, v);
 	}
 	catch (const std::exception& ex)
 	{
@@ -175,7 +177,7 @@ OBJMesh OBJLoader::parseMesh(DataCache & cache, std::ifstream & stream, bool cal
 		OBJMesh mesh;
 		std::unordered_map<VertexDef, size_t, VertexDef::hash, VertexDef::equal_to> meshvertset; //collect distinct vertices
 
-		//later create actual vertices out of these and put them into the mesh
+																								 //later create actual vertices out of these and put them into the mesh
 		std::vector<VertexDef> meshverts; //for tracking order of insertion		
 		std::vector<Index> meshindices;	//Vertex index of one of the Vertex defs above
 
@@ -187,9 +189,14 @@ OBJMesh OBJLoader::parseMesh(DataCache & cache, std::ifstream & stream, bool cal
 
 		if (command == "g") //if we have a grouped mesh extract its name first
 		{
-			if (!(stream >> command >> mesh.name))
+			if (!(stream >> command))
 			{
 				throw OBJException("Error parsing mesh.");
+			}
+
+			if (!std::getline(stream, mesh.name))
+			{
+				throw OBJException("Error parsing mesh name.");
 			}
 		}
 		else
@@ -217,7 +224,7 @@ OBJMesh OBJLoader::parseMesh(DataCache & cache, std::ifstream & stream, bool cal
 						meshindices.push_back(static_cast<Index>(meshverts.size()));
 						meshverts.push_back(face.verts[i]);
 						meshvertset.insert(std::make_pair(face.verts[i], meshverts.size() - 1));
-					}					
+					}
 				}
 			}
 			else if (command == "g" || command == "o") //found next mesh group
@@ -262,7 +269,7 @@ OBJMesh OBJLoader::parseMesh(DataCache & cache, std::ifstream & stream, bool cal
 		}
 	}
 	catch (const std::exception& ex)
-	{ 
+	{
 		throw ex;
 	}
 }
@@ -354,7 +361,7 @@ void OBJLoader::fillMesh(OBJMesh & mesh, DataCache & cache, std::vector<VertexDe
 
 			if (vdefs[i].p_defined)
 			{
-				if(vdefs[i].p_idx < static_cast<Index>(cache.positions.size()))
+				if (vdefs[i].p_idx < static_cast<Index>(cache.positions.size()))
 					vert.position = cache.positions[vdefs[i].p_idx];
 				else
 					throw OBJException("Missing position in object definition");
@@ -534,6 +541,200 @@ void OBJLoader::reverseWinding(OBJMesh & mesh)
 	}
 }
 
+SCM::BoundingBox OBJLoader::createBoundingBox(OBJMesh & mesh)
+{
+	glm::vec3 min(std::numeric_limits<float>::max());
+	glm::vec3 max(std::numeric_limits<float>::lowest());
+	
+	for (auto& v : mesh.vertices)
+	{
+		min.x = glm::min(min.x, v.position.x);
+		min.y = glm::min(min.y, v.position.y);
+		min.z = glm::min(min.z, v.position.z);
+
+		max.x = glm::max(max.x, v.position.x);
+		max.y = glm::max(max.y, v.position.y);
+		max.z = glm::max(max.z, v.position.z);
+	}	
+
+	SCM::BoundingBox bb;
+	bb.m_center = min + (max - min) * 0.5f;
+	bb.m_rotation = glm::quat();
+	bb.m_size = glm::vec3(max.x - min.x, max.y - min.y, max.z - min.z);
+
+	return bb;
+}
+
+SCM::BoundingBox OBJLoader::createBoundingBox(OBJObject & object)
+{
+	glm::vec3 min(std::numeric_limits<float>::max());
+	glm::vec3 max(std::numeric_limits<float>::lowest());
+
+	for (auto& m : object.meshes)
+	{
+		for (auto& v : m.vertices)
+		{
+			min.x = glm::min(min.x, v.position.x);
+			min.y = glm::min(min.y, v.position.y);
+			min.z = glm::min(min.z, v.position.z);
+
+			max.x = glm::max(max.x, v.position.x);
+			max.y = glm::max(max.y, v.position.y);
+			max.z = glm::max(max.z, v.position.z);
+		}
+	}
+
+	SCM::BoundingBox bb;
+	bb.m_center = min + (max - min) * 0.5f;
+	bb.m_rotation = glm::quat();
+	bb.m_size = glm::vec3(max.x - min.x, max.y - min.y, max.z - min.z);
+
+	return bb;
+}
+
+SCM::BoundingSphere OBJLoader::createBoundingSphere(OBJMesh & mesh)
+{
+	//Ritter's algorithm for minial bounding sphere approximation
+	SCM::BoundingSphere bs;
+	bs.m_center = glm::vec3(0.0f);
+	bs.m_radius = 0.0f;
+	if (mesh.vertices.size() <= 1)
+		return bs;
+
+	glm::vec3 x = mesh.vertices[0].position;
+	glm::vec3 y = x;
+	for (auto& v : mesh.vertices)
+	{
+		if (glm::length(v.position - x) > glm::length(y - x))
+			y = v.position;
+	}
+	glm::vec3 z = x;
+	for (auto& v : mesh.vertices)
+	{
+		if (glm::length(v.position - y) > glm::length(z - y))
+			z = v.position;
+	}
+
+	bs.m_center = y + (z - y) * 0.5f;
+	bs.m_radius = glm::length(z - y) * 0.5f;
+
+	for (auto& v : mesh.vertices)
+	{
+		if (length(v.position - bs.m_center) > bs.m_radius)
+		{
+			glm::vec3 ctp = v.position - bs.m_center;
+			glm::vec3 nd1 = bs.m_center + (-glm::normalize(ctp) * bs.m_radius);
+			bs.m_radius = length(v.position - nd1) * 0.5f;
+			bs.m_center = nd1 + (v.position - nd1) * 0.5f;
+		}
+	}
+
+	return bs;
+}
+
+SCM::BoundingSphere OBJLoader::createBoundingSphere(OBJObject & object)
+{
+	//Ritter's algorithm for minial bounding sphere approximation
+	SCM::BoundingSphere bs;
+	bs.m_center = glm::vec3(0.0f);
+	bs.m_radius = 0.0f;
+	if (object.meshes.size() == 0)
+		return bs;
+	
+	glm::vec3 x = object.meshes[0].vertices[0].position;
+	glm::vec3 y = x;
+	for (auto& m : object.meshes)
+	{
+		for (auto& v : m.vertices)
+		{
+			if (glm::length(v.position - x) > glm::length(y - x))
+				y = v.position;
+		}
+	}
+	glm::vec3 z = x;
+	for (auto& m : object.meshes)
+	{
+		for (auto& v : m.vertices)
+		{
+			if (glm::length(v.position - y) > glm::length(z - y))
+				z = v.position;
+		}
+	}
+
+	bs.m_center = y + (z - y) * 0.5f;
+	bs.m_radius = glm::length(z - y) * 0.5f;
+
+	for (auto& m : object.meshes)
+	{
+		for (auto& v : m.vertices)
+		{
+			if (length(v.position - bs.m_center) > bs.m_radius)
+			{
+				glm::vec3 ctp = v.position - bs.m_center;
+				glm::vec3 nd1 = bs.m_center + (-glm::normalize(ctp) * bs.m_radius);
+				bs.m_radius = glm::length(v.position - nd1) * 0.5f;
+				bs.m_center = nd1 + (v.position - nd1) * 0.5f;
+			}
+		}
+	}
+
+	return bs;
+}
+
+void OBJLoader::recenter(OBJMesh & mesh)
+{
+	auto bb = createBoundingBox(mesh);
+	glm::vec3 diff = -bb.m_center;
+
+	for (auto& v : mesh.vertices)
+	{
+		v.position += diff;
+	}
+}
+
+void OBJLoader::recenter(OBJObject & object)
+{
+	auto bb = createBoundingBox(object);
+	glm::vec3 diff = -bb.m_center;
+
+	for (auto& m : object.meshes)
+	{
+		for (auto& v : m.vertices)
+		{
+			v.position += diff;
+		}
+	}
+}
+
+void OBJLoader::normalize(OBJMesh & mesh)
+{
+	auto bb = createBoundingBox(mesh);
+	float diff = glm::max(bb.m_size.x, glm::max(bb.m_size.y, bb.m_size.z));
+	float scale = 2.0f / diff;	
+	for (auto& v : mesh.vertices)
+	{
+		v.position -= bb.m_center;
+		v.position *= scale;
+		v.position += bb.m_center;
+	}	
+}
+
+void OBJLoader::normalize(OBJObject & object)
+{
+	auto bb = createBoundingBox(object);
+	float diff = glm::max(bb.m_size.x, glm::max(bb.m_size.y, bb.m_size.z));	
+	float scale = 2.0f / diff;
+	for (auto& m : object.meshes)
+	{
+		for (auto& v : m.vertices)
+		{
+			v.position -= bb.m_center;
+			v.position *= scale;
+			v.position += bb.m_center;
+		}
+	}	
+}
+
 bool istreamhelper::peekString(std::istream& stream, std::string& out)
 {
 	try
@@ -550,7 +751,7 @@ bool istreamhelper::peekString(std::istream& stream, std::string& out)
 		}
 		else
 		{
-			if(!stream.eof())
+			if (!stream.eof())
 				stream.seekg(spos);
 			return false;
 		}

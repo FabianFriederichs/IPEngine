@@ -2,7 +2,8 @@
 #define _ISIMPLECONTENTMODULE_API_H_
 #include <IModule_API.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
 
 
 namespace SCM
@@ -16,6 +17,50 @@ namespace SCM
 	public:
 		//TransformData() { m_isMatrixDirty = true; };
 		//TransformData(const TransformData& d) :m_location(d.m_location), m_rotation(d.m_rotation), m_scale(d.m_scale), m_localX(d.m_localX), m_localY(d.m_localY), m_localZ(d.m_localZ) { m_isMatrixDirty = true; };
+		TransformData():
+			m_location(0.0f),
+			m_rotation(),
+			m_scale(1.0f),
+			m_localX(1.0f, 0.0f, 0.0f),
+			m_localY(0.0f, 1.0f, 0.0f),
+			m_localZ(0.0f, 0.0f, 1.0f),
+			m_transformMatrix(),
+			m_isMatrixDirty(true)
+		{}
+
+		TransformData(
+			const glm::vec3& location,
+			const glm::quat& rotation,
+			const glm::vec3& scale):
+				m_location(location),
+				m_rotation(rotation),
+				m_scale(scale),
+				m_isMatrixDirty(true)
+		{
+			updateTransform();
+		}
+
+		TransformData(
+			const glm::mat4& transformMatrix) :
+			m_location(transformMatrix[3][0], transformMatrix[3][1], transformMatrix[3][2]),
+			m_rotation(glm::toQuat(glm::mat3(glm::normalize(transformMatrix[0]),
+											 glm::normalize(transformMatrix[1]),
+											 glm::normalize(transformMatrix[2])))),
+			m_scale(glm::length(transformMatrix[0]),
+					glm::length(transformMatrix[1]),
+					glm::length(transformMatrix[2])),
+			m_transformMatrix(transformMatrix),
+			m_isMatrixDirty(false)
+		{
+			calcLocalAxes();
+		}
+
+		TransformData(const TransformData& other) = default;
+		TransformData(TransformData&& other) = default;
+
+		TransformData& operator=(const TransformData& other) = default;
+		TransformData& operator=(TransformData&& other) = default;
+
 		~TransformData() {};
 		glm::vec3 m_location;
 		glm::quat m_rotation;
@@ -24,7 +69,30 @@ namespace SCM
 		glm::vec3 m_localX;
 		glm::vec3 m_localZ;
 		glm::mat4 m_transformMatrix;
-		bool m_isMatrixDirty =true;
+		bool m_isMatrixDirty;
+
+		void calcTransformMatrix()
+		{
+			glm::mat4 T = glm::translate(m_location);
+			glm::mat4 R = glm::toMat4(m_rotation);
+			glm::mat4 S = glm::scale(m_scale);
+			
+			m_transformMatrix = T * R * S;
+		}
+
+		void calcLocalAxes()
+		{
+			m_localX = glm::normalize(glm::vec3(m_transformMatrix[0][0], m_transformMatrix[0][1], m_transformMatrix[0][2]));
+			m_localY = glm::normalize(glm::vec3(m_transformMatrix[1][0], m_transformMatrix[1][1], m_transformMatrix[1][2]));
+			m_localZ = glm::normalize(glm::vec3(m_transformMatrix[2][0], m_transformMatrix[2][1], m_transformMatrix[2][2]));			
+		}
+
+		void updateTransform()
+		{
+			calcTransformMatrix();
+			calcLocalAxes();
+			m_isMatrixDirty = false;
+		}		
 	};
 
 	class Transform
@@ -193,24 +261,35 @@ namespace SCM
 	class Entity
 	{
 	public:
-		Entity()
+		Entity() :
+			m_entityId(-1),
+			m_parent(nullptr),
+			isBoundingBox(true),
+			isActive(false)
+		{}
+		Entity(const Entity& other):
+			m_transformData(other.m_transformData),
+			m_parent(other.m_parent),
+			m_name(other.m_name),
+			m_boundingData(other.m_boundingData),
+			isBoundingBox(other.isBoundingBox),
+			isActive(other.isActive)
 		{
 			m_entityId = -1;
-			m_parent = nullptr;
-			isBoundingBox = true;
-			isActive = false;
 		}
-		Entity(const Entity& other):m_transformData(other.m_transformData), m_parent(other.m_parent), m_name(other.m_name), m_boundingData(other.m_boundingData), isBoundingBox(other.isBoundingBox), isActive(other.isActive)
-		{
-			m_entityId = -1;
-		}
-		Entity(ipengine::ipid id, Transform& transform, BoundingData& boundingdata, bool boundingbox, bool active) :m_transformData(transform), m_boundingData(boundingdata)
-		{
-			m_entityId = id;
-			m_parent = nullptr;
-			isBoundingBox = boundingbox;
-			isActive = active;
-		}
+		Entity(
+			ipengine::ipid id,
+			Transform& transform,
+			BoundingData& boundingdata,
+			bool boundingbox,
+			bool active):
+				m_entityId(id),
+				m_parent(nullptr),
+				isBoundingBox(boundingbox),
+				isActive(active),
+				m_transformData(transform),
+				m_boundingData(boundingdata)
+		{}
 
 		//virtual ~Entity() {};
 
@@ -229,7 +308,15 @@ namespace SCM
 	{
 
 	public:
-		ThreeDimEntity(ipengine::ipid id, Transform& transform, BoundingData& boundingdata, bool boundingbox, bool active, MeshedObject* meshes) :Entity(id, transform, boundingdata, boundingbox, active), m_mesheObjects(meshes)
+		ThreeDimEntity(
+			ipengine::ipid id,
+			Transform& transform,
+			BoundingData& boundingdata,
+			bool boundingbox,
+			bool active,
+			MeshedObject* meshes):
+				Entity(id, transform, boundingdata, boundingbox, active),
+				m_mesheObjects(meshes)
 		{
 		}
 		MeshedObject* m_mesheObjects;
@@ -238,6 +325,155 @@ namespace SCM
 			m_transformData.swap();
 			m_mesheObjects->swap();
 		}
+
+		void generateBoundingBox()
+		{
+			glm::vec3 min(std::numeric_limits<float>::max());
+			glm::vec3 max(std::numeric_limits<float>::lowest());
+
+			for (auto& m : m_mesheObjects->m_meshes)
+			{
+				for (auto& v : m->m_vertices.getData())
+				{
+					min.x = glm::min(min.x, v.m_position.x);
+					min.y = glm::min(min.y, v.m_position.y);
+					min.z = glm::min(min.z, v.m_position.z);
+
+					max.x = glm::max(max.x, v.m_position.x);
+					max.y = glm::max(max.y, v.m_position.y);
+					max.z = glm::max(max.z, v.m_position.z);
+				}
+			}
+
+			SCM::BoundingBox bb;
+			bb.m_center = min + (max - min) * 0.5f;
+			bb.m_rotation = glm::quat();
+			bb.m_size = glm::vec3(max.x - min.x, max.y - min.y, max.z - min.z);
+			this->isBoundingBox = true;
+			this->m_boundingData.box = bb;
+		}
+
+		void generateBoundingSphere()
+		{
+			if (m_mesheObjects->m_meshes.size() == 0)
+				return;
+			//Ritter's algorithm for minial bounding sphere approximation
+			SCM::BoundingSphere bs;
+			bs.m_center = glm::vec3(0.0f);
+			bs.m_radius = 0.0f;
+
+			glm::vec3 x = m_mesheObjects->m_meshes[0]->m_vertices.getData()[0].m_position;
+			glm::vec3 y = x;
+			for (auto& m : m_mesheObjects->m_meshes)
+			{
+				for (auto& v : m->m_vertices.getData())
+				{
+					if (glm::length(v.m_position - x) > glm::length(y - x))
+						y = v.m_position;
+				}
+			}
+			glm::vec3 z = x;
+			for (auto& m : m_mesheObjects->m_meshes)
+			{
+				for (auto& v : m->m_vertices.getData())
+				{
+					if (glm::length(v.m_position - y) > glm::length(z - y))
+						z = v.m_position;
+				}
+			}
+
+			bs.m_center = y + (z - y) * 0.5f;
+			bs.m_radius = glm::length(z - y) * 0.5f;
+
+			for (auto& m : m_mesheObjects->m_meshes)
+			{
+				for (auto& v : m->m_vertices.getData())
+				{
+					if (glm::length(v.m_position - bs.m_center) > bs.m_radius)
+					{
+						glm::vec3 ctp = v.m_position - bs.m_center;
+						glm::vec3 nd1 = bs.m_center + (-glm::normalize(ctp) * bs.m_radius);
+						bs.m_radius = glm::length(v.m_position - nd1) * 0.5f;
+						bs.m_center = nd1 + (v.m_position - nd1) * 0.5f;
+					}
+				}
+			}
+
+			this->isBoundingBox = false;
+			this->m_boundingData.sphere = bs;
+		}
+	};
+
+	//lights
+
+	class DirectionalLight : public Entity
+	{
+	public:
+		DirectionalLight(
+			//Entity params
+			ipengine::ipid id,
+			Transform& transform,
+			BoundingData& boundingdata,
+			bool boundingbox,
+			bool active,
+			//Light params
+			const glm::vec3& color) :
+				Entity(id, transform, boundingdata, boundingbox, active),
+				m_color(color)
+		{
+		}
+
+		glm::vec3 m_color;
+	};
+
+	class PointLight : public Entity
+	{
+	public:
+		PointLight(
+			//Entity params
+			ipengine::ipid id,
+			Transform& transform,
+			BoundingData& boundingdata,
+			bool boundingbox,
+			bool active,
+			//Light params
+			const glm::vec3& color,
+			float maxRange) :
+				Entity(id, transform, boundingdata, boundingbox, active),
+				m_color(color),
+				m_range(maxRange)
+		{}
+
+		glm::vec3 m_color;
+		float m_range;
+	};
+
+	class SpotLight : public Entity
+	{
+	public:
+		SpotLight(
+			//Entity params
+			ipengine::ipid id,
+			Transform& transform,
+			BoundingData& boundingdata,
+			bool boundingbox,
+			bool active,
+			//Light params
+			const glm::vec3& color,
+			float maxRange,
+			float innerConeAngle,
+			float outerConeAngle) :
+				Entity(id, transform, boundingdata, boundingbox, active),
+				m_color(color),
+				m_range(maxRange),
+				m_innerConeAngle(innerConeAngle),
+				m_outerConeAngle(outerConeAngle)
+		{}
+
+		glm::vec3 m_color;
+		float m_range;
+		float m_innerConeAngle;
+		float m_outerConeAngle;
 	};
 
 	class ISimpleContentModule_API : public IModule_API
@@ -259,6 +495,21 @@ namespace SCM
 		virtual std::unordered_map<ipengine::ipid, ThreeDimEntity*>& getThreeDimEntities()
 		{
 			return threedimentities;
+		}
+
+		virtual std::unordered_map<ipengine::ipid, DirectionalLight*>& getDirLights()
+		{
+			return dirLights;
+		}
+
+		virtual std::unordered_map<ipengine::ipid, PointLight*>& getPointLights()
+		{
+			return pointLights;
+		}
+
+		virtual std::unordered_map<ipengine::ipid, SpotLight*>& getSpotLights()
+		{
+			return spotLights;
 		}
 
 		virtual std::vector<ShaderData>& getShaders()
@@ -371,6 +622,9 @@ namespace SCM
 
 		std::unordered_map<std::string, Entity*> entities;
 		std::unordered_map<ipengine::ipid, ThreeDimEntity*> threedimentities;
+		std::unordered_map<ipengine::ipid, DirectionalLight*> dirLights;
+		std::unordered_map<ipengine::ipid, PointLight*> pointLights;
+		std::unordered_map<ipengine::ipid, SpotLight*> spotLights;
 		std::vector<ShaderData> shaders;
 		std::vector<MaterialData> materials;
 		std::vector<TextureFile> texturefiles;

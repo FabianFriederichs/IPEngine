@@ -34,8 +34,9 @@ ipengine::ipid SimpleContentModule::addMeshFromFile(std::string path, std::strin
 		auto& scmmeshes = getMeshes();
 		std::vector<SCM::MeshData*> meshes;
 		int meshindex = 0;
-		for (auto m : obj.meshes)
+		for (auto& m : obj.meshes)
 		{
+			OBJLoader::recalculateTangents(m);
 			SCM::MeshData* data = new SCM::MeshData();
 			for (auto i : m.indices)
 				data->m_indices.push_back(SCM::index(i));

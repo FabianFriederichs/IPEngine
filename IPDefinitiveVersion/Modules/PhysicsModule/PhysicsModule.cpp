@@ -94,12 +94,12 @@ void PhysicsModule::updateCloth(Cloth * cloth, double dt, ipengine::TaskContext 
 		for (int i = 0; i < cloth->m_pctx.constraint_iterations; i++)
 		{
 			ipengine::TaskHandle constraintMainTask = parentContext.getPool()->createEmpty();
-			for (size_t p = 0; p < cloth->particleCount(); p += PARTICLES_PER_TASK)
+			for (size_t p = 0; p < cloth->particleCount(); p += particles_per_task)
 			{
 				UpdateBatch ub{
 					cloth,
 					p,
-					(p + PARTICLES_PER_TASK >= cloth->particleCount() ? cloth->particleCount() - 1 : p + PARTICLES_PER_TASK),
+					(p + particles_per_task >= cloth->particleCount() ? cloth->particleCount() - 1 : p + particles_per_task),
 					dt
 				};
 				ipengine::TaskHandle child = parentContext.getPool()->createChild(ipengine::TaskFunction::make_func<PhysicsModule, &PhysicsModule::satisfyConstraintBatch>(this),
@@ -117,12 +117,12 @@ void PhysicsModule::updateCloth(Cloth * cloth, double dt, ipengine::TaskContext 
 	}
 
 	ipengine::TaskHandle collisionContext = parentContext.getPool()->createEmpty();
-	for (size_t p = 0; p < cloth->particleCount(); p += PARTICLES_PER_TASK)
+	for (size_t p = 0; p < cloth->particleCount(); p += particles_per_task)
 	{
 		UpdateBatch ub{
 			cloth,
 			p,
-			(p + PARTICLES_PER_TASK >= cloth->particleCount() ? cloth->particleCount() - 1 : p + PARTICLES_PER_TASK),
+			(p + particles_per_task >= cloth->particleCount() ? cloth->particleCount() - 1 : p + particles_per_task),
 			dt
 		};
 		ipengine::TaskHandle child = parentContext.getPool()->createChild(ipengine::TaskFunction::make_func<PhysicsModule, &PhysicsModule::handleCollisions>(this),
@@ -137,12 +137,12 @@ void PhysicsModule::updateCloth(Cloth * cloth, double dt, ipengine::TaskContext 
 
 	//pass1
 	ipengine::TaskHandle updateMainTask = parentContext.getPool()->createEmpty();
-	for (size_t p = 0; p < cloth->particleCount(); p += PARTICLES_PER_TASK)
+	for (size_t p = 0; p < cloth->particleCount(); p += particles_per_task)
 	{
 		UpdateBatch ub{
 			cloth,
 			p,
-			(p + PARTICLES_PER_TASK >= cloth->particleCount() ? cloth->particleCount() - 1 : p + PARTICLES_PER_TASK),
+			(p + particles_per_task >= cloth->particleCount() ? cloth->particleCount() - 1 : p + particles_per_task),
 			dt
 		};
 		ipengine::TaskHandle child = parentContext.getPool()->createChild(ipengine::TaskFunction::make_func<PhysicsModule, &PhysicsModule::updateParticleBatchPass1>(this),
@@ -158,12 +158,12 @@ void PhysicsModule::updateCloth(Cloth * cloth, double dt, ipengine::TaskContext 
 	//pass 2
 
 	ipengine::TaskHandle updateMainTask2 = parentContext.getPool()->createEmpty();
-	for (size_t p = 0; p < cloth->particleCount(); p += PARTICLES_PER_TASK)
+	for (size_t p = 0; p < cloth->particleCount(); p += particles_per_task)
 	{
 		UpdateBatch ub{
 			cloth,
 			p,
-			(p + PARTICLES_PER_TASK >= cloth->particleCount() ? cloth->particleCount() - 1 : p + PARTICLES_PER_TASK),
+			(p + particles_per_task >= cloth->particleCount() ? cloth->particleCount() - 1 : p + particles_per_task),
 			dt
 		};
 		ipengine::TaskHandle child = parentContext.getPool()->createChild(ipengine::TaskFunction::make_func<PhysicsModule, &PhysicsModule::updateParticleBatchPass2>(this),
@@ -447,7 +447,7 @@ void PhysicsModule::handleCollisions(ipengine::TaskContext & context)
 
 glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::BoundingBox & collider, const glm::vec3& wpos, float dt, bool& collided)
 {
-	//do an optimistic test at the beginning. construct a sphere from the largest half-size of the box and
+	//do an optimistic test at the beginning. construct a sphere from the largest size dim of the box and
 	//do a quick sphere-sphere intersection test. quit early if the test renders negative
 
 	if (glm::length(particle.m_position - collider.m_center + wpos) > particle.m_radius + (glm::max(collider.m_size.x, glm::max(collider.m_size.y, collider.m_size.z))))

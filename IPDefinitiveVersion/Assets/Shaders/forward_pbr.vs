@@ -30,8 +30,8 @@ void main()
 	vertexdat.uv = uv * tc_scale + tc_offset;
 
 	mat3 nm = transpose(inverse(mat3(mv));
-	vec3 N = nm * normal;
-	vec3 T = nm * tangent;
+	vec3 N = normalize(nm * normal);
+	vec3 T = normalize(nm * tangent);
 	T = normalize(T - dot(T, N) * N);
 	vec3 B = cross(N, T);
 	vertexdat.TBN = mat3(T, B, N);

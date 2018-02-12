@@ -17,6 +17,9 @@ GraphicsModule::GraphicsModule(void)
 bool GraphicsModule::startUp()
 {
 	m_scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(m_scmID);
+	//get settings from config file
+	width = static_cast<float>(m_core->getConfigManager().getInt("graphics.window.width"));
+	height = static_cast<float>(m_core->getConfigManager().getInt("graphics.window.height"));
 	setupSDL();
 	//loadShaders();
 	ipengine::Scheduler& sched = m_core->getScheduler();
@@ -176,11 +179,11 @@ void GraphicsModule::setupSDL()
 	
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, static_cast<int>(m_core->getConfigManager().getInt("graphics.opengl.version_major")));
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, static_cast<int>(m_core->getConfigManager().getInt("graphics.opengl.version_minor")));
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	window = SDL_CreateWindow("Demo Window", SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow(m_core->getConfigManager().getString("graphics.window.title").c_str(), SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED, static_cast<int>(width), static_cast<int>(height), SDL_WINDOW_OPENGL);
 	
 	if (window == NULL) {
 		//std::cout << "Could not create SDL window." << std::endl;
@@ -194,7 +197,7 @@ void GraphicsModule::setupSDL()
 	context = SDL_GL_CreateContext(window);
 	wincontext = wglGetCurrentContext();
 	//check null
-	SDL_GL_SetSwapInterval(0);
+	SDL_GL_SetSwapInterval(m_core->getConfigManager().getBool("graphics.window.vsync") ? 1 : 0);
 	glewExperimental = GL_TRUE;
 	glewInit();
 	//wglMakeCurrent(NULL, NULL);

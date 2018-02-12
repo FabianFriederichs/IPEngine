@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cctype>
 #include <unordered_map>
+#include <ISimpleContentModule_API.h>
 
 //------------------------------ istream string helper ----------------------------------------
 
@@ -51,11 +52,9 @@ class OBJException : public std::logic_error
 {
 public:
 	OBJException() : std::logic_error("unkown exception")
-	{
-	}
+	{}
 	OBJException(const char* msg) : std::logic_error(msg)
-	{
-	}
+	{}
 };
 
 struct Vertex
@@ -71,7 +70,7 @@ typedef GLuint Index;
 class OBJMesh
 {
 public:
-	OBJMesh() : 
+	OBJMesh() :
 		hasPositions(false),
 		hasUVs(false),
 		hasNormals(false),
@@ -249,7 +248,7 @@ public:
 			std::hash<int> h;
 			size_t operator()(const VertexDef& vd) const
 			{
-				size_t seed = 0;				
+				size_t seed = 0;
 				seed ^= h(vd.p_idx) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 				seed ^= h(vd.uv_idx) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 				seed ^= h(vd.n_idx) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -266,7 +265,7 @@ public:
 				return (vd1.p_idx == vd2.p_idx && vd1.uv_idx == vd2.uv_idx && vd1.n_idx == vd2.n_idx);
 			}
 		};
-		
+
 	};
 
 	class Face
@@ -288,7 +287,7 @@ private:
 	//=> create raw v, vn, vt cache
 
 	//parse f flags and call parseFace
-	static OBJMesh parseMesh(DataCache& cache ,std::ifstream& stream, bool calcnormals = false, bool calctangents = false);
+	static OBJMesh parseMesh(DataCache& cache, std::ifstream& stream, bool calcnormals = false, bool calctangents = false);
 
 	//parse face and generate vertices and indices for the mesh
 	static Face parseFace(std::ifstream& stream);
@@ -303,9 +302,28 @@ private:
 
 public:
 	//post processing
+	//calculates vertex normals
 	static void recalculateNormals(OBJMesh& mesh);
+	//calculates vertex tangents
 	static void recalculateTangents(OBJMesh& mesh);
+	//reverses the winding order of all triangles
 	static void reverseWinding(OBJMesh& mesh);
+	//calculates an axis aligned bounding box (in model space) for one mesh
+	static SCM::BoundingBox createBoundingBox(OBJMesh& mesh);
+	//calculates an axis aligned bounding box (in model space) for one object
+	static SCM::BoundingBox createBoundingBox(OBJObject& object);
+	//calculates a minimum bounding sphere approximation for one mesh
+	static SCM::BoundingSphere createBoundingSphere(OBJMesh& mesh);
+	//calculates a minimum bounding sphere approximation for one object
+	static SCM::BoundingSphere createBoundingSphere(OBJObject& object);
+	//recenters a single mesh
+	static void recenter(OBJMesh& mesh);
+	//recenters an object
+	static void recenter(OBJObject& object);
+	//fits a mesh into NDC size aabb
+	static void normalize(OBJMesh& mesh);
+	//fits an object into NDC size aabb
+	static void normalize(OBJObject& object);
 };
 
 
