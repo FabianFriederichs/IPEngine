@@ -255,7 +255,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 		//auto rendermodels = ovrmodule->getRenderModels();
 		//rendermodels->LoadRenderModel_Async(rendermodels)
-
+		return;
 	}
 
 	//Set framebuffer 1 and set igraphics matrixes and call render 

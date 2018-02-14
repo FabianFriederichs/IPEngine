@@ -100,7 +100,7 @@ void GraphicsModule::loadShaders()
 }
 
 void GraphicsModule::render(ipengine::TaskContext & c)
-{
+{	
 	updateData();
 
 	std::vector<ipengine::any> anyvector;
@@ -123,6 +123,12 @@ void GraphicsModule::render(ipengine::TaskContext & c)
 
 void GraphicsModule::render()
 {	
+	static bool first = true;
+	if (first)
+	{
+		updateData();
+		first = false;
+	}
 	//forward pbr render pass
 	auto shader = m_s_pbrforward.get();
 	shader->use();
@@ -239,7 +245,7 @@ void GraphicsModule::setSceneUniforms(ShaderProgram* shader)
 	setLightUniforms(shader);
 
 	//quick test. remove that shit!
-	shader->setUniform("u_directionalLights[0].color", glm::vec3(1.0f, 0.92f, 0.85f));
+	shader->setUniform("u_directionalLights[0].color", glm::vec3(1.0f));
 	shader->setUniform("u_directionalLights[0].direction", glm::mat3(viewmat) * glm::vec3(-1.0f, -1.0f, -1.0f));
 	shader->setUniform("u_dirLightCount", 1);
 }
