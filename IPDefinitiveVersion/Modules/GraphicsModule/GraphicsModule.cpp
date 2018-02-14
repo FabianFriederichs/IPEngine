@@ -68,6 +68,8 @@ bool GraphicsModule::startUp()
 	m_max_pointlights = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.max_pointlights"));
 	m_max_spotlights = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.max_spotlights"));
 
+	m_exposure = static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.tone_mapping_exposure"));
+
 	setupSDL();
 	loadShaders();
 	
@@ -233,11 +235,12 @@ void GraphicsModule::setSceneUniforms(ShaderProgram* shader)
 	}
 	shader->setUniform("u_view_matrix", viewmat, false);
 	shader->setUniform("u_projection_matrix", projmat, false);
+	shader->setUniform("u_toneMappingExposure", m_exposure);
 	setLightUniforms(shader);
 
 	//quick test. remove that shit!
-	shader->setUniform("u_directionalLights[0].color", glm::vec3(1.0f, 1.0f, 1.0f));
-	shader->setUniform("u_directionalLights[0].direction", glm::mat3(viewmat) * glm::vec3(1.0f, 1.0f, 1.0f));
+	shader->setUniform("u_directionalLights[0].color", glm::vec3(1.0f, 0.92f, 0.85f));
+	shader->setUniform("u_directionalLights[0].direction", glm::mat3(viewmat) * glm::vec3(-1.0f, -1.0f, -1.0f));
 	shader->setUniform("u_dirLightCount", 1);
 }
 

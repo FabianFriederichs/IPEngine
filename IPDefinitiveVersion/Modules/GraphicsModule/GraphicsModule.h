@@ -55,6 +55,7 @@ private:
 	glm::vec3 camerapos = glm::vec3(3, 3, 20);
 	glm::mat4 projmat = glm::perspective(m_fov, width / height, znear, zfar);
 	glm::mat4 viewmat = glm::mat4(glm::quat(1.0f, 0.0f, .0f, .0f))*translate(glm::mat4(1.0f), -camerapos);
+	float m_exposure;
 
 	//material texture map params
 	GLint m_mtexMinFilter;

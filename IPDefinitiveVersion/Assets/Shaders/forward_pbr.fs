@@ -66,6 +66,7 @@ uniform int u_pointLightCount;
 uniform SpotLight u_spotLights[MAX_SPOT_LIGHTS];
 uniform int u_spotLightCount;
 uniform vec3 u_ambientLight;
+uniform float u_toneMappingExposure;
 
 //setup helpers
 vec3 normalFromNormalMap(vec3 texData, mat3 TBN)
@@ -216,7 +217,7 @@ void main()
     {
         vec3 radiance = calcDirLightRadiance(i);
         //vectors
-        vec3 L = normalize(u_directionalLights[i].direction);
+        vec3 L = normalize(-u_directionalLights[i].direction);
         //Outgoing irradiance for this light
         Lo += cookTorranceBRDF(N, V, L, mt_roughness, F0, mt_metalness, mt_albedo) * radiance;
     }
@@ -246,8 +247,10 @@ void main()
     vec3 outcol = Lo + ambient + mt_emissive;
 
     //gamma correction, hdr stuff
-     // HDR tonemapping
-    outcol = outcol / (outcol + vec3(1.0));
+    // HDR tonemapping
+    //rheinhard operator
+    //outcol = outcol / (outcol + vec3(1.0));
+    outcol = vec3(1.0) - exp(-outcol * u_toneMappingExposure);
     // gamma correct
     outcol = pow(outcol, vec3(1.0/2.2));
 
