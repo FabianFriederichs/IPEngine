@@ -39,7 +39,7 @@
           <moduleID>SimpleContentModule</moduleID>
         </dependency>
       </dependencies>
-      <ExtensionPoints>
+      <!--<ExtensionPoints>
         <Point>
           <identifier>PreRender</identifier>
           <Extensions>
@@ -49,7 +49,7 @@
             </Extension>
           </Extensions>
         </Point>
-      </ExtensionPoints>
+      </ExtensionPoints>-->
     </Module>
     <Module>
       <ignore>false</ignore>
@@ -91,7 +91,7 @@
         </dependency>
       </dependencies>
     </Module>
-    <Module>
+   <!-- <Module>
       <ignore>false</ignore>
       <identifier>GraphicsModulePreRenderVR</identifier>
       <isExPoint>true</isExPoint>
@@ -112,7 +112,7 @@
           <moduleID>BasicOpenVRModule</moduleID>
         </dependency>
       </dependencies>
-    </Module>
+    </Module> -->
     <Module>
       <ignore>false</ignore>
       <identifier>GameLogicModule</identifier>

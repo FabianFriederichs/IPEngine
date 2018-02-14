@@ -74,84 +74,180 @@ public:
 		return true;
 	}
 
-	template<class T>
-	inline void setUniform(const std::string name, T stuff);
-	template<class T>
-	inline void setUniform(const std::string name, T stuff, const GLboolean transpose);
+	void setUniform(const std::string& name, GLfloat value);
+	void setUniform(const std::string& name, const glm::vec2& value);
+	void setUniform(const std::string& name, const glm::vec3& value);
+	void setUniform(const std::string& name, const glm::vec4& value);
+
+	void setUniform(const std::string& name, GLint value);
+	void setUniform(const std::string& name, const glm::ivec2& value);
+	void setUniform(const std::string& name, const glm::ivec3& value);
+	void setUniform(const std::string& name, const glm::ivec4& value);
+
+	void setUniform(const std::string& name, GLuint value);
+	void setUniform(const std::string& name, const glm::uvec2& value);
+	void setUniform(const std::string& name, const glm::uvec3& value);
+	void setUniform(const std::string& name, const glm::uvec4& value);
+
+	void setUniform(const std::string& name, const glm::mat2& value, bool transpose);
+	void setUniform(const std::string& name, const glm::mat3& value, bool transpose);
+	void setUniform(const std::string& name, const glm::mat4& value, bool transpose);
 
 private:
-	GLint getUniformLocation(std::string name)
+	GLint getUniformLocation(const std::string& name)
 	{
 		return glGetUniformLocation(this->prog, name.c_str()); GLERR
 	}
 };
 
-template<>
-inline void ShaderProgram::setUniform(const std::string name, glm::vec2 values)
+inline void ShaderProgram::setUniform(const std::string& name, GLfloat value)
 {
 	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
 	if (!isActive())
-	{
 		glUseProgram(this->prog); GLERR
-	}
-
-	glUniform2fv(loc, 1, glm::value_ptr(values)); GLERR
+	glUniform1f(loc, value); GLERR
 }
 
-template<>
-inline void ShaderProgram::setUniform(const std::string name, glm::vec3 values)
+inline void ShaderProgram::setUniform(const std::string& name, const glm::vec2& value)
 {
 	GLint loc = getUniformLocation(name);
-	if (!isActive())
-	{
-		glUseProgram(this->prog); GLERR
-	}
-
-	glUniform3fv(loc, 1, glm::value_ptr(values)); GLERR
+	if (loc == -1)
+		return;
+	if (!isActive())	
+		glUseProgram(this->prog); GLERR	
+	glUniform2fv(loc, 1, glm::value_ptr(value)); GLERR
 }
 
-template<>
-inline void ShaderProgram::setUniform(const std::string name, glm::vec4 values)
+inline void ShaderProgram::setUniform(const std::string& name, const glm::vec3& value)
 {
 	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
 	if (!isActive())
-	{
 		glUseProgram(this->prog); GLERR
-	}
-	glUniform4fv(loc, 1, glm::value_ptr(values)); GLERR
+	glUniform3fv(loc, 1, glm::value_ptr(value)); GLERR
 }
 
-template<>
-inline void ShaderProgram::setUniform(const std::string name, const GLint value)
+inline void ShaderProgram::setUniform(const std::string& name, const glm::vec4& value)
 {
 	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
 	if (!isActive())
-	{
 		glUseProgram(this->prog); GLERR
-	}
+	glUniform4fv(loc, 1, glm::value_ptr(value)); GLERR
+}
+
+inline void ShaderProgram::setUniform(const std::string& name, GLint value)
+{
+	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
+	if (!isActive())
+		glUseProgram(this->prog); GLERR
 	glUniform1i(loc, value); GLERR
 }
 
-template<>
-inline void ShaderProgram::setUniform(const std::string name, const GLuint value)
+inline void ShaderProgram::setUniform(const std::string& name, const glm::ivec2& value)
 {
 	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
 	if (!isActive())
-	{
 		glUseProgram(this->prog); GLERR
-	}
+	glUniform2iv(loc, 1, glm::value_ptr(value)); GLERR
+}
+
+inline void ShaderProgram::setUniform(const std::string& name, const glm::ivec3& value)
+{
+	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
+	if (!isActive())
+		glUseProgram(this->prog); GLERR
+	glUniform3iv(loc, 1, glm::value_ptr(value)); GLERR
+}
+
+inline void ShaderProgram::setUniform(const std::string& name, const glm::ivec4& value)
+{
+	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
+	if (!isActive())
+		glUseProgram(this->prog); GLERR
+	glUniform4iv(loc, 1, glm::value_ptr(value)); GLERR
+}
+
+inline void ShaderProgram::setUniform(const std::string& name, GLuint value)
+{
+	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
+	if (!isActive())
+		glUseProgram(this->prog); GLERR
 	glUniform1ui(loc, value); GLERR
 }
 
-template<>
-inline void ShaderProgram::setUniform(const std::string name, glm::mat4 value, const GLboolean transpose)
+inline void ShaderProgram::setUniform(const std::string& name, const glm::uvec2& value)
 {
 	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
 	if (!isActive())
-	{
 		glUseProgram(this->prog); GLERR
-	}
-	glUniformMatrix4fv(loc, 1, transpose, glm::value_ptr(value)); GLERR
+	glUniform2uiv(loc, 1, glm::value_ptr(value)); GLERR
+}
+
+inline void ShaderProgram::setUniform(const std::string& name, const glm::uvec3& value)
+{
+	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
+	if (!isActive())
+		glUseProgram(this->prog); GLERR
+	glUniform3uiv(loc, 1, glm::value_ptr(value)); GLERR
+}
+
+inline void ShaderProgram::setUniform(const std::string& name, const glm::uvec4& value)
+{
+	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
+	if (!isActive())
+		glUseProgram(this->prog); GLERR
+	glUniform4uiv(loc, 1, glm::value_ptr(value)); GLERR
+}
+
+inline void ShaderProgram::setUniform(const std::string& name, const glm::mat2& value, bool transpose)
+{
+	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
+	if (!isActive())
+		glUseProgram(this->prog); GLERR
+	glUniformMatrix2fv(loc, 1, transpose ? GL_TRUE : GL_FALSE, glm::value_ptr(value)); GLERR
+}
+
+inline void ShaderProgram::setUniform(const std::string& name, const glm::mat3& value, bool transpose)
+{
+	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
+	if (!isActive())
+		glUseProgram(this->prog); GLERR
+	glUniformMatrix3fv(loc, 1, transpose ? GL_TRUE : GL_FALSE, glm::value_ptr(value)); GLERR
+}
+
+inline void ShaderProgram::setUniform(const std::string& name, const glm::mat4& value, bool transpose)
+{
+	GLint loc = getUniformLocation(name);
+	if (loc == -1)
+		return;
+	if (!isActive())
+		glUseProgram(this->prog); GLERR
+	glUniformMatrix4fv(loc, 1, transpose ? GL_TRUE : GL_FALSE, glm::value_ptr(value)); GLERR
 }
 
 #endif

@@ -16,3 +16,13 @@ An OpenGL error occured at file: "Utils.cpp", line: 285:
 invalid operation
 An OpenGL error occured at file: "d:\sourcetree\ipengine\ipdefinitiveversion\modules\graphicsmodule\utils.cpp", line: 285:
 invalid operation
+An OpenGL error occured at file: "c:\users\fabian\documents\sourcetreerepos\ipengine\ipdefinitiveversion\modules\graphicsmodule\utils.cpp", line: 296:
+invalid operation
+An OpenGL error occured at file: "c:\users\fabian\documents\sourcetreerepos\ipengine\ipdefinitiveversion\modules\graphicsmodule\utils.cpp", line: 296:
+invalid operation
+An OpenGL error occured at file: "c:\users\fabian\documents\sourcetreerepos\ipengine\ipdefinitiveversion\modules\graphicsmodule\utils.cpp", line: 296:
+invalid operation
+An OpenGL error occured at file: "c:\users\fabian\documents\sourcetreerepos\ipengine\ipdefinitiveversion\modules\graphicsmodule\utils.cpp", line: 321:
+invalid operation
+An OpenGL error occured at file: "c:\users\fabian\documents\sourcetreerepos\ipengine\ipdefinitiveversion\modules\graphicsmodule\utils.cpp", line: 321:
+invalid operation

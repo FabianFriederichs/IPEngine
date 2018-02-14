@@ -19,8 +19,12 @@ in struct VertexData
 
 //Types
 struct Material {
-    sampler2D mtex[MAX_TEXTURES]; //0: albedo; 1: MRAR: r=metallic, g=roughness, b=ao, a=insulator reflectance at normal incidence; 2: normal; 3: emissive
-    int texcount;
+    //sampler2D mtex[MAX_TEXTURES]; //0: albedo; 1: MRAR: r=metallic, g=roughness, b=ao, a=insulator reflectance at normal incidence; 2: normal; 3: emissive
+    sampler2D albedo;
+    sampler2D mrar;
+    sampler2D normal;
+    sampler2D emissive;
+    //int texcount;
 }; 
 
 struct DirLight {
@@ -79,14 +83,14 @@ vec3 calcDirLightRadiance(int i)
 
 vec3 calcPointLightRadiance(int i, vec3 fPos)
 {
-    float d = length(u_pointLights[i].pos - fPos);
+    float d = length(u_pointLights[i].position - fPos);
     float att = 1.0f / (1.0f + (d * d)); //probably needs fix
     return u_pointLights[i].color * att;
 }
 
 vec3 calcSpotLightRadiance(int i, vec3 fPos)
 {
-    vec3 dv = u_spotLights[i].pos - fPos;
+    vec3 dv = u_spotLights[i].position - fPos;
     float d = length(dv);
     float att = 1.0f / (1.0f + (d * d)); //probably needs fix
     //spot light cone stuff
@@ -151,10 +155,10 @@ vec3 cookTorranceBRDF(vec3 n, vec3 v, vec3 l, float roughness, vec3 reflectance,
 
     float D = DistributionGGX(n, h, roughness);  //normal distribution 
     float G   = GeometrySmith(n, v, l, roughness);      
-    vec3 F = fresnelSchlick(max(dot(h, v), 0.0), F0);
+    vec3 F = fresnelSchlick(max(dot(h, v), 0.0), reflectance);
 
     vec3 nominator    = D * G * F; 
-    float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
+    float denominator = 4 * max(dot(n, v), 0.0) * max(dot(n, l), 0.0) + 0.001; // 0.001 to prevent divide by zero.
     vec3 specular = nominator / denominator;
     
     // kS is equal to Fresnel
@@ -169,20 +173,20 @@ vec3 cookTorranceBRDF(vec3 n, vec3 v, vec3 l, float roughness, vec3 reflectance,
     kD *= 1.0 - metalness;	  
 
     // scale light by NdotL
-    float NdotL = max(dot(N, L), 0.0);        
+    float NdotL = max(dot(n, l), 0.0);        
 
     // add to outgoing radiance Lo
-    return (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+    return (kD * albedo / PI + specular) * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 }
 
 
 void main()
 {
     //sample material textures
-    vec4 ts_albedo = texture(material.mtex[0], vertexdat.uv);
-    vec4 ts_mrar = texture(material.mtex[1], vertexdat.uv);
-    vec3 ts_normal = texture(material.mtex[2], vertexdat.uv).rgb;
-    vec4 ts_emissive = texture(material.mtex[3], vertexdat.uv);
+    vec4 ts_albedo = texture(u_material.albedo, vertexdat.uv);
+    vec4 ts_mrar = texture(u_material.mrar, vertexdat.uv);
+    vec3 ts_normal = texture(u_material.normal, vertexdat.uv).rgb;
+    vec4 ts_emissive = texture(u_material.emissive, vertexdat.uv);
 
     //split material data
     vec3 mt_albedo = ts_albedo.rgb;
@@ -222,7 +226,7 @@ void main()
         vec3 radiance = calcPointLightRadiance(i, P);
 
         //vectors
-        vec3 L = normalize(u_pointLights[i].pos - P);
+        vec3 L = normalize(u_pointLights[i].position - P);
         //Outgoing irradiance for this light
         Lo += cookTorranceBRDF(N, V, L, mt_roughness, F0, mt_metalness, mt_albedo) * radiance;
     }
@@ -231,7 +235,7 @@ void main()
     {
         vec3 radiance = calcSpotLightRadiance(i, P);
         //vectors
-        vec3 L = normalize(u_spotLights[i].pos - P);
+        vec3 L = normalize(u_spotLights[i].position - P);
         //Outgoing irradiance for this light
         Lo += cookTorranceBRDF(N, V, L, mt_roughness, F0, mt_metalness, mt_albedo) * radiance;
     }

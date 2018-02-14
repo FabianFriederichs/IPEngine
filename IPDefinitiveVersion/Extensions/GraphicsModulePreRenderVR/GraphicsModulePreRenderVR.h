@@ -43,18 +43,20 @@ private:
 
 	bool CreateFrameBuffer(int nWidth, int nHeight, FramebufferDesc &framebufferDesc)
 	{
+		int mssamples = static_cast<int>(m_core->getConfigManager().getInt("graphics.vr.msaa_samples"));
+		mssamples = mssamples != 0 ? mssamples : 4;
 		//create multisample framebuffer
 		glGenFramebuffers(1, &framebufferDesc.m_nRenderFramebufferId); GLERR
-			glBindFramebuffer(GL_FRAMEBUFFER, framebufferDesc.m_nRenderFramebufferId); GLERR
+		glBindFramebuffer(GL_FRAMEBUFFER, framebufferDesc.m_nRenderFramebufferId); GLERR
 
-			glGenRenderbuffers(1, &framebufferDesc.m_nDepthBufferId); GLERR
-			glBindRenderbuffer(GL_RENDERBUFFER, framebufferDesc.m_nDepthBufferId); GLERR
-			glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, nWidth, nHeight); GLERR
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, framebufferDesc.m_nDepthBufferId); GLERR
+		glGenRenderbuffers(1, &framebufferDesc.m_nDepthBufferId); GLERR
+		glBindRenderbuffer(GL_RENDERBUFFER, framebufferDesc.m_nDepthBufferId); GLERR
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, mssamples, GL_DEPTH_COMPONENT, nWidth, nHeight); GLERR
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, framebufferDesc.m_nDepthBufferId); GLERR
 
 		glGenTextures(1, &framebufferDesc.m_nRenderTextureId); GLERR
 		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, framebufferDesc.m_nRenderTextureId); GLERR
-		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, nWidth, nHeight, true); GLERR
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, mssamples, GL_RGBA8, nWidth, nHeight, true); GLERR
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, framebufferDesc.m_nRenderTextureId, 0); GLERR
 
 		//create resolve framebuffer as intermediate to get a normal 2d texture from multisampled buffer for submitting to the HMD and rendering onto window quad

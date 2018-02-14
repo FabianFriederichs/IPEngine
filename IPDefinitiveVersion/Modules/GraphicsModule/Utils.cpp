@@ -16,6 +16,31 @@ std::shared_ptr<Texture2D> GLUtils::loadGLTexture(const std::string& path)
 	}
 	else
 	{
+		GLint internalformat;
+		GLenum format;
+		switch (channels)
+		{
+			case 1:
+				internalformat = GL_R8;
+				format = GL_RED;
+				break;
+			case 2:
+				internalformat = GL_RG8;
+				format = GL_RG;
+				break;
+			case 3:
+				internalformat = GL_RGB8;
+				format = GL_RGB;
+				break;
+			case 4:
+				internalformat = GL_RGBA8;
+				format = GL_RGBA;
+				break;
+			default:
+				internalformat = GL_RGB8;
+				format = GL_RGB;
+				break;
+		}
 		glGenTextures(1, &texid); GLERR
 		if (texid == 0)
 		{
@@ -25,11 +50,11 @@ std::shared_ptr<Texture2D> GLUtils::loadGLTexture(const std::string& path)
 		glTexImage2D(
 			GL_TEXTURE_2D,		
 			0,					
-			GL_RGB8,			
+			internalformat,			
 			width,				
 			height,				
 			0,					
-			GL_RGB,			
+			format,			
 			GL_UNSIGNED_BYTE,	
 			image				
 		);

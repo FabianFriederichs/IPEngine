@@ -173,10 +173,10 @@
       <Path>../assets/models/uglypot.obj</Path>
       <Materials>
         <Material>
-          <MaterialId>1</MaterialId>
+          <MaterialId>3</MaterialId>
         </Material>
         <Material>
-          <MaterialId>0</MaterialId>
+          <MaterialId>2</MaterialId>
         </Material>
       </Materials>
     </Mesh>
@@ -201,6 +201,11 @@
       <Id>0</Id>
       <VSPath>../assets/shaders/BaseVertex.vert</VSPath>
       <FSPath>../assets/shaders/BaseFrag.frag</FSPath>
+    </Shader>
+    <Shader>
+      <Id>1</Id>
+      <VSPath>../assets/shaders/forward_pbr.vs</VSPath>
+      <FSPath>../assets/shaders/forward_pbr.fs</FSPath>
     </Shader>
   </Shaders>
 
@@ -257,6 +262,52 @@
       </Textures>
       <ShaderId>0</ShaderId>
     </Material>
+    <!-- PBR metal -->
+    <Material>
+      <Id>2</Id>
+      <Textures>
+        <Texture>
+          <Name>albedo</Name>
+          <Id>14</Id>
+        </Texture>
+        <Texture>
+          <Name>mrar</Name>
+          <Id>15</Id>
+        </Texture>
+        <Texture>
+          <Name>normal</Name>
+          <Id>16</Id>
+        </Texture>
+        <Texture>
+          <Name>emissive</Name>
+          <Id>17</Id>
+        </Texture>
+      </Textures>
+      <ShaderId>0</ShaderId>
+    </Material>
+    <!-- PBR Wood -->
+    <Material>
+      <Id>3</Id>
+      <Textures>
+        <Texture>
+          <Name>albedo</Name>
+          <Id>10</Id>
+        </Texture>
+        <Texture>
+          <Name>mrar</Name>
+          <Id>11</Id>
+        </Texture>
+        <Texture>
+          <Name>normal</Name>
+          <Id>12</Id>
+        </Texture>
+        <Texture>
+          <Name>emissive</Name>
+          <Id>13</Id>
+        </Texture>
+      </Textures>
+      <ShaderId>0</ShaderId>
+    </Material>
   </Materials>
 
   <Textures>
@@ -299,6 +350,38 @@
     <Texture>
       <Id>9</Id>
       <TexturePath>../assets/textures/wood/woodspec.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>10</Id>
+      <TexturePath>../assets/textures/woodpbr/albedo.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>11</Id>
+      <TexturePath>../assets/textures/woodpbr/mrar.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>12</Id>
+      <TexturePath>../assets/textures/woodpbr/normal.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>13</Id>
+      <TexturePath>../assets/textures/woodpbr/emissive.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>14</Id>
+      <TexturePath>../assets/textures/metalpbr/albedo.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>15</Id>
+      <TexturePath>../assets/textures/metalpbr/mrar.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>16</Id>
+      <TexturePath>../assets/textures/metalpbr/normal.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>17</Id>
+      <TexturePath>../assets/textures/metalpbr/emissive.png</TexturePath>
     </Texture>
   </Textures>
 </Scene>

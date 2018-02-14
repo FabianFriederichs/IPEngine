@@ -56,13 +56,32 @@ private:
 	glm::mat4 projmat = glm::perspective(m_fov, width / height, znear, zfar);
 	glm::mat4 viewmat = glm::mat4(glm::quat(1.0f, 0.0f, .0f, .0f))*translate(glm::mat4(1.0f), -camerapos);
 
+	//material texture map params
+	GLint m_mtexMinFilter;
+	GLint m_mtexMagFilter;
+	bool m_mtexAniso;
+	int m_mtexMaxAnisoLevel;
 
 	void setupSDL();
 	void loadShaders();
 	void updateData();
+	void setMaterialTexParams(GLuint tex);
 	std::unordered_map<ipengine::ipid, std::shared_ptr<VAO>> m_scmmeshtovao;
 	std::unordered_map<ipengine::ipid, std::shared_ptr<ShaderProgram>> m_scmshadertoprogram;
 	std::unordered_map <ipengine::ipid, std::shared_ptr<Texture2D>> m_scmtexturetot2d;
+
+	//light stuff
+	glm::vec3 m_ambientLight;
+	int m_max_dirlights;
+	int m_max_pointlights;
+	int m_max_spotlights;
+	
+	//global shaders
+	std::shared_ptr<ShaderProgram> m_s_pbrforward;
+	/*std::shared_ptr<ShaderProgram> m_s_shadowmap;
+	std::shared_ptr<ShaderProgram> m_s_blur;
+	std::shared_ptr<ShaderProgram> m_s_skybox;
+	std::shared_ptr<ShaderProgram> m_s_ssao;*/
 	void drawSCMMesh(ipengine::ipid);
 
 	// Inherited via IGraphics_API
@@ -74,7 +93,11 @@ private:
 	//container with vao to scm mesh id
 
 	//rendering helpers
-	void drawEntities();
+	void drawScene(ShaderProgram* shader);
+	void setSceneUniforms(ShaderProgram* shader);
+	void setLightUniforms(ShaderProgram* shader);
+	void setMaterialUniforms(SCM::MaterialData* mdata, ShaderProgram* shader);
+	void drawEntity(SCM::ThreeDimEntity* entity, ShaderProgram* shader);
 };
 
 extern "C" BOOST_SYMBOL_EXPORT GraphicsModule module;

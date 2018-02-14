@@ -41,6 +41,7 @@ void vrrendermodeltoscmmeshobject(vr::RenderModel_t* model, SCM::MeshData* mesh)
 	{
 		mesh->m_indices.push_back(*(model->rIndexData + ii));
 	}
+	//TODO: calc tangents for normal mapping
 	mesh->m_dirty = true;
 }
 
@@ -68,7 +69,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
 		//args[0].cast<IGraphics_API*>()->setCameraEntity(scm->getEntityByName("Camera")->m_entityId);
 		ovrmodule = m_info.dependencies.getDep<IBasicOpenVRModule_API>("openvr");
-		datastore = m_info.dependencies.getDep<IDataStoreModuleh_API>("datastore");
+		//datastore = m_info.dependencies.getDep<IDataStoreModuleh_API>("datastore");
 		scenemodule = m_info.dependencies.getDep<ISimpleSceneModule_API>("scene");
 
 		//glGenVertexArrays(1, &quadVAO); //GLERR;
@@ -383,7 +384,6 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	graphicsmodule->setCameraEntity(IPID_INVALID);
 
 	//LeftEye
-	glEnable(GL_MULTISAMPLE); //GLERR;
 	glBindFramebuffer(GL_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId); //GLERR;
 	glViewport(0, 0, renderWidth, renderHeight);
 
@@ -398,7 +398,6 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	resolveFB(leftEyeDesc.m_nRenderFramebufferId, leftEyeDesc.m_nResolveFramebufferId, renderWidth, renderHeight);
 
 	//Set framebuffer 2 and set graphics matrixes
-	glEnable(GL_MULTISAMPLE); //GLERR;
 	glBindFramebuffer(GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId); //GLERR;
 	glViewport(0, 0, renderWidth, renderHeight);
 	proj = convert(ovrmodule->getSystem()->GetProjectionMatrix(vr::EVREye::Eye_Right, znear, zfar));
@@ -410,7 +409,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 	vr::EVRCompositorError comperr;
 
-	vr::Texture_t leftEyeTexture = { (void*)leftEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+	vr::Texture_t leftEyeTexture = { (void*)leftEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
 	comperr=vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
 
 	if (comperr != vr::EVRCompositorError::VRCompositorError_None)
@@ -447,10 +446,10 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	*matrices.proj = preproj;
 	*matrices.view = preview;
 	graphicsmodule->setResolution(prew, preh);
-	datastore->set("renderw", renderWidth);
+	/*datastore->set("renderw", renderWidth);
 	datastore->set("renderh", renderHeight);
 	datastore->set("righteyeFB", rightEyeDesc);
-	datastore->set("lefteyeFB", leftEyeDesc);
+	datastore->set("lefteyeFB", leftEyeDesc);*/
 	//for (auto name : argnames)
 	//{
 	//	if (name == "this")
