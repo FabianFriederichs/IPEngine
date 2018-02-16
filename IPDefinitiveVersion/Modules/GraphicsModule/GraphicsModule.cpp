@@ -97,6 +97,12 @@ void GraphicsModule::loadShaders()
 	auto fspath = m_core->getConfigManager().getString("graphics.shaders.pbr_forward.fragment");
 
 	m_s_pbrforward = GLUtils::createShaderProgram(vspath, fspath);
+
+	auto vspath = m_core->getConfigManager().getString("graphics.shaders.pbribl_forward.vertex");
+	auto fspath = m_core->getConfigManager().getString("graphics.shaders.pbribl_forward.fragment");
+
+	m_s_pbriblforward = GLUtils::createShaderProgram(vspath, fspath);
+	m_ibl = m_core->getConfigManager().getBool("graphics.lighting.enable_ibl");
 }
 
 void GraphicsModule::render(ipengine::TaskContext & c)

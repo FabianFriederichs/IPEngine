@@ -1,7 +1,7 @@
 ﻿#include "Utils.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-std::shared_ptr<Texture2D> GLUtils::loadGLTexture(const std::string& path)
+std::shared_ptr<Texture2D> GLUtils::loadGLTexture(const std::string& path, bool genMipMaps)
 {
 	GLsizei width;
 	GLsizei height;
@@ -44,6 +44,7 @@ std::shared_ptr<Texture2D> GLUtils::loadGLTexture(const std::string& path)
 		glGenTextures(1, &texid); GLERR
 		if (texid == 0)
 		{
+			stbi_image_free(image);
 			throw std::logic_error("OpenGL texture object creation failed.");
 		}
 		glBindTexture(GL_TEXTURE_2D, texid); GLERR
@@ -65,13 +66,295 @@ std::shared_ptr<Texture2D> GLUtils::loadGLTexture(const std::string& path)
 			stbi_image_free(image);
 			throw std::logic_error("Error. Could not buffer texture data.");
 		}
-		glGenerateMipmap(GL_TEXTURE_2D); GLERR
+		if(genMipMaps)
+			glGenerateMipmap(GL_TEXTURE_2D); GLERR
 		glBindTexture(GL_TEXTURE_2D, 0); GLERR
 			stbi_image_free(image);
 
 		//SOIL_free_image_data(image);
 	}
 	return std::make_shared<Texture2D>(texid);
+}
+
+std::shared_ptr<TextureCube> GLUtils::loadGLCubeTexture(const std::string & path_px, const std::string & path_nx, const std::string & path_py, const std::string & path_ny, const std::string & path_pz, const std::string & path_nz, bool genMipMaps)
+{
+	unsigned char* images[6];
+	const std::string* paths[6];
+
+	paths[0] = &path_px;
+	paths[1] = &path_nx;
+	paths[2] = &path_py;
+	paths[3] = &path_ny;
+	paths[4] = &path_pz;
+	paths[5] = &path_nz;
+
+	stbi_set_flip_vertically_on_load(true);
+
+	GLsizei width;
+	GLsizei height;
+	GLsizei channels;
+
+	for (int i = 0; i < 6; i++)
+	{
+		images[i] = stbi_load(paths[i]->c_str(), &width, &height, &channels, 0);
+
+		if (images[i] == nullptr)
+		{
+			for (int k = 0; k < i; k++)
+				stbi_image_free(images[k]);
+			throw std::logic_error("Texture file coudn't be read.");
+		}
+
+		if (width != height)
+		{
+			for (int k = 0; k < i; k++)
+				stbi_image_free(images[k]);
+			throw std::logic_error("Cubemaps must be square.");
+		}
+	}
+
+	GLint internalformat;
+	GLenum format;
+	switch (channels)
+	{
+		case 1:
+			internalformat = GL_R8;
+			format = GL_RED;
+			break;
+		case 2:
+			internalformat = GL_RG8;
+			format = GL_RG;
+			break;
+		case 3:
+			internalformat = GL_RGB8;
+			format = GL_RGB;
+			break;
+		case 4:
+			internalformat = GL_RGBA8;
+			format = GL_RGBA;
+			break;
+		default:
+			internalformat = GL_RGB8;
+			format = GL_RGB;
+			break;
+	}
+
+	GLuint texid = 0;
+	
+	glGenTextures(1, &texid); GLERR
+	if (texid == 0)
+	{
+		for (int i = 0; i < 6; i++)
+			stbi_image_free(images[i]);
+		throw std::logic_error("OpenGL texture object creation failed.");
+	}
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texid); GLERR
+	for (int i = 0; i < 6; i++)
+	{
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+					 0,
+					 internalformat,
+					 width,
+					 height,
+					 0,
+					 format,
+					 GL_UNSIGNED_BYTE,
+					 images[i]
+		);
+	}
+	if (checkglerror())
+	{
+		glDeleteTextures(1, &texid);
+		for (int i = 0; i < 6; i++)
+			stbi_image_free(images[i]);
+		throw std::logic_error("Error. Could not buffer texture data.");
+	}
+
+	if (genMipMaps)
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP); GLERR
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0); GLERR
+
+	for (int i = 0; i < 6; i++)
+		stbi_image_free(images[i]);
+	
+	return std::make_shared<TextureCube>(texid);
+}
+
+std::shared_ptr<Texture2D> GLUtils::loadGLTextureHDR(const std::string & path, bool genMipMaps, bool halfprecision)
+{
+	GLsizei width;
+	GLsizei height;
+	GLsizei channels;
+	stbi_set_flip_vertically_on_load(true);
+	float* image = stbi_loadf(path.c_str(), &width, &height, &channels, 0);
+	GLuint texid = 0;
+	if (image == nullptr)
+	{
+		throw std::logic_error("Texture file coudn't be read.");
+	}
+	else
+	{
+		GLint internalformat;
+		GLenum format;
+		switch (channels)
+		{
+			case 1:
+				internalformat = halfprecision ? GL_R16F : GL_R32F;
+				format = GL_RED;
+				break;
+			case 2:
+				internalformat = halfprecision ? GL_RG16F : GL_RG32F;
+				format = GL_RG;
+				break;
+			case 3:
+				internalformat = halfprecision ? GL_RGB16F : GL_RGB32F;
+				format = GL_RGB;
+				break;
+			case 4:
+				internalformat = halfprecision ? GL_RGBA16F : GL_RGBA32F;
+				format = GL_RGBA;
+				break;
+			default:
+				internalformat = halfprecision ? GL_RGB16F : GL_RGB32F;
+				format = GL_RGB;
+				break;
+		}
+		glGenTextures(1, &texid); GLERR
+		if (texid == 0)
+		{
+			stbi_image_free(image);
+			throw std::logic_error("OpenGL texture object creation failed.");
+		}
+		glBindTexture(GL_TEXTURE_2D, texid); GLERR
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			internalformat,
+			width,
+			height,
+			0,
+			format,
+			GL_FLOAT,
+			image
+		);
+		if (checkglerror())
+		{
+			glDeleteTextures(1, &texid);
+			stbi_image_free(image);
+			throw std::logic_error("Error. Could not buffer texture data.");
+		}
+		if (genMipMaps)
+			glGenerateMipmap(GL_TEXTURE_2D); GLERR
+		glBindTexture(GL_TEXTURE_2D, 0); GLERR
+		stbi_image_free(image);
+	}
+	return std::make_shared<Texture2D>(texid);
+}
+
+std::shared_ptr<TextureCube> GLUtils::loadGLCubeTextureHDR(const std::string & path_px, const std::string & path_nx, const std::string & path_py, const std::string & path_ny, const std::string & path_pz, const std::string & path_nz, bool genMipMaps, bool halfprecision)
+{
+	float* images[6];
+	const std::string* paths[6];
+
+	paths[0] = &path_px;
+	paths[1] = &path_nx;
+	paths[2] = &path_py;
+	paths[3] = &path_ny;
+	paths[4] = &path_pz;
+	paths[5] = &path_nz;
+
+	stbi_set_flip_vertically_on_load(true);
+
+	GLsizei width;
+	GLsizei height;
+	GLsizei channels;
+
+	for (int i = 0; i < 6; i++)
+	{
+		images[i] = stbi_loadf(paths[i]->c_str(), &width, &height, &channels, 0);
+
+		if (images[i] == nullptr)
+		{
+			for (int k = 0; k < i; k++)
+				stbi_image_free(images[k]);
+			throw std::logic_error("Texture file coudn't be read.");
+		}
+
+		if (width != height)
+		{
+			for (int k = 0; k < i; k++)
+				stbi_image_free(images[k]);
+			throw std::logic_error("Cubemaps must be square.");
+		}
+	}
+
+	GLint internalformat;
+	GLenum format;
+	switch (channels)
+	{
+		case 1:
+			internalformat = halfprecision ? GL_R16F : GL_R32F;
+			format = GL_RED;
+			break;
+		case 2:
+			internalformat = halfprecision ? GL_RG16F : GL_RG32F;
+			format = GL_RG;
+			break;
+		case 3:
+			internalformat = halfprecision ? GL_RGB16F : GL_RGB32F;
+			format = GL_RGB;
+			break;
+		case 4:
+			internalformat = halfprecision ? GL_RGBA16F : GL_RGBA32F;
+			format = GL_RGBA;
+			break;
+		default:
+			internalformat = halfprecision ? GL_RGB16F : GL_RGB32F;
+			format = GL_RGB;
+			break;
+	}
+
+	GLuint texid = 0;
+
+	glGenTextures(1, &texid); GLERR
+	if (texid == 0)
+	{
+		for (int i = 0; i < 6; i++)
+			stbi_image_free(images[i]);
+		throw std::logic_error("OpenGL texture object creation failed.");
+	}
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texid); GLERR
+	for (int i = 0; i < 6; i++)
+	{
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+						0,
+						internalformat,
+						width,
+						height,
+						0,
+						format,
+						GL_FLOAT,
+						images[i]
+		);
+	}
+	if (checkglerror())
+	{
+		glDeleteTextures(1, &texid);
+		for (int i = 0; i < 6; i++)
+			stbi_image_free(images[i]);
+		throw std::logic_error("Error. Could not buffer texture data.");
+	}
+
+	if (genMipMaps)
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP); GLERR
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0); GLERR
+
+	for (int i = 0; i < 6; i++)
+		stbi_image_free(images[i]);
+
+	return std::make_shared<TextureCube>(texid);
 }
 
 std::shared_ptr<VAO> GLUtils::createVAO(const SCM::MeshData& mesh)
@@ -329,6 +612,29 @@ void ShaderProgram::use()
 		glUseProgram(prog); GLERR
 }
 
+TextureCube::TextureCube(GLuint texture) :
+	tex(texture),
+	tu(0)
+{}
 
+TextureCube::~TextureCube()
+{
+	unbind();
+	glDeleteTextures(1, &tex); GLERR
+}
 
+void TextureCube::bind(GLuint textureUnit)
+{
+	if (tex != 0)
+	{
+		glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(textureUnit)); GLERR
+		tu = textureUnit;
+		glBindTexture(GL_TEXTURE_CUBE_MAP, tex); GLERR
+	}
+}
 
+void TextureCube::unbind()
+{
+	glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(tu)); GLERR
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0); GLERR
+}

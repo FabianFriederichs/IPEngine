@@ -15,6 +15,7 @@ inline size_t index2d(size_t x, size_t y, size_t width)
 
 class VAO;
 class Texture2D;
+class TextureCube;
 class ShaderProgram;
 
 class GLUtils
@@ -24,7 +25,24 @@ public:
 	GLUtils(const GLUtils&) = delete;	
 	GLUtils(GLUtils&&) = delete;
 
-	static std::shared_ptr<Texture2D> loadGLTexture(const std::string& path);
+	static std::shared_ptr<Texture2D> loadGLTexture(const std::string& path ,bool genMipMaps);
+	static std::shared_ptr<TextureCube> loadGLCubeTexture(const std::string& path_px,
+														  const std::string& path_nx,
+														  const std::string& path_py,
+														  const std::string& path_ny,
+														  const std::string& path_pz,
+														  const std::string& path_nz,
+														  bool genMipMaps);
+	static std::shared_ptr<Texture2D> loadGLTextureHDR(const std::string& path, bool genMipMaps, bool halfprecision = true);
+	static std::shared_ptr<TextureCube> loadGLCubeTextureHDR(const std::string& path_px,
+															 const std::string& path_nx,
+															 const std::string& path_py,
+															 const std::string& path_ny,
+															 const std::string& path_pz,
+															 const std::string& path_nz,
+															 bool genMipMaps,
+															 bool halfprecision = true);
+	
 	static std::shared_ptr<VAO> createVAO(const SCM::MeshData& mesh);
 	static std::shared_ptr<VAO> createDynamicVAO(const SCM::MeshData& mesh);
 	static void updateVAO(std::shared_ptr<VAO>& vao, const SCM::MeshData& mesh);
@@ -55,6 +73,19 @@ public:
 	void unbind();
 	GLuint tex;
 	GLuint tu;
+	bool ishdr;
+};
+
+class TextureCube
+{
+public:
+	TextureCube(GLuint texture);
+	~TextureCube();
+	void bind(GLuint textureUnit = 0);
+	void unbind();
+	GLuint tex;
+	GLuint tu;
+	bool ishdr;
 };
 
 class ShaderProgram

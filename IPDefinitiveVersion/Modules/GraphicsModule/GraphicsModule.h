@@ -76,9 +76,16 @@ private:
 	int m_max_dirlights;
 	int m_max_pointlights;
 	int m_max_spotlights;
+
+	std::shared_ptr<TextureCube> m_skybox;
+	std::shared_ptr<TextureCube> m_ibl_irradiance;
+	std::shared_ptr<TextureCube> m_ibl_specularradiance;
+	std::shared_ptr<Texture2D> m_ibl_brdfresponse;
 	
 	//global shaders
 	std::shared_ptr<ShaderProgram> m_s_pbrforward;
+	std::shared_ptr<ShaderProgram> m_s_pbriblforward;
+	bool m_ibl;
 	/*std::shared_ptr<ShaderProgram> m_s_shadowmap;
 	std::shared_ptr<ShaderProgram> m_s_blur;
 	std::shared_ptr<ShaderProgram> m_s_skybox;
