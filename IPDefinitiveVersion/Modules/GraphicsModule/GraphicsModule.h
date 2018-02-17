@@ -35,27 +35,31 @@ public:
 	virtual void getResolution(uint32_t &, uint32_t &) override;
 	virtual void getClipRange(float &, float&) override;
 	
-	
-
 private:
-	std::vector<ipengine::ipid> getActiveEntityNames(SCM::ISimpleContentModule_API&);
+	//module system data	
 	ModuleInformation m_info;
 	std::string DataDepName;
-	SDL_Window* window;
-	SDL_GLContext context;
-	HGLRC wincontext;
-	SDL_SysWMinfo info;
 	std::string m_scmID = "SCM";
 	boost::shared_ptr<SCM::ISimpleContentModule_API> m_scm;
 	std::vector<ipengine::Scheduler::SubHandle> handles;
+
+	//window
+	SDL_Window* window;
+	SDL_GLContext context;
+	HGLRC wincontext;
+	SDL_SysWMinfo info;	
+	
+	//render data -------------------------------------------------------------------------------------------------
+	//camera
 	ipengine::ipid cameraentity = IPID_INVALID;
-	glm::vec4 m_clearcolor = { 0.20f, 0.15f, 0.18f, 1.0f };
+	glm::vec4 m_clearcolor = {0.20f, 0.15f, 0.18f, 1.0f};
+	glm::vec4 m_shadowclearcolor = {1.0f, 1.0f, 0.0f, 0.0f};
+	float m_cleardepth = 0.0f;
 	float width = 1280; float height = 720; float znear = 0.1f; float zfar = 100;
 	float m_fov = glm::pi<float>() / 2;
 	glm::vec3 camerapos = glm::vec3(3, 3, 20);
 	glm::mat4 projmat = glm::perspective(m_fov, width / height, znear, zfar);
 	glm::mat4 viewmat = glm::mat4(glm::quat(1.0f, 0.0f, .0f, .0f))*translate(glm::mat4(1.0f), -camerapos);
-	float m_exposure;
 
 	//material texture map params
 	GLint m_mtexMinFilter;
@@ -63,49 +67,93 @@ private:
 	bool m_mtexAniso;
 	int m_mtexMaxAnisoLevel;
 
-	void setupSDL();
-	void loadShaders();
-	void updateData();
-	void setMaterialTexParams(GLuint tex);
-	std::unordered_map<ipengine::ipid, std::shared_ptr<VAO>> m_scmmeshtovao;
-	std::unordered_map<ipengine::ipid, std::shared_ptr<ShaderProgram>> m_scmshadertoprogram;
-	std::unordered_map <ipengine::ipid, std::shared_ptr<Texture2D>> m_scmtexturetot2d;
-
 	//light stuff
 	glm::vec3 m_ambientLight;
 	int m_max_dirlights;
 	int m_max_pointlights;
 	int m_max_spotlights;
+	float m_exposure;
 
+	//ibl settings
+	bool m_ibl;
+	bool m_ibldiffuse;
+	bool m_iblspecular;
+
+	//shadow settings
+	bool m_shadows;
+	int m_shadow_res_x;
+	int m_shadow_res_y;
+
+	//environment textures
 	std::shared_ptr<TextureCube> m_skybox;
 	std::shared_ptr<TextureCube> m_ibl_irradiance;
 	std::shared_ptr<TextureCube> m_ibl_specularradiance;
 	std::shared_ptr<Texture2D> m_ibl_brdfresponse;
-	
+
 	//global shaders
 	std::shared_ptr<ShaderProgram> m_s_pbrforward;
 	std::shared_ptr<ShaderProgram> m_s_pbriblforward;
-	bool m_ibl;
-	/*std::shared_ptr<ShaderProgram> m_s_shadowmap;
-	std::shared_ptr<ShaderProgram> m_s_blur;
+	std::shared_ptr<ShaderProgram> m_s_gblur;
 	std::shared_ptr<ShaderProgram> m_s_skybox;
-	std::shared_ptr<ShaderProgram> m_s_ssao;*/
-	void drawSCMMesh(ipengine::ipid);
+	std::shared_ptr<ShaderProgram> m_s_shadow;
+	std::shared_ptr<ShaderProgram> m_s_ibldiff;
+	std::shared_ptr<ShaderProgram> m_s_iblspec;
+	std::shared_ptr<ShaderProgram> m_s_iblbrdf;
 
-	// Inherited via IGraphics_API
+	//framebuffers
+	std::shared_ptr<FrameBuffer> m_fb_shadow;
+	std::shared_ptr<FrameBuffer> m_fb_gblur1;
+	std::shared_ptr<FrameBuffer> m_fb_gblur2;
+	std::shared_ptr<FrameBuffer> m_fb_iblgenirradiance;
+	std::shared_ptr<FrameBuffer> m_fb_iblgenspecular;
+	std::shared_ptr<FrameBuffer> m_fb_iblgenbrdf;
+
+	//framebuffer output
+	std::shared_ptr<Texture2D> m_ot_shadowmap;
+	
+	//framebufferdescs
+	FrameBufferDesc m_fd_shadow;
+	FrameBufferDesc m_fd_gblur1;
+	FrameBufferDesc m_fd_gblur2;
+	FrameBufferDesc m_fd_iblgenirradiance;
+	FrameBufferDesc m_fd_iblgenspecular;
+	FrameBufferDesc m_fd_iblgenbrdf;
+
+	//SCM<=>graphicsmodule resource mapping
+	std::unordered_map<ipengine::ipid, std::shared_ptr<VAO>> m_scmmeshtovao;
+	std::unordered_map<ipengine::ipid, std::shared_ptr<ShaderProgram>> m_scmshadertoprogram;
+	std::unordered_map <ipengine::ipid, std::shared_ptr<Texture2D>> m_scmtexturetot2d;
+
+	//light matrices
+	glm::mat4 m_dirLightMat;
+	//later a list of light matrices for each shadow light
+
+	//setup --------------------------------------------------------------------------------------------------
+	void setupSDL();
+	void loadShaders();
+	void setupFrameBuffers();
+	void renderIBLMaps();
+
+	//update -------------------------------------------------------------------------------------------------
+	void updateData();
+
+	//rendering ----------------------------------------------------------------------------------------------
+	void setMaterialTexParams(GLuint tex);
+	void drawSCMMesh(ipengine::ipid);
 	glm::mat4 ViewFromTransData(const SCM::TransformData*);
 	void recalcProj();
-
-	// Inherited via IGraphics_API
-
-	//container with vao to scm mesh id
-
-	//rendering helpers
 	void drawScene(ShaderProgram* shader);
+	void drawSceneShadow(ShaderProgram* shader);
 	void setSceneUniforms(ShaderProgram* shader);
 	void setLightUniforms(ShaderProgram* shader);
 	void setMaterialUniforms(SCM::MaterialData* mdata, ShaderProgram* shader);
 	void drawEntity(SCM::ThreeDimEntity* entity, ShaderProgram* shader);
+	void drawEntityShadow(SCM::ThreeDimEntity* entity, ShaderProgram* shader);
+	void renderDirectionalLightShadowMap();
+	void lightMatDirectionalLight(glm::mat4& view, glm::mat4& proj, SCM::DirectionalLight& dirLight, const glm::vec3& min, const glm::vec3& max);
+	
+	//helpers ------------------------------------------------------------------------------------------------
+	std::vector<ipengine::ipid> getActiveEntityNames(SCM::ISimpleContentModule_API & scm);
 };
 
 extern "C" BOOST_SYMBOL_EXPORT GraphicsModule module;

@@ -458,10 +458,103 @@ std::shared_ptr<ShaderProgram> GLUtils::createShaderProgram(const std::string& v
 	GLuint program;
 	std::string vertexCode;			
 	std::string fragmentCode;		
-	std::ifstream vShaderFile;		
-	std::ifstream fShaderFile;									
+std::ifstream vShaderFile;
+std::ifstream fShaderFile;
+vShaderFile.exceptions(std::ifstream::badbit);
+fShaderFile.exceptions(std::ifstream::badbit);
+try
+{
+	vShaderFile.open(vspath);
+	if (!vShaderFile.is_open())
+		throw std::invalid_argument("Vertex shader file not found.");
+	fShaderFile.open(fspath);
+	if (!fShaderFile.is_open())
+		throw std::invalid_argument("Fragment shader file not found.");
+	std::stringstream vShaderStream, fShaderStream;
+	vShaderStream << vShaderFile.rdbuf();
+	fShaderStream << fShaderFile.rdbuf();
+	vShaderFile.close();
+	fShaderFile.close();
+	vertexCode = vShaderStream.str();
+	fragmentCode = fShaderStream.str();
+}
+catch (const std::exception& ex)
+{
+	std::string errmsg;
+	errmsg.append("Error: Shader files couldn't be read:\n");
+	errmsg.append(ex.what());
+	throw std::logic_error(errmsg.c_str());
+}
+const GLchar* vShaderCode = vertexCode.c_str();
+const GLchar* fShaderCode = fragmentCode.c_str();
+GLint success;
+GLchar infoLog[512];
+vertexShader = glCreateShader(GL_VERTEX_SHADER); GLERR
+glShaderSource(vertexShader, 1, &vShaderCode, NULL); GLERR
+glCompileShader(vertexShader); GLERR
+glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success); GLERR
+if (!success)
+{
+	glGetShaderInfoLog(vertexShader, 512, NULL, infoLog); GLERR
+		std::string errmsg;
+	errmsg.append("Compiler error in vertex shader:\n");
+	errmsg.append(infoLog);
+	glDeleteShader(vertexShader); GLERR
+		throw std::logic_error(errmsg.c_str());
+}
+fragmentShader = glCreateShader(GL_FRAGMENT_SHADER); GLERR
+glShaderSource(fragmentShader, 1, &fShaderCode, NULL); GLERR
+glCompileShader(fragmentShader); GLERR
+glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success); GLERR
+if (!success)
+{
+	glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog); GLERR
+		std::string errmsg;
+	errmsg.append("Compiler error in fragment shader:\n");
+	errmsg.append(infoLog);
+	glDeleteShader(vertexShader); GLERR
+		glDeleteShader(fragmentShader); GLERR
+		throw std::logic_error(errmsg.c_str());
+}
+program = glCreateProgram(); GLERR
+glAttachShader(program, vertexShader); GLERR
+glAttachShader(program, fragmentShader); GLERR
+glLinkProgram(program); GLERR
+glGetProgramiv(program, GL_LINK_STATUS, &success); GLERR
+if (!success)
+{
+	glGetProgramInfoLog(program, 512, NULL, infoLog); GLERR
+		std::string errmsg;
+	errmsg.append("Linker error in program:\n");
+	errmsg.append(infoLog);
+	glDetachShader(program, vertexShader); GLERR
+		glDetachShader(program, fragmentShader); GLERR
+		glDeleteShader(vertexShader); GLERR
+		glDeleteShader(fragmentShader); GLERR
+		throw std::logic_error(errmsg.c_str());
+}
+glDetachShader(program, vertexShader); GLERR
+glDetachShader(program, fragmentShader); GLERR
+glDeleteShader(vertexShader); GLERR
+glDeleteShader(fragmentShader); GLERR
+return std::make_shared<ShaderProgram>(program);
+}
+
+std::shared_ptr<ShaderProgram> GLUtils::createShaderProgram(const std::string & vspath, const std::string & fspath, const std::string & gspath)
+{
+	GLuint vertexShader;
+	GLuint fragmentShader;
+	GLuint geometryShader;
+	GLuint program;
+	std::string vertexCode;
+	std::string fragmentCode;
+	std::string geometryCode;
+	std::ifstream vShaderFile;
+	std::ifstream fShaderFile;
+	std::ifstream gShaderFile;
 	vShaderFile.exceptions(std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::badbit);
+	gShaderFile.exceptions(std::ifstream::badbit);
 	try
 	{
 		vShaderFile.open(vspath);
@@ -470,13 +563,19 @@ std::shared_ptr<ShaderProgram> GLUtils::createShaderProgram(const std::string& v
 		fShaderFile.open(fspath);
 		if (!fShaderFile.is_open())
 			throw std::invalid_argument("Fragment shader file not found.");
-		std::stringstream vShaderStream, fShaderStream;
+		gShaderFile.open(gspath);
+		if (!gShaderFile.is_open())
+			throw std::invalid_argument("Geometry shader file not found.");
+		std::stringstream vShaderStream, fShaderStream, gShaderStream;
 		vShaderStream << vShaderFile.rdbuf();
 		fShaderStream << fShaderFile.rdbuf();
+		gShaderStream << gShaderFile.rdbuf();
 		vShaderFile.close();
 		fShaderFile.close();
+		gShaderFile.close();
 		vertexCode = vShaderStream.str();
 		fragmentCode = fShaderStream.str();
+		geometryCode = gShaderStream.str();
 	}
 	catch (const std::exception& ex)
 	{
@@ -487,11 +586,12 @@ std::shared_ptr<ShaderProgram> GLUtils::createShaderProgram(const std::string& v
 	}
 	const GLchar* vShaderCode = vertexCode.c_str();
 	const GLchar* fShaderCode = fragmentCode.c_str();
+	const GLchar* gShaderCode = geometryCode.c_str();
 	GLint success;
 	GLchar infoLog[512];
-	vertexShader = glCreateShader(GL_VERTEX_SHADER); GLERR		
-	glShaderSource(vertexShader, 1, &vShaderCode, NULL); GLERR		
-	glCompileShader(vertexShader); GLERR	
+	vertexShader = glCreateShader(GL_VERTEX_SHADER); GLERR
+	glShaderSource(vertexShader, 1, &vShaderCode, NULL); GLERR
+	glCompileShader(vertexShader); GLERR
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success); GLERR
 	if (!success)
 	{
@@ -516,28 +616,165 @@ std::shared_ptr<ShaderProgram> GLUtils::createShaderProgram(const std::string& v
 		glDeleteShader(fragmentShader); GLERR
 		throw std::logic_error(errmsg.c_str());
 	}
-	program = glCreateProgram(); GLERR		
-	glAttachShader(program, vertexShader); GLERR
-	glAttachShader(program, fragmentShader); GLERR		
-	glLinkProgram(program); GLERR		
-	glGetProgramiv(program, GL_LINK_STATUS, &success); GLERR
+	geometryShader = glCreateShader(GL_GEOMETRY_SHADER); GLERR
+	glShaderSource(geometryShader, 1, &gShaderCode, NULL); GLERR
+	glCompileShader(geometryShader); GLERR
+	glGetShaderiv(geometryShader, GL_COMPILE_STATUS, &success); GLERR
 	if (!success)
-	{			
-		glGetProgramInfoLog(program, 512, NULL, infoLog); GLERR
-		std::string errmsg;
-		errmsg.append("Linker error in program:\n");
+	{
+		glGetShaderInfoLog(geometryShader, 512, NULL, infoLog); GLERR
+			std::string errmsg;
+		errmsg.append("Compiler error in geometry shader:\n");
 		errmsg.append(infoLog);
-		glDetachShader(program, vertexShader); GLERR
-		glDetachShader(program, fragmentShader); GLERR				
+		glDeleteShader(geometryShader); GLERR
 		glDeleteShader(vertexShader); GLERR
 		glDeleteShader(fragmentShader); GLERR
 		throw std::logic_error(errmsg.c_str());
 	}
+	program = glCreateProgram(); GLERR
+	glAttachShader(program, vertexShader); GLERR
+	glAttachShader(program, fragmentShader); GLERR
+	glAttachShader(program, geometryShader); GLERR
+	glLinkProgram(program); GLERR
+	glGetProgramiv(program, GL_LINK_STATUS, &success); GLERR
+	if (!success)
+	{
+		glGetProgramInfoLog(program, 512, NULL, infoLog); GLERR
+			std::string errmsg;
+		errmsg.append("Linker error in program:\n");
+		errmsg.append(infoLog);
+		glDetachShader(program, vertexShader); GLERR
+		glDetachShader(program, fragmentShader); GLERR
+		glDetachShader(program, geometryShader); GLERR
+		glDeleteShader(vertexShader); GLERR
+		glDeleteShader(fragmentShader); GLERR
+		glDeleteShader(geometryShader); GLERR
+		throw std::logic_error(errmsg.c_str());
+	}
 	glDetachShader(program, vertexShader); GLERR
 	glDetachShader(program, fragmentShader); GLERR
+	glDetachShader(program, geometryShader); GLERR
 	glDeleteShader(vertexShader); GLERR
 	glDeleteShader(fragmentShader); GLERR
+	glDeleteShader(geometryShader); GLERR
 	return std::make_shared<ShaderProgram>(program);
+}
+
+RenderTarget GLUtils::createRenderTargetRbuf(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment)
+{
+	auto p = createRenderBuffer(width, height, internalformat);
+	return RenderTarget(p, attachment);
+}
+
+RenderTarget GLUtils::createRenderTargetTex(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment)
+{
+	auto p = createRenderTexture(width, height, internalformat);
+	return RenderTarget(p, attachment);
+}
+
+std::shared_ptr<FrameBuffer> GLUtils::createFrameBuffer(std::vector<RenderTarget> colorTargets, RenderTarget depthTarget)
+{
+	GLuint fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	std::vector<GLenum> drawbuffers;
+	for (size_t i = 0; i < colorTargets.size(); ++i)
+	{
+		if (colorTargets[i].isTex)
+		{
+			glFramebufferTexture2D(GL_FRAMEBUFFER, colorTargets[i].attachment, GL_TEXTURE_2D, colorTargets[i].tex->tex, 0);
+			drawbuffers.push_back(colorTargets[i].attachment);
+		}
+		else
+		{
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, colorTargets[i].attachment, GL_RENDERBUFFER, colorTargets[i].rb->rbid);
+			drawbuffers.push_back(colorTargets[i].attachment);
+		}
+	}
+	if (depthTarget.attachment != GL_INVALID_ENUM)
+	{
+		if (depthTarget.isTex)
+		{
+			glFramebufferTexture2D(GL_FRAMEBUFFER, depthTarget.attachment, GL_TEXTURE_2D, depthTarget.tex->tex, 0);
+		}
+		else
+		{
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, depthTarget.attachment, GL_RENDERBUFFER, depthTarget.rb->rbid);
+		}
+	}
+
+	GLenum fbstate;
+	if (checkFBO(&fbstate))
+	{
+		glDrawBuffers(drawbuffers.size(), drawbuffers.data());
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	return std::make_shared<FrameBuffer>(fbo, colorTargets, depthTarget, fbstate);
+}
+
+std::shared_ptr<FrameBuffer> GLUtils::createFrameBuffer(const FrameBufferDesc & fdesc)
+{
+	std::vector<RenderTarget> colorTargets;
+	colorTargets.reserve(fdesc.colorTargets.size());
+	RenderTarget depthTarget;
+	for (size_t i = 0; i < fdesc.colorTargets.size(); i++)
+	{
+		if (fdesc.colorTargets[i].texture)
+		{
+			colorTargets.push_back(createRenderTargetTex(fdesc.colorTargets[i].width, fdesc.colorTargets[i].height, fdesc.colorTargets[i].internalformat, fdesc.colorTargets[i].attachment));
+		}
+		else
+		{
+			colorTargets.push_back(createRenderTargetRbuf(fdesc.colorTargets[i].width, fdesc.colorTargets[i].height, fdesc.colorTargets[i].internalformat, fdesc.colorTargets[i].attachment));
+		}
+	}
+	if (fdesc.depthTarget.texture)
+	{
+		depthTarget = createRenderTargetTex(fdesc.depthTarget.width, fdesc.depthTarget.height, fdesc.depthTarget.internalformat, fdesc.depthTarget.attachment);
+	}
+	else
+	{
+		depthTarget = createRenderTargetRbuf(fdesc.depthTarget.width, fdesc.depthTarget.height, fdesc.depthTarget.internalformat, fdesc.depthTarget.attachment);
+	}
+	return createFrameBuffer(colorTargets, depthTarget);
+}
+
+std::shared_ptr<RenderBuffer> GLUtils::createRenderBuffer(GLsizei width, GLsizei height, GLenum internalformat)
+{
+	GLuint rid;
+	glGenRenderbuffers(1, &rid);
+	glBindRenderbuffer(GL_RENDERBUFFER, rid);
+	glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
+	return std::make_shared<RenderBuffer>(rid);
+}
+
+std::shared_ptr<Texture2D> GLUtils::createRenderTexture(GLsizei width, GLsizei height, GLenum internalformat)
+{
+	GLuint id;
+	glGenTextures(1, &id);
+	glBindTexture(GL_TEXTURE_2D, id);
+	glTexStorage2D(GL_TEXTURE_2D, 1, internalformat, width, height);
+	return std::make_shared<Texture2D>(id);
+}
+
+bool GLUtils::checkFBO(GLenum* result)
+{
+	auto res = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (res == GL_FRAMEBUFFER_COMPLETE)
+	{
+		*result = res;
+		return true;
+	}
+	else
+	{
+		*result = res;
+		return false;
+	}
+}
+
+std::string GLUtils::getFrameBufferErrorMessage(GLenum state)
+{
+	return std::string();
 }
 
 VAO::VAO(GLuint vbo, GLuint ibo, GLuint vao, GLsizei indexct) :
@@ -637,4 +874,14 @@ void TextureCube::unbind()
 {
 	glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(tu)); GLERR
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0); GLERR
+}
+
+void FrameBuffer::bind(GLenum target)
+{
+	glBindFramebuffer(target, this->fbo);
+}
+
+void FrameBuffer::unbind(GLenum target)
+{
+	glBindFramebuffer(target, 0);
 }

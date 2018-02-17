@@ -43,10 +43,10 @@
         <Point>
           <identifier>PreRender</identifier>
           <Extensions>
-            <Extension>
+            <!--<Extension>
               <extensionname>GraphicsModulePreRenderVR</extensionname>
               <priority>0</priority>
-            </Extension>
+            </Extension>-->
           </Extensions>
         </Point>
       </ExtensionPoints>
@@ -92,7 +92,7 @@
       </dependencies>
     </Module>
    <Module>
-      <ignore>false</ignore>
+      <ignore>true</ignore>
       <identifier>GraphicsModulePreRenderVR</identifier>
       <isExPoint>true</isExPoint>
       <dependencies>

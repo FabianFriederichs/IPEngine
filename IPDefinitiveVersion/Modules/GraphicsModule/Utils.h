@@ -17,6 +17,11 @@ class VAO;
 class Texture2D;
 class TextureCube;
 class ShaderProgram;
+class RenderTarget;
+class RenderBuffer;
+class FrameBuffer;
+struct FrameBufferDesc;
+struct RenderTargetDesc;
 
 class GLUtils
 {
@@ -47,6 +52,19 @@ public:
 	static std::shared_ptr<VAO> createDynamicVAO(const SCM::MeshData& mesh);
 	static void updateVAO(std::shared_ptr<VAO>& vao, const SCM::MeshData& mesh);
 	static std::shared_ptr<ShaderProgram> createShaderProgram(const std::string& vspath, const std::string& fspath);
+	static std::shared_ptr<ShaderProgram> createShaderProgram(const std::string& vspath, const std::string& fspath, const std::string& gspath);
+
+	//add support for cube maps and ms when needed
+	static RenderTarget createRenderTargetRbuf(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment);
+	static RenderTarget createRenderTargetTex(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment);
+	static std::shared_ptr<FrameBuffer> createFrameBuffer(std::vector<RenderTarget> colorTargets, RenderTarget depthTarget);
+	static std::shared_ptr<FrameBuffer> createFrameBuffer(const FrameBufferDesc& fdesc);
+
+private:
+	static std::shared_ptr<RenderBuffer> createRenderBuffer(GLsizei width, GLsizei height, GLenum internalformat);
+	static std::shared_ptr<Texture2D> createRenderTexture(GLsizei width, GLsizei height, GLenum internalformat);
+	static bool checkFBO(GLenum* result);
+	static std::string getFrameBufferErrorMessage(GLenum state);
 };
 
 class VAO
@@ -281,4 +299,134 @@ inline void ShaderProgram::setUniform(const std::string& name, const glm::mat4& 
 	glUniformMatrix4fv(loc, 1, transpose ? GL_TRUE : GL_FALSE, glm::value_ptr(value)); GLERR
 }
 
+class RenderBuffer
+{
+public:
+	RenderBuffer() :
+		rbid(0)
+	{}
+	RenderBuffer(GLuint id) :
+		rbid(id)
+	{}
+	GLuint rbid;
+
+	~RenderBuffer()
+	{
+		if (rbid)
+			glDeleteRenderbuffers(1, &rbid);
+	}
+};
+
+class RenderTarget
+{
+public:
+	RenderTarget() :
+		isTex(false),
+		attachment(GL_INVALID_ENUM),
+		rb()
+	{}
+	~RenderTarget()
+	{
+
+	}
+	RenderTarget(std::shared_ptr<Texture2D> _tex, GLenum _attachment) :
+		tex(_tex),
+		attachment(_attachment),
+		isTex(true)
+	{}
+	RenderTarget(std::shared_ptr<RenderBuffer> _rb, GLenum _attachment) :
+		rb(_rb),
+		attachment(_attachment),
+		isTex(false)
+	{}
+	RenderTarget(const RenderTarget& other) 
+	{
+		if (other.isTex)
+		{
+			isTex = true;
+			attachment = other.attachment;
+			tex = other.tex;
+		}
+		else
+		{
+			isTex = false;
+			attachment = other.attachment;
+			rb = other.rb;
+		}
+	}
+	RenderTarget& operator=(const RenderTarget& other)
+	{
+		if (this == &other)
+			return *this;
+		if (other.isTex)
+		{
+			isTex = true;
+			attachment = other.attachment;
+			tex = other.tex;
+		}
+		else
+		{
+			isTex = false;
+			attachment = other.attachment;
+			rb = other.rb;
+		}
+		return *this;
+	}
+	bool isTex;	
+	std::shared_ptr<Texture2D> tex;
+	std::shared_ptr<RenderBuffer> rb;	
+	GLenum attachment;
+};
+
+class FrameBuffer
+{
+public:
+	FrameBuffer() : 
+		fbo(0),
+		depthTarget(),
+		colorTargets()
+	{}
+	FrameBuffer(GLuint _fbo, const std::vector<RenderTarget>& _ct, const RenderTarget& _dt, GLenum _state) :
+		state(_state),
+		depthTarget(),
+		colorTargets()
+	{
+		if (_state == GL_FRAMEBUFFER_COMPLETE)
+		{
+			fbo = _fbo;
+			depthTarget = _dt;
+			colorTargets = _ct;
+		}
+	}
+	~FrameBuffer()
+	{
+		if (fbo)
+			glDeleteFramebuffers(1, &fbo);
+	}
+	void bind(GLenum target);
+	void unbind(GLenum target);
+	GLuint fbo;
+	std::vector<RenderTarget> colorTargets;
+	RenderTarget depthTarget;
+	GLenum state;
+	bool isComplete()
+	{
+		return state == GL_FRAMEBUFFER_COMPLETE;
+	}
+};
+
+struct RenderTargetDesc
+{
+	GLsizei width;
+	GLsizei height;
+	GLenum internalformat;
+	GLenum attachment;
+	bool texture;
+};
+
+struct FrameBufferDesc
+{
+	std::vector<RenderTargetDesc> colorTargets;
+	RenderTargetDesc depthTarget;
+};
 #endif

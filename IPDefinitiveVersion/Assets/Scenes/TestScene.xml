@@ -197,11 +197,11 @@
   </Meshes>
 
   <Shaders>
-    <Shader>
+    <!--<Shader>
       <Id>0</Id>
       <VSPath>../assets/shaders/BaseVertex.vert</VSPath>
       <FSPath>../assets/shaders/BaseFrag.frag</FSPath>
-    </Shader>
+    </Shader>-->
     <Shader>
       <Id>1</Id>
       <VSPath>../assets/shaders/forward_pbr.vs</VSPath>
@@ -234,7 +234,7 @@
           <Id>2</Id>
         </Texture>
       </Textures>
-      <ShaderId>0</ShaderId>
+      <ShaderId>1</ShaderId>
     </Material>
     <Material>
       <Id>1</Id>
@@ -260,7 +260,7 @@
           <Id>7</Id>
         </Texture>
       </Textures>
-      <ShaderId>0</ShaderId>
+      <ShaderId>1</ShaderId>
     </Material>
     <!-- PBR metal -->
     <Material>
@@ -283,7 +283,7 @@
           <Id>17</Id>
         </Texture>
       </Textures>
-      <ShaderId>0</ShaderId>
+      <ShaderId>1</ShaderId>
     </Material>
     <!-- PBR Wood -->
     <Material>
@@ -306,7 +306,7 @@
           <Id>13</Id>
         </Texture>
       </Textures>
-      <ShaderId>0</ShaderId>
+      <ShaderId>1</ShaderId>
     </Material>
   </Materials>
 

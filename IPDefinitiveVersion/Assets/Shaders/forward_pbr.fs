@@ -12,6 +12,7 @@ layout (location = 0) out vec4 color;
 in struct VertexData
 {
 	vec3 pos;
+    vec4 posLightSpace;
 	vec2 uv;
 	vec3 normal;
     mat3 TBN;
@@ -67,6 +68,9 @@ uniform SpotLight u_spotLights[MAX_SPOT_LIGHTS];
 uniform int u_spotLightCount;
 uniform vec3 u_ambientLight;
 uniform float u_toneMappingExposure;
+//shadow map(s)
+uniform int u_enableShadows;
+uniform sampler2D u_shadowMap;
 
 //setup helpers
 vec3 normalFromNormalMap(vec3 texData, mat3 TBN)
@@ -75,11 +79,37 @@ vec3 normalFromNormalMap(vec3 texData, mat3 TBN)
     return normalize(TBN * n);
 }
 
+//vsm shadow sampling
+float calcShadowFactor(vec3 n, vec3 l)
+{
+    vec3 fragDepth = vertexdat.posLightSpace.xyz / vertexdat.posLightSpace.w;
+    fragDepth = fragDepth * 0.5 + 0.5;
+    float lightDepthM1 = texture(u_shadowMap, fragDepth.xy).r;
+    float lightDepthM2 = texture(u_shadowMap, fragDepth.xy).g;
+    float bias = max(0.002 * (1.0 - dot(n, -normalize(l))), 0.0005);
+    if(fragDepth.z - bias < lightDepthM1)
+        return 1.0;
+    
+    float u = lightDepthM1;
+    float o2 = lightDepthM2 - (lightDepthM1 * lightDepthM1);
+    float t = fragDepth.z;
+
+    float res = o2 / (o2 + (t - u) * (t - u));
+    return res;
+}
+
 //light radiance calculation
-vec3 calcDirLightRadiance(int i)
+vec3 calcDirLightRadiance(int i, vec3 n)
 {
     //incorrect, but we assume for now that dirlights are not attenuated
-    return u_directionalLights[i].color;
+    if(u_enableShadows)
+    {
+        return u_directionalLights[i].color * calcShadowFactor(n, u_directionalLights[i].direction);
+    }
+    else
+    {
+        return u_directionalLights[i].color;
+    }
 }
 
 vec3 calcPointLightRadiance(int i, vec3 fPos)
@@ -147,7 +177,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
-} 
+}
 
 //cook-torrance brdf
 vec3 cookTorranceBRDF(vec3 n, vec3 v, vec3 l, float roughness, vec3 reflectance, float metalness, vec3 albedo)
@@ -183,6 +213,8 @@ vec3 cookTorranceBRDF(vec3 n, vec3 v, vec3 l, float roughness, vec3 reflectance,
 
 void main()
 {
+    // calcShadowFactor();
+    // return;
     //sample material textures
     vec4 ts_albedo = texture(u_material.albedo, vertexdat.uv);
     vec4 ts_mrar = texture(u_material.mrar, vertexdat.uv);
@@ -215,7 +247,7 @@ void main()
     //directional lights
     for(int i = 0; i < u_dirLightCount; ++i)
     {
-        vec3 radiance = calcDirLightRadiance(i);
+        vec3 radiance = calcDirLightRadiance(i, N);
         //vectors
         vec3 L = normalize(-u_directionalLights[i].direction);
         //Outgoing irradiance for this light
@@ -252,7 +284,7 @@ void main()
     //outcol = outcol / (outcol + vec3(1.0));
     outcol = vec3(1.0) - exp(-outcol * u_toneMappingExposure);
     // gamma correct
-    outcol = pow(outcol, vec3(1.0/2.2));
+    outcol = pow(outcol, vec3(1.0/2.2));// * (u_enableShadows ? calcShadowFactor() : 1.0f);
 
     color = vec4(outcol, 1.0f);
 }

@@ -428,6 +428,21 @@ namespace SCM
 			return glm::mat3(viewmat) * (-m_transformData.getData()->m_localZ);
 		}
 
+		glm::vec3 getDirection()
+		{
+			return -m_transformData.getData()->m_localZ;
+		}
+
+		glm::vec3 getVSPosition(const glm::mat4& viewmat)
+		{
+			return glm::vec3(viewmat * glm::vec4(m_transformData.getData()->m_location, 1.0f));
+		}
+
+		glm::vec3 getPosition()
+		{
+			return m_transformData.getData()->m_location;
+		}
+
 		glm::vec3 m_color;
 	};
 
@@ -452,6 +467,11 @@ namespace SCM
 		glm::vec3 getVSPosition(const glm::mat4& viewmat)
 		{
 			return glm::vec3(viewmat * glm::vec4(m_transformData.getData()->m_location, 1.0f));
+		}
+
+		glm::vec3 getPosition()
+		{
+			return m_transformData.getData()->m_location;
 		}
 
 		glm::vec3 m_color;
@@ -483,6 +503,16 @@ namespace SCM
 		glm::vec3 getVSDirection(const glm::mat4& viewmat)
 		{
 			return glm::mat3(viewmat) * (-m_transformData.getData()->m_localZ);
+		}
+
+		glm::vec3 getDirection()
+		{
+			return -m_transformData.getData()->m_localZ;
+		}
+
+		glm::vec3 getPosition()
+		{
+			return m_transformData.getData()->m_location;
 		}
 
 		glm::vec3 getVSPosition(const glm::mat4& viewmat)
