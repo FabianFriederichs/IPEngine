@@ -69,7 +69,7 @@ uniform int u_spotLightCount;
 uniform vec3 u_ambientLight;
 uniform float u_toneMappingExposure;
 //shadow map(s)
-uniform int u_enableShadows;
+uniform bool u_enableShadows;
 uniform sampler2D u_shadowMap;
 
 //setup helpers

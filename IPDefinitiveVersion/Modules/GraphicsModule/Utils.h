@@ -12,6 +12,7 @@ inline size_t index2d(size_t x, size_t y, size_t width)
 #include <ISimpleContentModule_API.h>
 #include <memory>
 #include "glerror.h"
+#include "Primitives.h"
 
 class VAO;
 class Texture2D;
@@ -317,62 +318,89 @@ public:
 	}
 };
 
+enum class RenderTargetType
+{
+	Empty,
+	RenderBuffer,
+	RenderBufferMS,
+	Texture2D,
+	Texture2DMS,
+	TextureCube,
+	TextureCubeMS
+};
+
 class RenderTarget
 {
 public:
 	RenderTarget() :
-		isTex(false),
 		attachment(GL_INVALID_ENUM),
-		rb()
+		rb(),
+		type(RenderTargetType::Empty)
 	{}
 	~RenderTarget()
-	{
-
-	}
+	{}
 	RenderTarget(std::shared_ptr<Texture2D> _tex, GLenum _attachment) :
 		tex(_tex),
 		attachment(_attachment),
-		isTex(true)
+		type(RenderTargetType::Texture2D)
 	{}
 	RenderTarget(std::shared_ptr<RenderBuffer> _rb, GLenum _attachment) :
 		rb(_rb),
 		attachment(_attachment),
-		isTex(false)
+		type(RenderTargetType::RenderBuffer)
 	{}
 	RenderTarget(const RenderTarget& other) 
 	{
-		if (other.isTex)
+		if (other.type == RenderTargetType::Empty)
 		{
-			isTex = true;
+			type = RenderTargetType::Empty;
+			attachment = GL_INVALID_ENUM;
+		}
+		if (other.type == RenderTargetType::Texture2D)
+		{
 			attachment = other.attachment;
 			tex = other.tex;
+			type = RenderTargetType::Texture2D;
 		}
-		else
+		else if (other.type == RenderTargetType::RenderBuffer)
 		{
-			isTex = false;
 			attachment = other.attachment;
 			rb = other.rb;
+			type = RenderTargetType::RenderBuffer;
+		}
+		else //cube map follows
+		{
+			
 		}
 	}
 	RenderTarget& operator=(const RenderTarget& other)
 	{
 		if (this == &other)
 			return *this;
-		if (other.isTex)
+		if (other.type == RenderTargetType::Empty)
 		{
-			isTex = true;
+			type = RenderTargetType::Empty;
+			attachment = GL_INVALID_ENUM;
+		}
+		if (other.type == RenderTargetType::Texture2D)
+		{
 			attachment = other.attachment;
 			tex = other.tex;
+			type = RenderTargetType::Texture2D;
 		}
-		else
+		else if (other.type == RenderTargetType::RenderBuffer)
 		{
-			isTex = false;
 			attachment = other.attachment;
 			rb = other.rb;
+			type = RenderTargetType::RenderBuffer;
+		}
+		else //cube map follows
+		{
+
 		}
 		return *this;
 	}
-	bool isTex;	
+	RenderTargetType type;
 	std::shared_ptr<Texture2D> tex;
 	std::shared_ptr<RenderBuffer> rb;	
 	GLenum attachment;
@@ -417,11 +445,38 @@ public:
 
 struct RenderTargetDesc
 {
+	RenderTargetDesc() :
+		width(0),
+		height(0),
+		internalformat(GL_INVALID_ENUM),
+		attachment(GL_INVALID_ENUM),
+		type(RenderTargetType::Empty),
+		samples(0)
+	{}
+
+	RenderTargetDesc(GLsizei _width,
+					 GLsizei _height,
+					 GLenum _internalformat,
+					 GLenum _attachment,
+					 RenderTargetType _type,
+					 int samples = 0) :
+		width(_width),
+		height(_height),
+		internalformat(_internalformat),
+		attachment(_attachment),
+		type(_type),
+		samples(samples)
+	{}
+
+	~RenderTargetDesc()
+	{}
+
 	GLsizei width;
 	GLsizei height;
 	GLenum internalformat;
 	GLenum attachment;
-	bool texture;
+	RenderTargetType type;
+	int samples;
 };
 
 struct FrameBufferDesc

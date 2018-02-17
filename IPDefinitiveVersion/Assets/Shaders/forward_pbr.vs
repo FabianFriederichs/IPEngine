@@ -9,7 +9,7 @@ uniform mat4 u_model_matrix;
 uniform mat4 u_view_matrix;
 uniform mat4 u_projection_matrix;
 uniform mat4 u_light_matrix;
-uniform int u_enableShadows;
+uniform bool u_enableShadows;
 
 out struct VertexData
 {
@@ -36,5 +36,6 @@ void main()
 	vec3 B = cross(N, T);
 	vertexdat.TBN = mat3(T, B, N);
 	vertexdat.normal = N;
-	vertexdat.posLightSpace = u_light_matrix * u_model_matrix * vec4(position, 1.0);
+	if(u_enableShadows)
+		vertexdat.posLightSpace = u_light_matrix * u_model_matrix * vec4(position, 1.0);
 }

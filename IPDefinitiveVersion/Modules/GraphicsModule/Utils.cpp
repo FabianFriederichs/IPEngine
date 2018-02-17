@@ -680,26 +680,46 @@ std::shared_ptr<FrameBuffer> GLUtils::createFrameBuffer(std::vector<RenderTarget
 	std::vector<GLenum> drawbuffers;
 	for (size_t i = 0; i < colorTargets.size(); ++i)
 	{
-		if (colorTargets[i].isTex)
+		if (colorTargets[i].type == RenderTargetType::Texture2D)
 		{
 			glFramebufferTexture2D(GL_FRAMEBUFFER, colorTargets[i].attachment, GL_TEXTURE_2D, colorTargets[i].tex->tex, 0);
 			drawbuffers.push_back(colorTargets[i].attachment);
 		}
-		else
+		//add cube map
+		else if(colorTargets[i].type == RenderTargetType::RenderBuffer)
 		{
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, colorTargets[i].attachment, GL_RENDERBUFFER, colorTargets[i].rb->rbid);
 			drawbuffers.push_back(colorTargets[i].attachment);
 		}
-	}
-	if (depthTarget.attachment != GL_INVALID_ENUM)
-	{
-		if (depthTarget.isTex)
+		else if(colorTargets[i].type == RenderTargetType::Empty)
 		{
-			glFramebufferTexture2D(GL_FRAMEBUFFER, depthTarget.attachment, GL_TEXTURE_2D, depthTarget.tex->tex, 0);
+			glDeleteFramebuffers(1, &fbo);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			throw std::logic_error("Error creating framebuffer: empty color targets are not allowed.");
 		}
 		else
 		{
+			glDeleteFramebuffers(1, &fbo);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			throw std::logic_error("Error creating framebuffer: render target type is not supported.");
+		}
+	}
+	if (depthTarget.type != RenderTargetType::Empty)
+	{
+		if (depthTarget.type == RenderTargetType::Texture2D)
+		{
+			glFramebufferTexture2D(GL_FRAMEBUFFER, depthTarget.attachment, GL_TEXTURE_2D, depthTarget.tex->tex, 0);
+		}
+		else if(depthTarget.type == RenderTargetType::RenderBuffer)
+		{
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, depthTarget.attachment, GL_RENDERBUFFER, depthTarget.rb->rbid);
+		}
+		//add cube map
+		else
+		{
+			glDeleteFramebuffers(1, &fbo);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			throw std::logic_error("Error creating framebuffer: render target type is not supported.");
 		}
 	}
 
@@ -719,22 +739,40 @@ std::shared_ptr<FrameBuffer> GLUtils::createFrameBuffer(const FrameBufferDesc & 
 	RenderTarget depthTarget;
 	for (size_t i = 0; i < fdesc.colorTargets.size(); i++)
 	{
-		if (fdesc.colorTargets[i].texture)
+		if (fdesc.colorTargets[i].type == RenderTargetType::Texture2D)
 		{
 			colorTargets.push_back(createRenderTargetTex(fdesc.colorTargets[i].width, fdesc.colorTargets[i].height, fdesc.colorTargets[i].internalformat, fdesc.colorTargets[i].attachment));
 		}
-		else
+		else if(fdesc.colorTargets[i].type == RenderTargetType::RenderBuffer)
 		{
 			colorTargets.push_back(createRenderTargetRbuf(fdesc.colorTargets[i].width, fdesc.colorTargets[i].height, fdesc.colorTargets[i].internalformat, fdesc.colorTargets[i].attachment));
 		}
+		//add cube map
+		else if (fdesc.colorTargets[i].type == RenderTargetType::Empty)
+		{
+			colorTargets.push_back(RenderTarget());
+		}
+		else
+		{
+			colorTargets.push_back(RenderTarget());
+		}
 	}
-	if (fdesc.depthTarget.texture)
+	if (fdesc.depthTarget.type == RenderTargetType::Texture2D)
 	{
 		depthTarget = createRenderTargetTex(fdesc.depthTarget.width, fdesc.depthTarget.height, fdesc.depthTarget.internalformat, fdesc.depthTarget.attachment);
 	}
-	else
+	else if(fdesc.depthTarget.type == RenderTargetType::RenderBuffer)
 	{
 		depthTarget = createRenderTargetRbuf(fdesc.depthTarget.width, fdesc.depthTarget.height, fdesc.depthTarget.internalformat, fdesc.depthTarget.attachment);
+	}
+	//add cube map
+	else if (fdesc.depthTarget.type == RenderTargetType::Empty)
+	{
+		depthTarget = RenderTarget();
+	}
+	else
+	{
+		depthTarget = RenderTarget();
 	}
 	return createFrameBuffer(colorTargets, depthTarget);
 }

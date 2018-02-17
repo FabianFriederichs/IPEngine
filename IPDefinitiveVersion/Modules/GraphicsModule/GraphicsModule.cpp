@@ -17,92 +17,21 @@ GraphicsModule::GraphicsModule(void)
 }
 bool GraphicsModule::startUp()
 {
-	m_scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(m_scmID);
-	//get settings from config file
-	width = static_cast<float>(m_core->getConfigManager().getInt("graphics.window.width"));
-	height = static_cast<float>(m_core->getConfigManager().getInt("graphics.window.height"));
+	//get dependencies
+	m_scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(m_scmID);	
 
-	//texture map params
-	bool en_mip = m_core->getConfigManager().getBool("graphics.materials.texturemaps.enable_mipmapping");
-	bool lin_min = m_core->getConfigManager().getBool("graphics.materials.texturemaps.enable_mipmapping");
-	bool lin_mag = m_core->getConfigManager().getBool("graphics.materials.texturemaps.enable_mipmapping");
-	bool lin_mip = m_core->getConfigManager().getBool("graphics.materials.texturemaps.enable_mipmapping");
-	bool en_aniso = m_core->getConfigManager().getBool("graphics.materials.texturemaps.enable_aniso_filter");
-	int max_aniso = static_cast<int>(m_core->getConfigManager().getInt("graphics.materials.texturemaps.max_aniso_level"));
+	//setup
+	setup();
 
-	if (lin_min)
-		if (en_mip)
-			if (lin_mip)
-				m_mtexMinFilter = GL_LINEAR_MIPMAP_LINEAR;
-			else
-				m_mtexMinFilter = GL_LINEAR_MIPMAP_NEAREST;
-		else
-			m_mtexMinFilter = GL_LINEAR;
-	else
-		if (en_mip)
-			if (lin_mip)
-				m_mtexMinFilter = GL_NEAREST_MIPMAP_LINEAR;
-			else
-				m_mtexMinFilter = GL_NEAREST_MIPMAP_NEAREST;
-		else
-			m_mtexMinFilter = GL_NEAREST;
-
-	if (lin_mag)
-		m_mtexMagFilter = GL_LINEAR;
-	else
-		m_mtexMagFilter = GL_NEAREST;
-
-	if (en_aniso)
-	{
-		m_mtexAniso = true;
-		m_mtexMaxAnisoLevel = max_aniso;
-	}
-
-	//light settings
-	m_ambientLight = glm::vec3(
-		static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.ambient_light.r")),
-		static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.ambient_light.g")),
-		static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.ambient_light.b"))
-	);
-
-	m_max_dirlights = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.max_dirlights"));
-	m_max_pointlights = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.max_pointlights"));
-	m_max_spotlights = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.max_spotlights"));
-
-	m_exposure = static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.tone_mapping_exposure"));
-
-	m_ibl = m_core->getConfigManager().getBool("graphics.lighting.ibl.enable_ibl");
-	m_ibldiffuse = m_core->getConfigManager().getBool("graphics.lighting.ibl.diffuse_ibl");
-	m_iblspecular = m_core->getConfigManager().getBool("graphics.lighting.ibl.specular_ibl");
-	m_shadows = m_ibldiffuse = m_core->getConfigManager().getBool("graphics.lighting.shadows.enable_shadows");
-	m_shadow_res_x = m_core->getConfigManager().getInt("graphics.lighting.shadows.res.x");
-	m_shadow_res_y = m_core->getConfigManager().getInt("graphics.lighting.shadows.res.y");
-
-	setupSDL();
-	loadShaders();
-	setupFrameBuffers();
-
-	//TODO: render ibl maps here
-	if (m_ibl)
-	{
-		renderIBLMaps();
-	}
-
-	//initial gl state
-	glClearColor(m_clearcolor.r, m_clearcolor.g, m_clearcolor.b, m_clearcolor.a);
-	//glClearDepth(m_cleardepth);
-	glEnable(GL_CULL_FACE);
-	glFrontFace(GL_CCW);
-	glCullFace(GL_BACK);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
+	//subscribe to scheduler
 	ipengine::Scheduler& sched = m_core->getScheduler();
-	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GraphicsModule, &GraphicsModule::render>(this), 0, ipengine::Scheduler::SubType::Frame, 1, &m_core->getThreadPool(), true));
-	//std::vector<ipengine::any> anyvector;
-	//anyvector.push_back(this);
-	//anyvector.push_back(&m_scmID);
-	//	m_info.expoints.execute("TestPoint", { "this", "test" }, anyvector);
+	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GraphicsModule, &GraphicsModule::render>(this),
+									  0,
+									  ipengine::Scheduler::SubType::Frame,
+									  1,
+									  &m_core->getThreadPool(),
+									  true)
+	);
 	return true;
 }
 void GraphicsModule::render(ipengine::TaskContext & c)
@@ -252,7 +181,7 @@ void GraphicsModule::setupFrameBuffers()
 				m_shadow_res_y,
 				GL_RG32F,
 				GL_COLOR_ATTACHMENT0,
-				true
+				RenderTargetType::Texture2D
 			}
 		},
 		RenderTargetDesc{
@@ -260,18 +189,124 @@ void GraphicsModule::setupFrameBuffers()
 			m_shadow_res_y,
 			GL_DEPTH24_STENCIL8,
 			GL_DEPTH_STENCIL_ATTACHMENT,
-			false
+			RenderTargetType::RenderBuffer
 		}
 	};
 	m_fb_shadow = GLUtils::createFrameBuffer(sfbd);
 	//shadow map blur
-	//same rbufdesc as shadow thingy
-	m_fb_gblur1 = GLUtils::createFrameBuffer(sfbd);
-	m_fb_gblur2 = GLUtils::createFrameBuffer(sfbd);
+	FrameBufferDesc bfbd{
+		{
+			RenderTargetDesc{
+				m_shadow_res_x,
+				m_shadow_res_y,
+				GL_RG32F,
+				GL_COLOR_ATTACHMENT0,
+				RenderTargetType::Texture2D
+			}
+		},
+		RenderTargetDesc{} //empty: no depth test needed
+	};
+	m_fb_gblur1 = GLUtils::createFrameBuffer(bfbd);
+	m_fb_gblur2 = GLUtils::createFrameBuffer(bfbd);
 	//TODO: ibl gen framebuffers
 }
 void GraphicsModule::renderIBLMaps()
 {}
+void GraphicsModule::readSettings()
+{
+	//get settings from config file
+	width = static_cast<float>(m_core->getConfigManager().getInt("graphics.window.width"));
+	height = static_cast<float>(m_core->getConfigManager().getInt("graphics.window.height"));
+
+	//texture map params
+	bool en_mip = m_core->getConfigManager().getBool("graphics.materials.texturemaps.enable_mipmapping");
+	bool lin_min = m_core->getConfigManager().getBool("graphics.materials.texturemaps.enable_mipmapping");
+	bool lin_mag = m_core->getConfigManager().getBool("graphics.materials.texturemaps.enable_mipmapping");
+	bool lin_mip = m_core->getConfigManager().getBool("graphics.materials.texturemaps.enable_mipmapping");
+	bool en_aniso = m_core->getConfigManager().getBool("graphics.materials.texturemaps.enable_aniso_filter");
+	int max_aniso = static_cast<int>(m_core->getConfigManager().getInt("graphics.materials.texturemaps.max_aniso_level"));
+
+	if (lin_min)
+		if (en_mip)
+			if (lin_mip)
+				m_mtexMinFilter = GL_LINEAR_MIPMAP_LINEAR;
+			else
+				m_mtexMinFilter = GL_LINEAR_MIPMAP_NEAREST;
+		else
+			m_mtexMinFilter = GL_LINEAR;
+	else
+		if (en_mip)
+			if (lin_mip)
+				m_mtexMinFilter = GL_NEAREST_MIPMAP_LINEAR;
+			else
+				m_mtexMinFilter = GL_NEAREST_MIPMAP_NEAREST;
+		else
+			m_mtexMinFilter = GL_NEAREST;
+
+	if (lin_mag)
+		m_mtexMagFilter = GL_LINEAR;
+	else
+		m_mtexMagFilter = GL_NEAREST;
+
+	if (en_aniso)
+	{
+		m_mtexAniso = true;
+		m_mtexMaxAnisoLevel = max_aniso;
+	}
+
+	//light settings
+	m_ambientLight = glm::vec3(
+		static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.ambient_light.r")),
+		static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.ambient_light.g")),
+		static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.ambient_light.b"))
+	);
+
+	m_max_dirlights = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.max_dirlights"));
+	m_max_pointlights = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.max_pointlights"));
+	m_max_spotlights = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.max_spotlights"));
+
+	//hdr exposure
+	m_exposure = static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.tone_mapping_exposure"));
+
+	//ibl settings
+	m_ibl = m_core->getConfigManager().getBool("graphics.lighting.ibl.enable_ibl");
+	m_ibldiffuse = m_core->getConfigManager().getBool("graphics.lighting.ibl.diffuse_ibl");
+	m_iblspecular = m_core->getConfigManager().getBool("graphics.lighting.ibl.specular_ibl");
+
+	//shadow settings
+	m_shadows = m_ibldiffuse = m_core->getConfigManager().getBool("graphics.lighting.shadows.enable_shadows");
+	m_shadow_res_x = m_core->getConfigManager().getInt("graphics.lighting.shadows.res.x");
+	m_shadow_res_y = m_core->getConfigManager().getInt("graphics.lighting.shadows.res.y");
+	m_shadow_blur_passes = m_core->getConfigManager().getInt("graphics.lighting.shadows.blur_passes");
+}
+void GraphicsModule::prepareAssets()
+{
+	//TODO: render ibl maps here
+	if (m_ibl)
+	{
+		renderIBLMaps();
+	}
+}
+void GraphicsModule::setDefaultGLState()
+{
+	//initial gl state
+	glClearColor(m_clearcolor.r, m_clearcolor.g, m_clearcolor.b, m_clearcolor.a);
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CCW);
+	glCullFace(GL_BACK);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+}
+void GraphicsModule::setup()
+{
+	//setup
+	readSettings();
+	setupSDL();
+	loadShaders();
+	setupFrameBuffers();
+	prepareAssets();
+	setDefaultGLState();
+}
 void GraphicsModule::setupSDL()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -545,15 +580,42 @@ void GraphicsModule::renderDirectionalLightShadowMap(/*SCM::DirectionalLight& di
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, m_shadow_res_x, m_shadow_res_y);
 	m_s_shadow->use();
-	//m_s_shadow->setUniform("u_light_matrix", m_dirLightMat, false);
 	m_s_shadow->setUniform("u_light_matrix", m_dirLightMat, false);
-	//glCullFace(GL_FRONT);
-	drawSceneShadow(m_s_shadow.get());
-	//glCullFace(GL_BACK);
-	m_fb_shadow->unbind(GL_FRAMEBUFFER);
-	m_ot_shadowmap = m_fb_shadow->colorTargets[0].tex;
+	drawSceneShadow(m_s_shadow.get());	
+	if (m_shadow_blur_passes <= 0)
+	{
+		m_fb_shadow->unbind(GL_FRAMEBUFFER);
+		m_ot_shadowmap = m_fb_shadow->colorTargets[0].tex;
+		setDefaultGLState();
+		return;
+	}
 	//blur shadow map
-	//assign fineshed shadow texture to m_ot_shadowmap
+	m_s_gblur->use();
+	glDisable(GL_DEPTH_TEST);
+	int currentFB = 1;
+	for (int i = 0; i < m_shadow_blur_passes; ++i)
+	{
+		//blur horizontal
+		m_fb_gblur1->bind(GL_FRAMEBUFFER);		
+		glClear(GL_COLOR_BUFFER_BIT);
+		if (i == 0)		
+			m_fb_shadow->colorTargets[0].tex->bind(0);		
+		else		
+			m_fb_gblur2->colorTargets[0].tex->bind(0);		
+		m_s_gblur->setUniform("u_input", 0);
+		m_s_gblur->setUniform("u_horizontal", 1);
+		Primitives::drawNDCQuad();
+		//blur vertical
+		m_fb_gblur2->bind(GL_FRAMEBUFFER);
+		glClear(GL_COLOR_BUFFER_BIT);
+		m_fb_gblur1->colorTargets[0].tex->bind(0);
+		m_s_gblur->setUniform("u_input", 0);
+		m_s_gblur->setUniform("u_horizontal", 0);
+		Primitives::drawNDCQuad();
+	}
+	m_ot_shadowmap = m_fb_gblur2->colorTargets[0].tex;
+	m_fb_gblur2->unbind(GL_FRAMEBUFFER);
+	setDefaultGLState();
 }
 void GraphicsModule::setMaterialTexParams(GLuint tex)
 {

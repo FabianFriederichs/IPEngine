@@ -171,11 +171,13 @@
     <ClInclude Include="glerror.h" />
     <ClInclude Include="GraphicsModule.h" />
     <ClInclude Include="libheaders.h" />
+    <ClInclude Include="Primitives.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glerror.cpp" />
     <ClCompile Include="GraphicsModule.cpp" />
+    <ClCompile Include="Primitives.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>

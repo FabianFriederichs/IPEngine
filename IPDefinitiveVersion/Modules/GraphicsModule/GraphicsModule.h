@@ -83,6 +83,7 @@ private:
 	bool m_shadows;
 	int m_shadow_res_x;
 	int m_shadow_res_y;
+	int m_shadow_blur_passes;
 
 	//environment textures
 	std::shared_ptr<TextureCube> m_skybox;
@@ -129,10 +130,14 @@ private:
 	//later a list of light matrices for each shadow light
 
 	//setup --------------------------------------------------------------------------------------------------
+	void setup();
 	void setupSDL();
 	void loadShaders();
 	void setupFrameBuffers();
 	void renderIBLMaps();
+	void readSettings();
+	void prepareAssets();
+	void setDefaultGLState();
 
 	//update -------------------------------------------------------------------------------------------------
 	void updateData();

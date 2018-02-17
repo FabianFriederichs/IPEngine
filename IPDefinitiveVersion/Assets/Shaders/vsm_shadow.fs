@@ -1,6 +1,6 @@
 #version 330 core
 
-out vec2 shadowMap;
+layout (location = 0) out vec2 shadowMap;
 
 in vec4 fragposLightSpace;
 
