@@ -9,8 +9,8 @@ void main()
     float depth = fragposLightSpace.z / fragposLightSpace.w;
     depth = depth * 0.5 + 0.5;
     float depth2 = depth * depth;
-    // float dx = dFdx(depth);
-	// float dy = dFdy(depth);
-	// depth2 += 0.25*(dx*dx+dy*dy) ;
-	shadowMap = vec2(depth, depth * depth);   
+    float dx = dFdx(depth);
+	float dy = dFdy(depth);
+	depth2 += 0.25*(dx*dx+dy*dy);
+	shadowMap = vec2(depth, depth2);   
 }

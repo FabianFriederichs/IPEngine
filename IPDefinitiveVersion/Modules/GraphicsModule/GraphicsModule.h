@@ -74,6 +74,11 @@ private:
 	int m_max_spotlights;
 	float m_exposure;
 
+	//skybox settings
+	bool m_display_envmap;
+	int m_envmap_type; //0: cubmemap, 1: equirectangular map
+	bool m_envmap_hdr;
+
 	//ibl settings
 	bool m_ibl;
 	bool m_ibldiffuse;
@@ -84,9 +89,12 @@ private:
 	int m_shadow_res_x;
 	int m_shadow_res_y;
 	int m_shadow_blur_passes;
+	float m_shadow_variance_bias;
+	float m_light_bleed_reduction;
 
 	//environment textures
-	std::shared_ptr<TextureCube> m_skybox;
+	std::shared_ptr<TextureCube> m_cube_envmap;
+	std::shared_ptr<Texture2D> m_er_envmap;
 	std::shared_ptr<TextureCube> m_ibl_irradiance;
 	std::shared_ptr<TextureCube> m_ibl_specularradiance;
 	std::shared_ptr<Texture2D> m_ibl_brdfresponse;
@@ -155,6 +163,7 @@ private:
 	void drawEntity(SCM::ThreeDimEntity* entity, ShaderProgram* shader);
 	void drawEntityShadow(SCM::ThreeDimEntity* entity, ShaderProgram* shader);
 	void renderDirectionalLightShadowMap();
+	void renderEnvMap();
 	void lightMatDirectionalLight(glm::mat4& view, glm::mat4& proj, SCM::DirectionalLight& dirLight, const glm::vec3& min, const glm::vec3& max);
 	
 	//helpers ------------------------------------------------------------------------------------------------

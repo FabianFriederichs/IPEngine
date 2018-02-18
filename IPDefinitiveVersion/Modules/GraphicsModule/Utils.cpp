@@ -869,6 +869,22 @@ void Texture2D::unbind()
 	glBindTexture(GL_TEXTURE_2D, 0); GLERR
 }
 
+void Texture2D::setTexParams(GLint minf, GLint magf, GLint wraps, GLint wrapt, float maxAniso)
+{
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minf);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magf);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wraps);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapt);
+	float impmax;
+	if (maxAniso > 0)
+	{
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &impmax);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso >= impmax ? impmax : maxAniso);
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 ShaderProgram::ShaderProgram(GLuint program) :
 	prog(program)
 {
@@ -890,7 +906,9 @@ void ShaderProgram::use()
 TextureCube::TextureCube(GLuint texture) :
 	tex(texture),
 	tu(0)
-{}
+{
+
+}
 
 TextureCube::~TextureCube()
 {
@@ -912,6 +930,23 @@ void TextureCube::unbind()
 {
 	glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(tu)); GLERR
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0); GLERR
+}
+
+void TextureCube::setTexParams(GLint minf, GLint magf, GLint wraps, GLint wrapt, GLint wrapr, float maxAniso)
+{
+	glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, minf);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, magf);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, wraps);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, wrapt);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, wrapr);
+	float impmax;
+	if (maxAniso > 0)
+	{
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &impmax);
+		glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso >= impmax ? impmax : maxAniso);
+	}
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
 void FrameBuffer::bind(GLenum target)

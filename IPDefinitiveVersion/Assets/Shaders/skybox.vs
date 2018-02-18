@@ -10,5 +10,5 @@ uniform mat4 u_projection_matrix;
 void main()
 {
 	cmCoords = position;
-	gl_FragCoord = u_projection_matrix * u_view_matrix * vec4(position, 1.0);
+	gl_Position = u_projection_matrix * u_view_matrix * vec4(position, 1.0);
 }

@@ -68,11 +68,12 @@ void GraphicsModule::render()
 		renderDirectionalLightShadowMap();
 	}
 	//forward pbr render pass
-	glClearColor(m_clearcolor.r, m_clearcolor.g, m_clearcolor.b, m_clearcolor.a);
 	glViewport(0, 0, width, height);
-	auto shader = m_s_pbrforward.get();
-	shader->use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//render skybox or er map
+	renderEnvMap();
+	auto shader = m_s_pbrforward.get();
+	shader->use();	
 	//set scene uniforms (view, projection, lights etc..)
 	setSceneUniforms(shader);
 	//render opaque geometry
@@ -169,6 +170,13 @@ void GraphicsModule::loadShaders()
 
 		m_s_gblur = GLUtils::createShaderProgram(vspath, fspath);
 	}
+
+	if (m_display_envmap)
+	{
+		vspath = m_core->getConfigManager().getString("graphics.shaders.skybox.vertex");
+		fspath = m_core->getConfigManager().getString("graphics.shaders.skybox.fragment");
+		m_s_skybox = GLUtils::createShaderProgram(vspath, fspath);
+	}
 }
 void GraphicsModule::setupFrameBuffers()
 {
@@ -211,7 +219,12 @@ void GraphicsModule::setupFrameBuffers()
 	//TODO: ibl gen framebuffers
 }
 void GraphicsModule::renderIBLMaps()
-{}
+{
+	//hard coded opengl stuff here. Clean this up when GLutils cubemap and mipped render target support is ready
+
+
+
+}
 void GraphicsModule::readSettings()
 {
 	//get settings from config file
@@ -274,13 +287,96 @@ void GraphicsModule::readSettings()
 	m_iblspecular = m_core->getConfigManager().getBool("graphics.lighting.ibl.specular_ibl");
 
 	//shadow settings
-	m_shadows = m_ibldiffuse = m_core->getConfigManager().getBool("graphics.lighting.shadows.enable_shadows");
+	m_shadows = m_core->getConfigManager().getBool("graphics.lighting.shadows.enable_shadows");
 	m_shadow_res_x = m_core->getConfigManager().getInt("graphics.lighting.shadows.res.x");
 	m_shadow_res_y = m_core->getConfigManager().getInt("graphics.lighting.shadows.res.y");
 	m_shadow_blur_passes = m_core->getConfigManager().getInt("graphics.lighting.shadows.blur_passes");
+	m_shadow_variance_bias = static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.shadows.variance_bias"));
+	m_light_bleed_reduction = static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.shadows.light_bleed_reduction"));
+
+	//env map
+	m_display_envmap = m_core->getConfigManager().getBool("graphics.envmap.display");
+	m_envmap_type = m_core->getConfigManager().getInt("graphics.envmap.type");
+	if(m_envmap_type == 0)
+		m_envmap_hdr = m_core->getConfigManager().getBool("graphics.envmap.texCube.hdr");
+	else
+		m_envmap_hdr = m_core->getConfigManager().getBool("graphics.envmap.texEr.hdr");
 }
 void GraphicsModule::prepareAssets()
 {
+	//load envmap if m_ibl or m_display_envmap is true
+	if (m_display_envmap || m_ibl)
+	{
+		if (m_envmap_type == 0)
+		{
+			if (m_envmap_hdr)
+			{
+				m_cube_envmap = GLUtils::loadGLCubeTextureHDR(
+					m_core->getConfigManager().getString("graphics.envmap.texCube.px"),
+					m_core->getConfigManager().getString("graphics.envmap.texCube.nx"),
+					m_core->getConfigManager().getString("graphics.envmap.texCube.py"),
+					m_core->getConfigManager().getString("graphics.envmap.texCube.ny"),
+					m_core->getConfigManager().getString("graphics.envmap.texCube.pz"),
+					m_core->getConfigManager().getString("graphics.envmap.texCube.nz"),
+					true,
+					true
+				);
+				m_cube_envmap->setTexParams(GL_LINEAR_MIPMAP_LINEAR,
+											GL_LINEAR,
+											GL_CLAMP_TO_EDGE,
+											GL_CLAMP_TO_EDGE,
+											GL_CLAMP_TO_EDGE,
+											m_mtexMaxAnisoLevel);
+			}
+			else
+			{
+				m_cube_envmap = GLUtils::loadGLCubeTexture(
+					m_core->getConfigManager().getString("graphics.envmap.texCube.px"),
+					m_core->getConfigManager().getString("graphics.envmap.texCube.nx"),
+					m_core->getConfigManager().getString("graphics.envmap.texCube.py"),
+					m_core->getConfigManager().getString("graphics.envmap.texCube.ny"),
+					m_core->getConfigManager().getString("graphics.envmap.texCube.pz"),
+					m_core->getConfigManager().getString("graphics.envmap.texCube.nz"),
+					true
+				);
+				m_cube_envmap->setTexParams(GL_LINEAR_MIPMAP_LINEAR,
+											GL_LINEAR,
+											GL_CLAMP_TO_EDGE,
+											GL_CLAMP_TO_EDGE,
+											GL_CLAMP_TO_EDGE,
+											m_mtexMaxAnisoLevel);
+			}
+			glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+		}
+		else
+		{
+			if (m_envmap_hdr)
+			{
+				m_er_envmap = GLUtils::loadGLTextureHDR(
+					m_core->getConfigManager().getString("graphics.envmap.texEr.map"),
+					true,
+					true
+				);
+				m_er_envmap->setTexParams(GL_LINEAR_MIPMAP_LINEAR,
+										  GL_LINEAR,
+										  GL_CLAMP_TO_EDGE,
+										  GL_CLAMP_TO_EDGE,
+										  m_mtexMaxAnisoLevel);
+			}
+			else
+			{
+				m_er_envmap = GLUtils::loadGLTexture(
+					m_core->getConfigManager().getString("graphics.envmap.texEr.map"),
+					true
+				);
+				m_er_envmap->setTexParams(GL_LINEAR_MIPMAP_LINEAR,
+										  GL_LINEAR,
+										  GL_CLAMP_TO_EDGE,
+										  GL_CLAMP_TO_EDGE,
+										  m_mtexMaxAnisoLevel);
+			}
+		}
+	}
 	//TODO: render ibl maps here
 	if (m_ibl)
 	{
@@ -465,16 +561,12 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 	if (m_shadows)
 	{
 		shader->setUniform("u_enableShadows", 1);
-		shader->setUniform("u_light_matrix", m_dirLightMat, false);		
+		shader->setUniform("u_light_matrix", m_dirLightMat, false);
+		m_ot_shadowmap->setTexParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
 		m_ot_shadowmap->bind(20);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		float impmax;
-		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &impmax);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, m_mtexMaxAnisoLevel >= impmax ? impmax : m_mtexMaxAnisoLevel);
 		shader->setUniform("u_shadowMap", 20);
+		shader->setUniform("u_shadowVarianceBias", m_shadow_variance_bias);
+		shader->setUniform("u_lightBleedReduction", m_light_bleed_reduction);
 	}
 	else
 	{
@@ -616,6 +708,34 @@ void GraphicsModule::renderDirectionalLightShadowMap(/*SCM::DirectionalLight& di
 	m_ot_shadowmap = m_fb_gblur2->colorTargets[0].tex;
 	m_fb_gblur2->unbind(GL_FRAMEBUFFER);
 	setDefaultGLState();
+}
+void GraphicsModule::renderEnvMap()
+{	
+	if (m_display_envmap)
+	{
+		glDepthMask(GL_FALSE);
+		if (m_envmap_type == 0)
+		{
+			m_s_skybox->use();
+			m_cube_envmap->bind(0);
+			m_s_skybox->setUniform("u_skybox", 0);
+			m_s_skybox->setUniform("u_view_matrix", glm::mat4(glm::mat3(viewmat)), false);
+			m_s_skybox->setUniform("u_projection_matrix", projmat, false);
+			m_s_skybox->setUniform("u_envmap_type", 0);
+			Primitives::drawNDCCube();
+		}
+		else
+		{
+			m_s_skybox->use();
+			m_er_envmap->bind(0);
+			m_s_skybox->setUniform("u_skyer", 0);
+			m_s_skybox->setUniform("u_view_matrix", glm::mat4(glm::mat3(viewmat)), false);
+			m_s_skybox->setUniform("u_projection_matrix", projmat, false);
+			m_s_skybox->setUniform("u_envmap_type", 1);
+			Primitives::drawNDCCube();
+		}
+		glDepthMask(GL_TRUE);
+	}	
 }
 void GraphicsModule::setMaterialTexParams(GLuint tex)
 {

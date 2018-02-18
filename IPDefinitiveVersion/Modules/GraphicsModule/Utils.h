@@ -90,6 +90,7 @@ public:
 	~Texture2D();
 	void bind(GLuint textureUnit = 0);
 	void unbind();
+	void setTexParams(GLint minf = GL_LINEAR, GLint magf = GL_LINEAR, GLint wraps = GL_REPEAT, GLint wrapt = GL_REPEAT, float maxAniso = 0);
 	GLuint tex;
 	GLuint tu;
 	bool ishdr;
@@ -102,6 +103,7 @@ public:
 	~TextureCube();
 	void bind(GLuint textureUnit = 0);
 	void unbind();
+	void setTexParams(GLint minf = GL_LINEAR, GLint magf = GL_LINEAR, GLint wraps = GL_CLAMP_TO_EDGE, GLint wrapt = GL_CLAMP_TO_EDGE, GLint wrapr = GL_CLAMP_TO_EDGE, float maxAniso = 0);
 	GLuint tex;
 	GLuint tu;
 	bool ishdr;
@@ -119,8 +121,8 @@ public:
 	{
 		GLint progName = 0;
 		glGetIntegerv(GL_CURRENT_PROGRAM, &progName); GLERR
-			if (progName != this->prog)
-				return false;
+		if (progName != this->prog)
+			return false;
 		return true;
 	}
 
@@ -320,13 +322,15 @@ public:
 
 enum class RenderTargetType
 {
+	//TODO: add support for commented target types!
 	Empty,
 	RenderBuffer,
-	RenderBufferMS,
+	//RenderBufferMS,
 	Texture2D,
-	Texture2DMS,
-	TextureCube,
-	TextureCubeMS
+	//Texture2DMip,
+	//Texture2DMS,
+	TextureCube
+	//TextureCubeMip
 };
 
 class RenderTarget
