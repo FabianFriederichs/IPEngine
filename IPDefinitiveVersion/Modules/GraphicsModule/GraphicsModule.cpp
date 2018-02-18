@@ -136,14 +136,14 @@ void GraphicsModule::loadShaders()
 
 		m_s_pbriblforward = GLUtils::createShaderProgram(vspath, fspath);
 
-		/*if (m_ibldiffuse)
-		{*/
+		if (m_ibldiffuse)
+		{
 			vspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.irradiance.vertex");
 			fspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.irradiance.fragment");
 			auto gspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.irradiance.geometry");
 
 			m_s_ibldiff = GLUtils::createShaderProgram(vspath, fspath, gspath);
-		//}
+		}
 		if (m_iblspecular)
 		{
 			vspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.specular.vertex");
@@ -183,56 +183,98 @@ void GraphicsModule::setupFrameBuffers()
 {
 	//shadow mapping framebuffers
 	//shadow map
-	FrameBufferDesc sfbd{
-		{
+	if (m_shadows)
+	{
+		FrameBufferDesc sfbd{
+			{
+				RenderTargetDesc{
+					m_shadow_res_x,
+					m_shadow_res_y,
+					GL_RG32F,
+					GL_COLOR_ATTACHMENT0,
+					RenderTargetType::Texture2D
+				}
+			},
 			RenderTargetDesc{
 				m_shadow_res_x,
 				m_shadow_res_y,
-				GL_RG32F,
-				GL_COLOR_ATTACHMENT0,
-				RenderTargetType::Texture2D
+				GL_DEPTH24_STENCIL8,
+				GL_DEPTH_STENCIL_ATTACHMENT,
+				RenderTargetType::RenderBuffer
 			}
-		},
-		RenderTargetDesc{
-			m_shadow_res_x,
-			m_shadow_res_y,
-			GL_DEPTH24_STENCIL8,
-			GL_DEPTH_STENCIL_ATTACHMENT,
-			RenderTargetType::RenderBuffer
-		}
-	};
-	m_fb_shadow = GLUtils::createFrameBuffer(sfbd);
-	//shadow map blur
-	FrameBufferDesc bfbd{
-		{
-			RenderTargetDesc{
-				m_shadow_res_x,
-				m_shadow_res_y,
-				GL_RG32F,
-				GL_COLOR_ATTACHMENT0,
-				RenderTargetType::Texture2D
-			}
-		},
-		RenderTargetDesc{} //empty: no depth test needed
-	};
-	m_fb_gblur1 = GLUtils::createFrameBuffer(bfbd);
-	m_fb_gblur2 = GLUtils::createFrameBuffer(bfbd);
-	
+		};
+		m_fb_shadow = GLUtils::createFrameBuffer(sfbd);
+		//shadow map blur
+		FrameBufferDesc bfbd{
+			{
+				RenderTargetDesc{
+					m_shadow_res_x,
+					m_shadow_res_y,
+					GL_RG32F,
+					GL_COLOR_ATTACHMENT0,
+					RenderTargetType::Texture2D
+				}
+			},
+			RenderTargetDesc{} //empty: no depth test needed
+		};
+		m_fb_gblur1 = GLUtils::createFrameBuffer(bfbd);
+		m_fb_gblur2 = GLUtils::createFrameBuffer(bfbd);
+	}
 	//ibl
-	//diffuse
-	FrameBufferDesc ibldfbd{
+	if (m_ibl)
+	{
+		//diffuse
+		if (m_ibldiffuse)
 		{
-			RenderTargetDesc{
-				m_irradiance_map_resx,
-				m_irradiance_map_resy,
-				GL_RGB16F,
-				GL_COLOR_ATTACHMENT0,
-				RenderTargetType::TextureCube
-			}
-		},
-		RenderTargetDesc{} //empty: no depth test needed
-	};
-	m_fb_iblgenirradiance = GLUtils::createFrameBuffer(ibldfbd);
+			FrameBufferDesc ibldfbd{
+				{
+					RenderTargetDesc{
+						m_irradiance_map_resx,
+						m_irradiance_map_resy,
+						GL_RGB16F,
+						GL_COLOR_ATTACHMENT0,
+						RenderTargetType::TextureCube
+					}
+				},
+				RenderTargetDesc{} //empty: no depth test needed
+			};
+			m_fb_iblgenirradiance = GLUtils::createFrameBuffer(ibldfbd);
+		}
+
+		//specular
+		if (m_iblspecular)
+		{
+			FrameBufferDesc iblsfbd{
+				{
+					RenderTargetDesc{
+						m_specular_map_resx,
+						m_specular_map_resy,
+						GL_RGB16F,
+						GL_COLOR_ATTACHMENT0,
+						RenderTargetType::TextureCube,
+						m_specular_mipmap_levels
+					}
+				},
+				RenderTargetDesc{} //empty: no depth test needed
+			};
+			m_fb_iblgenspecular = GLUtils::createFrameBuffer(iblsfbd);
+
+			//brdf response
+			FrameBufferDesc iblbfbd{
+				{
+					RenderTargetDesc{
+						m_specular_map_resx,
+						m_specular_map_resy,
+						GL_RG16F,
+						GL_COLOR_ATTACHMENT0,
+						RenderTargetType::Texture2D
+					}
+				},
+				RenderTargetDesc{} //empty: no depth test needed
+			};
+			m_fb_iblgenbrdf = GLUtils::createFrameBuffer(iblbfbd);
+		}
+	}
 }
 void GraphicsModule::renderIBLMaps()
 {
@@ -339,6 +381,12 @@ void GraphicsModule::readSettings()
 	m_irradiance_map_resx = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.diffuse.resx"));
 	m_irradiance_map_resy = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.diffuse.resy"));
 	m_irradiance_sample_delta = static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.ibl.generating.diffuse.sample_delta"));
+	m_specular_map_resx = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.specular.resx"));
+	m_specular_map_resy = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.specular.resy"));
+	m_specular_mipmap_levels = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.specular.mipmap_levels"));
+	m_specular_samples = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.specular.nsamples"));
+	m_specular_brdf_resx = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.brdf.resx"));
+	m_specular_brdf_resy = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.brdf.resy"));
 
 	//shadow settings
 	m_shadows = m_core->getConfigManager().getBool("graphics.lighting.shadows.enable_shadows");
@@ -381,6 +429,7 @@ void GraphicsModule::prepareAssets()
 											GL_CLAMP_TO_EDGE,
 											GL_CLAMP_TO_EDGE,
 											m_mtexMaxAnisoLevel);
+				glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 			}
 			else
 			{

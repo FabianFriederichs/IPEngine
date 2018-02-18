@@ -55,18 +55,17 @@ public:
 	static std::shared_ptr<ShaderProgram> createShaderProgram(const std::string& vspath, const std::string& fspath);
 	static std::shared_ptr<ShaderProgram> createShaderProgram(const std::string& vspath, const std::string& fspath, const std::string& gspath);
 
-	//add support for cube maps and ms when needed
 	static RenderTarget createRenderTargetRbuf(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment);
-	static RenderTarget createRenderTargetTex(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment);
-	static RenderTarget createRenderTargetCube(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment);
+	static RenderTarget createRenderTargetTex(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment, int miplevels = 1);
+	static RenderTarget createRenderTargetCube(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment, int miplevels = 1);
 	static std::shared_ptr<FrameBuffer> createFrameBuffer(std::vector<RenderTarget> colorTargets, RenderTarget depthTarget);
 	static std::shared_ptr<FrameBuffer> createFrameBuffer(const FrameBufferDesc& fdesc);
+	static bool checkFBO(GLenum* result);
 
 private:
 	static std::shared_ptr<RenderBuffer> createRenderBuffer(GLsizei width, GLsizei height, GLenum internalformat);
-	static std::shared_ptr<Texture2D> createRenderTexture(GLsizei width, GLsizei height, GLenum internalformat);
-	static std::shared_ptr<TextureCube> createRenderTextureCube(GLsizei width, GLsizei height, GLenum internalformat);
-	static bool checkFBO(GLenum* result);
+	static std::shared_ptr<Texture2D> createRenderTexture(GLsizei width, GLsizei height, GLenum internalformat, int miplevels);
+	static std::shared_ptr<TextureCube> createRenderTextureCube(GLsizei width, GLsizei height, GLenum internalformat, int miplevels);	
 	static std::string getFrameBufferErrorMessage(GLenum state);
 };
 
@@ -329,10 +328,8 @@ enum class RenderTargetType
 	RenderBuffer,
 	//RenderBufferMS,
 	Texture2D,
-	//Texture2DMip,
 	//Texture2DMS,
 	TextureCube
-	//TextureCubeMip
 };
 
 class RenderTarget
@@ -341,24 +338,36 @@ public:
 	RenderTarget() :
 		attachment(GL_INVALID_ENUM),
 		rb(),
-		type(RenderTargetType::Empty)
+		type(RenderTargetType::Empty),
+		width(0),
+		height(0),
+		miplevels(0)
 	{}
 	~RenderTarget()
 	{}
-	RenderTarget(std::shared_ptr<Texture2D> _tex, GLenum _attachment) :
+	RenderTarget(std::shared_ptr<Texture2D> _tex, GLenum _attachment, GLsizei _width, GLsizei _height, GLsizei _miplevels = 1) :
 		tex(_tex),
 		attachment(_attachment),
-		type(RenderTargetType::Texture2D)
+		type(RenderTargetType::Texture2D),
+		width(_width),
+		height(_height),
+		miplevels(_miplevels)
 	{}
-	RenderTarget(std::shared_ptr<RenderBuffer> _rb, GLenum _attachment) :
+	RenderTarget(std::shared_ptr<RenderBuffer> _rb, GLenum _attachment, GLsizei _width, GLsizei _height) :
 		rb(_rb),
 		attachment(_attachment),
-		type(RenderTargetType::RenderBuffer)
+		type(RenderTargetType::RenderBuffer),
+		width(_width),
+		height(_height),
+		miplevels(1)
 	{}
-	RenderTarget(std::shared_ptr<TextureCube> _ctex, GLenum _attachment) :
+	RenderTarget(std::shared_ptr<TextureCube> _ctex, GLenum _attachment, GLsizei _width, GLsizei _height, GLsizei _miplevels = 1) :
 		ctex(_ctex),
 		attachment(_attachment),
-		type(RenderTargetType::TextureCube)
+		type(RenderTargetType::TextureCube),
+		width(_width),
+		height(_height),
+		miplevels(_miplevels)
 	{}
 	RenderTarget(const RenderTarget& other) 
 	{
@@ -366,24 +375,36 @@ public:
 		{
 			type = RenderTargetType::Empty;
 			attachment = GL_INVALID_ENUM;
+			width = other.width;
+			height = other.height;
+			miplevels = other.miplevels;
 		}
 		if (other.type == RenderTargetType::Texture2D)
 		{
 			attachment = other.attachment;
 			tex = other.tex;
 			type = RenderTargetType::Texture2D;
+			width = other.width;
+			height = other.height;
+			miplevels = other.miplevels;
 		}
 		else if (other.type == RenderTargetType::RenderBuffer)
 		{
 			attachment = other.attachment;
 			rb = other.rb;
 			type = RenderTargetType::RenderBuffer;
+			width = other.width;
+			height = other.height;
+			miplevels = other.miplevels;
 		}
 		else if (other.type == RenderTargetType::TextureCube)
 		{
 			attachment = other.attachment;
 			ctex = other.ctex;
 			type = RenderTargetType::TextureCube;
+			width = other.width;
+			height = other.height;
+			miplevels = other.miplevels;
 		}
 		else //cube map follows
 		{
@@ -398,24 +419,36 @@ public:
 		{
 			type = RenderTargetType::Empty;
 			attachment = GL_INVALID_ENUM;
+			width = other.width;
+			height = other.height;
+			miplevels = other.miplevels;
 		}
 		if (other.type == RenderTargetType::Texture2D)
 		{
 			attachment = other.attachment;
 			tex = other.tex;
 			type = RenderTargetType::Texture2D;
+			width = other.width;
+			height = other.height;
+			miplevels = other.miplevels;
 		}
 		else if (other.type == RenderTargetType::RenderBuffer)
 		{
 			attachment = other.attachment;
 			rb = other.rb;
 			type = RenderTargetType::RenderBuffer;
+			width = other.width;
+			height = other.height;
+			miplevels = other.miplevels;
 		}
 		else if (other.type == RenderTargetType::TextureCube)
 		{
 			attachment = other.attachment;
 			ctex = other.ctex;
 			type = RenderTargetType::TextureCube;
+			width = other.width;
+			height = other.height;
+			miplevels = other.miplevels;
 		}
 		else //cube map follows
 		{
@@ -427,6 +460,9 @@ public:
 	std::shared_ptr<Texture2D> tex;
 	std::shared_ptr<RenderBuffer> rb;
 	std::shared_ptr<TextureCube> ctex;
+	GLsizei width;
+	GLsizei height;
+	GLsizei miplevels;
 	GLenum attachment;
 };
 
@@ -457,6 +493,8 @@ public:
 	}
 	void bind(GLenum target);
 	void unbind(GLenum target);
+	bool selectColorTargetMipmapLevel(size_t colorTargetIndex , GLint level);
+	bool selectDepthTargetMipmapLevel(GLint level);
 	GLuint fbo;
 	std::vector<RenderTarget> colorTargets;
 	RenderTarget depthTarget;
@@ -475,7 +513,8 @@ struct RenderTargetDesc
 		internalformat(GL_INVALID_ENUM),
 		attachment(GL_INVALID_ENUM),
 		type(RenderTargetType::Empty),
-		samples(0)
+		samples(0),
+		miplevels(0)
 	{}
 
 	RenderTargetDesc(GLsizei _width,
@@ -483,13 +522,15 @@ struct RenderTargetDesc
 					 GLenum _internalformat,
 					 GLenum _attachment,
 					 RenderTargetType _type,
+					 int _miplevels = 1,
 					 int samples = 0) :
 		width(_width),
 		height(_height),
 		internalformat(_internalformat),
 		attachment(_attachment),
 		type(_type),
-		samples(samples)
+		samples(samples),
+		miplevels(_miplevels)
 	{}
 
 	~RenderTargetDesc()
@@ -501,6 +542,7 @@ struct RenderTargetDesc
 	GLenum attachment;
 	RenderTargetType type;
 	int samples;
+	int miplevels;
 };
 
 struct FrameBufferDesc

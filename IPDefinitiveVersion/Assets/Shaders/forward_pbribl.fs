@@ -15,6 +15,7 @@ in struct VertexData
     vec4 posLightSpace;
 	vec2 uv;
 	vec3 normal;
+    //TODO: add a mat3 TBNWorld for ibl calculations
     mat3 TBN;
 }   vertexdat;
 

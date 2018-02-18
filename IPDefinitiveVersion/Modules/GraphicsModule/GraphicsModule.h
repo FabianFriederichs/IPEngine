@@ -87,6 +87,13 @@ private:
 	int m_irradiance_map_resx;
 	int m_irradiance_map_resy;
 	float m_irradiance_sample_delta;
+	//specular
+	int m_specular_map_resx;
+	int m_specular_map_resy;
+	int m_specular_mipmap_levels;
+	int m_specular_samples;
+	int m_specular_brdf_resx;
+	int m_specular_brdf_resy;
 
 	//shadow settings
 	bool m_shadows;
