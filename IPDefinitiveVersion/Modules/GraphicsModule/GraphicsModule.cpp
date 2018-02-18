@@ -78,7 +78,7 @@ void GraphicsModule::render()
 	//set scene uniforms (view, projection, lights etc..)
 	setSceneUniforms(shader);
 	//render opaque geometry
-	drawScene(shader);
+	drawScene(shader);	
 }
 void GraphicsModule::setCameraEntity(ipengine::ipid v)
 {
@@ -136,14 +136,14 @@ void GraphicsModule::loadShaders()
 
 		m_s_pbriblforward = GLUtils::createShaderProgram(vspath, fspath);
 
-		if (m_ibldiffuse)
-		{
+		/*if (m_ibldiffuse)
+		{*/
 			vspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.irradiance.vertex");
 			fspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.irradiance.fragment");
 			auto gspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.irradiance.geometry");
 
 			m_s_ibldiff = GLUtils::createShaderProgram(vspath, fspath, gspath);
-		}
+		//}
 		if (m_iblspecular)
 		{
 			vspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.specular.vertex");
@@ -237,12 +237,12 @@ void GraphicsModule::setupFrameBuffers()
 void GraphicsModule::renderIBLMaps()
 {
 	//hard coded opengl stuff here. Clean this up when GLutils cubemap and mipped render target support is ready
-	m_fb_iblgenirradiance->bind(GL_FRAMEBUFFER);
-	glDisable(GL_DEPTH_TEST);
-	glViewport(0, 0, m_irradiance_map_resx, m_irradiance_map_resy);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	m_s_ibldiff->use();	
+	m_fb_iblgenirradiance->bind(GL_FRAMEBUFFER); GLERR
+	glDisable(GL_DEPTH_TEST); GLERR
+	glViewport(0, 0, m_irradiance_map_resx, m_irradiance_map_resy); GLERR
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); GLERR
+	glClear(GL_COLOR_BUFFER_BIT); GLERR
+	m_s_ibldiff->use();	GLERR
 	//generate layer matrices
 	glm::mat4 pmat = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 	glm::mat4 layermats[] = {  //px, nx, py, ny, pz, nz
@@ -254,24 +254,26 @@ void GraphicsModule::renderIBLMaps()
 		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
 	};
 	for (size_t i = 0; i < 6; i++)
-		m_s_ibldiff->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false);
+		m_s_ibldiff->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false); GLERR
 	//set envmap and sample settings
 	if (m_envmap_type == 0)
 	{
-		m_cube_envmap->bind(0);
-		m_s_ibldiff->setUniform("u_envcube", 0);
-		m_s_ibldiff->setUniform("u_envmap_type", 0);
+		m_cube_envmap->bind(0); GLERR
+		m_s_ibldiff->setUniform("u_envcube", 0); GLERR
+		m_s_ibldiff->setUniform("u_enver", 1); GLERR
+		m_s_ibldiff->setUniform("u_envmap_type", 0); GLERR
 	}
 	else
 	{
-		m_er_envmap->bind(0);
-		m_s_ibldiff->setUniform("u_enver", 0);
-		m_s_ibldiff->setUniform("u_envmap_type", 1);
+		m_er_envmap->bind(0); GLERR
+		m_s_ibldiff->setUniform("u_enver", 0); GLERR
+		m_s_ibldiff->setUniform("u_envcube", 1); GLERR
+		m_s_ibldiff->setUniform("u_envmap_type", 1); GLERR
 	}
-	m_s_ibldiff->setUniform("u_sample_delta", m_irradiance_sample_delta);
-	Primitives::drawNDCCube();
-	glFinish();
-	m_fb_iblgenirradiance->unbind(GL_FRAMEBUFFER);
+	m_s_ibldiff->setUniform("u_sample_delta", m_irradiance_sample_delta); GLERR
+	Primitives::drawNDCCube(); GLERR
+	glFinish(); GLERR
+	m_fb_iblgenirradiance->unbind(GL_FRAMEBUFFER); GLERR
 	m_ibl_irradiance = m_fb_iblgenirradiance->colorTargets[0].ctex;
 }
 void GraphicsModule::readSettings()
@@ -569,6 +571,7 @@ void GraphicsModule::drawScene(ShaderProgram* shader)
 		if (!entity->isActive)
 			continue;
 
+		GLERR
 		drawEntity(entity, shader);
 	}
 }
@@ -617,8 +620,8 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 		shader->setUniform("u_enableShadows", 1);
 		shader->setUniform("u_light_matrix", m_dirLightMat, false);
 		m_ot_shadowmap->setTexParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
-		m_ot_shadowmap->bind(20);
-		shader->setUniform("u_shadowMap", 20);
+		m_ot_shadowmap->bind(7);
+		shader->setUniform("u_shadowMap", 7);
 		shader->setUniform("u_shadowVarianceBias", m_shadow_variance_bias);
 		shader->setUniform("u_lightBleedReduction", m_light_bleed_reduction);
 	}
@@ -671,13 +674,12 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 	//ibl stuff
 	if (m_ibl)
 	{
-		/*uniform int u_diffuseibl;
-		uniform int u_specularibl;
-		uniform samplerCube u_irradianceMap;*/
 		shader->setUniform("u_diffuseibl", m_ibldiffuse);
 		shader->setUniform("u_specularibl", m_iblspecular);
-		m_ibl_irradiance->bind(21);
-		shader->setUniform("u_irradianceMap", 21);
+		m_ibl_irradiance->bind(4);
+		shader->setUniform("u_irradianceMap", 4);
+		shader->setUniform("u_prefilterMap", 5);
+		shader->setUniform("u_brdfLUT", 6);
 	}
 }
 void GraphicsModule::setMaterialUniforms(SCM::MaterialData * mdata, ShaderProgram* shader)
@@ -687,9 +689,11 @@ void GraphicsModule::setMaterialUniforms(SCM::MaterialData * mdata, ShaderProgra
 	{
 		auto& t = tp.second;
 		auto& tex = m_scmtexturetot2d[t.m_texturefileId];
+		GLERR
 		tex->bind(tc);
 		shader->setUniform("u_material." + tp.first, tc);
 		++tc;
+		GLERR
 	}
 	//shader->setUniform("u_material.texcount", tc);
 	//TODO: texture scaling / offset
@@ -704,8 +708,11 @@ void GraphicsModule::drawEntity(SCM::ThreeDimEntity * entity, ShaderProgram* sha
 	for (auto m : entity->m_mesheObjects->m_meshes)
 	{
 		//TODO:: optimization! create batches of meshes with the same material
+		GLERR
 		setMaterialUniforms(m->m_material, shader);
+		GLERR
 		drawSCMMesh(m->m_meshId);
+		GLERR
 	}
 }
 void GraphicsModule::drawEntityShadow(SCM::ThreeDimEntity * entity, ShaderProgram* shader)
@@ -745,6 +752,7 @@ void GraphicsModule::renderDirectionalLightShadowMap(/*SCM::DirectionalLight& di
 		m_fb_shadow->unbind(GL_FRAMEBUFFER);
 		m_ot_shadowmap = m_fb_shadow->colorTargets[0].tex;
 		setDefaultGLState();
+		GLERR
 		return;
 	}
 	//blur shadow map
@@ -774,17 +782,20 @@ void GraphicsModule::renderDirectionalLightShadowMap(/*SCM::DirectionalLight& di
 	m_ot_shadowmap = m_fb_gblur2->colorTargets[0].tex;
 	m_fb_gblur2->unbind(GL_FRAMEBUFFER);
 	setDefaultGLState();
+	GLERR
 }
 void GraphicsModule::renderEnvMap()
 {	
 	if (m_display_envmap)
 	{
 		glDepthMask(GL_FALSE);
+		glDisable(GL_DEPTH_TEST);
 		if (m_envmap_type == 0)
 		{
 			m_s_skybox->use();
 			m_cube_envmap->bind(0);
 			m_s_skybox->setUniform("u_skybox", 0);
+			m_s_skybox->setUniform("u_skyer", 1);
 			m_s_skybox->setUniform("u_view_matrix", glm::mat4(glm::mat3(viewmat)), false);
 			m_s_skybox->setUniform("u_projection_matrix", projmat, false);
 			m_s_skybox->setUniform("u_envmap_type", 0);
@@ -795,11 +806,13 @@ void GraphicsModule::renderEnvMap()
 			m_s_skybox->use();
 			m_er_envmap->bind(0);
 			m_s_skybox->setUniform("u_skyer", 0);
+			m_s_skybox->setUniform("u_skybox", 1);
 			m_s_skybox->setUniform("u_view_matrix", glm::mat4(glm::mat3(viewmat)), false);
 			m_s_skybox->setUniform("u_projection_matrix", projmat, false);
 			m_s_skybox->setUniform("u_envmap_type", 1);
 			Primitives::drawNDCCube();
 		}
+		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
 	}	
 }
@@ -820,9 +833,9 @@ void GraphicsModule::drawSCMMesh(ipengine::ipid meshid)
 	auto vao = m_scmmeshtovao[meshid];
 	if (vao->vao != 0)
 	{
-		glBindVertexArray(vao->vao);
-		glDrawElements(GL_TRIANGLES, vao->indexCount, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
+		glBindVertexArray(vao->vao);GLERR
+		glDrawElements(GL_TRIANGLES, vao->indexCount, GL_UNSIGNED_INT, 0);GLERR
+		glBindVertexArray(0);GLERR
 	}
 }
 glm::mat4 GraphicsModule::ViewFromTransData(const SCM::TransformData *transform)

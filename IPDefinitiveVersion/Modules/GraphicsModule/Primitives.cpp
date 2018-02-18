@@ -80,18 +80,18 @@ void Primitives::drawNDCCube()
 			cubevbo = 0;
 			return;
 		}
-		glBindVertexArray(cubevao);
-		glBindBuffer(GL_ARRAY_BUFFER, cubevbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(CubeVerts), CubeVerts, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3, reinterpret_cast<void*>(0));
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
+		glBindVertexArray(cubevao); GLERR
+		glBindBuffer(GL_ARRAY_BUFFER, cubevbo); GLERR
+		glBufferData(GL_ARRAY_BUFFER, sizeof(CubeVerts), CubeVerts, GL_STATIC_DRAW); GLERR
+		glEnableVertexAttribArray(0); GLERR
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3, reinterpret_cast<void*>(0)); GLERR
+		glBindBuffer(GL_ARRAY_BUFFER, 0); GLERR
+		glBindVertexArray(0); GLERR
 	}
 
-	glBindVertexArray(cubevao);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
+	glBindVertexArray(cubevao); GLERR
+	glDrawArrays(GL_TRIANGLES, 0, 36); GLERR
+	glBindVertexArray(0); GLERR
 }
 
 void Primitives::drawNDCQuad()
