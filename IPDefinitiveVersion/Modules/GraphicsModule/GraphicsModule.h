@@ -83,6 +83,10 @@ private:
 	bool m_ibl;
 	bool m_ibldiffuse;
 	bool m_iblspecular;
+	//diffuse
+	int m_irradiance_map_resx;
+	int m_irradiance_map_resy;
+	float m_irradiance_sample_delta;
 
 	//shadow settings
 	bool m_shadows;

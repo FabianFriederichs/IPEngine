@@ -67,13 +67,14 @@ void GraphicsModule::render()
 	{
 		renderDirectionalLightShadowMap();
 	}
+
 	//forward pbr render pass
 	glViewport(0, 0, width, height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//render skybox or er map
 	renderEnvMap();
-	auto shader = m_s_pbrforward.get();
-	shader->use();	
+	auto shader = (m_ibl ? m_s_pbriblforward.get() : m_s_pbrforward.get());
+	shader->use();
 	//set scene uniforms (view, projection, lights etc..)
 	setSceneUniforms(shader);
 	//render opaque geometry
@@ -216,14 +217,62 @@ void GraphicsModule::setupFrameBuffers()
 	};
 	m_fb_gblur1 = GLUtils::createFrameBuffer(bfbd);
 	m_fb_gblur2 = GLUtils::createFrameBuffer(bfbd);
-	//TODO: ibl gen framebuffers
+	
+	//ibl
+	//diffuse
+	FrameBufferDesc ibldfbd{
+		{
+			RenderTargetDesc{
+				m_irradiance_map_resx,
+				m_irradiance_map_resy,
+				GL_RGB16F,
+				GL_COLOR_ATTACHMENT0,
+				RenderTargetType::TextureCube
+			}
+		},
+		RenderTargetDesc{} //empty: no depth test needed
+	};
+	m_fb_iblgenirradiance = GLUtils::createFrameBuffer(ibldfbd);
 }
 void GraphicsModule::renderIBLMaps()
 {
 	//hard coded opengl stuff here. Clean this up when GLutils cubemap and mipped render target support is ready
-
-
-
+	m_fb_iblgenirradiance->bind(GL_FRAMEBUFFER);
+	glDisable(GL_DEPTH_TEST);
+	glViewport(0, 0, m_irradiance_map_resx, m_irradiance_map_resy);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	m_s_ibldiff->use();	
+	//generate layer matrices
+	glm::mat4 pmat = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+	glm::mat4 layermats[] = {  //px, nx, py, ny, pz, nz
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
+	};
+	for (size_t i = 0; i < 6; i++)
+		m_s_ibldiff->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false);
+	//set envmap and sample settings
+	if (m_envmap_type == 0)
+	{
+		m_cube_envmap->bind(0);
+		m_s_ibldiff->setUniform("u_envcube", 0);
+		m_s_ibldiff->setUniform("u_envmap_type", 0);
+	}
+	else
+	{
+		m_er_envmap->bind(0);
+		m_s_ibldiff->setUniform("u_enver", 0);
+		m_s_ibldiff->setUniform("u_envmap_type", 1);
+	}
+	m_s_ibldiff->setUniform("u_sample_delta", m_irradiance_sample_delta);
+	Primitives::drawNDCCube();
+	glFinish();
+	m_fb_iblgenirradiance->unbind(GL_FRAMEBUFFER);
+	m_ibl_irradiance = m_fb_iblgenirradiance->colorTargets[0].ctex;
 }
 void GraphicsModule::readSettings()
 {
@@ -285,6 +334,9 @@ void GraphicsModule::readSettings()
 	m_ibl = m_core->getConfigManager().getBool("graphics.lighting.ibl.enable_ibl");
 	m_ibldiffuse = m_core->getConfigManager().getBool("graphics.lighting.ibl.diffuse_ibl");
 	m_iblspecular = m_core->getConfigManager().getBool("graphics.lighting.ibl.specular_ibl");
+	m_irradiance_map_resx = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.diffuse.resx"));
+	m_irradiance_map_resy = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.diffuse.resy"));
+	m_irradiance_sample_delta = static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.ibl.generating.diffuse.sample_delta"));
 
 	//shadow settings
 	m_shadows = m_core->getConfigManager().getBool("graphics.lighting.shadows.enable_shadows");
@@ -380,7 +432,9 @@ void GraphicsModule::prepareAssets()
 	//TODO: render ibl maps here
 	if (m_ibl)
 	{
+		std::cout << "Rendering diffuse ibl map...\n";
 		renderIBLMaps();
+		std::cout << "done!\n";
 	}
 }
 void GraphicsModule::setDefaultGLState()
@@ -613,6 +667,18 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 	shader->setUniform("u_spotLightCount", lc);
 
 	shader->setUniform("u_ambientLight", m_ambientLight);
+
+	//ibl stuff
+	if (m_ibl)
+	{
+		/*uniform int u_diffuseibl;
+		uniform int u_specularibl;
+		uniform samplerCube u_irradianceMap;*/
+		shader->setUniform("u_diffuseibl", m_ibldiffuse);
+		shader->setUniform("u_specularibl", m_iblspecular);
+		m_ibl_irradiance->bind(21);
+		shader->setUniform("u_irradianceMap", 21);
+	}
 }
 void GraphicsModule::setMaterialUniforms(SCM::MaterialData * mdata, ShaderProgram* shader)
 {

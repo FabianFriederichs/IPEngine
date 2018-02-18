@@ -58,12 +58,14 @@ public:
 	//add support for cube maps and ms when needed
 	static RenderTarget createRenderTargetRbuf(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment);
 	static RenderTarget createRenderTargetTex(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment);
+	static RenderTarget createRenderTargetCube(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment);
 	static std::shared_ptr<FrameBuffer> createFrameBuffer(std::vector<RenderTarget> colorTargets, RenderTarget depthTarget);
 	static std::shared_ptr<FrameBuffer> createFrameBuffer(const FrameBufferDesc& fdesc);
 
 private:
 	static std::shared_ptr<RenderBuffer> createRenderBuffer(GLsizei width, GLsizei height, GLenum internalformat);
 	static std::shared_ptr<Texture2D> createRenderTexture(GLsizei width, GLsizei height, GLenum internalformat);
+	static std::shared_ptr<TextureCube> createRenderTextureCube(GLsizei width, GLsizei height, GLenum internalformat);
 	static bool checkFBO(GLenum* result);
 	static std::string getFrameBufferErrorMessage(GLenum state);
 };
@@ -353,6 +355,11 @@ public:
 		attachment(_attachment),
 		type(RenderTargetType::RenderBuffer)
 	{}
+	RenderTarget(std::shared_ptr<TextureCube> _ctex, GLenum _attachment) :
+		ctex(_ctex),
+		attachment(_attachment),
+		type(RenderTargetType::TextureCube)
+	{}
 	RenderTarget(const RenderTarget& other) 
 	{
 		if (other.type == RenderTargetType::Empty)
@@ -371,6 +378,12 @@ public:
 			attachment = other.attachment;
 			rb = other.rb;
 			type = RenderTargetType::RenderBuffer;
+		}
+		else if (other.type == RenderTargetType::TextureCube)
+		{
+			attachment = other.attachment;
+			ctex = other.ctex;
+			type = RenderTargetType::TextureCube;
 		}
 		else //cube map follows
 		{
@@ -398,6 +411,12 @@ public:
 			rb = other.rb;
 			type = RenderTargetType::RenderBuffer;
 		}
+		else if (other.type == RenderTargetType::TextureCube)
+		{
+			attachment = other.attachment;
+			ctex = other.ctex;
+			type = RenderTargetType::TextureCube;
+		}
 		else //cube map follows
 		{
 
@@ -406,7 +425,8 @@ public:
 	}
 	RenderTargetType type;
 	std::shared_ptr<Texture2D> tex;
-	std::shared_ptr<RenderBuffer> rb;	
+	std::shared_ptr<RenderBuffer> rb;
+	std::shared_ptr<TextureCube> ctex;
 	GLenum attachment;
 };
 

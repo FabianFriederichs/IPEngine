@@ -12,6 +12,7 @@ layout (location = 0) out vec4 color;
 in struct VertexData
 {
 	vec3 pos;
+    vec4 posLightSpace;
 	vec2 uv;
 	vec3 normal;
     mat3 TBN;
@@ -68,12 +69,17 @@ uniform int u_spotLightCount;
 uniform vec3 u_ambientLight;
 uniform float u_toneMappingExposure;
 // IBL
-uniform int u_diffuseibl;
-uniform int u_specularibl;
+uniform bool u_diffuseibl;
+uniform bool u_specularibl;
 uniform samplerCube u_irradianceMap;
 uniform samplerCube u_prefilterMap;
 uniform sampler2D u_brdfLUT;
 uniform float u_ibl_maxspeclod;
+//shadow map(s)
+uniform bool u_enableShadows;
+uniform sampler2D u_shadowMap;
+uniform float u_shadowVarianceBias;
+uniform float u_lightBleedReduction;
 
 //setup helpers
 vec3 normalFromNormalMap(vec3 texData, mat3 TBN)
@@ -82,11 +88,50 @@ vec3 normalFromNormalMap(vec3 texData, mat3 TBN)
     return normalize(TBN * n);
 }
 
+float lstep(float _min, float _max, float v)
+{
+    return clamp((v - _min) / (_max - _min), 0.0, 1.0);
+}
+
+float reduceLightBleeding(float p_max, float amount)
+{
+    // Remove the [0, Amount] tail and linearly rescale (Amount, 1].
+    return lstep(amount, 1.0, p_max);
+}
+
+//vsm shadow sampling
+float calcShadowFactor()
+{
+    vec3 fragDepth = vertexdat.posLightSpace.xyz / vertexdat.posLightSpace.w;
+    fragDepth = fragDepth * 0.5 + 0.5;
+    float lightDepthM1 = texture(u_shadowMap, fragDepth.xy).r;
+    float lightDepthM2 = texture(u_shadowMap, fragDepth.xy).g;
+    // float bias = max(0.002 * (1.0 - dot(n, -normalize(l))), 0.0005);
+    // if(fragDepth.z - bias < lightDepthM1)
+    //     return 1.0;
+    
+    float u = lightDepthM1;
+    float o2 = lightDepthM2 - (lightDepthM1 * lightDepthM1);//, 0.001);
+    o2 = max(o2, u_shadowVarianceBias);
+    float t = fragDepth.z;
+
+    float res = o2 / (o2 + (t - u) * (t - u));
+    res = reduceLightBleeding(res, u_lightBleedReduction);
+    return max(res, float(fragDepth.z <= lightDepthM1));
+}
+
 //light radiance calculation
 vec3 calcDirLightRadiance(int i)
 {
     //incorrect, but we assume for now that dirlights are not attenuated
-    return u_directionalLights[i].color;
+    if(u_enableShadows)
+    {
+        return u_directionalLights[i].color * calcShadowFactor();
+    }
+    else
+    {
+        return u_directionalLights[i].color;
+    }
 }
 
 vec3 calcPointLightRadiance(int i, vec3 fPos)
@@ -192,9 +237,12 @@ vec3 cookTorranceBRDF(vec3 n, vec3 v, vec3 l, float roughness, vec3 reflectance,
     return (kD * albedo / PI + specular) * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 }
 
-vec3 calcAmbient(vec3 n, vec3 v, vec3 f0, float roughness, float metalness, vec3 albedo, float ao)
+vec3 calcAmbient(vec3 n_, vec3 v_, vec3 f0, float roughness, float metalness, vec3 albedo, float ao)
 {
     // ambient lighting (we now use IBL as the ambient term)
+    mat3 vtw = transpose(mat3(u_view_matrix));
+    vec3 n = vtw * n_;
+    vec3 v = vtw * v_;
     vec3 ambient;
     if(u_diffuseibl && u_specularibl)
     {
@@ -221,8 +269,7 @@ vec3 calcAmbient(vec3 n, vec3 v, vec3 f0, float roughness, float metalness, vec3
         
         vec3 kS = F;
         vec3 kD = 1.0 - kS;
-        kD *= 1.0 - metalness;	  
-        
+        kD *= 1.0 - metalness;
         vec3 irradiance = texture(u_irradianceMap, n).rgb;
         vec3 diffuse      = irradiance * albedo;
 

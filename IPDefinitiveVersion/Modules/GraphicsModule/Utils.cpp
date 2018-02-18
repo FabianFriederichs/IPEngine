@@ -672,6 +672,12 @@ RenderTarget GLUtils::createRenderTargetTex(GLsizei width, GLsizei height, GLenu
 	return RenderTarget(p, attachment);
 }
 
+RenderTarget GLUtils::createRenderTargetCube(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment)
+{
+	auto p = createRenderTextureCube(width, height, internalformat);
+	return RenderTarget(p, attachment);
+}
+
 std::shared_ptr<FrameBuffer> GLUtils::createFrameBuffer(std::vector<RenderTarget> colorTargets, RenderTarget depthTarget)
 {
 	GLuint fbo;
@@ -685,10 +691,14 @@ std::shared_ptr<FrameBuffer> GLUtils::createFrameBuffer(std::vector<RenderTarget
 			glFramebufferTexture2D(GL_FRAMEBUFFER, colorTargets[i].attachment, GL_TEXTURE_2D, colorTargets[i].tex->tex, 0);
 			drawbuffers.push_back(colorTargets[i].attachment);
 		}
-		//add cube map
 		else if(colorTargets[i].type == RenderTargetType::RenderBuffer)
 		{
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, colorTargets[i].attachment, GL_RENDERBUFFER, colorTargets[i].rb->rbid);
+			drawbuffers.push_back(colorTargets[i].attachment);
+		}
+		else if (colorTargets[i].type == RenderTargetType::TextureCube)
+		{
+			glFramebufferTexture(GL_FRAMEBUFFER, colorTargets[i].attachment, colorTargets[i].ctex->tex, 0);
 			drawbuffers.push_back(colorTargets[i].attachment);
 		}
 		else if(colorTargets[i].type == RenderTargetType::Empty)
@@ -714,7 +724,10 @@ std::shared_ptr<FrameBuffer> GLUtils::createFrameBuffer(std::vector<RenderTarget
 		{
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, depthTarget.attachment, GL_RENDERBUFFER, depthTarget.rb->rbid);
 		}
-		//add cube map
+		else if (depthTarget.type == RenderTargetType::TextureCube)
+		{
+			glFramebufferTexture(GL_FRAMEBUFFER, depthTarget.attachment, depthTarget.ctex->tex, 0);
+		}
 		else
 		{
 			glDeleteFramebuffers(1, &fbo);
@@ -747,7 +760,10 @@ std::shared_ptr<FrameBuffer> GLUtils::createFrameBuffer(const FrameBufferDesc & 
 		{
 			colorTargets.push_back(createRenderTargetRbuf(fdesc.colorTargets[i].width, fdesc.colorTargets[i].height, fdesc.colorTargets[i].internalformat, fdesc.colorTargets[i].attachment));
 		}
-		//add cube map
+		else if (fdesc.colorTargets[i].type == RenderTargetType::TextureCube)
+		{
+			colorTargets.push_back(createRenderTargetCube(fdesc.colorTargets[i].width, fdesc.colorTargets[i].height, fdesc.colorTargets[i].internalformat, fdesc.colorTargets[i].attachment));
+		}
 		else if (fdesc.colorTargets[i].type == RenderTargetType::Empty)
 		{
 			colorTargets.push_back(RenderTarget());
@@ -765,7 +781,10 @@ std::shared_ptr<FrameBuffer> GLUtils::createFrameBuffer(const FrameBufferDesc & 
 	{
 		depthTarget = createRenderTargetRbuf(fdesc.depthTarget.width, fdesc.depthTarget.height, fdesc.depthTarget.internalformat, fdesc.depthTarget.attachment);
 	}
-	//add cube map
+	else if (fdesc.depthTarget.type == RenderTargetType::TextureCube)
+	{
+		depthTarget = createRenderTargetCube(fdesc.depthTarget.width, fdesc.depthTarget.height, fdesc.depthTarget.internalformat, fdesc.depthTarget.attachment);
+	}
 	else if (fdesc.depthTarget.type == RenderTargetType::Empty)
 	{
 		depthTarget = RenderTarget();
@@ -793,6 +812,15 @@ std::shared_ptr<Texture2D> GLUtils::createRenderTexture(GLsizei width, GLsizei h
 	glBindTexture(GL_TEXTURE_2D, id);
 	glTexStorage2D(GL_TEXTURE_2D, 1, internalformat, width, height);
 	return std::make_shared<Texture2D>(id);
+}
+
+std::shared_ptr<TextureCube> GLUtils::createRenderTextureCube(GLsizei width, GLsizei height, GLenum internalformat)
+{
+	GLuint id;
+	glGenTextures(1, &id);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+	glTexStorage2D(GL_TEXTURE_CUBE_MAP, 1, internalformat, width, height);
+	return std::make_shared<TextureCube>(id);
 }
 
 bool GLUtils::checkFBO(GLenum* result)
