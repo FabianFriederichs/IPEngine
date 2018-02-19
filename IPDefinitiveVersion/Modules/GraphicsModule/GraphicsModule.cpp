@@ -172,6 +172,11 @@ void GraphicsModule::loadShaders()
 		m_s_gblur = GLUtils::createShaderProgram(vspath, fspath);
 	}
 
+	vspath = m_core->getConfigManager().getString("graphics.shaders.envconv.vertex");
+	fspath = m_core->getConfigManager().getString("graphics.shaders.envconv.fragment");
+	auto gspath = m_core->getConfigManager().getString("graphics.shaders.envconv.geometry");
+	m_s_envconv = GLUtils::createShaderProgram(vspath, fspath, gspath);
+
 	if (m_display_envmap)
 	{
 		vspath = m_core->getConfigManager().getString("graphics.shaders.skybox.vertex");
@@ -297,21 +302,12 @@ void GraphicsModule::renderIBLMaps()
 	};
 	for (size_t i = 0; i < 6; i++)
 		m_s_ibldiff->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false); GLERR
-	//set envmap and sample settings
-	if (m_envmap_type == 0)
-	{
-		m_cube_envmap->bind(0); GLERR
-		m_s_ibldiff->setUniform("u_envcube", 0); GLERR
-		m_s_ibldiff->setUniform("u_enver", 1); GLERR
-		m_s_ibldiff->setUniform("u_envmap_type", 0); GLERR
-	}
-	else
-	{
-		m_er_envmap->bind(0); GLERR
-		m_s_ibldiff->setUniform("u_enver", 0); GLERR
-		m_s_ibldiff->setUniform("u_envcube", 1); GLERR
-		m_s_ibldiff->setUniform("u_envmap_type", 1); GLERR
-	}
+	
+	m_cube_envmap->bind(0); GLERR
+	m_s_ibldiff->setUniform("u_envcube", 0); GLERR
+	m_s_ibldiff->setUniform("u_enver", 1); GLERR
+	m_s_ibldiff->setUniform("u_envmap_type", 0); GLERR
+
 	m_s_ibldiff->setUniform("u_sample_delta", m_irradiance_sample_delta); GLERR
 	Primitives::drawNDCCube(); GLERR
 	glFinish(); GLERR
@@ -399,6 +395,7 @@ void GraphicsModule::readSettings()
 	//env map
 	m_display_envmap = m_core->getConfigManager().getBool("graphics.envmap.display");
 	m_envmap_type = m_core->getConfigManager().getInt("graphics.envmap.type");
+	m_envcuberes = m_core->getConfigManager().getInt("graphics.envmap.conversionresxy");
 	if(m_envmap_type == 0)
 		m_envmap_hdr = m_core->getConfigManager().getBool("graphics.envmap.texCube.hdr");
 	else
@@ -478,6 +475,8 @@ void GraphicsModule::prepareAssets()
 										  GL_CLAMP_TO_EDGE,
 										  m_mtexMaxAnisoLevel);
 			}
+			convertEnvMap();
+			m_er_envmap.reset();
 		}
 	}
 	//TODO: render ibl maps here
@@ -498,6 +497,54 @@ void GraphicsModule::setDefaultGLState()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 }
+void GraphicsModule::convertEnvMap()
+{
+	
+	FrameBufferDesc fbd{
+		{
+			RenderTargetDesc{
+				m_irradiance_map_resx,
+				m_irradiance_map_resy,
+				GL_RGB16F,
+				GL_COLOR_ATTACHMENT0,
+				RenderTargetType::TextureCube
+			}
+		},
+		RenderTargetDesc{} //empty: no depth test needed
+	};
+	auto fb = GLUtils::createFrameBuffer(fbd);
+
+	fb->bind(GL_FRAMEBUFFER); GLERR
+	glDisable(GL_DEPTH_TEST); GLERR
+	glViewport(0, 0, m_envcuberes, m_envcuberes); GLERR
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); GLERR
+	glClear(GL_COLOR_BUFFER_BIT); GLERR
+	m_s_envconv->use();	GLERR
+	//generate layer matrices
+	glm::mat4 pmat = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+	glm::mat4 layermats[] = {  //px, nx, py, ny, pz, nz
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
+	};
+	for (size_t i = 0; i < 6; i++)
+		m_s_envconv->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false); GLERR
+	//set envmap and sample settings
+	m_er_envmap->bind(0); GLERR
+	m_s_envconv->setUniform("u_enver", 0); GLERR
+	Primitives::drawNDCCube(); GLERR
+	glFinish(); GLERR
+	fb->unbind(GL_FRAMEBUFFER); GLERR
+	m_cube_envmap = fb->colorTargets[0].ctex;
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);		
+	m_cube_envmap->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
+	m_cube_envmap->unbind();
+	
+}
+
 void GraphicsModule::setup()
 {
 	//setup
@@ -839,17 +886,17 @@ void GraphicsModule::renderEnvMap()
 	{
 		glDepthMask(GL_FALSE);
 		glDisable(GL_DEPTH_TEST);
-		if (m_envmap_type == 0)
-		{
-			m_s_skybox->use();
-			m_cube_envmap->bind(0);
-			m_s_skybox->setUniform("u_skybox", 0);
-			m_s_skybox->setUniform("u_skyer", 1);
-			m_s_skybox->setUniform("u_view_matrix", glm::mat4(glm::mat3(viewmat)), false);
-			m_s_skybox->setUniform("u_projection_matrix", projmat, false);
-			m_s_skybox->setUniform("u_envmap_type", 0);
-			Primitives::drawNDCCube();
-		}
+		/*if (m_envmap_type == 0)
+		{*/
+		m_s_skybox->use();
+		m_cube_envmap->bind(0);
+		m_s_skybox->setUniform("u_skybox", 0);
+		m_s_skybox->setUniform("u_skyer", 1);
+		m_s_skybox->setUniform("u_view_matrix", glm::mat4(glm::mat3(viewmat)), false);
+		m_s_skybox->setUniform("u_projection_matrix", projmat, false);
+		m_s_skybox->setUniform("u_envmap_type", 0);
+		Primitives::drawNDCCube();
+	/*	}
 		else
 		{
 			m_s_skybox->use();
@@ -860,7 +907,7 @@ void GraphicsModule::renderEnvMap()
 			m_s_skybox->setUniform("u_projection_matrix", projmat, false);
 			m_s_skybox->setUniform("u_envmap_type", 1);
 			Primitives::drawNDCCube();
-		}
+		}*/
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
 	}	

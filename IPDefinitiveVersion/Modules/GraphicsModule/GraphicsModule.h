@@ -78,6 +78,7 @@ private:
 	bool m_display_envmap;
 	int m_envmap_type; //0: cubmemap, 1: equirectangular map
 	bool m_envmap_hdr;
+	int m_envcuberes;
 
 	//ibl settings
 	bool m_ibl;
@@ -119,6 +120,7 @@ private:
 	std::shared_ptr<ShaderProgram> m_s_ibldiff;
 	std::shared_ptr<ShaderProgram> m_s_iblspec;
 	std::shared_ptr<ShaderProgram> m_s_iblbrdf;
+	std::shared_ptr<ShaderProgram> m_s_envconv;
 
 	//framebuffers
 	std::shared_ptr<FrameBuffer> m_fb_shadow;
@@ -157,6 +159,7 @@ private:
 	void readSettings();
 	void prepareAssets();
 	void setDefaultGLState();
+	void convertEnvMap();
 
 	//update -------------------------------------------------------------------------------------------------
 	void updateData();
