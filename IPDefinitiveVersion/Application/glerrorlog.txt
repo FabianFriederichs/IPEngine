@@ -118,3 +118,11 @@ An OpenGL error occured at file: "e:\benutzer\fabian\dokumente\sourcetreerepos\i
 invalid operation
 An OpenGL error occured at file: "e:\benutzer\fabian\dokumente\sourcetreerepos\ipengine\ipdefinitiveversion\modules\graphicsmodule\graphicsmodule.cpp", line: 849:
 invalid operation
+An OpenGL error occured at file: "e:\benutzer\fabian\dokumente\sourcetreerepos\ipengine\ipdefinitiveversion\modules\graphicsmodule\utils.cpp", line: 961:
+invalid value
+An OpenGL error occured at file: "e:\benutzer\fabian\dokumente\sourcetreerepos\ipengine\ipdefinitiveversion\modules\graphicsmodule\utils.cpp", line: 961:
+invalid value
+An OpenGL error occured at file: "e:\benutzer\fabian\dokumente\sourcetreerepos\ipengine\ipdefinitiveversion\modules\graphicsmodule\utils.cpp", line: 961:
+invalid value
+An OpenGL error occured at file: "e:\benutzer\fabian\dokumente\sourcetreerepos\ipengine\ipdefinitiveversion\modules\graphicsmodule\utils.cpp", line: 961:
+invalid value

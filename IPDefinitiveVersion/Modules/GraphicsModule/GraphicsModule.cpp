@@ -225,6 +225,21 @@ void GraphicsModule::setupFrameBuffers()
 		m_fb_gblur1 = GLUtils::createFrameBuffer(bfbd);
 		m_fb_gblur2 = GLUtils::createFrameBuffer(bfbd);
 	}
+	//convenv
+	FrameBufferDesc fbconvenv{
+		{
+			RenderTargetDesc{
+			m_envcuberes,
+			m_envcuberes,
+			GL_RGB16F,
+			GL_COLOR_ATTACHMENT0,
+			RenderTargetType::TextureCube
+	}
+		},
+		RenderTargetDesc{} //empty: no depth test needed
+	};
+	m_fb_envconv = GLUtils::createFrameBuffer(fbconvenv);
+
 	//ibl
 	if (m_ibl)
 	{
@@ -283,36 +298,90 @@ void GraphicsModule::setupFrameBuffers()
 }
 void GraphicsModule::renderIBLMaps()
 {
+	//diffuse
 	//hard coded opengl stuff here. Clean this up when GLutils cubemap and mipped render target support is ready
-	m_fb_iblgenirradiance->bind(GL_FRAMEBUFFER); GLERR
-	glDisable(GL_DEPTH_TEST); GLERR
-	glViewport(0, 0, m_irradiance_map_resx, m_irradiance_map_resy); GLERR
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); GLERR
-	glClear(GL_COLOR_BUFFER_BIT); GLERR
-	m_s_ibldiff->use();	GLERR
-	//generate layer matrices
-	glm::mat4 pmat = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-	glm::mat4 layermats[] = {  //px, nx, py, ny, pz, nz
-		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
-		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
-		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
-		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
-		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
-	};
-	for (size_t i = 0; i < 6; i++)
-		m_s_ibldiff->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false); GLERR
-	
-	m_cube_envmap->bind(0); GLERR
-	m_s_ibldiff->setUniform("u_envcube", 0); GLERR
-	m_s_ibldiff->setUniform("u_enver", 1); GLERR
-	m_s_ibldiff->setUniform("u_envmap_type", 0); GLERR
+	if (m_ibldiffuse)
+	{
+		m_fb_iblgenirradiance->bind(GL_FRAMEBUFFER); GLERR
+			glDisable(GL_DEPTH_TEST); GLERR
+			glViewport(0, 0, m_irradiance_map_resx, m_irradiance_map_resy); GLERR
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f); GLERR
+			glClear(GL_COLOR_BUFFER_BIT); GLERR
+			m_s_ibldiff->use();	GLERR
+			//generate layer matrices
+			glm::mat4 pmat = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+		glm::mat4 layermats[] = {  //px, nx, py, ny, pz, nz
+			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
+			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
+		};
+		for (size_t i = 0; i < 6; i++)
+			m_s_ibldiff->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false); GLERR
 
-	m_s_ibldiff->setUniform("u_sample_delta", m_irradiance_sample_delta); GLERR
-	Primitives::drawNDCCube(); GLERR
+			m_cube_envmap->bind(0); GLERR
+			m_s_ibldiff->setUniform("u_envcube", 0); GLERR
+			m_s_ibldiff->setUniform("u_enver", 1); GLERR
+			m_s_ibldiff->setUniform("u_envmap_type", 0); GLERR
+
+			m_s_ibldiff->setUniform("u_sample_delta", m_irradiance_sample_delta); GLERR
+			Primitives::drawNDCCube(); GLERR
+			m_fb_iblgenirradiance->unbind(GL_FRAMEBUFFER); GLERR
+			m_ibl_irradiance = m_fb_iblgenirradiance->colorTargets[0].ctex;
+		m_ibl_irradiance->setTexParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
+	}
+
+	//specular
+	if (m_iblspecular)
+	{
+		m_fb_iblgenspecular->bind(GL_FRAMEBUFFER); GLERR
+			m_s_iblspec->use();	GLERR
+			glm::mat4 pmat = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+		glm::mat4 layermats[] = {  //px, nx, py, ny, pz, nz
+			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
+			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
+		};
+			for (size_t i = 0; i < 6; i++)
+				m_s_iblspec->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false); GLERR
+
+				m_cube_envmap->bind(0); GLERR
+				m_s_iblspec->setUniform("u_envcube", 0); GLERR
+				m_s_iblspec->setUniform("u_samplecount", m_specular_samples); GLERR
+				m_s_iblspec->setUniform("u_cmres", m_envcuberes); GLERR
+
+				for (int i = 0; i < m_specular_mipmap_levels; ++i)
+				{
+					bool res = m_fb_iblgenspecular->selectColorTargetMipmapLevel(0, i);
+					int mipwidth = m_specular_map_resx * glm::pow(0.5f, static_cast<float>(i));
+					int mipheight = m_specular_map_resy * glm::pow(0.5f, static_cast<float>(i));
+					glViewport(0, 0, mipwidth, mipheight); GLERR
+						glClear(GL_COLOR_BUFFER_BIT); GLERR
+						//set roughness
+						m_s_iblspec->setUniform("roughness", static_cast<float>(i) / static_cast<float>(m_specular_mipmap_levels - 1));
+					Primitives::drawNDCCube(); GLERR
+				}
+		m_fb_iblgenspecular->unbind(GL_FRAMEBUFFER); GLERR
+			m_ibl_specularradiance = m_fb_iblgenspecular->colorTargets[0].ctex;
+		m_ibl_specularradiance->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
+
+		//brdf
+		m_fb_iblgenbrdf->bind(GL_FRAMEBUFFER);
+		glViewport(0, 0, m_specular_brdf_resx, m_specular_brdf_resy);
+		glClear(GL_COLOR_BUFFER_BIT);
+		m_s_iblbrdf->use();
+		m_s_iblbrdf->setUniform("u_brdfsamples", m_brdfsamples);
+		Primitives::drawNDCQuad();
+		m_fb_iblgenbrdf->unbind(GL_FRAMEBUFFER); GLERR
+			m_ibl_brdfresponse = m_fb_iblgenbrdf->colorTargets[0].tex;
+		m_ibl_brdfresponse->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
+	}
 	glFinish(); GLERR
-	m_fb_iblgenirradiance->unbind(GL_FRAMEBUFFER); GLERR
-	m_ibl_irradiance = m_fb_iblgenirradiance->colorTargets[0].ctex;
 }
 void GraphicsModule::readSettings()
 {
@@ -383,6 +452,7 @@ void GraphicsModule::readSettings()
 	m_specular_samples = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.specular.nsamples"));
 	m_specular_brdf_resx = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.brdf.resx"));
 	m_specular_brdf_resy = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.brdf.resy"));
+	m_brdfsamples = static_cast<int>(m_core->getConfigManager().getInt("graphics.lighting.ibl.generating.brdf.nsamples"));
 
 	//shadow settings
 	m_shadows = m_core->getConfigManager().getBool("graphics.lighting.shadows.enable_shadows");
@@ -395,7 +465,7 @@ void GraphicsModule::readSettings()
 	//env map
 	m_display_envmap = m_core->getConfigManager().getBool("graphics.envmap.display");
 	m_envmap_type = m_core->getConfigManager().getInt("graphics.envmap.type");
-	m_envcuberes = m_core->getConfigManager().getInt("graphics.envmap.conversionresxy");
+	m_envcuberes = m_core->getConfigManager().getInt("graphics.envmap.conversion_resxy");
 	if(m_envmap_type == 0)
 		m_envmap_hdr = m_core->getConfigManager().getBool("graphics.envmap.texCube.hdr");
 	else
@@ -476,7 +546,7 @@ void GraphicsModule::prepareAssets()
 										  m_mtexMaxAnisoLevel);
 			}
 			convertEnvMap();
-			m_er_envmap.reset();
+			//m_er_envmap.reset();
 		}
 	}
 	//TODO: render ibl maps here
@@ -499,22 +569,7 @@ void GraphicsModule::setDefaultGLState()
 }
 void GraphicsModule::convertEnvMap()
 {
-	
-	FrameBufferDesc fbd{
-		{
-			RenderTargetDesc{
-				m_irradiance_map_resx,
-				m_irradiance_map_resy,
-				GL_RGB16F,
-				GL_COLOR_ATTACHMENT0,
-				RenderTargetType::TextureCube
-			}
-		},
-		RenderTargetDesc{} //empty: no depth test needed
-	};
-	auto fb = GLUtils::createFrameBuffer(fbd);
-
-	fb->bind(GL_FRAMEBUFFER); GLERR
+	m_fb_envconv->bind(GL_FRAMEBUFFER); GLERR
 	glDisable(GL_DEPTH_TEST); GLERR
 	glViewport(0, 0, m_envcuberes, m_envcuberes); GLERR
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); GLERR
@@ -523,12 +578,13 @@ void GraphicsModule::convertEnvMap()
 	//generate layer matrices
 	glm::mat4 pmat = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 	glm::mat4 layermats[] = {  //px, nx, py, ny, pz, nz
-		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
-		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+		//due weird opengl cube map sampling, we're rendering x and z faces rotated
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
 		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
 		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
-		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
-		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
 	};
 	for (size_t i = 0; i < 6; i++)
 		m_s_envconv->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false); GLERR
@@ -537,8 +593,8 @@ void GraphicsModule::convertEnvMap()
 	m_s_envconv->setUniform("u_enver", 0); GLERR
 	Primitives::drawNDCCube(); GLERR
 	glFinish(); GLERR
-	fb->unbind(GL_FRAMEBUFFER); GLERR
-	m_cube_envmap = fb->colorTargets[0].ctex;
+	m_fb_envconv->unbind(GL_FRAMEBUFFER); GLERR
+	m_cube_envmap = m_fb_envconv->colorTargets[0].ctex;
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);		
 	m_cube_envmap->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
 	m_cube_envmap->unbind();
@@ -772,10 +828,18 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 	{
 		shader->setUniform("u_diffuseibl", m_ibldiffuse);
 		shader->setUniform("u_specularibl", m_iblspecular);
-		m_ibl_irradiance->bind(4);
+		if(m_ibldiffuse)
+			m_ibl_irradiance->bind(4);
 		shader->setUniform("u_irradianceMap", 4);
+		if (m_iblspecular)
+			m_ibl_specularradiance->bind(5);
 		shader->setUniform("u_prefilterMap", 5);
+		if (m_iblspecular)
+			m_ibl_brdfresponse->bind(6);
 		shader->setUniform("u_brdfLUT", 6);
+
+		if (m_iblspecular)
+			shader->setUniform("u_ibl_maxspeclod", static_cast<GLfloat>(m_specular_mipmap_levels - 1));
 	}
 }
 void GraphicsModule::setMaterialUniforms(SCM::MaterialData * mdata, ShaderProgram* shader)
@@ -885,9 +949,7 @@ void GraphicsModule::renderEnvMap()
 	if (m_display_envmap)
 	{
 		glDepthMask(GL_FALSE);
-		glDisable(GL_DEPTH_TEST);
-		/*if (m_envmap_type == 0)
-		{*/
+		glDisable(GL_DEPTH_TEST);		
 		m_s_skybox->use();
 		m_cube_envmap->bind(0);
 		m_s_skybox->setUniform("u_skybox", 0);
@@ -896,18 +958,6 @@ void GraphicsModule::renderEnvMap()
 		m_s_skybox->setUniform("u_projection_matrix", projmat, false);
 		m_s_skybox->setUniform("u_envmap_type", 0);
 		Primitives::drawNDCCube();
-	/*	}
-		else
-		{
-			m_s_skybox->use();
-			m_er_envmap->bind(0);
-			m_s_skybox->setUniform("u_skyer", 0);
-			m_s_skybox->setUniform("u_skybox", 1);
-			m_s_skybox->setUniform("u_view_matrix", glm::mat4(glm::mat3(viewmat)), false);
-			m_s_skybox->setUniform("u_projection_matrix", projmat, false);
-			m_s_skybox->setUniform("u_envmap_type", 1);
-			Primitives::drawNDCCube();
-		}*/
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
 	}	

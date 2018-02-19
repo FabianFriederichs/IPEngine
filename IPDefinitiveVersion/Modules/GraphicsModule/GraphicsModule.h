@@ -95,6 +95,7 @@ private:
 	int m_specular_samples;
 	int m_specular_brdf_resx;
 	int m_specular_brdf_resy;
+	int m_brdfsamples;
 
 	//shadow settings
 	bool m_shadows;
@@ -129,6 +130,7 @@ private:
 	std::shared_ptr<FrameBuffer> m_fb_iblgenirradiance;
 	std::shared_ptr<FrameBuffer> m_fb_iblgenspecular;
 	std::shared_ptr<FrameBuffer> m_fb_iblgenbrdf;
+	std::shared_ptr<FrameBuffer> m_fb_envconv;
 
 	//framebuffer output
 	std::shared_ptr<Texture2D> m_ot_shadowmap;

@@ -248,7 +248,7 @@ vec3 calcAmbient(vec3 n_, vec3 v_, vec3 f0, float roughness, float metalness, ve
     if(u_diffuseibl && u_specularibl)
     {
         vec3 F = fresnelSchlickRoughness(max(dot(n, v), 0.0), f0, roughness);
-        
+
         vec3 kS = F;
         vec3 kD = 1.0 - kS;
         kD *= 1.0 - metalness;	  
@@ -261,7 +261,6 @@ vec3 calcAmbient(vec3 n_, vec3 v_, vec3 f0, float roughness, float metalness, ve
         vec3 prefilteredColor = textureLod(u_prefilterMap, r,  roughness * u_ibl_maxspeclod).rgb;    
         vec2 brdf  = texture(u_brdfLUT, vec2(max(dot(n, v), 0.0), roughness)).rg;
         vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
-
         ambient = (kD * diffuse + specular) * ao;
     }
     else if(u_diffuseibl)

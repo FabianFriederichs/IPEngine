@@ -21,6 +21,6 @@ vec3 fetchEnvColor(vec3 dir)
 
 void main()
 {		
-  
+    //color = 0.5 * vec3(worldPos.xy, -worldPos.z) + 0.5;
     color = fetchEnvColor(worldPos);
 }

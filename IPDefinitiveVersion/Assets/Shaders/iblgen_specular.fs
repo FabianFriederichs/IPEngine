@@ -1,11 +1,11 @@
 #version 330 core
-out vec4 color;
+out vec3 color;
 in vec3 worldPos;
 
 uniform samplerCube u_envcube;
-uniform sampler2D u_enver;
-uniform int u_envMapType;
 uniform float u_roughness;
+uniform int u_cmres;
+uniform int u_samplecount;
 
 #define PI 3.14159265359
 
@@ -65,44 +65,43 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
 // ----------------------------------------------------------------------------
 void main()
 {		
-    vec3 N = normalize(WorldPos);
+    vec3 N = normalize(worldPos);
     
     // make the simplyfying assumption that V equals R equals the normal 
     vec3 R = N;
     vec3 V = R;
 
-    const uint SAMPLE_COUNT = 1024u;
     vec3 prefilteredColor = vec3(0.0);
     float totalWeight = 0.0;
     
-    for(uint i = 0u; i < SAMPLE_COUNT; ++i)
+    for(uint i = 0u; i < u_samplecount; ++i)
     {
         // generates a sample vector that's biased towards the preferred alignment direction (importance sampling).
-        vec2 Xi = Hammersley(i, SAMPLE_COUNT);
-        vec3 H = ImportanceSampleGGX(Xi, N, roughness);
+        vec2 Xi = Hammersley(i, u_samplecount);
+        vec3 H = ImportanceSampleGGX(Xi, N, u_roughness);
         vec3 L  = normalize(2.0 * dot(V, H) * H - V);
 
         float NdotL = max(dot(N, L), 0.0);
         if(NdotL > 0.0)
         {
             // sample from the environment's mip level based on roughness/pdf
-            float D   = DistributionGGX(N, H, roughness);
+            float D   = DistributionGGX(N, H, u_roughness);
             float NdotH = max(dot(N, H), 0.0);
             float HdotV = max(dot(H, V), 0.0);
             float pdf = D * NdotH / (4.0 * HdotV) + 0.0001; 
 
-            float resolution = 512.0; // resolution of source cubemap (per face)
+            float resolution = u_cmres; // resolution of source cubemap (per face)
             float saTexel  = 4.0 * PI / (6.0 * resolution * resolution);
-            float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
+            float saSample = 1.0 / (float(u_samplecount) * pdf + 0.0001);
 
-            float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel); 
+            float mipLevel = u_roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel); 
             
-            prefilteredColor += textureLod(environmentMap, L, mipLevel).rgb * NdotL;
+            prefilteredColor += textureLod(u_envcube, L, mipLevel).rgb * NdotL;
             totalWeight      += NdotL;
         }
     }
 
     prefilteredColor = prefilteredColor / totalWeight;
 
-    FragColor = vec4(prefilteredColor, 1.0);
+    color = prefilteredColor;
 }

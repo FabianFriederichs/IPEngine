@@ -669,13 +669,13 @@ RenderTarget GLUtils::createRenderTargetRbuf(GLsizei width, GLsizei height, GLen
 RenderTarget GLUtils::createRenderTargetTex(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment, int miplevels)
 {
 	auto p = createRenderTexture(width, height, internalformat, miplevels);
-	return RenderTarget(p, attachment, width, height);
+	return RenderTarget(p, attachment, width, height, miplevels);
 }
 
 RenderTarget GLUtils::createRenderTargetCube(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment, int miplevels)
 {
 	auto p = createRenderTextureCube(width, height, internalformat, miplevels);
-	return RenderTarget(p, attachment, width, height);
+	return RenderTarget(p, attachment, width, height, miplevels);
 }
 
 std::shared_ptr<FrameBuffer> GLUtils::createFrameBuffer(std::vector<RenderTarget> colorTargets, RenderTarget depthTarget)
