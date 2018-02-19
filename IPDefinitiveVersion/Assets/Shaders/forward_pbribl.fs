@@ -248,7 +248,7 @@ vec3 calcAmbient(vec3 n_, vec3 v_, vec3 f0, float roughness, float metalness, ve
     if(u_diffuseibl && u_specularibl)
     {
         vec3 F = fresnelSchlickRoughness(max(dot(n, v), 0.0), f0, roughness);
-
+       
         vec3 kS = F;
         vec3 kD = 1.0 - kS;
         kD *= 1.0 - metalness;	  
@@ -345,7 +345,6 @@ void main()
 
     //add ambient light
     vec3 ambient = calcAmbient(N, V, F0, mt_roughness, mt_metalness, mt_albedo, mt_ao);
-
     //output = direct illumination + ambient illumunation + material emission
     vec3 outcol = Lo + ambient + mt_emissive;
 
