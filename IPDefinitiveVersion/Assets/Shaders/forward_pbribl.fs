@@ -260,7 +260,7 @@ vec3 calcAmbient(vec3 n_, vec3 v_, vec3 f0, float roughness, float metalness, ve
         // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
         vec3 prefilteredColor = textureLod(u_prefilterMap, r,  roughness * u_ibl_maxspeclod).rgb;    
         vec2 brdf  = texture(u_brdfLUT, vec2(max(dot(n, v), 0.0), roughness)).rg;
-        vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+        vec3 specular = prefilteredColor * F * (f0 * brdf.x + brdf.y);
         ambient = (kD * diffuse + specular) * ao;
     }
     else if(u_diffuseibl)

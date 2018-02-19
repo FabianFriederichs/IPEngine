@@ -352,7 +352,7 @@ void GraphicsModule::renderIBLMaps()
 
 				m_cube_envmap->bind(0); GLERR
 				m_s_iblspec->setUniform("u_envcube", 0); GLERR
-				m_s_iblspec->setUniform("u_samplecount", m_specular_samples); GLERR
+				m_s_iblspec->setUniform("u_samplecount", static_cast<GLuint>(m_specular_samples)); GLERR
 				m_s_iblspec->setUniform("u_cmres", m_envcuberes); GLERR
 
 				for (int i = 0; i < m_specular_mipmap_levels; ++i)
@@ -375,7 +375,7 @@ void GraphicsModule::renderIBLMaps()
 		glViewport(0, 0, m_specular_brdf_resx, m_specular_brdf_resy);
 		glClear(GL_COLOR_BUFFER_BIT);
 		m_s_iblbrdf->use();
-		m_s_iblbrdf->setUniform("u_brdfsamples", m_brdfsamples);
+		m_s_iblbrdf->setUniform("u_brdfsamples", static_cast<GLuint>(m_brdfsamples));
 		Primitives::drawNDCQuad();
 		m_fb_iblgenbrdf->unbind(GL_FRAMEBUFFER); GLERR
 			m_ibl_brdfresponse = m_fb_iblgenbrdf->colorTargets[0].tex;

@@ -5,7 +5,7 @@ in vec3 worldPos;
 uniform samplerCube u_envcube;
 uniform float u_roughness;
 uniform int u_cmres;
-uniform int u_samplecount;
+uniform uint u_samplecount;
 
 #define PI 3.14159265359
 

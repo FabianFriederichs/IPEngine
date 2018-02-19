@@ -1,7 +1,7 @@
 #version 330 core
 out vec2 color;
 in vec2 texCoords;
-uniform int u_brdfsamples;
+uniform uint u_brdfsamples;
 
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
