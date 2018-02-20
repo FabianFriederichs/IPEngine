@@ -56,8 +56,8 @@ public:
 		scenemodule = m_info.dependencies.getDep<ISimpleSceneModule_API>("SSM");
 		auto id = createCloth(
 			"testcloth",
-			10,
-			10,
+			20,
+			20,
 			SCM::TransformData(
 				glm::vec3(0.0f, 0.0f, -1.0f),
 				glm::quat(),
@@ -82,10 +82,12 @@ public:
 				0.12f,
 				true
 			},
-			2
+			11
 		);
 
 		clothentities.push_back(id);
+		fixParticle(id, 0, 0, true);
+		fixParticle(id, 19, 0, true);
 		scenemodule->AddEntity(id);
 		contentmodule->getEntityById(id)->isActive = true;
 

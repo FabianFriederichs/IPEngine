@@ -15,9 +15,9 @@ boost::shared_ptr<IInput_API> input;
 
 #define DEP_GRAPH_PATH "../Assets/Dependencygraph/TestDepGraph.xml"
 #ifdef _DEBUG
-#define MODULE_PATH "../Output/Win32/Debug"
+#define CONFIG_PATH "../Assets/Config/config.cfg"
 #else
-#define MODULE_PATH "../Output/Win32/Release"
+#define CONFIG_PATH "../Assets/Config/config_release.cfg"
 #endif
 
 
@@ -85,7 +85,7 @@ public:
 int _tmain(int argc, _TCHAR* argv[])
 {
 	MyApp app;
-	app.init("../Assets/Config/config.cfg");
+	app.init(CONFIG_PATH);
 	app.run();
 
 //#ifdef _DEBUG

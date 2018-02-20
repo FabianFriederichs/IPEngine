@@ -45,6 +45,8 @@ void GraphicsModule::render(ipengine::TaskContext & c)
 	anyvector.clear();
 
 	render();
+	render();
+	render();
 
 	//render();
 
@@ -336,12 +338,14 @@ void GraphicsModule::renderIBLMaps()
 		m_ibl_irradiance->setTexParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
 	}
 
+	m_fb_iblgenirradiance.reset();
+
 	//specular
 	if (m_iblspecular)
 	{
 		m_fb_iblgenspecular->bind(GL_FRAMEBUFFER); GLERR
-			m_s_iblspec->use();	GLERR
-			glm::mat4 pmat = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+		m_s_iblspec->use();	GLERR
+		glm::mat4 pmat = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 		glm::mat4 layermats[] = {  //px, nx, py, ny, pz, nz
 			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
 			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
@@ -350,28 +354,29 @@ void GraphicsModule::renderIBLMaps()
 			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
 			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
 		};
-			for (size_t i = 0; i < 6; i++)
-				m_s_iblspec->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false); GLERR
+		for (size_t i = 0; i < 6; i++)
+			m_s_iblspec->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false); GLERR
 
-				m_cube_envmap->bind(0); GLERR
-				m_s_iblspec->setUniform("u_envcube", 0); GLERR
-				m_s_iblspec->setUniform("u_samplecount", static_cast<GLuint>(m_specular_samples)); GLERR
-				m_s_iblspec->setUniform("u_cmres", m_envcuberes); GLERR
+		m_cube_envmap->bind(0); GLERR
+		m_s_iblspec->setUniform("u_envcube", 0); GLERR
+		m_s_iblspec->setUniform("u_samplecount", static_cast<GLuint>(m_specular_samples)); GLERR
+		m_s_iblspec->setUniform("u_cmres", m_envcuberes); GLERR
 
-				for (int k = 0; k < m_specular_mipmap_levels; ++k)
-				{
-					bool res = m_fb_iblgenspecular->selectColorTargetMipmapLevel(0, k);
-					int mipwidth = m_specular_map_resx * glm::pow(0.5f, static_cast<float>(k));
-					int mipheight = m_specular_map_resy * glm::pow(0.5f, static_cast<float>(k));
-					glViewport(0, 0, mipwidth, mipheight); GLERR
-						glClear(GL_COLOR_BUFFER_BIT); GLERR
-						//set roughness
-						m_s_iblspec->setUniform("u_roughness", static_cast<float>(k) / static_cast<float>(m_specular_mipmap_levels - 1));
-					Primitives::drawNDCCube(); GLERR
-				}
+		for (int k = 0; k < m_specular_mipmap_levels; ++k)
+		{
+			bool res = m_fb_iblgenspecular->selectColorTargetMipmapLevel(0, k);
+			int mipwidth = m_specular_map_resx * glm::pow(0.5f, static_cast<float>(k));
+			int mipheight = m_specular_map_resy * glm::pow(0.5f, static_cast<float>(k));
+			glViewport(0, 0, mipwidth, mipheight); GLERR
+			glClear(GL_COLOR_BUFFER_BIT); GLERR
+			//set roughness
+			m_s_iblspec->setUniform("u_roughness", static_cast<float>(k) / static_cast<float>(m_specular_mipmap_levels - 1));
+			Primitives::drawNDCCube(); GLERR
+		}
 		m_fb_iblgenspecular->unbind(GL_FRAMEBUFFER); GLERR
-			m_ibl_specularradiance = m_fb_iblgenspecular->colorTargets[0].ctex;
+		m_ibl_specularradiance = m_fb_iblgenspecular->colorTargets[0].ctex;
 		m_ibl_specularradiance->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
+		m_fb_iblgenspecular.reset();
 
 		//brdf
 		m_fb_iblgenbrdf->bind(GL_FRAMEBUFFER);
@@ -381,8 +386,10 @@ void GraphicsModule::renderIBLMaps()
 		m_s_iblbrdf->setUniform("u_brdfsamples", static_cast<GLuint>(m_brdfsamples));
 		Primitives::drawNDCQuad();
 		m_fb_iblgenbrdf->unbind(GL_FRAMEBUFFER); GLERR
-			m_ibl_brdfresponse = m_fb_iblgenbrdf->colorTargets[0].tex;
+		m_ibl_brdfresponse = m_fb_iblgenbrdf->colorTargets[0].tex;
 		m_ibl_brdfresponse->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
+
+		m_fb_iblgenbrdf.reset();
 	}
 	glFinish(); GLERR
 }
@@ -569,6 +576,7 @@ void GraphicsModule::setDefaultGLState()
 	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+	glEnable(GL_MULTISAMPLE);
 }
 void GraphicsModule::convertEnvMap()
 {
@@ -601,9 +609,11 @@ void GraphicsModule::convertEnvMap()
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);		
 	m_cube_envmap->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
 	m_cube_envmap->unbind();
+	m_fb_envconv.reset();
+	m_er_envmap->unbind();
+	m_er_envmap.reset();
 	
 }
-
 void GraphicsModule::setup()
 {
 	//setup
@@ -629,7 +639,8 @@ void GraphicsModule::setupSDL()
 	if (m_core->getConfigManager().getBool("graphics.window.msaa"))
 	{
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, static_cast<int>(m_core->getConfigManager().getBool("graphics.window.msaa_samples")));
+		std::cout << static_cast<int>(m_core->getConfigManager().getInt("graphics.window.msaa_samples")) << "samples";
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, static_cast<int>(m_core->getConfigManager().getInt("graphics.window.msaa_samples")));
 	}
 	window = SDL_CreateWindow(m_core->getConfigManager().getString("graphics.window.title").c_str(), SDL_WINDOWPOS_CENTERED,
 							  SDL_WINDOWPOS_CENTERED, static_cast<int>(width), static_cast<int>(height), SDL_WINDOW_OPENGL);
