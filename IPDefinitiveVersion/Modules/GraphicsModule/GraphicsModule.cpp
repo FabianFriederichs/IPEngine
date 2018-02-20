@@ -759,7 +759,7 @@ void GraphicsModule::setSceneUniforms(ShaderProgram* shader)
 	setLightUniforms(shader);
 
 	//quick test. remove that shit!
-	shader->setUniform("u_directionalLights[0].color", glm::vec3(1.0f));
+	shader->setUniform("u_directionalLights[0].color", glm::vec3(3.0f));
 	shader->setUniform("u_directionalLights[0].direction", glm::mat3(viewmat) * glm::vec3(-1.0f, -1.0f, -1.0f));
 	shader->setUniform("u_dirLightCount", 1);
 }

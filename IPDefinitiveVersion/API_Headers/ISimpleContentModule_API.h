@@ -416,12 +416,37 @@ namespace SCM
 			BoundingData& boundingdata,
 			bool boundingbox,
 			bool active,
+
 			//Light params
 			const glm::vec3& color) :
 				Entity(id, transform, boundingdata, boundingbox, active),
-				m_color(color)
+				m_color(color),
+				castShadows(false)
 		{
 		}
+
+		DirectionalLight(
+			//Entity params
+			ipengine::ipid id,
+			Transform& transform,
+			BoundingData& boundingdata,
+			bool boundingbox,
+			bool active,
+			//Light params
+			const glm::vec3& color,
+			bool _castShadows,
+			int _shadowResX,
+			int _shadowResY,
+			int _shadowBlurPasses,
+			float _shadowVarianceBias,
+			float _lightBleedReduction,
+			const glm::vec3& _shadowMapVolumeMin,
+			const glm::vec3& _shadowMapVolumeMax
+			) :
+			Entity(id, transform, boundingdata, boundingbox, active),
+			m_color(color),
+			castShadows(false) //TODO: finish constructor
+		{}
 
 		glm::vec3 getVSDirection(const glm::mat4& viewmat)
 		{
@@ -444,6 +469,14 @@ namespace SCM
 		}
 
 		glm::vec3 m_color;
+		bool castShadows;
+		int shadowResX;
+		int shadowResY;
+		int shadowBlurPasses;
+		float shadowVarianceBias;
+		float lightBleedReduction;
+		glm::vec3 shadowMapVolumeMin;
+		glm::vec3 shadowMapVolumeMax;
 	};
 
 	class PointLight : public Entity
