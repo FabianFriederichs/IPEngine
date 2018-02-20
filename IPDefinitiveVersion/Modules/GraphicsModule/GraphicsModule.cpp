@@ -283,8 +283,8 @@ void GraphicsModule::setupFrameBuffers()
 			FrameBufferDesc iblbfbd{
 				{
 					RenderTargetDesc{
-						m_specular_map_resx,
-						m_specular_map_resy,
+						m_specular_brdf_resx,
+						m_specular_brdf_resy,
 						GL_RG16F,
 						GL_COLOR_ATTACHMENT0,
 						RenderTargetType::Texture2D
@@ -299,6 +299,9 @@ void GraphicsModule::setupFrameBuffers()
 void GraphicsModule::renderIBLMaps()
 {
 	//diffuse
+	m_cube_envmap->bind(0);
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+	m_cube_envmap->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, 0);
 	//hard coded opengl stuff here. Clean this up when GLutils cubemap and mipped render target support is ready
 	if (m_ibldiffuse)
 	{
@@ -355,15 +358,15 @@ void GraphicsModule::renderIBLMaps()
 				m_s_iblspec->setUniform("u_samplecount", static_cast<GLuint>(m_specular_samples)); GLERR
 				m_s_iblspec->setUniform("u_cmres", m_envcuberes); GLERR
 
-				for (int i = 0; i < m_specular_mipmap_levels; ++i)
+				for (int k = 0; k < m_specular_mipmap_levels; ++k)
 				{
-					bool res = m_fb_iblgenspecular->selectColorTargetMipmapLevel(0, i);
-					int mipwidth = m_specular_map_resx * glm::pow(0.5f, static_cast<float>(i));
-					int mipheight = m_specular_map_resy * glm::pow(0.5f, static_cast<float>(i));
+					bool res = m_fb_iblgenspecular->selectColorTargetMipmapLevel(0, k);
+					int mipwidth = m_specular_map_resx * glm::pow(0.5f, static_cast<float>(k));
+					int mipheight = m_specular_map_resy * glm::pow(0.5f, static_cast<float>(k));
 					glViewport(0, 0, mipwidth, mipheight); GLERR
 						glClear(GL_COLOR_BUFFER_BIT); GLERR
 						//set roughness
-						m_s_iblspec->setUniform("roughness", static_cast<float>(i) / static_cast<float>(m_specular_mipmap_levels - 1));
+						m_s_iblspec->setUniform("u_roughness", static_cast<float>(k) / static_cast<float>(m_specular_mipmap_levels - 1));
 					Primitives::drawNDCCube(); GLERR
 				}
 		m_fb_iblgenspecular->unbind(GL_FRAMEBUFFER); GLERR
@@ -756,9 +759,9 @@ void GraphicsModule::setSceneUniforms(ShaderProgram* shader)
 	setLightUniforms(shader);
 
 	//quick test. remove that shit!
-	/*shader->setUniform("u_directionalLights[0].color", glm::vec3(1.0f));
+	shader->setUniform("u_directionalLights[0].color", glm::vec3(1.0f));
 	shader->setUniform("u_directionalLights[0].direction", glm::mat3(viewmat) * glm::vec3(-1.0f, -1.0f, -1.0f));
-	shader->setUniform("u_dirLightCount", 1);*/
+	shader->setUniform("u_dirLightCount", 1);
 }
 void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 {
