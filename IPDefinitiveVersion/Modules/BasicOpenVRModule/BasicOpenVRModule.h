@@ -16,7 +16,6 @@ public:
 	}
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
-	bool startUp();// {/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */} //do stuff?
 	
 
 	boost::shared_ptr<vr::IVRSystem> getSystem(); //Return the pointer to the initialized IVRSystem.
@@ -38,6 +37,9 @@ private:
 	boost::shared_ptr<vr::IVROverlay> overlay;
 	boost::shared_ptr<vr::IVRRenderModels> rendermodels;
 	boost::shared_ptr<vr::IVRScreenshots> screenshots;
+
+	// Inherited via IBasicOpenVRModule_API
+	virtual bool _startup() override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT BasicOpenVRModule module;

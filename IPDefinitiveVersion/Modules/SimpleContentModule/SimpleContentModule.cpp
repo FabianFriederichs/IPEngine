@@ -15,16 +15,6 @@ SimpleContentModule::SimpleContentModule(void)
 	return;
 }
 
-bool SimpleContentModule::startUp()
-{
-	//Setup default material
-	//auto id = SCM::m_core->createID();
-	generateDefaultShader();
-	generateDefaultTexture();
-
-	return true;
-}
-
 //One OBJ per .obj
 ipengine::ipid SimpleContentModule::addMeshFromFile(std::string path, std::string format, std::vector<ipengine::ipid> mats)
 {
@@ -117,4 +107,14 @@ ipengine::ipid SimpleContentModule::generateDefaultShader()
 ipengine::ipid SimpleContentModule::getDefaultTextureId()
 {
 	return getTextures().front().m_textureId;
+}
+
+bool SimpleContentModule::_startup()
+{
+	//Setup default material
+	//auto id = SCM::m_core->createID();
+	generateDefaultShader();
+	generateDefaultTexture();
+
+	return true;
 }

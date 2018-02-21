@@ -7,6 +7,8 @@
 // see Plugin2.h for the class definition
 GraphicsModulePreRenderVR::GraphicsModulePreRenderVR()
 {
+	m_info.identifier = "GraphicsModulePreRenderVR";
+
 	//m_info.
 }
 

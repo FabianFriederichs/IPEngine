@@ -22,7 +22,6 @@ public:
 	InputModule(void);
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
-	bool startUp();// { /*printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); */return true; } //do stuff?
 	const std::vector<IInput::Input> getInputBuffered(ipengine::Time, bool vrpositions = false);
 
 	//void printStuffToSomething(std::string text) { std::cout << text << std::endl; }
@@ -74,6 +73,9 @@ private:
 		out[2][2] = matrix.m[2][2];
 		//return memes;
 	}
+
+	// Inherited via IInput_API
+	virtual bool _startup() override;
 };
 extern "C" BOOST_SYMBOL_EXPORT InputModule module;
 InputModule module;

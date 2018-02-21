@@ -13,7 +13,6 @@ namespace IPEngineDependencyTool
     {                    
         public static void WriteGraphToXML(DependencyGraph input, string path)
         {
-            //TODO
             try
             {
                 using (XmlWriter xwriter = XmlWriter.Create(path))

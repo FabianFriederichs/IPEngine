@@ -59,6 +59,7 @@ namespace IPEngineDependencyTool
         public Extension(Module mod)
         {
             ExModule = mod;
+            Priority = 0;
         }
         public Extension(Module mod, uint p)
         {

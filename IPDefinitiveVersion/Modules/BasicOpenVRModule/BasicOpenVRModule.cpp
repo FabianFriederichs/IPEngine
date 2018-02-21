@@ -27,7 +27,7 @@ bool BasicOpenVRModule::initVR()
 	return true;
 }
 
-bool BasicOpenVRModule::startUp()
+bool BasicOpenVRModule::_startup()
 {
 	//do vr init
 	if (initVR())

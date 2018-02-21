@@ -433,3 +433,9 @@ int SimpleSceneModule::RemoveEntity(std::vector<ipengine::ipid>::const_iterator 
 	return c;
 }
 
+bool SimpleSceneModule::_startup()
+{
+	m_activeScene = -1; 
+	return true;
+}
+

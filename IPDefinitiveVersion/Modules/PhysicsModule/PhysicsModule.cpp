@@ -985,6 +985,23 @@ void PhysicsModule::fixParticle(const ipengine::ipid name, size_t x, size_t y, b
 	}
 }
 
+bool PhysicsModule::_startup()
+{
+	//Setup messaging
+	collisionMessageEp = m_core->getEndpointRegistry().createEndpoint("PHYSICS_MODULE_ENDPOINT");
+
+	/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */
+	schedulerSubscriptionHandle.push_back(
+		m_core->getScheduler().subscribe(
+			ipengine::TaskFunction::make_func<PhysicsModule, &PhysicsModule::update>(this),
+			8e6,
+			ipengine::Scheduler::SubType::Interval,
+			1.0f,
+			&m_core->getThreadPool()
+		));
+	return true;
+}
+
 bool PhysicsModule::isOutsidePlane(const glm::vec3 & p, const Plane & plane)
 {
 	return pointPlaneDistance(p, plane) > 0.0f;
