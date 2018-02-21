@@ -108,9 +108,6 @@ private:
 	//environment textures
 	std::shared_ptr<TextureCube> m_cube_envmap;
 	std::shared_ptr<Texture2D> m_er_envmap;
-	std::shared_ptr<TextureCube> m_ibl_irradiance;
-	std::shared_ptr<TextureCube> m_ibl_specularradiance;
-	std::shared_ptr<Texture2D> m_ibl_brdfresponse;
 
 	//global shaders
 	std::shared_ptr<ShaderProgram> m_s_pbrforward;
@@ -134,6 +131,9 @@ private:
 
 	//framebuffer output
 	std::shared_ptr<Texture2D> m_ot_shadowmap;
+	std::shared_ptr<TextureCube> m_ot_irradiance;
+	std::shared_ptr<TextureCube> m_ot_specularradiance;
+	std::shared_ptr<Texture2D> m_ot_brdfresponse;
 	
 	//framebufferdescs
 	FrameBufferDesc m_fd_shadow;

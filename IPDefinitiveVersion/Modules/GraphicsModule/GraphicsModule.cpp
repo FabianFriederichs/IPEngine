@@ -334,8 +334,8 @@ void GraphicsModule::renderIBLMaps()
 			m_s_ibldiff->setUniform("u_sample_delta", m_irradiance_sample_delta); GLERR
 			Primitives::drawNDCCube(); GLERR
 			m_fb_iblgenirradiance->unbind(GL_FRAMEBUFFER); GLERR
-			m_ibl_irradiance = m_fb_iblgenirradiance->colorTargets[0].ctex;
-		m_ibl_irradiance->setTexParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
+			m_ot_irradiance = m_fb_iblgenirradiance->colorTargets[0].ctex;
+		m_ot_irradiance->setTexParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
 	}
 
 	m_fb_iblgenirradiance.reset();
@@ -374,8 +374,8 @@ void GraphicsModule::renderIBLMaps()
 			Primitives::drawNDCCube(); GLERR
 		}
 		m_fb_iblgenspecular->unbind(GL_FRAMEBUFFER); GLERR
-		m_ibl_specularradiance = m_fb_iblgenspecular->colorTargets[0].ctex;
-		m_ibl_specularradiance->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
+		m_ot_specularradiance = m_fb_iblgenspecular->colorTargets[0].ctex;
+		m_ot_specularradiance->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
 		m_fb_iblgenspecular.reset();
 
 		//brdf
@@ -386,8 +386,8 @@ void GraphicsModule::renderIBLMaps()
 		m_s_iblbrdf->setUniform("u_brdfsamples", static_cast<GLuint>(m_brdfsamples));
 		Primitives::drawNDCQuad();
 		m_fb_iblgenbrdf->unbind(GL_FRAMEBUFFER); GLERR
-		m_ibl_brdfresponse = m_fb_iblgenbrdf->colorTargets[0].tex;
-		m_ibl_brdfresponse->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
+		m_ot_brdfresponse = m_fb_iblgenbrdf->colorTargets[0].tex;
+		m_ot_brdfresponse->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
 
 		m_fb_iblgenbrdf.reset();
 	}
@@ -843,13 +843,13 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 		shader->setUniform("u_diffuseibl", m_ibldiffuse);
 		shader->setUniform("u_specularibl", m_iblspecular);
 		if(m_ibldiffuse)
-			m_ibl_irradiance->bind(4);
+			m_ot_irradiance->bind(4);
 		shader->setUniform("u_irradianceMap", 4);
 		if (m_iblspecular)
-			m_ibl_specularradiance->bind(5);
+			m_ot_specularradiance->bind(5);
 		shader->setUniform("u_prefilterMap", 5);
 		if (m_iblspecular)
-			m_ibl_brdfresponse->bind(6);
+			m_ot_brdfresponse->bind(6);
 		shader->setUniform("u_brdfLUT", 6);
 
 		if (m_iblspecular)
