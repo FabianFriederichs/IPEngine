@@ -1036,7 +1036,7 @@ void GraphicsModule::recalcProj()
 void GraphicsModule::lightMatDirectionalLight(glm::mat4& view, glm::mat4& proj, SCM::DirectionalLight& dirLight, const glm::vec3& min, const glm::vec3& max)
 {
 	//hmm rework later
-	proj = glm::ortho(min.x, max.x, min.y, max.y, 0.1f, max.z - min.z);
+	proj = glm::ortho(min.x, max.x, min.y, max.y, max.z, min.z);
 	view = ViewFromTransData(dirLight.m_transformData.getData());
 }
 //helpers ---------------------------------------------------------------------------------------------------------------------

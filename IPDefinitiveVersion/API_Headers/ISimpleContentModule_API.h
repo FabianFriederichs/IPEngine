@@ -434,7 +434,6 @@ namespace SCM
 			bool active,
 			//Light params
 			const glm::vec3& color,
-			bool _castShadows,
 			int _shadowResX,
 			int _shadowResY,
 			int _shadowBlurPasses,
@@ -445,7 +444,15 @@ namespace SCM
 			) :
 			Entity(id, transform, boundingdata, boundingbox, active),
 			m_color(color),
-			castShadows(false) //TODO: finish constructor
+			castShadows(true), //TODO: finish constructor
+			shadowResX(_shadowResX),
+			shadowResY(_shadowResY),
+			shadowBlurPasses(_shadowBlurPasses),
+			shadowVarianceBias(_shadowVarianceBias),
+			lightBleedReduction(_lightBleedReduction),
+			shadowMapVolumeMin(_shadowMapVolumeMin),
+			shadowMapVolumeMax(_shadowMapVolumeMax)
+
 		{}
 
 		glm::vec3 getVSDirection(const glm::mat4& viewmat)

@@ -19,8 +19,9 @@ ipengine::MessageEndpoint::~MessageEndpoint()
 	{
 		MessageAlloc::deallocate(msg);
 	}
-
-	//TODO: disconnect all subscribers?
+	//TODO: tell subscribers that i'm dead
+	//TODO: tell subscriptions that i'm dead
+	//idea: atomic flag wich indicated that a subscription has become invalid
 	//possible deadlock hazard
 }
 
