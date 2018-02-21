@@ -44,8 +44,6 @@ void GraphicsModule::render(ipengine::TaskContext & c)
 	anyvector.clear();
 
 	render();
-	render();
-	render();
 
 	//render();
 
@@ -300,20 +298,16 @@ void GraphicsModule::setupFrameBuffers()
 void GraphicsModule::renderIBLMaps()
 {
 	//diffuse
-	m_cube_envmap->bind(0);
-	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-	m_cube_envmap->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, 0);
-	//hard coded opengl stuff here. Clean this up when GLutils cubemap and mipped render target support is ready
 	if (m_ibldiffuse)
 	{
 		m_fb_iblgenirradiance->bind(GL_FRAMEBUFFER); GLERR
-			glDisable(GL_DEPTH_TEST); GLERR
-			glViewport(0, 0, m_irradiance_map_resx, m_irradiance_map_resy); GLERR
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f); GLERR
-			glClear(GL_COLOR_BUFFER_BIT); GLERR
-			m_s_ibldiff->use();	GLERR
-			//generate layer matrices
-			glm::mat4 pmat = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+		glDisable(GL_DEPTH_TEST); GLERR
+		glViewport(0, 0, m_irradiance_map_resx, m_irradiance_map_resy); GLERR
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); GLERR
+		glClear(GL_COLOR_BUFFER_BIT); GLERR
+		m_s_ibldiff->use();	GLERR
+		//generate layer matrices
+		glm::mat4 pmat = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 		glm::mat4 layermats[] = {  //px, nx, py, ny, pz, nz
 			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
 			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
@@ -323,17 +317,12 @@ void GraphicsModule::renderIBLMaps()
 			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
 		};
 		for (size_t i = 0; i < 6; i++)
-			m_s_ibldiff->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false); GLERR
-
-			m_cube_envmap->bind(0); GLERR
-			m_s_ibldiff->setUniform("u_envcube", 0); GLERR
-			m_s_ibldiff->setUniform("u_enver", 1); GLERR
-			m_s_ibldiff->setUniform("u_envmap_type", 0); GLERR
-
-			m_s_ibldiff->setUniform("u_sample_delta", m_irradiance_sample_delta); GLERR
-			Primitives::drawNDCCube(); GLERR
-			m_fb_iblgenirradiance->unbind(GL_FRAMEBUFFER); GLERR
-			m_ot_irradiance = m_fb_iblgenirradiance->colorTargets[0].ctex;
+			m_s_ibldiff->setUniform(("u_layer_matrices[" + std::to_string(i) + "]").c_str(), layermats[i], false); GLERR
+		m_s_ibldiff->bindTex("u_envcube", m_cube_envmap.get());
+		m_s_ibldiff->setUniform("u_sample_delta", m_irradiance_sample_delta); GLERR
+		Primitives::drawNDCCube(); GLERR
+		m_fb_iblgenirradiance->unbind(GL_FRAMEBUFFER); GLERR
+		m_ot_irradiance = m_fb_iblgenirradiance->colorTargets[0].ctex;
 		m_ot_irradiance->setTexParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
 	}
 
@@ -354,10 +343,9 @@ void GraphicsModule::renderIBLMaps()
 			pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
 		};
 		for (size_t i = 0; i < 6; i++)
-			m_s_iblspec->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false); GLERR
+			m_s_iblspec->setUniform(("u_layer_matrices[" + std::to_string(i) + "]").c_str(), layermats[i], false); GLERR
 
-		m_cube_envmap->bind(0); GLERR
-		m_s_iblspec->setUniform("u_envcube", 0); GLERR
+		m_s_iblspec->bindTex("u_envcube", m_cube_envmap.get());
 		m_s_iblspec->setUniform("u_samplecount", static_cast<GLuint>(m_specular_samples)); GLERR
 		m_s_iblspec->setUniform("u_cmres", m_envcuberes); GLERR
 
@@ -597,21 +585,20 @@ void GraphicsModule::convertEnvMap()
 		pmat * glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
 	};
 	for (size_t i = 0; i < 6; i++)
-		m_s_envconv->setUniform("u_layer_matrices[" + std::to_string(i) + "]", layermats[i], false); GLERR
+		m_s_envconv->setUniform(("u_layer_matrices[" + std::to_string(i) + "]").c_str(), layermats[i], false); GLERR
 	//set envmap and sample settings
-	m_er_envmap->bind(0); GLERR
-	m_s_envconv->setUniform("u_enver", 0); GLERR
+	m_s_envconv->bindTex("u_enver", m_er_envmap.get()); GLERR
 	Primitives::drawNDCCube(); GLERR
 	glFinish(); GLERR
 	m_fb_envconv->unbind(GL_FRAMEBUFFER); GLERR
 	m_cube_envmap = m_fb_envconv->colorTargets[0].ctex;
+	m_cube_envmap->bind();
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);		
 	m_cube_envmap->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
 	m_cube_envmap->unbind();
 	m_fb_envconv.reset();
 	m_er_envmap->unbind();
-	m_er_envmap.reset();
-	
+	m_er_envmap.reset();	
 }
 void GraphicsModule::setup()
 {
@@ -638,7 +625,6 @@ void GraphicsModule::setupSDL()
 	if (m_core->getConfigManager().getBool("graphics.window.msaa"))
 	{
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-		std::cout << static_cast<int>(m_core->getConfigManager().getInt("graphics.window.msaa_samples")) << "samples";
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, static_cast<int>(m_core->getConfigManager().getInt("graphics.window.msaa_samples")));
 	}
 	window = SDL_CreateWindow(m_core->getConfigManager().getString("graphics.window.title").c_str(), SDL_WINDOWPOS_CENTERED,
@@ -654,6 +640,9 @@ void GraphicsModule::setupSDL()
 	{
 
 	}
+	auto fsetting = m_core->getConfigManager().getInt("graphics.window.fullscreen");
+	if(fsetting)
+		SDL_SetWindowFullscreen(window, fsetting == 1 ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN);
 	context = SDL_GL_CreateContext(window);
 	wincontext = wglGetCurrentContext();
 	//check null
@@ -735,8 +724,6 @@ void GraphicsModule::drawScene(ShaderProgram* shader)
 		auto entity = ep.second;
 		if (!entity->isActive)
 			continue;
-
-		GLERR
 		drawEntity(entity, shader);
 	}
 }
@@ -748,7 +735,6 @@ void GraphicsModule::drawSceneShadow(ShaderProgram* shader)
 		auto entity = ep.second;
 		if (!entity->isActive)
 			continue;
-
 		drawEntityShadow(entity, shader);
 	}
 }
@@ -782,6 +768,7 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 	//for now hacked dir light shadow
 	if (m_shadows)
 	{
+		//TODO: remove that and pack into dirlight
 		shader->setUniform("u_enableShadows", 1);
 		shader->setUniform("u_light_matrix", m_dirLightMat, false);
 		m_ot_shadowmap->setTexParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
@@ -799,8 +786,8 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 	//somehow store shadow stuff in light structs and set that too
 	for (auto dl : dirlights)
 	{
-		shader->setUniform("u_directionslLights[" + std::to_string(lc) + "].color", dl.second->m_color);
-		shader->setUniform("u_directionslLights[" + std::to_string(lc) + "].direction", dl.second->getVSDirection(viewmat));
+		shader->setUniform(("u_directionslLights[" + std::to_string(lc) + "].color").c_str(), dl.second->m_color);
+		shader->setUniform(("u_directionslLights[" + std::to_string(lc) + "].direction").c_str(), dl.second->getVSDirection(viewmat));
 		++lc;
 		if (lc >= m_max_dirlights)
 			break;
@@ -810,9 +797,9 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 	lc = 0;
 	for (auto pl : pointlights)
 	{
-		shader->setUniform("u_pointLights[" + std::to_string(lc) + "].color", pl.second->m_color);
-		shader->setUniform("u_pointLights[" + std::to_string(lc) + "].position", pl.second->getVSPosition(viewmat));
-		shader->setUniform("u_pointLights[" + std::to_string(lc) + "].max_range", pl.second->m_range);
+		shader->setUniform(("u_pointLights[" + std::to_string(lc) + "].color").c_str(), pl.second->m_color);
+		shader->setUniform(("u_pointLights[" + std::to_string(lc) + "].position").c_str(), pl.second->getVSPosition(viewmat));
+		shader->setUniform(("u_pointLights[" + std::to_string(lc) + "].max_range").c_str(), pl.second->m_range);
 		++lc;
 		if (lc >= m_max_pointlights)
 			break;
@@ -822,12 +809,12 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 	lc = 0;
 	for (auto sl : spotlights)
 	{
-		shader->setUniform("u_spotLights[" + std::to_string(lc) + "].color", sl.second->m_color);
-		shader->setUniform("u_spotLights[" + std::to_string(lc) + "].position", sl.second->getVSPosition(viewmat));
-		shader->setUniform("u_spotLights[" + std::to_string(lc) + "].max_range", sl.second->m_range);
-		shader->setUniform("u_spotLights[" + std::to_string(lc) + "].direction", sl.second->getVSDirection(viewmat));
-		shader->setUniform("u_spotLights[" + std::to_string(lc) + "].outer_cone_angle", sl.second->m_outerConeAngle);
-		shader->setUniform("u_spotLights[" + std::to_string(lc) + "].inner_cone_angle", sl.second->m_innerConeAngle);
+		shader->setUniform(("u_spotLights[" + std::to_string(lc) + "].color").c_str(), sl.second->m_color);
+		shader->setUniform(("u_spotLights[" + std::to_string(lc) + "].position").c_str(), sl.second->getVSPosition(viewmat));
+		shader->setUniform(("u_spotLights[" + std::to_string(lc) + "].max_range").c_str(), sl.second->m_range);
+		shader->setUniform(("u_spotLights[" + std::to_string(lc) + "].direction").c_str(), sl.second->getVSDirection(viewmat));
+		shader->setUniform(("u_spotLights[" + std::to_string(lc) + "].outer_cone_angle").c_str(), sl.second->m_outerConeAngle);
+		shader->setUniform(("u_spotLights[" + std::to_string(lc) + "].inner_cone_angle").c_str(), sl.second->m_innerConeAngle);
 		++lc;
 		if (lc >= m_max_spotlights)
 			break;
@@ -841,15 +828,13 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 	{
 		shader->setUniform("u_diffuseibl", m_ibldiffuse);
 		shader->setUniform("u_specularibl", m_iblspecular);
-		if(m_ibldiffuse)
-			m_ot_irradiance->bind(4);
-		shader->setUniform("u_irradianceMap", 4);
-		if (m_iblspecular)
-			m_ot_specularradiance->bind(5);
-		shader->setUniform("u_prefilterMap", 5);
-		if (m_iblspecular)
-			m_ot_brdfresponse->bind(6);
-		shader->setUniform("u_brdfLUT", 6);
+	
+		//do bind those textures, even though they're empty.
+		//some opengl implementations complain about inconsistent sampler types at this point,
+		//because per default unused samplers are initialized to sample texture unit 0
+		shader->bindTex("u_irradianceMap", m_ot_irradiance.get());
+		shader->bindTex("u_prefilterMap", m_ot_specularradiance.get());
+		shader->bindTex("u_brdfLUT", m_ot_brdfresponse.get());
 
 		if (m_iblspecular)
 			shader->setUniform("u_ibl_maxspeclod", static_cast<GLfloat>(m_specular_mipmap_levels - 1));
@@ -857,19 +842,14 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 }
 void GraphicsModule::setMaterialUniforms(SCM::MaterialData * mdata, ShaderProgram* shader)
 {
-	int tc = 0;
 	for (auto tp : mdata->m_textures)
 	{
 		auto& t = tp.second;
 		auto& tex = m_scmtexturetot2d[t.m_texturefileId];
-		GLERR
-		tex->bind(tc);
-		shader->setUniform("u_material." + tp.first, tc);
-		++tc;
-		GLERR
+		shader->bindTex(("u_material." + tp.first + ".tex").c_str(), tex.get());
+		shader->setUniform(("u_material." + tp.first + ".scale").c_str(), t.m_size);
+		shader->setUniform(("u_material." + tp.first + ".offset").c_str(), t.m_offset);
 	}
-	//shader->setUniform("u_material.texcount", tc);
-	//TODO: texture scaling / offset
 }
 void GraphicsModule::drawEntity(SCM::ThreeDimEntity * entity, ShaderProgram* shader)
 {
@@ -881,11 +861,8 @@ void GraphicsModule::drawEntity(SCM::ThreeDimEntity * entity, ShaderProgram* sha
 	for (auto m : entity->m_mesheObjects->m_meshes)
 	{
 		//TODO:: optimization! create batches of meshes with the same material
-		GLERR
 		setMaterialUniforms(m->m_material, shader);
-		GLERR
 		drawSCMMesh(m->m_meshId);
-		GLERR
 	}
 }
 void GraphicsModule::drawEntityShadow(SCM::ThreeDimEntity * entity, ShaderProgram* shader)
@@ -964,12 +941,9 @@ void GraphicsModule::renderEnvMap()
 		glDepthMask(GL_FALSE);
 		glDisable(GL_DEPTH_TEST);		
 		m_s_skybox->use();
-		m_cube_envmap->bind(0);
-		m_s_skybox->setUniform("u_skybox", 0);
-		m_s_skybox->setUniform("u_skyer", 1);
+		m_s_skybox->bindTex("u_skybox", m_cube_envmap.get());
 		m_s_skybox->setUniform("u_view_matrix", glm::mat4(glm::mat3(viewmat)), false);
 		m_s_skybox->setUniform("u_projection_matrix", projmat, false);
-		m_s_skybox->setUniform("u_envmap_type", 0);
 		Primitives::drawNDCCube();
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
