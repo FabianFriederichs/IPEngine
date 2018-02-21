@@ -1,6 +1,6 @@
 #ifndef _MEMORY_MANAGER_H_
 #define _MEMORY_MANAGER_H_
-#include <core_config.h>
+#include <IPCore/core_config.h>
 namespace ipengine
 {
 	//TODO: add logging functionality if core debug/monitoring stuff is ready

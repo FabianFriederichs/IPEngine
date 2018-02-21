@@ -23,7 +23,6 @@ public:
 	GraphicsModule(void);
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
-	bool startUp();// {/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); */return true;  } //do stuff?
 	void render();
 	void render(ipengine::TaskContext& c);
 	virtual void setCameraEntity(ipengine::ipid v) override;
@@ -72,6 +71,10 @@ private:
 	void recalcProj();
 
 	// Inherited via IGraphics_API
+
+
+	// Inherited via IGraphics_API
+	virtual bool _startup() override;
 
 	//container with vao to scm mesh id
 };

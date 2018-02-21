@@ -16,13 +16,18 @@
 // see Plugin1.h for the class definition
 InputModule::InputModule()
 {
-	m_info.identifier = "Plugin1";
+	m_info.identifier = "InputModule";
 	m_info.version = "1.0";
 	m_info.iam = "IInput_API";
 	return;
 }
 
-bool InputModule::startUp()
+void InputModule::pollDataC(ipengine::TaskContext& c)
+{
+	pollData();
+}
+
+bool InputModule::_startup()
 {
 	if (m_info.dependencies.exists("openvr"))
 	{
@@ -35,15 +40,10 @@ bool InputModule::startUp()
 	}
 	//memes = std::thread([this]()->void{while (1){ pollData(); }});
 	ipengine::Scheduler& sched = m_core->getScheduler();
-	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<InputModule, &InputModule::pollDataC>(this), 0, ipengine::Scheduler::SubType::Frame,1, &m_core->getThreadPool(), true));
+	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<InputModule, &InputModule::pollDataC>(this), 0, ipengine::Scheduler::SubType::Frame, 1, &m_core->getThreadPool(), true));
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	//SDL_CaptureMouse(SDL_TRUE);
 	return true;
-}
-
-void InputModule::pollDataC(ipengine::TaskContext& c)
-{
-	pollData();
 }
 
 void InputModule::pollData()

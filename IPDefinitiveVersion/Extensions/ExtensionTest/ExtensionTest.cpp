@@ -7,6 +7,7 @@
 // see Plugin2.h for the class definition
 ExtensionTest::ExtensionTest()
 {
+	m_info.identifier="ExtensionTest";
 	//m_info.
 }
 

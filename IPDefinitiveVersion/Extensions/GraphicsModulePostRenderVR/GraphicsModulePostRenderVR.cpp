@@ -7,6 +7,8 @@
 // see Plugin2.h for the class definition
 GraphicsModulePostRenderVR::GraphicsModulePostRenderVR()
 {
+	GraphicsModulePostRenderVR
+	m_info.identifier = "BasicOpenVRModule";
 	//m_info.
 }
 

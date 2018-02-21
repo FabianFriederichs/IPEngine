@@ -34,29 +34,16 @@ class Injector
 {
 private:
 	std::string libFolderPath;
-	DGStuff::DependencyGraph depgraph;
-	boost::property_tree::ptree tree;
-	boost::property_tree::ptree *parsePropTreeFromXML(std::string path)
-	{
-		
-		boost::property_tree::read_xml(path, tree, boost::property_tree::xml_parser::no_comments);//Check out what tree has in it if parsing fails
-		//Parse propertytree into depgraph
-
-
-		return &tree;
-	};
+	std::shared_ptr<DGStuff::DependencyGraph> depgraph;
+	std::string depgraphpath;
 	std::map<std::string, boost::shared_ptr<IModule_API>> loadedModules;
 	std::map<std::string, boost::shared_ptr<IExtensionPoint>> loadedExtensions;
-	std::vector<boost::filesystem::path> dlibFilePaths;
-	bool parseDepGraphFromPropertyTree(boost::property_tree::ptree* tree);
-	
+	std::vector<boost::filesystem::path> dlibFilePaths;	
 
 	//Unnecessary, using std::find_if with lambda instead.
 	DGStuff::Module* getModuleByIdentifier(std::vector<DGStuff::Module> *modules, std::string id);
 
-	//What the fuck was this for again?
-	boost::property_tree::ptree* getTreeByKeyValue(boost::property_tree::ptree* tree, std::string key, std::string value);
-
+	bool recursiveInject(DGStuff::Module*);
 
 public:
 	Injector()
@@ -66,15 +53,15 @@ public:
 
 	Injector(std::string dependencyXMLPath, std::string libraryFolderpath)
 	{
-		XMLParser parser{};
+		XMLParser parser;
 		auto g = parser.parse(dependencyXMLPath);
 		if (parser.getResult() != DependencyParser::READING_SUCCESS)
 		{
 			//TODO
 			//error handling
 		}
-		depgraph = *g; //? will this delete the object after g and thus the last shared_ptr is destroyed by exiting scope?
-		
+		depgraph = g; //? will this delete the object after g and thus the last shared_ptr is destroyed by exiting scope? Or is the copy assign ctor fixing this?
+		depgraphpath = dependencyXMLPath;
 		 //if (parseDepGraphFromPropertyTree(parsePropTreeFromXML(dependencyXMLPath)))
 		//{
 		//	//TODO
@@ -83,24 +70,24 @@ public:
 		libFolderPath = libraryFolderpath;
 	};
 
-	void LoadModules(ipengine::Core* core, bool reload = false, std::string path = "");
+	void LoadModules(ipengine::Core* core, std::string path = "", bool reload = false);
 
 	const std::map<std::string, boost::shared_ptr<IModule_API>>& getLoadedModules()
 	{
 		return loadedModules;
 	}
 
-	uint32_t reassignDependency(std::string moduleID, std::string dependencyID, std::string newModuleID)
+	uint32_t reassignDependency(boost::shared_ptr<IModule_API> mod, std::string dependencyID, std::string newModuleID)
 	{
 		//change dependency "dependencyID" in module "moduleID" to the module "newModuleID"
 		//Do checks whether it's correct and then update the pointer in "moduleID"s moduleinfo of specified dependency
 		//Tell "moduleID" to update it's pointers and do any work that's necessary for reassignment
-		auto minfo = loadedModules[moduleID]->getModuleInfo();
-		if (minfo->dependencies.exists(dependencyID) && minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam == loadedModules[newModuleID]->getModuleInfo()->iam)
+		auto minfo = mod->getModuleInfo();
+		if (minfo->dependencies.exists(dependencyID) && loadedModules[newModuleID]->getModuleInfo()->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam) != std::string::npos)
 		{
 			//reassignment should work, i think? 
 			minfo->dependencies.assignDependency(dependencyID, loadedModules[newModuleID]);
-			loadedModules[moduleID]->dependencyUpdated(dependencyID);
+			mod->dependencyUpdated(dependencyID);
 			return 1;
 		}
 		else
@@ -109,8 +96,30 @@ public:
 		}
 	}
 
+	uint32_t reassignDependency(boost::shared_ptr<IExtensionPoint> mod, std::string dependencyID, std::string newModuleID)
+	{
+		//change dependency "dependencyID" in module "moduleID" to the module "newModuleID"
+		//Do checks whether it's correct and then update the pointer in "moduleID"s moduleinfo of specified dependency
+		//Tell "moduleID" to update it's pointers and do any work that's necessary for reassignment
+		auto minfo = mod->getInfo();
+		if (minfo->dependencies.exists(dependencyID) && loadedModules[newModuleID]->getModuleInfo()->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam)!=std::string::npos)
+		{
+			//reassignment should work, i think? 
+			minfo->dependencies.assignDependency(dependencyID, loadedModules[newModuleID]);
+			mod->dependencyUpdated(dependencyID);
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	std::map<std::string, boost::shared_ptr<IModule_API>> getModulesOfType(std::string type);
+
 	//Save the current dependency graph to it's source file it was loaded from
 	bool saveDependencyGraph();
+	bool saveDependencyGraph(std::string);
 };
 
 #endif

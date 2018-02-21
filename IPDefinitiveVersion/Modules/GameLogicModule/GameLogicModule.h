@@ -16,7 +16,6 @@ public:
 	GameLogicModule();
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
-	bool startUp();
 private:
 	ModuleInformation m_info;
 	ipengine::Time delta;
@@ -43,6 +42,9 @@ private:
 	void mousescrollUpdate(IInput::Input&);
 	void entityUpdate(SCM::Entity*);
 	void entity3dUpdate(SCM::ThreeDimEntity*);
+
+	// Inherited via IModule_API
+	virtual bool _startup() override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT GameLogicModule module;

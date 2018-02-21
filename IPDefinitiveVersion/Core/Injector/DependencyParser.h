@@ -6,7 +6,7 @@
 class DependencyParser
 {
 public:
-	static enum ParseResult
+	enum ParseResult
 	{
 		WRITING_FAILED,
 		READING_FAILED,
@@ -15,7 +15,7 @@ public:
 	};
 	using pDepGraph = std::shared_ptr<DGStuff::DependencyGraph>;
 	virtual pDepGraph parse(std::string) = 0;
-	virtual ParseResult write(pDepGraph) = 0;
+	virtual ParseResult write(DGStuff::DependencyGraph&, std::string) = 0;
 
 	virtual ParseResult getResult() = 0;
 };

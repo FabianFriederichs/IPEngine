@@ -14,20 +14,6 @@ GraphicsModule::GraphicsModule(void)
 	return;
 }
 
-bool GraphicsModule::startUp()
-{
-	m_scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(m_scmID);
-	setupSDL();
-	//loadShaders();
-	ipengine::Scheduler& sched = m_core->getScheduler();
-	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GraphicsModule, &GraphicsModule::render>(this), 0, ipengine::Scheduler::SubType::Frame, 1, &m_core->getThreadPool(), true));
-	//std::vector<ipengine::any> anyvector;
-	//anyvector.push_back(this);
-	//anyvector.push_back(&m_scmID);
-//	m_info.expoints.execute("TestPoint", { "this", "test" }, anyvector);
-	return true;
-}
-
 void GraphicsModule::loadShaders()
 {
 
@@ -342,6 +328,20 @@ glm::mat4 GraphicsModule::ViewFromTransData(const SCM::TransformData *transform)
 void GraphicsModule::recalcProj()
 {
 	projmat = glm::perspective(m_fov, width / height, znear, zfar);
+}
+
+bool GraphicsModule::_startup()
+{
+	m_scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(m_scmID);
+	setupSDL();
+	//loadShaders();
+	ipengine::Scheduler& sched = m_core->getScheduler();
+	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GraphicsModule, &GraphicsModule::render>(this), 0, ipengine::Scheduler::SubType::Frame, 1, &m_core->getThreadPool(), true));
+	//std::vector<ipengine::any> anyvector;
+	//anyvector.push_back(this);
+	//anyvector.push_back(&m_scmID);
+	//	m_info.expoints.execute("TestPoint", { "this", "test" }, anyvector);
+	return true;
 }
 
 ipengine::ipid GraphicsModule::getCameraEntity()

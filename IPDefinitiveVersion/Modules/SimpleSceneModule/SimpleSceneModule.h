@@ -20,7 +20,6 @@ public:
 	SimpleSceneModule(void);
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
-	bool startUp() { m_activeScene = -1; return true; }; //do stuff?
 private:
 	ModuleInformation m_info;
 	std::string contentmoduleidentifier = "SCM";
@@ -37,6 +36,9 @@ private:
 	virtual int AddEntity(std::vector<ipengine::ipid>::const_iterator entityidstart, std::vector<ipengine::ipid>::const_iterator entityidend, ipengine::ipid sceneid = IPID_INVALID) override;
 	virtual bool RemoveEntity(ipengine::ipid entityid, ipengine::ipid sceneid = IPID_INVALID) override;
 	virtual int RemoveEntity(std::vector<ipengine::ipid>::const_iterator entityidstart, std::vector<ipengine::ipid>::const_iterator entityidend, ipengine::ipid sceneid=IPID_INVALID) override;
+
+	// Inherited via ISimpleSceneModule_API
+	virtual bool _startup() override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT SimpleSceneModule module;
