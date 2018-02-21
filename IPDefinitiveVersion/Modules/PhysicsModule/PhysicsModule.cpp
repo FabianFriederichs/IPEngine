@@ -999,8 +999,28 @@ bool PhysicsModule::_startup()
 			1.0f,
 			&m_core->getThreadPool()
 		));
+
+	particles_per_task = m_core->getConfigManager().getInt("physics.cloth_simulation.particles_per_task");
+	particles_per_task = particles_per_task != 0 ? particles_per_task : PARTICLES_PER_TASK;
 	return true;
 }
+//
+//bool PhysicsModule::_startup()
+//{
+//	//Setup messaging
+//	collisionMessageEp = m_core->getEndpointRegistry().createEndpoint("PHYSICS_MODULE_ENDPOINT");
+//
+//	/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */
+//	schedulerSubscriptionHandle.push_back(
+//		m_core->getScheduler().subscribe(
+//			ipengine::TaskFunction::make_func<PhysicsModule, &PhysicsModule::update>(this),
+//			8e6,
+//			ipengine::Scheduler::SubType::Interval,
+//			1.0f,
+//			&m_core->getThreadPool()
+//		));
+//	return true;
+//}
 
 bool PhysicsModule::isOutsidePlane(const glm::vec3 & p, const Plane & plane)
 {
