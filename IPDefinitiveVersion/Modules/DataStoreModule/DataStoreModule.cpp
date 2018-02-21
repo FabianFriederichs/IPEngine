@@ -14,12 +14,6 @@ DataStoreModule::DataStoreModule()
 }
 
 
-bool DataStoreModule::startUp()
-{
-	//Initialize your module
-	return true;
-}
-
 void DataStoreModule::set(const std::string key, const ipengine::any object)
 {
 	lock.lock();
@@ -38,4 +32,9 @@ ipengine::any DataStoreModule::get(const std::string key)
 
 	lock.unlock();
 	return ret;
+}
+
+bool DataStoreModule::_startup()
+{
+	return true;
 }

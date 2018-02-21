@@ -13,24 +13,6 @@ GameLogicModule::GameLogicModule()
 	return;
 }
 
-
-bool GameLogicModule::startUp()
-{
-	//Initialize your module
-	ipengine::Scheduler& sched = m_core->getScheduler();
-	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GameLogicModule, &GameLogicModule::update>(this),timing.nano(), ipengine::Scheduler::SubType::Interval, 1, &m_core->getThreadPool(), true));
-	contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
-	if (m_info.dependencies.exists("input")) 
-	{
-		inputmodule = m_info.dependencies.getDep<IInput_API>("input");
-	}
-	graphics = m_info.dependencies.getDep<IGraphics_API>("graphics");
-	if(contentmodule->getEntityByName("Camera"))
-		graphics->setCameraEntity(contentmodule->getEntityByName("Camera")->m_entityId);
-	lastUpdate = ipengine::Time(std::chrono::high_resolution_clock::now().time_since_epoch().count());
-	return true;
-}
-
 void GameLogicModule::update(ipengine::TaskContext& c)
 {
 	if (!initialized)
@@ -341,4 +323,21 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 		e->m_transformData.setData()->m_isMatrixDirty = false;
 
 	}
+}
+
+bool GameLogicModule::_startup()
+{
+	//Initialize your module
+	ipengine::Scheduler& sched = m_core->getScheduler();
+	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GameLogicModule, &GameLogicModule::update>(this), timing.nano(), ipengine::Scheduler::SubType::Interval, 1, &m_core->getThreadPool(), true));
+	contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
+	if (m_info.dependencies.exists("input"))
+	{
+		inputmodule = m_info.dependencies.getDep<IInput_API>("input");
+	}
+	graphics = m_info.dependencies.getDep<IGraphics_API>("graphics");
+	if (contentmodule->getEntityByName("Camera"))
+		graphics->setCameraEntity(contentmodule->getEntityByName("Camera")->m_entityId);
+	lastUpdate = ipengine::Time(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+	return true;
 }

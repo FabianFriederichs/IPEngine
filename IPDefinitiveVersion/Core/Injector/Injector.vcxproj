@@ -165,10 +165,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Injector.cpp" />
+    <ClCompile Include="XMLParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DependencyGraph.h" />
+    <ClInclude Include="DependencyParser.h" />
     <ClInclude Include="Injector.h" />
+    <ClInclude Include="XMLParser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3,8 +3,25 @@
 
 #include "GraphicsModule.h"
 
-// This is the constructor of a class that has been exported.
-// see Plugin2.h for the class definition
+bool GraphicsModule::_startup()
+{
+	//get dependencies
+	m_scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(m_scmID);
+
+	//setup
+	setup();
+
+	//subscribe to scheduler
+	ipengine::Scheduler& sched = m_core->getScheduler();
+	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GraphicsModule, &GraphicsModule::render>(this),
+		0,
+		ipengine::Scheduler::SubType::Frame,
+		1,
+		&m_core->getThreadPool(),
+		true)
+	);
+	return true;
+}
 
 //public interface implementation ---------------------------------------------------------------------------------------------
 GraphicsModule::GraphicsModule(void)
@@ -15,25 +32,7 @@ GraphicsModule::GraphicsModule(void)
 	m_info.iam = "IGraphics_API";
 	return;
 }
-bool GraphicsModule::startUp()
-{
-	//get dependencies
-	m_scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(m_scmID);	
 
-	//setup
-	setup();
-
-	//subscribe to scheduler
-	ipengine::Scheduler& sched = m_core->getScheduler();
-	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GraphicsModule, &GraphicsModule::render>(this),
-									  0,
-									  ipengine::Scheduler::SubType::Frame,
-									  1,
-									  &m_core->getThreadPool(),
-									  true)
-	);
-	return true;
-}
 void GraphicsModule::render(ipengine::TaskContext & c)
 {
 	updateData();
@@ -1054,6 +1053,7 @@ std::vector<ipengine::ipid> GraphicsModule::getActiveEntityNames(SCM::ISimpleCon
 	}
 	return ids;
 }
+
 
 
 //working comments

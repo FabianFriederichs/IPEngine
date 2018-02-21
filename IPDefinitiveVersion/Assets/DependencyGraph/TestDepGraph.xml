@@ -129,6 +129,7 @@
           <moduleID>InputModule</moduleID>
         </dependency>
         <dependency>
+          <inject>true</inject>
           <identifier>graphics</identifier>
           <moduleID>GraphicsModule</moduleID>
         </dependency>

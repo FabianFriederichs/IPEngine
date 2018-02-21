@@ -123,7 +123,7 @@ public:
 		}
 	}
 
-	bool isActive(std::string extensionpointname, int prio=0)
+	bool isActive(std::string extensionpointname, uint32_t prio=0)
 	{
 		auto ex = expoints.find(extensionpointname);
 		if (ex!=expoints.end())
@@ -132,7 +132,7 @@ public:
 		}
 	}
 
-	void setActive(std::string extensionpointname, int prio = 0, bool val = true)
+	void setActive(std::string extensionpointname, uint32_t prio = 0, bool val = true)
 	{
 		auto ex = expoints.find(extensionpointname);
 		if (ex != expoints.end())
@@ -140,6 +140,17 @@ public:
 			ex->second[prio]->isActive = val;
 		}
 	}
+
+	void assignExtension(std::string pointIdent, uint32_t prio, boost::shared_ptr<IExtensionPoint> iexp)
+	{
+		auto it = expoints[pointIdent].begin();
+		if (prio >= expoints[pointIdent].size())
+			it = expoints[pointIdent].end();
+		else
+			it += prio;
+		expoints[pointIdent].insert(it, iexp);
+	}
+
 	std::map<std::string, std::vector<boost::shared_ptr<IExtensionPoint>>> expoints;
 };
 
@@ -162,12 +173,24 @@ class IModule_API
 	friend class Injector;
 public:
 	virtual ModuleInformation* getModuleInfo() = 0;
-	virtual bool startUp() = 0; //Returns true if startup is successful. This is called after dependencies have been injected. Handle all the initialization necessary. Probably should replace this with error code memes. 
-								//Should be overriden by modules that have dependencies that can be updated at runtime.
-	virtual void dependencyUpdated(std::string depID) {};
-	//virtual bool injectDependency(std::string dependencyID, IModule_API *dependency) = 0;
+					
 protected:
 	ipengine::Core* m_core;
+
+	//Returns true if startup is successful. This is called after dependencies have been injected. Handle all the initialization necessary. Probably should replace this with error code memes. 
+	bool startUp()
+	{
+		isStartUp = _startup();
+		return isStartUp;
+	}
+
+	//Should be overriden by modules that have dependencies that can be updated at runtime.
+	virtual void dependencyUpdated(std::string depID) {};
+
+	//virtual bool injectDependency(std::string dependencyID, IModule_API *dependency) = 0;
+private:
+	virtual bool _startup() = 0;
+	bool isStartUp = false;
 };
 
 

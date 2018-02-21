@@ -9,7 +9,6 @@ public:
 	DataStoreModule();
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
-	bool startUp();
 
 	// Inherited via IDataStoreModuleh_API
 	virtual void set(const std::string key, const ipengine::any object) override;
@@ -22,6 +21,10 @@ private:
 
 	ipengine::BasicSpinLock lock;
 	
+
+
+	// Inherited via IDataStoreModuleh_API
+	virtual bool _startup() override;
 
 };
 

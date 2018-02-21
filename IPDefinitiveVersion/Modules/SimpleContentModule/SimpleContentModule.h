@@ -17,7 +17,6 @@ public:
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
 
-	bool startUp();// { return true;/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */ } //do stuff?
 																																													  // Inherited via ISimpleContentModule_API
 	virtual ipengine::ipid addMeshFromFile(std::string path, std::string format, std::vector<ipengine::ipid> mats) override;
 	virtual ipengine::ipid getDefaultShaderId() override;
@@ -29,6 +28,9 @@ private:
 
 	// Inherited via ISimpleContentModule_API
 	virtual ipengine::ipid getDefaultTextureId() override;
+
+	// Inherited via ISimpleContentModule_API
+	virtual bool _startup() override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT SimpleContentModule module;
