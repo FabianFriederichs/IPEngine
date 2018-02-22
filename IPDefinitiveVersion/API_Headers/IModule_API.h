@@ -12,8 +12,8 @@
 namespace DependencyFlags {
 	enum DependencyFlag : size_t
 	{
-		DP_OPTIONAL,
-		DP_UPDATABLE
+		dp_optional,
+		dp_mandatory
 	};
 };
 
@@ -23,8 +23,7 @@ class IExtensionPoint;
 class DependencyContainer
 {
 private:
-	using depPair = std::pair<boost::shared_ptr<IModule_API>, std::bitset<2>>;
-	std::unordered_map<std::string, depPair> dependencies;
+	std::unordered_map<std::string, boost::shared_ptr<IModule_API>> dependencies;
 public:
 	DependencyContainer() :dependencies() {}
 
@@ -48,17 +47,18 @@ public:
 	}
 
 
-	void assignDependency(const std::string dependencyID, boost::shared_ptr<IModule_API> module, std::bitset<2> flags = 0)
+	void assignDependency(const std::string dependencyID, boost::shared_ptr<IModule_API> module)
 	{
 		//assert(size() == 0);
-		if (!exists(dependencyID))
+		/*if (!exists(dependencyID))
 		{
-			dependencies[dependencyID] = { module, flags };
+			dependencies[dependencyID] = module;
 		}
 		else if (dependencies[dependencyID].second[DependencyFlags::DP_UPDATABLE])
 		{
-			dependencies[dependencyID].first = module;
-		}
+		}*/
+		dependencies[dependencyID] = module;
+
 	}
 
 	template<typename T>
@@ -70,7 +70,7 @@ public:
 			//Doesn't exist case
 			return boost::shared_ptr<T>(); //nullptr essentially
 		}
-		boost::shared_ptr<T> m = boost::dynamic_pointer_cast<T>(d->second.first); //Assert this?
+		boost::shared_ptr<T> m = boost::dynamic_pointer_cast<T>(d->second); //Assert this?
 		return m;
 	}
 
@@ -84,6 +84,27 @@ public:
 	}
 };
 
+struct DependencyInformation
+{
+	DependencyInformation():isMandatory(false), isUpdatable(false), moduleType("")
+	{
+
+	}
+	DependencyInformation(bool man, bool upd, std::string t) :isMandatory(man), isUpdatable(upd), moduleType(t)
+	{
+
+	}
+
+	DependencyInformation(const DependencyInformation& di):isMandatory(di.isMandatory), isUpdatable(di.isUpdatable), moduleType(di.moduleType)
+	{
+
+	}
+
+	const bool isMandatory;
+	const bool isUpdatable;
+	const std::string moduleType;
+};
+
 struct ExtensionInformation
 {
 	//using ExtensionReceptor = std::map<std::string, std::vector<boost::shared_ptr<IExtensionPoint>>>; //ExP name : [priority]:ExP object 
@@ -93,6 +114,8 @@ struct ExtensionInformation
 	std::string identifier; //Modules ID - similiar to java's package names?
 	std::string version;
 	std::string dlibpath; //absolute path to the dynamic library this module comes from
+	std::map<std::string, DependencyInformation> depinfo; //Key is the dependency identifier
+
 };
 
 class IExtensionPoint
@@ -164,6 +187,8 @@ struct ModuleInformation
 	std::string version;
 	ExtensionReceptor expoints; //Extension points. Similiar to dependencies ///TODO COMES LATER
 	std::string dlibpath; //absolute path to the dynamic library this module comes from
+	std::map<std::string, DependencyInformation> depinfo; //Key is the dependency identifier
+
 };
 
 

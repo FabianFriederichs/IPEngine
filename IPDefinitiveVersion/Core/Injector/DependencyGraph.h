@@ -174,7 +174,6 @@ namespace  DGStuff
 		DependencyGraph() {}
 		DependencyGraph(const DependencyGraph& other) : modules(other.modules) 
 		{
-			std::cout << "emem"; 
 		}
 
 		void add(const Module m)
