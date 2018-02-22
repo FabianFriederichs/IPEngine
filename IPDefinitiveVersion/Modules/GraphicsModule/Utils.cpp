@@ -927,6 +927,7 @@ ShaderProgram::~ShaderProgram()
 
 void ShaderProgram::use()
 {
+	currentTu = 0;
 	GLint current;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &current); GLERR
 	if (current != prog && prog != 0)

@@ -3,32 +3,13 @@
 layout (location = 0) out vec3 color;
 
 uniform samplerCube u_envcube;
-uniform sampler2D u_enver;
-uniform int u_envmap_type;
 uniform float u_sample_delta;
 
 in vec3 worldPos;
 
-const vec2 invAtan = vec2(0.1591, 0.3183);
-vec2 sampleErMap(vec3 v)
-{
-    vec3 nv = normalize(v);
-    vec2 uv = vec2(atan(nv.z, nv.x), asin(nv.y));
-    uv *= invAtan;
-    uv += 0.5;
-    return uv;
-}
-
 vec3 fetchEnvColor(vec3 dir)
 {
-    if(u_envmap_type == 0)
-    {
-        return texture(u_envcube, dir).rgb;
-    }
-    else
-    {
-        return texture(u_enver, sampleErMap(dir)).rgb;
-    }
+    return texture(u_envcube, dir).rgb;
 }
 
 const float PI = 3.14159265359;

@@ -20,12 +20,18 @@ in struct VertexData
 }   vertexdat;
 
 //Types
+struct Tex2D {
+    sampler2D tex;
+    vec2 scale;
+    vec2 offset;
+};
+
 struct Material {
     //sampler2D mtex[MAX_TEXTURES]; //0: albedo; 1: MRAR: r=metallic, g=roughness, b=ao, a=insulator reflectance at normal incidence; 2: normal; 3: emissive
-    sampler2D albedo;
-    sampler2D mrar;
-    sampler2D normal;
-    sampler2D emissive;
+    Tex2D albedo;
+    Tex2D mrar;
+    Tex2D normal;
+    Tex2D emissive;
     //int texcount;
 }; 
 
@@ -286,10 +292,10 @@ vec3 calcAmbient(vec3 n_, vec3 v_, vec3 f0, float roughness, float metalness, ve
 void main()
 {
     //sample material textures
-    vec4 ts_albedo = texture(u_material.albedo, vertexdat.uv);
-    vec4 ts_mrar = texture(u_material.mrar, vertexdat.uv);
-    vec3 ts_normal = texture(u_material.normal, vertexdat.uv).rgb;
-    vec4 ts_emissive = texture(u_material.emissive, vertexdat.uv);
+    vec4 ts_albedo = texture(u_material.albedo.tex, vertexdat.uv * u_material.albedo.scale + u_material.albedo.offset);
+    vec4 ts_mrar = texture(u_material.mrar.tex, vertexdat.uv * u_material.mrar.scale + u_material.mrar.offset);
+    vec3 ts_normal = texture(u_material.normal.tex, vertexdat.uv * u_material.normal.scale + u_material.normal.offset).rgb;
+    vec4 ts_emissive = texture(u_material.emissive.tex, vertexdat.uv * u_material.emissive.scale + u_material.emissive.offset);
 
     //split material data
     vec3 mt_albedo = ts_albedo.rgb;

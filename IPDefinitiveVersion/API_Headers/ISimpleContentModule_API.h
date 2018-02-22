@@ -191,8 +191,17 @@ namespace SCM
 	class TextureData
 	{
 	public:
-		TextureData() = default;
-		TextureData(ipengine::ipid fileid, glm::vec2 offset = glm::vec2( 0,0 ), glm::vec2 size= glm::vec2(0,0)) :m_texturefileId(fileid), m_offset(offset), m_size(size) {}
+		TextureData() :
+			m_texturefileId(IPID_INVALID),
+			m_offset(0.0f),
+			m_size(1.0f)
+		{}
+		TextureData(ipengine::ipid fileid,
+					glm::vec2 offset = glm::vec2( 0,0 ),
+					glm::vec2 size= glm::vec2(1,1)) :
+			m_texturefileId(fileid),
+			m_offset(offset),
+			m_size(size) {}
 		ipengine::ipid m_texturefileId;
 		glm::vec2 m_offset;
 		glm::vec2 m_size;
@@ -434,7 +443,6 @@ namespace SCM
 			bool active,
 			//Light params
 			const glm::vec3& color,
-			bool _castShadows,
 			int _shadowResX,
 			int _shadowResY,
 			int _shadowBlurPasses,
@@ -445,7 +453,15 @@ namespace SCM
 			) :
 			Entity(id, transform, boundingdata, boundingbox, active),
 			m_color(color),
-			castShadows(false) //TODO: finish constructor
+			castShadows(true), //TODO: finish constructor
+			shadowResX(_shadowResX),
+			shadowResY(_shadowResY),
+			shadowBlurPasses(_shadowBlurPasses),
+			shadowVarianceBias(_shadowVarianceBias),
+			lightBleedReduction(_lightBleedReduction),
+			shadowMapVolumeMin(_shadowMapVolumeMin),
+			shadowMapVolumeMax(_shadowMapVolumeMax)
+
 		{}
 
 		glm::vec3 getVSDirection(const glm::mat4& viewmat)
