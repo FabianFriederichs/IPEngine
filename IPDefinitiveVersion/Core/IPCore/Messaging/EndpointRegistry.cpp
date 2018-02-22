@@ -25,6 +25,21 @@ void ipengine::EndpointRegistry::destroyEndpoint(MessageEndpoint *& endpoint)
 	}
 }
 
+ipengine::MessageType ipengine::EndpointRegistry::registerMessageType(const ipstring & name)
+{
+	return MessageType();
+}
+
+ipengine::MessageType ipengine::EndpointRegistry::getMessageTypeByName(const ipstring & name)
+{
+	return MessageType();
+}
+
+const ipengine::ipstring & ipengine::EndpointRegistry::getMessageTypeName(MessageType mtype)
+{
+	// TODO: hier Rückgabeanweisung eingeben
+}
+
 ipengine::MessageEndpoint * ipengine::EndpointRegistry::getEndpoint(ipid id)
 {
 	auto it = m_endpoints.find(id);

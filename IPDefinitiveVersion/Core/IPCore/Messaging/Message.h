@@ -18,7 +18,7 @@
 
 namespace ipengine
 {
-	using MessageType = unsigned int;
+	using MessageType = ipuint32;
 	class Message
 	{
 	public:

@@ -9,10 +9,10 @@
 #include <IPCore/Memory/MemoryManager.h>
 
 #include <IPCore/Core/ICoreTypes.h>
-
+//TODO: create core interface and core implementation. Maybe pimpl the whole thing
 namespace ipengine
 {
-	//this interface contains the core functionality
+	//this interface contains the core functionality (what the fuck that sounds wrong)
 	class CORE_API Core
 	{
 	public:
@@ -23,7 +23,7 @@ namespace ipengine
 		void initialize(const iprstr configPath);
 		void run();
 		void shutdown();
-		Time tick(bool& shouldstop);
+		Time tick(bool& shouldstop); //TODO: figure out how to shutdown the engine
 
 		//id stuff
 		ipid createID();
@@ -47,6 +47,7 @@ namespace ipengine
 		//Subsystem implementing class-objects
 		//Question: abtract interface for each subsystem? (This way we could simply publish those interfaces and reduce the uglyness of this header.
 		//TODO: pimpl the core!
+		//idea: pack content of "core modules" and combine them with an interface. only store pointers to these interfaces.
 		ThreadPool* cmodule_threadingservices;
 		Scheduler* cmodule_scheduler;
 		Console* cmodule_console;

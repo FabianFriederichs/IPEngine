@@ -73,8 +73,8 @@ void ipengine::Scheduler::schedule()
 				break;
 			case SubType::Interval:
 				sub->acc += frameTime;
-				if (sub->acc >= sub->interval)
-				{
+				if (sub->acc >= sub->interval) //TODO: use while loop to eat up time in acc per interval, maybe use task continuation for that?
+				{								//then we need to extend the subscription struct. add firsttask and lasttask, wait on lasttask, submit firsttask
 					sub->task.getContext()->get<SchedInfo>().dt = sub->interval;
 					sub->acc -= sub->interval;
 					if (sub->mainThreadOnly)

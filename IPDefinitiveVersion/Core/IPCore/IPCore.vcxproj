@@ -144,6 +144,8 @@
     <ClInclude Include="Core\ICore.h" />
     <ClInclude Include="Core\ICoreTypes.h" />
     <ClInclude Include="core_config.h" />
+    <ClInclude Include="Debug\DebugMonitor.h" />
+    <ClInclude Include="Debug\ErrorHandler.h" />
     <ClInclude Include="Memory\allocators.h" />
     <ClInclude Include="Memory\lowlevel_allocators.h" />
     <ClInclude Include="Memory\MemoryManager.h" />
@@ -174,6 +176,8 @@
   <ItemGroup>
     <ClCompile Include="Config\ConfigManager.cpp" />
     <ClCompile Include="Core\ICore.cpp" />
+    <ClCompile Include="Debug\DebugMonitor.cpp" />
+    <ClCompile Include="Debug\ErrorHandler.cpp" />
     <ClCompile Include="Memory\MemoryManager.cpp" />
     <ClCompile Include="Messaging\EndpointRegistry.cpp" />
     <ClCompile Include="Messaging\MessageEndpoint.cpp" />
