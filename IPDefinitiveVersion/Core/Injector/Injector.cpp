@@ -37,19 +37,21 @@ bool Injector::recursiveInject(DGStuff::Module* mod)
 			}
 			bool correctype = true;
 			correctype = wantedType != "" ? (depType.find(wantedType) != std::string::npos) : true;
-			if (dep->inject && injectee->isStartUp && !d->ignore && correctype) //!optional check, return false if not optional
+			if (dep->inject && injectee->isStartUp && !d->ignore && correctype)
 			{
 				pexinf->dependencies.assignDependency(dep->identifier, injectee);
 			}
 			else
 			{
 				//If dependency is mandatory and couldn't be assigned return without starting up the module
+				//This doesn't really have an effect 
 				if (pexinf->depinfo.count(dep->identifier) && pexinf->depinfo[dep->identifier].isMandatory)
 				{
 					return false;
 				}
 			}
 		}
+		pex->isActive = true;
 		return true;
 	}
 	else
@@ -71,7 +73,7 @@ bool Injector::recursiveInject(DGStuff::Module* mod)
 			}
 			bool correctype = true;
 			correctype = wantedType != "" ? (depType.find(wantedType) != std::string::npos) : true;
-			if (dep->inject && injectee->isStartUp && !d->ignore && correctype) //!optional check, return false if not optional
+			if (dep->inject && injectee->isStartUp && !d->ignore && correctype)
 			{
 				pinf->dependencies.assignDependency(dep->identifier, injectee);
 			}

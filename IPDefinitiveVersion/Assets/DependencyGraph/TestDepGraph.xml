@@ -43,10 +43,10 @@
         <Point>
           <identifier>PreRender</identifier>
           <Extensions>
-            <!--<Extension>
+            <Extension>
               <extensionname>GraphicsModulePreRenderVR</extensionname>
               <priority>0</priority>
-            </Extension>-->
+            </Extension>
           </Extensions>
         </Point>
       </ExtensionPoints>
@@ -56,7 +56,7 @@
       <identifier>InputModule</identifier>
       <dependencies>
         <dependency>
-          <inject>false</inject>
+          <inject>true</inject>
           <identifier>openvr</identifier>
           <moduleID>BasicOpenVRModule</moduleID>
         </dependency>
