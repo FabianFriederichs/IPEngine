@@ -32,7 +32,7 @@
     <Filter Include="CoreModules\Config">
       <UniqueIdentifier>{bbaef9a0-23f6-44ae-b542-e8ea6b7f91df}</UniqueIdentifier>
     </Filter>
-    <Filter Include="CoreModules\Debug">
+    <Filter Include="CoreModules\DebugMonitoring">
       <UniqueIdentifier>{6c8f8cac-ce8e-4d9d-9d91-dbc7ad06f8ed}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -125,11 +125,11 @@
     <ClInclude Include="Config\ConfigManager.h">
       <Filter>CoreModules\Config</Filter>
     </ClInclude>
-    <ClInclude Include="Debug\DebugMonitor.h">
-      <Filter>CoreModules\Debug</Filter>
+    <ClInclude Include="DebugMonitoring\DebugMonitor.h">
+      <Filter>CoreModules\DebugMonitoring</Filter>
     </ClInclude>
-    <ClInclude Include="Debug\ErrorHandler.h">
-      <Filter>CoreModules\Debug</Filter>
+    <ClInclude Include="DebugMonitoring\ErrorHandler.h">
+      <Filter>CoreModules\DebugMonitoring</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -163,11 +163,11 @@
     <ClCompile Include="Config\ConfigManager.cpp">
       <Filter>CoreModules\Config</Filter>
     </ClCompile>
-    <ClCompile Include="Debug\DebugMonitor.cpp">
-      <Filter>CoreModules\Debug</Filter>
+    <ClCompile Include="DebugMonitoring\DebugMonitor.cpp">
+      <Filter>CoreModules\DebugMonitoring</Filter>
     </ClCompile>
-    <ClCompile Include="Debug\ErrorHandler.cpp">
-      <Filter>CoreModules\Debug</Filter>
+    <ClCompile Include="DebugMonitoring\ErrorHandler.cpp">
+      <Filter>CoreModules\DebugMonitoring</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
