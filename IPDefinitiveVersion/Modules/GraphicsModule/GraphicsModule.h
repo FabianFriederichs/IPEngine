@@ -24,6 +24,7 @@ public:
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
 	void render();
+	void render(int fbo, int viewportx, int viewporty) override;
 	void render(ipengine::TaskContext& c);
 	virtual void setCameraEntity(ipengine::ipid v) override;
 	virtual void setFOV(uint32_t v) override;
@@ -52,7 +53,6 @@ private:
 	//camera
 	ipengine::ipid cameraentity = IPID_INVALID;
 	glm::vec4 m_clearcolor = {0.20f, 0.15f, 0.18f, 1.0f};
-	glm::vec4 m_shadowclearcolor = {1.0f, 1.0f, 0.0f, 0.0f};
 	float m_cleardepth = 0.0f;
 	float width = 1280; float height = 720; float znear = 0.1f; float zfar = 100;
 	float m_fov = glm::pi<float>() / 2;
@@ -98,11 +98,12 @@ private:
 
 	//shadow settings
 	bool m_shadows;
-	int m_shadow_res_x;
-	int m_shadow_res_y;
-	int m_shadow_blur_passes;
-	float m_shadow_variance_bias;
-	float m_light_bleed_reduction;
+	//we need multiple rendertargets - one for each directional light
+	std::unordered_map<ipengine::ipid, RenderTargetSet> m_dirLightShadowTargets;
+	std::unordered_map<ipengine::ipid, RenderTargetSet> m_dirLightShadowBlurTargets1;
+	std::unordered_map<ipengine::ipid, RenderTargetSet> m_dirLightShadowBlurTargets2;
+	std::unordered_map<ipengine::ipid, glm::mat4> m_dirLightMatrices;
+	//std::unordered_map<ipengine::ipid, RenderTargetSet> m_dirLightShadowBlur2Targets;
 
 	//environment textures
 	std::shared_ptr<TextureCube> m_cube_envmap;
@@ -148,7 +149,6 @@ private:
 	std::unordered_map <ipengine::ipid, std::shared_ptr<Texture2D>> m_scmtexturetot2d;
 
 	//light matrices
-	glm::mat4 m_dirLightMat;
 	//later a list of light matrices for each shadow light
 
 	//setup --------------------------------------------------------------------------------------------------
@@ -175,11 +175,12 @@ private:
 	void setSceneUniforms(ShaderProgram* shader);
 	void setLightUniforms(ShaderProgram* shader);
 	void setMaterialUniforms(SCM::MaterialData* mdata, ShaderProgram* shader);
+	//TODO:fallback to mesh normal if no tangents are available
 	void drawEntity(SCM::ThreeDimEntity* entity, ShaderProgram* shader);
 	void drawEntityShadow(SCM::ThreeDimEntity* entity, ShaderProgram* shader);
-	void renderDirectionalLightShadowMap();
+	void renderDirectionalLightShadowMap(SCM::DirectionalLight& dirLight);
 	void renderEnvMap();
-	void lightMatDirectionalLight(glm::mat4& view, glm::mat4& proj, SCM::DirectionalLight& dirLight, const glm::vec3& min, const glm::vec3& max);
+	void lightMatDirectionalLight(glm::mat4& view, glm::mat4& proj, SCM::DirectionalLight& dirLight);
 	
 	//helpers ------------------------------------------------------------------------------------------------
 	std::vector<ipengine::ipid> getActiveEntityNames(SCM::ISimpleContentModule_API & scm);

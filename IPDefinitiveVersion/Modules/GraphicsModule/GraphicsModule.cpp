@@ -10,7 +10,9 @@ bool GraphicsModule::_startup()
 
 	//setup
 	setup();
-
+	int mvc;
+	glGetIntegerv(GL_MAX_VARYING_COMPONENTS, &mvc);
+	std::cout << "Max varying components: " << mvc << "\n";
 	//subscribe to scheduler
 	ipengine::Scheduler& sched = m_core->getScheduler();
 	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GraphicsModule, &GraphicsModule::render>(this),
@@ -19,6 +21,41 @@ bool GraphicsModule::_startup()
 		1,
 		&m_core->getThreadPool(),
 		true)
+	);
+	auto lid = m_core->createID();
+	
+	m_scm->getDirLights()[lid] = new SCM::DirectionalLight(
+		lid,
+		SCM::Transform(SCM::TransformData(glm::vec3(5, 5, 5), SCM::ISimpleContentModule_API::dirToQuat(glm::vec3(-1, -1, -1)), glm::vec3(1, 1, 1))),
+		SCM::BoundingData(SCM::BoundingSphere()),
+		false,
+		true,
+		glm::vec3(1, 1, 1),
+		1024,
+		1024,
+		1,
+		1.e-6,
+		0.3,
+		glm::vec3(-5, -5, 40.0f),
+		glm::vec3(5, 5, 0.1f)
+	);
+
+	lid = m_core->createID();
+
+	m_scm->getDirLights()[lid] = new SCM::DirectionalLight(
+		lid,
+		SCM::Transform(SCM::TransformData(glm::vec3(-5, 5, 5), SCM::ISimpleContentModule_API::dirToQuat(glm::vec3(1, -1, -1)), glm::vec3(1, 1, 1))),
+		SCM::BoundingData(SCM::BoundingSphere()),
+		false,
+		true,
+		glm::vec3(0.34, 0.2, 0.2),
+		1024,
+		1024,
+		1,
+		1.e-6,
+		0.3,
+		glm::vec3(-5, -5, 40.0f),
+		glm::vec3(5, 5, 0.1f)
 	);
 	return true;
 }
@@ -37,13 +74,29 @@ void GraphicsModule::render(ipengine::TaskContext & c)
 {
 	updateData();
 
+	static bool first = true;
+	if (first)
+	{
+		first = false;
+		return;
+	}
+
+	if (m_shadows)
+	{
+		//for each dirlight
+		for (auto& dl : m_scm->getDirLights())
+		{
+			renderDirectionalLightShadowMap(*dl.second);
+		}
+	}
+
 	std::vector<ipengine::any> anyvector;
 	anyvector.push_back(static_cast<IGraphics_API*>(this));
 	anyvector.push_back(renderMatrixes({&projmat, &viewmat}));
 	m_info.expoints.execute("PreRender", {"this", "rendermatrixes"}, anyvector);
-	anyvector.clear();
+	anyvector.clear();	
 
-	render();
+	render(0, width, height);
 
 	//render();
 
@@ -56,17 +109,6 @@ void GraphicsModule::render(ipengine::TaskContext & c)
 }
 void GraphicsModule::render()
 {
-	static bool first = true;
-	if (first)
-	{
-		updateData();
-		first = false;
-	}
-	if (m_shadows)
-	{
-		renderDirectionalLightShadowMap();
-	}
-
 	//forward pbr render pass
 	glViewport(0, 0, width, height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -77,7 +119,22 @@ void GraphicsModule::render()
 	//set scene uniforms (view, projection, lights etc..)
 	setSceneUniforms(shader);
 	//render opaque geometry
-	drawScene(shader);	
+	drawScene(shader);
+}
+void GraphicsModule::render(int fbo, int viewportx, int viewporty)
+{
+	//forward pbr render pass
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glViewport(0, 0, viewportx, viewporty);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//render skybox or er map
+	renderEnvMap();
+	auto shader = (m_ibl ? m_s_pbriblforward.get() : m_s_pbrforward.get());
+	shader->use();
+	//set scene uniforms (view, projection, lights etc..)
+	setSceneUniforms(shader);
+	//render opaque geometry
+	drawScene(shader);
 }
 void GraphicsModule::setCameraEntity(ipengine::ipid v)
 {
@@ -123,30 +180,48 @@ void GraphicsModule::getClipRange(float &n, float&f)
 void GraphicsModule::loadShaders()
 {
 	//load forward pbr shader
-	auto vspath = m_core->getConfigManager().getString("graphics.shaders.pbr_forward.vertex");
-	auto fspath = m_core->getConfigManager().getString("graphics.shaders.pbr_forward.fragment");
+	if (m_shadows)
+	{
+		auto vspath = m_core->getConfigManager().getString("graphics.shaders.pbr_forward_shadow.vertex");
+		auto fspath = m_core->getConfigManager().getString("graphics.shaders.pbr_forward_shadow.fragment");
+		m_s_pbrforward = GLUtils::createShaderProgram(vspath, fspath);
+	}
+	else
+	{
+		auto vspath = m_core->getConfigManager().getString("graphics.shaders.pbr_forward.vertex");
+		auto fspath = m_core->getConfigManager().getString("graphics.shaders.pbr_forward.fragment");
+		m_s_pbrforward = GLUtils::createShaderProgram(vspath, fspath);
+	}
 
-	m_s_pbrforward = GLUtils::createShaderProgram(vspath, fspath);
+
 
 	if (m_ibl)
 	{
-		vspath = m_core->getConfigManager().getString("graphics.shaders.pbribl_forward.vertex");
-		fspath = m_core->getConfigManager().getString("graphics.shaders.pbribl_forward.fragment");
-
-		m_s_pbriblforward = GLUtils::createShaderProgram(vspath, fspath);
+		if (m_shadows)
+		{
+			auto vspath = m_core->getConfigManager().getString("graphics.shaders.pbribl_forward_shadow.vertex");
+			auto fspath = m_core->getConfigManager().getString("graphics.shaders.pbribl_forward_shadow.fragment");
+			m_s_pbriblforward = GLUtils::createShaderProgram(vspath, fspath);
+		}
+		else
+		{
+			auto vspath = m_core->getConfigManager().getString("graphics.shaders.pbribl_forward.vertex");
+			auto fspath = m_core->getConfigManager().getString("graphics.shaders.pbribl_forward.fragment");
+			m_s_pbriblforward = GLUtils::createShaderProgram(vspath, fspath);
+		}
 
 		if (m_ibldiffuse)
 		{
-			vspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.irradiance.vertex");
-			fspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.irradiance.fragment");
+			auto vspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.irradiance.vertex");
+			auto fspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.irradiance.fragment");
 			auto gspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.irradiance.geometry");
 
 			m_s_ibldiff = GLUtils::createShaderProgram(vspath, fspath, gspath);
 		}
 		if (m_iblspecular)
 		{
-			vspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.specular.vertex");
-			fspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.specular.fragment");
+			auto vspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.specular.vertex");
+			auto fspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.specular.fragment");
 			auto gspath = m_core->getConfigManager().getString("graphics.shaders.iblgen.specular.geometry");
 
 			m_s_iblspec = GLUtils::createShaderProgram(vspath, fspath, gspath);
@@ -160,8 +235,8 @@ void GraphicsModule::loadShaders()
 
 	if (m_shadows)
 	{
-		vspath = m_core->getConfigManager().getString("graphics.shaders.shadow.vertex");
-		fspath = m_core->getConfigManager().getString("graphics.shaders.shadow.fragment");
+		auto vspath = m_core->getConfigManager().getString("graphics.shaders.shadow.vertex");
+		auto fspath = m_core->getConfigManager().getString("graphics.shaders.shadow.fragment");
 
 		m_s_shadow = GLUtils::createShaderProgram(vspath, fspath);
 
@@ -171,8 +246,8 @@ void GraphicsModule::loadShaders()
 		m_s_gblur = GLUtils::createShaderProgram(vspath, fspath);
 	}
 
-	vspath = m_core->getConfigManager().getString("graphics.shaders.envconv.vertex");
-	fspath = m_core->getConfigManager().getString("graphics.shaders.envconv.fragment");
+	auto vspath = m_core->getConfigManager().getString("graphics.shaders.envconv.vertex");
+	auto fspath = m_core->getConfigManager().getString("graphics.shaders.envconv.fragment");
 	auto gspath = m_core->getConfigManager().getString("graphics.shaders.envconv.geometry");
 	m_s_envconv = GLUtils::createShaderProgram(vspath, fspath, gspath);
 
@@ -189,7 +264,7 @@ void GraphicsModule::setupFrameBuffers()
 	//shadow map
 	if (m_shadows)
 	{
-		FrameBufferDesc sfbd{
+		/*FrameBufferDesc sfbd{
 			{
 				RenderTargetDesc{
 					m_shadow_res_x,
@@ -206,23 +281,23 @@ void GraphicsModule::setupFrameBuffers()
 				GL_DEPTH_STENCIL_ATTACHMENT,
 				RenderTargetType::RenderBuffer
 			}
-		};
-		m_fb_shadow = GLUtils::createFrameBuffer(sfbd);
+		};*/
+		m_fb_shadow = GLUtils::createFrameBuffer();
 		//shadow map blur
-		FrameBufferDesc bfbd{
-			{
-				RenderTargetDesc{
-					m_shadow_res_x,
-					m_shadow_res_y,
-					GL_RG32F,
-					GL_COLOR_ATTACHMENT0,
-					RenderTargetType::Texture2D
-				}
-			},
-			RenderTargetDesc{} //empty: no depth test needed
-		};
-		m_fb_gblur1 = GLUtils::createFrameBuffer(bfbd);
-		m_fb_gblur2 = GLUtils::createFrameBuffer(bfbd);
+		//FrameBufferDesc bfbd{
+		//	{
+		//		RenderTargetDesc{
+		//			m_shadow_res_x,
+		//			m_shadow_res_y,
+		//			GL_RG32F,
+		//			GL_COLOR_ATTACHMENT0,
+		//			RenderTargetType::Texture2D
+		//		}
+		//	},
+		//	RenderTargetDesc{} //empty: no depth test needed
+		//};
+		m_fb_gblur1 = GLUtils::createFrameBuffer();
+		m_fb_gblur2 = GLUtils::createFrameBuffer();
 	}
 	//convenv
 	FrameBufferDesc fbconvenv{
@@ -322,7 +397,7 @@ void GraphicsModule::renderIBLMaps()
 		m_s_ibldiff->setUniform("u_sample_delta", m_irradiance_sample_delta); GLERR
 		Primitives::drawNDCCube(); GLERR
 		m_fb_iblgenirradiance->unbind(GL_FRAMEBUFFER); GLERR
-		m_ot_irradiance = m_fb_iblgenirradiance->colorTargets[0].ctex;
+		m_ot_irradiance = m_fb_iblgenirradiance->rtset.colorTargets[0].ctex;
 		m_ot_irradiance->setTexParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
 	}
 
@@ -361,7 +436,7 @@ void GraphicsModule::renderIBLMaps()
 			Primitives::drawNDCCube(); GLERR
 		}
 		m_fb_iblgenspecular->unbind(GL_FRAMEBUFFER); GLERR
-		m_ot_specularradiance = m_fb_iblgenspecular->colorTargets[0].ctex;
+		m_ot_specularradiance = m_fb_iblgenspecular->rtset.colorTargets[0].ctex;
 		m_ot_specularradiance->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
 		m_fb_iblgenspecular.reset();
 
@@ -373,7 +448,7 @@ void GraphicsModule::renderIBLMaps()
 		m_s_iblbrdf->setUniform("u_brdfsamples", static_cast<GLuint>(m_brdfsamples));
 		Primitives::drawNDCQuad();
 		m_fb_iblgenbrdf->unbind(GL_FRAMEBUFFER); GLERR
-		m_ot_brdfresponse = m_fb_iblgenbrdf->colorTargets[0].tex;
+		m_ot_brdfresponse = m_fb_iblgenbrdf->rtset.colorTargets[0].tex;
 		m_ot_brdfresponse->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
 
 		m_fb_iblgenbrdf.reset();
@@ -453,11 +528,11 @@ void GraphicsModule::readSettings()
 
 	//shadow settings
 	m_shadows = m_core->getConfigManager().getBool("graphics.lighting.shadows.enable_shadows");
-	m_shadow_res_x = m_core->getConfigManager().getInt("graphics.lighting.shadows.res.x");
+	/*m_shadow_res_x = m_core->getConfigManager().getInt("graphics.lighting.shadows.res.x");
 	m_shadow_res_y = m_core->getConfigManager().getInt("graphics.lighting.shadows.res.y");
 	m_shadow_blur_passes = m_core->getConfigManager().getInt("graphics.lighting.shadows.blur_passes");
 	m_shadow_variance_bias = static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.shadows.variance_bias"));
-	m_light_bleed_reduction = static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.shadows.light_bleed_reduction"));
+	m_light_bleed_reduction = static_cast<float>(m_core->getConfigManager().getFloat("graphics.lighting.shadows.light_bleed_reduction"));*/
 
 	//env map
 	m_display_envmap = m_core->getConfigManager().getBool("graphics.envmap.display");
@@ -591,7 +666,7 @@ void GraphicsModule::convertEnvMap()
 	Primitives::drawNDCCube(); GLERR
 	glFinish(); GLERR
 	m_fb_envconv->unbind(GL_FRAMEBUFFER); GLERR
-	m_cube_envmap = m_fb_envconv->colorTargets[0].ctex;
+	m_cube_envmap = m_fb_envconv->rtset.colorTargets[0].ctex;
 	m_cube_envmap->bind();
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);		
 	m_cube_envmap->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
@@ -696,6 +771,8 @@ void GraphicsModule::updateData()
 				else if (mesh->m_dynamic && mesh->m_dirty)//update dynamic meshes
 				{
 					auto& vao = m_scmmeshtovao[mesh->m_meshId];
+					mesh->updateNormals();
+					mesh->updateTangents();
 					GLUtils::updateVAO(vao, *mesh);
 				}
 				if (m_scmshadertoprogram.count(mesh->m_material->m_shaderId) < 1)
@@ -765,34 +842,33 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 	auto& pointlights = m_scm->getPointLights();
 	auto& spotlights = m_scm->getSpotLights();
 
-	//for now hacked dir light shadow
-	if (m_shadows)
-	{
-		//TODO: remove that and pack into dirlight
-		shader->setUniform("u_enableShadows", 1);
-		shader->setUniform("u_light_matrix", m_dirLightMat, false);
-		m_ot_shadowmap->setTexParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, m_mtexMaxAnisoLevel);
-		m_ot_shadowmap->bind(7);
-		shader->setUniform("u_shadowMap", 7);
-		shader->setUniform("u_shadowVarianceBias", m_shadow_variance_bias);
-		shader->setUniform("u_lightBleedReduction", m_light_bleed_reduction);
-	}
-	else
-	{
-		shader->setUniform("u_enableShadows", 0);
-	}
-
 	int lc = 0;
 	//somehow store shadow stuff in light structs and set that too
 	for (auto dl : dirlights)
 	{
-		shader->setUniform(("u_directionslLights[" + std::to_string(lc) + "].color").c_str(), dl.second->m_color);
-		shader->setUniform(("u_directionslLights[" + std::to_string(lc) + "].direction").c_str(), dl.second->getVSDirection(viewmat));
-		++lc;
+		if (m_shadows)
+		{
+			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].color").c_str(), dl.second->m_color);
+			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].direction").c_str(), dl.second->getVSDirection(viewmat));
+			shader->setUniform(("u_light_matrix[" + std::to_string(lc) + "]").c_str(), m_dirLightMatrices[dl.second->m_entityId], false);
+			shader->bindTex(("u_directionalLights[" + std::to_string(lc) + "].shadowMap").c_str(),
+							dl.second->shadowBlurPasses > 0 ? m_dirLightShadowBlurTargets2[dl.second->m_entityId].colorTargets[0].tex.get() : m_dirLightShadowTargets[dl.second->m_entityId].colorTargets[0].tex.get());
+			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].shadowVarianceBias").c_str(), dl.second->shadowVarianceBias);
+			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].lightBleedReduction").c_str(), dl.second->lightBleedReduction);
+			++lc;
+		}
+		else
+		{
+			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].color").c_str(), dl.second->m_color);
+			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].direction").c_str(), dl.second->getVSDirection(viewmat));
+			++lc;
+		}
 		if (lc >= m_max_dirlights)
 			break;
 	}
 	shader->setUniform("u_dirLightCount", lc);
+	if(m_shadows)
+		shader->setUniform("u_num_light_matrices", lc);
 
 	lc = 0;
 	for (auto pl : pointlights)
@@ -855,14 +931,20 @@ void GraphicsModule::drawEntity(SCM::ThreeDimEntity * entity, ShaderProgram* sha
 {
 	//set per entity uniforms
 	const glm::mat4& transformMat = entity->m_transformData.getData()->m_transformMatrix;
-	shader->setUniform("u_model_matrix", transformMat, false);
-
+	shader->setUniform("u_model_matrix", transformMat, false);	
 	//draw all meshes
+	
 	for (auto m : entity->m_mesheObjects->m_meshes)
 	{
 		//TODO:: optimization! create batches of meshes with the same material
+		auto ctu = shader->getCurrentTU();
 		setMaterialUniforms(m->m_material, shader);
+		if (m->m_isdoublesided)
+			glDisable(GL_CULL_FACE);
+		else
+			glEnable(GL_CULL_FACE);
 		drawSCMMesh(m->m_meshId);
+		shader->resetTU(ctu);
 	}
 }
 void GraphicsModule::drawEntityShadow(SCM::ThreeDimEntity * entity, ShaderProgram* shader)
@@ -874,62 +956,129 @@ void GraphicsModule::drawEntityShadow(SCM::ThreeDimEntity * entity, ShaderProgra
 	//draw all meshes
 	for (auto m : entity->m_mesheObjects->m_meshes)
 	{
+		if (m->m_isdoublesided)
+			glDisable(GL_CULL_FACE);
+		else
+			glEnable(GL_CULL_FACE);
 		drawSCMMesh(m->m_meshId);
 	}
 }
-void GraphicsModule::renderDirectionalLightShadowMap(/*SCM::DirectionalLight& dirLight, vec3 max, vec3 min*/)
+void GraphicsModule::renderDirectionalLightShadowMap(SCM::DirectionalLight& dirLight)
 {
-	glm::mat4 lightView;
-	glm::mat4 lightProj;
-
-	//for testing: handcraft the matrices
-	lightProj = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, 0.1f, 100.0f);
-	lightView = glm::lookAt(glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-	m_dirLightMat = lightProj * lightView;
-	//later do that:
-	//lightMatDirectionalLight(lightView, lightProj, dirLight, max, min);
+	if (m_dirLightShadowTargets.find(dirLight.m_entityId) == m_dirLightShadowTargets.end())
+	{
+		//create rendertargetset for this light
+		FrameBufferDesc sfbd{
+			{
+				RenderTargetDesc{
+					dirLight.shadowResX,
+					dirLight.shadowResY,
+					GL_RG32F,
+					GL_COLOR_ATTACHMENT0,
+					RenderTargetType::Texture2D
+				}
+			},
+			RenderTargetDesc{
+				dirLight.shadowResX,
+				dirLight.shadowResY,
+				GL_DEPTH24_STENCIL8,
+				GL_DEPTH_STENCIL_ATTACHMENT,
+				RenderTargetType::RenderBuffer
+			}
+		};
+		m_dirLightShadowTargets[dirLight.m_entityId] = GLUtils::createRenderTargetSet(sfbd);
+	}
+	if (m_dirLightMatrices.find(dirLight.m_entityId) == m_dirLightMatrices.end())
+	{
+		glm::mat4 lightView;
+		glm::mat4 lightProj;
+		lightMatDirectionalLight(lightView, lightProj, dirLight);
+		auto dirLightMat = lightProj * lightView;
+		m_dirLightMatrices[dirLight.m_entityId] = dirLightMat;
+	}
+	
 	//render scene into shadow map
 	m_fb_shadow->bind(GL_FRAMEBUFFER);
-	glClearColor(m_shadowclearcolor.r, m_shadowclearcolor.g, m_shadowclearcolor.b, m_shadowclearcolor.a);
+	m_fb_shadow->attachRenderTargetSet(m_dirLightShadowTargets[dirLight.m_entityId]);
+	glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, m_shadow_res_x, m_shadow_res_y);
+	glViewport(0, 0, dirLight.shadowResX, dirLight.shadowResY);
 	m_s_shadow->use();
-	m_s_shadow->setUniform("u_light_matrix", m_dirLightMat, false);
+	m_s_shadow->setUniform("u_light_matrix", m_dirLightMatrices[dirLight.m_entityId], false);
 	drawSceneShadow(m_s_shadow.get());	
-	if (m_shadow_blur_passes <= 0)
+	if (dirLight.shadowBlurPasses <= 0)
 	{
 		m_fb_shadow->unbind(GL_FRAMEBUFFER);
-		m_ot_shadowmap = m_fb_shadow->colorTargets[0].tex;
 		setDefaultGLState();
-		GLERR
 		return;
 	}
 	//blur shadow map
+	if (m_dirLightShadowBlurTargets1.find(dirLight.m_entityId) == m_dirLightShadowBlurTargets1.end())
+	{
+		//create blur rendertargetset
+		FrameBufferDesc sfbd{
+			{
+				RenderTargetDesc{
+					dirLight.shadowResX,
+					dirLight.shadowResY,
+					GL_RG32F,
+					GL_COLOR_ATTACHMENT0,
+					RenderTargetType::Texture2D
+				}
+			},
+		};
+		m_dirLightShadowBlurTargets1[dirLight.m_entityId] = GLUtils::createRenderTargetSet(sfbd);
+	}
+
+	if (m_dirLightShadowBlurTargets2.find(dirLight.m_entityId) == m_dirLightShadowBlurTargets2.end())
+	{
+		//create blur rendertargetset
+		FrameBufferDesc sfbd{
+			{
+				RenderTargetDesc{
+					dirLight.shadowResX,
+					dirLight.shadowResY,
+					GL_RG32F,
+					GL_COLOR_ATTACHMENT0,
+					RenderTargetType::Texture2D
+				}
+			},
+		};
+		m_dirLightShadowBlurTargets2[dirLight.m_entityId] = GLUtils::createRenderTargetSet(sfbd);
+	}
+
 	m_s_gblur->use();
 	glDisable(GL_DEPTH_TEST);
+
+	
+	//attach rendertargetset from shadow render pass but deactivate depth target
+	auto& blurRT1 = m_dirLightShadowBlurTargets1[dirLight.m_entityId];
+	auto& blurRT2 = m_dirLightShadowBlurTargets2[dirLight.m_entityId];
+	m_fb_gblur1->bind(GL_FRAMEBUFFER);
+	m_fb_gblur1->attachRenderTargetSet(blurRT1);
+	m_fb_gblur2->bind(GL_FRAMEBUFFER);
+	m_fb_gblur2->attachRenderTargetSet(blurRT2);
 	int currentFB = 1;
-	for (int i = 0; i < m_shadow_blur_passes; ++i)
+	for (int i = 0; i < dirLight.shadowBlurPasses; ++i)
 	{
 		//blur horizontal
 		m_fb_gblur1->bind(GL_FRAMEBUFFER);		
 		glClear(GL_COLOR_BUFFER_BIT);
 		if (i == 0)		
-			m_fb_shadow->colorTargets[0].tex->bind(0);		
+			m_fb_shadow->rtset.colorTargets[0].tex->bind(0);
 		else		
-			m_fb_gblur2->colorTargets[0].tex->bind(0);		
+			m_fb_gblur2->rtset.colorTargets[0].tex->bind(0);
 		m_s_gblur->setUniform("u_input", 0);
 		m_s_gblur->setUniform("u_horizontal", 1);
 		Primitives::drawNDCQuad();
 		//blur vertical
-		m_fb_gblur2->bind(GL_FRAMEBUFFER);
+		m_fb_gblur2->bind(GL_FRAMEBUFFER);		
 		glClear(GL_COLOR_BUFFER_BIT);
-		m_fb_gblur1->colorTargets[0].tex->bind(0);
+		m_fb_gblur1->rtset.colorTargets[0].tex->bind(0);
 		m_s_gblur->setUniform("u_input", 0);
 		m_s_gblur->setUniform("u_horizontal", 0);
 		Primitives::drawNDCQuad();
 	}
-	m_ot_shadowmap = m_fb_gblur2->colorTargets[0].tex;
 	m_fb_gblur2->unbind(GL_FRAMEBUFFER);
 	setDefaultGLState();
 	GLERR
@@ -1007,10 +1156,11 @@ void GraphicsModule::recalcProj()
 {
 	projmat = glm::perspective(m_fov, width / height, znear, zfar);
 }
-void GraphicsModule::lightMatDirectionalLight(glm::mat4& view, glm::mat4& proj, SCM::DirectionalLight& dirLight, const glm::vec3& min, const glm::vec3& max)
+void GraphicsModule::lightMatDirectionalLight(glm::mat4& view, glm::mat4& proj, SCM::DirectionalLight& dirLight)
 {
 	//hmm rework later
-	proj = glm::ortho(min.x, max.x, min.y, max.y, max.z, min.z);
+	dirLight.m_transformData.setData()->updateTransform();
+	proj = glm::ortho(dirLight.shadowMapVolumeMin.x, dirLight.shadowMapVolumeMax.x, dirLight.shadowMapVolumeMin.y, dirLight.shadowMapVolumeMax.y, dirLight.shadowMapVolumeMax.z, dirLight.shadowMapVolumeMin.z);// dirLight.shadowMapVolumeMax.z, dirLight.shadowMapVolumeMin.z);
 	view = ViewFromTransData(dirLight.m_transformData.getData());
 }
 //helpers ---------------------------------------------------------------------------------------------------------------------

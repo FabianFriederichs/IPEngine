@@ -6,6 +6,7 @@ class IGraphics_API : public IModule_API
 {
 public:
 	virtual void render() = 0;
+	virtual void render(int fbo, int viewportx, int viewporty) = 0;
 	virtual void setCameraEntity(ipengine::ipid) = 0;
 	virtual void setFOV(uint32_t) = 0;
 	virtual void setResolution(uint32_t, uint32_t) = 0;

@@ -38,6 +38,7 @@ ipengine::MessageType ipengine::EndpointRegistry::getMessageTypeByName(const ips
 const ipengine::ipstring & ipengine::EndpointRegistry::getMessageTypeName(MessageType mtype)
 {
 	// TODO: hier Rückgabeanweisung eingeben
+	return IPID_INVALID;
 }
 
 ipengine::MessageEndpoint * ipengine::EndpointRegistry::getEndpoint(ipid id)

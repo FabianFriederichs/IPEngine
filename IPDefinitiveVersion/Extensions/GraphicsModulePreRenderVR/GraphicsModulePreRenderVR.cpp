@@ -395,7 +395,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	auto proj = convert(ovrmodule->getSystem()->GetProjectionMatrix(vr::EVREye::Eye_Left, znear,zfar));
 	*matrices.view= glm::inverse(glm::mat4(convert(ovrmodule->getSystem()->GetEyeToHeadTransform(vr::EVREye::Eye_Left)))) * hmdView;
 	*matrices.proj= proj;
-	graphicsmodule->render();
+	graphicsmodule->render(leftEyeDesc.m_nRenderFramebufferId, renderWidth, renderHeight);
 
 	resolveFB(leftEyeDesc.m_nRenderFramebufferId, leftEyeDesc.m_nResolveFramebufferId, renderWidth, renderHeight);
 
@@ -405,7 +405,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	proj = convert(ovrmodule->getSystem()->GetProjectionMatrix(vr::EVREye::Eye_Right, znear, zfar));
 	*matrices.view = glm::inverse(glm::mat4(convert(ovrmodule->getSystem()->GetEyeToHeadTransform(vr::EVREye::Eye_Right)))) * hmdView;
 	*matrices.proj = proj;
-	graphicsmodule->render();
+	graphicsmodule->render(rightEyeDesc.m_nRenderFramebufferId, renderWidth, renderHeight);
 
 	resolveFB(rightEyeDesc.m_nRenderFramebufferId, rightEyeDesc.m_nResolveFramebufferId, renderWidth, renderHeight);
 

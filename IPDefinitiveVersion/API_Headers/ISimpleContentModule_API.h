@@ -249,7 +249,99 @@ namespace SCM
 		ipengine::ipid m_meshId;
 		bool m_dynamic;
 		bool m_dirty;
+		bool m_isdoublesided;
+		//TODO: buffer intermediate data and write to actual mesh data at the end
+		void updateNormals()
+		{
+			for (size_t i = 0; i < m_vertices.getData().size(); ++i)
+			{
+				m_vertices.setData()[i].m_normal = glm::vec3(0.0f);
+			}
+			//sum up normals
+			for (size_t i = 0; i < m_indices.size(); i += 3)
+			{
+				glm::vec3 v1 = m_vertices.getData()[m_indices[i]].m_position;
+				glm::vec3 v2 = m_vertices.getData()[m_indices[i + 1]].m_position;
+				glm::vec3 v3 = m_vertices.getData()[m_indices[i + 2]].m_position;
 
+				//counter clockwise winding
+				glm::vec3 edge1 = v2 - v1;
+				glm::vec3 edge2 = v3 - v1;
+
+				glm::vec3 normal = glm::cross(edge1, edge2);
+
+				//for each Vertex all corresponing normals are added. The result is a non unit length vector wich is the weighted average direction of all assigned normals.
+				m_vertices.setData()[m_indices[i]].m_normal += normal;
+				m_vertices.setData()[m_indices[i + 1]].m_normal += normal;
+				m_vertices.setData()[m_indices[i + 2]].m_normal += normal;
+			}
+			//normalize them in shader
+		}
+		//TODO: buffer intermediate data and write to actual mesh data at the end
+		void updateTangents()
+		{
+			//initialize tangents and bitangents with nullvecs
+			for (size_t i = 0; i < m_vertices.getData().size(); ++i)
+			{
+				m_vertices.setData()[i].m_tangent = glm::vec3(0.0f, 0.0f, 0.0f);
+			}
+
+			float det;
+			glm::vec3 tangent;
+			glm::vec3 normal;
+
+			//calculate and average tangents and bitangents just as we did when calculating the normals
+			for (size_t i = 0; i < m_indices.size(); i += 3)
+			{
+				//3 vertices of a triangle
+				glm::vec3 v1 = m_vertices.getData()[m_indices[i]].m_position;
+				glm::vec3 v2 = m_vertices.getData()[m_indices[i + 1]].m_position;
+				glm::vec3 v3 = m_vertices.getData()[m_indices[i + 2]].m_position;
+
+				//uvs
+				glm::vec2 uv1 = m_vertices.getData()[m_indices[i]].m_uv;
+				glm::vec2 uv2 = m_vertices.getData()[m_indices[i + 1]].m_uv;
+				glm::vec2 uv3 = m_vertices.getData()[m_indices[i + 2]].m_uv;
+
+				//calculate edges in counter clockwise winding order
+				glm::vec3 edge1 = v2 - v1;
+				glm::vec3 edge2 = v3 - v1;
+
+				//deltaus and deltavs
+				glm::vec2 duv1 = uv2 - uv1;
+				glm::vec2 duv2 = uv3 - uv1;
+
+				det = duv1.x * duv2.y - duv2.x * duv1.y;
+
+				if (fabs(det) < 1e-6f)		//if delta stuff is close to nothing ignore it
+				{
+					tangent = glm::vec3(1.0f, 0.0f, 0.0f);
+				}
+				else
+				{
+					det = 1.0f / det;
+
+					tangent.x = det * (duv2.y * edge1.x - duv1.y * edge2.x);
+					tangent.y = det * (duv2.y * edge1.y - duv1.y * edge2.y);
+					tangent.z = det * (duv2.y * edge1.z - duv1.y * edge2.z);
+				}
+
+				m_vertices.setData()[m_indices[i]].m_tangent += tangent;
+				m_vertices.setData()[m_indices[i + 1]].m_tangent += tangent;
+				m_vertices.setData()[m_indices[i + 2]].m_tangent += tangent;
+			}
+
+			//orthogonalize and normalize tangents
+			for (size_t i = 0; i < m_vertices.getData().size(); i++)
+			{
+				//normalize the stuff from before
+				m_vertices.setData()[i].m_normal = glm::normalize(m_vertices.getData()[i].m_normal);
+				m_vertices.setData()[i].m_tangent = glm::normalize(m_vertices.getData()[i].m_tangent);
+
+				//gram schmidt reorthogonalize normal-tangent system
+				m_vertices.setData()[i].m_tangent = glm::normalize(m_vertices.getData()[i].m_tangent - (glm::dot(m_vertices.getData()[i].m_normal, m_vertices.getData()[i].m_tangent) * m_vertices.getData()[i].m_normal));
+			}
+		}
 	};
 	
 	class MeshedObject
@@ -578,6 +670,63 @@ namespace SCM
 	class ISimpleContentModule_API : public IModule_API
 	{
 	public:
+		//helpers
+		//assume (0, 0, -1) as default front vector
+		static glm::quat dirToQuat(const glm::vec3& direction)
+		{
+			glm::quat r1 = RotationBetweenVectors(glm::vec3(0, 0, -1), direction);
+
+			glm::vec3 right = glm::cross(direction, glm::vec3(0, 1, 0));
+			glm::vec3 desiredUp = glm::cross(right, direction);
+
+			glm::vec3 newUp = r1 * glm::vec3(0.0f, 1.0f, 0.0f);
+			glm::quat r2 = RotationBetweenVectors(newUp, desiredUp);
+
+			return r2 * r1;
+		}
+
+		//from opengl-tutorial.org: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/#quaternions
+		static glm::quat RotationBetweenVectors(const glm::vec3& _start, const glm::vec3& _dest)
+		{
+			glm::vec3 start = glm::normalize(_start);
+			glm::vec3 dest = glm::normalize(_dest);
+
+			float cosTheta = glm::dot(start, dest);
+			glm::vec3 rotationAxis;
+
+			if (cosTheta < -1 + 0.001f)
+			{
+				// special case when vectors in opposite directions:
+				// there is no "ideal" rotation axis
+				// So guess one; any will do as long as it's perpendicular to start
+				rotationAxis = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), start);
+				if (glm::length2(rotationAxis) < 0.01) // bad luck, they were parallel, try again!
+					rotationAxis = glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), start);
+
+				rotationAxis = glm::normalize(rotationAxis);
+				return glm::angleAxis(glm::radians(180.0f), rotationAxis);
+			}
+
+			rotationAxis = glm::cross(start, dest);
+
+			float s = glm::sqrt((1 + cosTheta) * 2);
+			float invs = 1 / s;
+
+			return glm::quat(
+				s * 0.5f,
+				rotationAxis.x * invs,
+				rotationAxis.y * invs,
+				rotationAxis.z * invs
+			);
+
+		}
+
+		//assume (0, 0, -1) as default front vector
+		static glm::vec3 quatToDir(const glm::quat& quaternion)
+		{
+			return quaternion * glm::vec3(0, 0, -1);
+		}
+
 		virtual void Swap()
 		{
 			for (auto& ent : entities)

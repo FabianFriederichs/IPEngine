@@ -621,27 +621,27 @@ void PhysicsModule::updateMesh(Cloth* cloth)
 	{
 		mesh->m_vertices.setData()[i].m_position = readbuf[i].m_position;
 		//cloth->m_vertices[i].m_color = glm::vec3(static_cast<float>(readbuf[i].m_fixdistance) / static_cast<float>(cloth->m_width));
-		mesh->m_vertices.setData()[i].m_normal = glm::vec3(0.0f, 0.0f, 0.0f);
+		//mesh->m_vertices.setData()[i].m_normal = glm::vec3(0.0f, 0.0f, 0.0f);
 	}
 
-	//sum up normals
-	for (size_t i = 0; i < mesh->m_indices.size(); i += 3)
-	{
-		glm::vec3 v1 = mesh->m_vertices.getData()[mesh->m_indices[i]].m_position;
-		glm::vec3 v2 = mesh->m_vertices.getData()[mesh->m_indices[i + 1]].m_position;
-		glm::vec3 v3 = mesh->m_vertices.getData()[mesh->m_indices[i + 2]].m_position;
+	////sum up normals
+	//for (size_t i = 0; i < mesh->m_indices.size(); i += 3)
+	//{
+	//	glm::vec3 v1 = mesh->m_vertices.getData()[mesh->m_indices[i]].m_position;
+	//	glm::vec3 v2 = mesh->m_vertices.getData()[mesh->m_indices[i + 1]].m_position;
+	//	glm::vec3 v3 = mesh->m_vertices.getData()[mesh->m_indices[i + 2]].m_position;
 
-		//counter clockwise winding
-		glm::vec3 edge1 = v2 - v1;
-		glm::vec3 edge2 = v3 - v1;
+	//	//counter clockwise winding
+	//	glm::vec3 edge1 = v2 - v1;
+	//	glm::vec3 edge2 = v3 - v1;
 
-		glm::vec3 normal = glm::cross(edge1, edge2);
+	//	glm::vec3 normal = glm::cross(edge1, edge2);
 
-		//for each Vertex all corresponing normals are added. The result is a non unit length vector wich is the weighted average direction of all assigned normals.
-		mesh->m_vertices.setData()[mesh->m_indices[i]].m_normal += normal;
-		mesh->m_vertices.setData()[mesh->m_indices[i + 1]].m_normal += normal;
-		mesh->m_vertices.setData()[mesh->m_indices[i + 2]].m_normal += normal;
-	}
+	//	//for each Vertex all corresponing normals are added. The result is a non unit length vector wich is the weighted average direction of all assigned normals.
+	//	mesh->m_vertices.setData()[mesh->m_indices[i]].m_normal += normal;
+	//	mesh->m_vertices.setData()[mesh->m_indices[i + 1]].m_normal += normal;
+	//	mesh->m_vertices.setData()[mesh->m_indices[i + 2]].m_normal += normal;
+	//}
 	mesh->m_dirty = true;
 	//normalize normals
 	//Very costly on cpu. Let the vertex shader do this job!	
@@ -924,6 +924,7 @@ ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 	mdata.m_vertices.setData().swap(m_vertices);
 	mdata.m_dynamic = true;
 	mdata.m_dirty = false;
+	mdata.m_isdoublesided = true;
 	
 	mdata.m_material = &contentmodule->getMaterials().front();
 

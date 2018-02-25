@@ -23,6 +23,7 @@ class RenderBuffer;
 class FrameBuffer;
 struct FrameBufferDesc;
 struct RenderTargetDesc;
+struct RenderTargetSet;
 
 class GLUtils
 {
@@ -58,8 +59,10 @@ public:
 	static RenderTarget createRenderTargetRbuf(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment);
 	static RenderTarget createRenderTargetTex(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment, int miplevels = 1);
 	static RenderTarget createRenderTargetCube(GLsizei width, GLsizei height, GLenum internalformat, GLenum attachment, int miplevels = 1);
-	static std::shared_ptr<FrameBuffer> createFrameBuffer(std::vector<RenderTarget> colorTargets, RenderTarget depthTarget);
+	static std::shared_ptr<FrameBuffer> createFrameBuffer(const RenderTargetSet& rtset);
 	static std::shared_ptr<FrameBuffer> createFrameBuffer(const FrameBufferDesc& fdesc);
+	static std::shared_ptr<FrameBuffer> createFrameBuffer();
+	static RenderTargetSet createRenderTargetSet(const FrameBufferDesc& fdesc);
 	static bool checkFBO(GLenum* result);
 
 private:
@@ -130,6 +133,8 @@ public:
 
 	bool bindTex(const char* name, Texture2D* tex);
 	bool bindTex(const char* name, TextureCube* tex);
+	void resetTU(int newCurrentTU = 0);
+	int getCurrentTU();
 
 	bool setUniform(const char* name, GLfloat value);
 	bool setUniform(const char* name, const glm::vec2& value);
@@ -182,6 +187,18 @@ inline bool ShaderProgram::bindTex(const char * name, TextureCube * tex)
 	}
 	return false;
 }
+
+inline void ShaderProgram::resetTU(int newCurrentTU)
+{
+	currentTu = newCurrentTU;
+}
+
+inline int ShaderProgram::getCurrentTU()
+{
+	return currentTu;
+}
+
+
 
 inline bool ShaderProgram::setUniform(const char* name, GLfloat value)
 {
@@ -386,7 +403,8 @@ public:
 		type(RenderTargetType::Empty),
 		width(0),
 		height(0),
-		miplevels(0)
+		miplevels(0),
+		active(false)
 	{}
 	~RenderTarget()
 	{}
@@ -396,7 +414,8 @@ public:
 		type(RenderTargetType::Texture2D),
 		width(_width),
 		height(_height),
-		miplevels(_miplevels)
+		miplevels(_miplevels),
+		active(true)
 	{}
 	RenderTarget(std::shared_ptr<RenderBuffer> _rb, GLenum _attachment, GLsizei _width, GLsizei _height) :
 		rb(_rb),
@@ -404,7 +423,8 @@ public:
 		type(RenderTargetType::RenderBuffer),
 		width(_width),
 		height(_height),
-		miplevels(1)
+		miplevels(1),
+		active(true)
 	{}
 	RenderTarget(std::shared_ptr<TextureCube> _ctex, GLenum _attachment, GLsizei _width, GLsizei _height, GLsizei _miplevels = 1) :
 		ctex(_ctex),
@@ -412,7 +432,8 @@ public:
 		type(RenderTargetType::TextureCube),
 		width(_width),
 		height(_height),
-		miplevels(_miplevels)
+		miplevels(_miplevels),
+		active(true)
 	{}
 	RenderTarget(const RenderTarget& other) 
 	{
@@ -423,6 +444,7 @@ public:
 			width = other.width;
 			height = other.height;
 			miplevels = other.miplevels;
+			active = other.active;
 		}
 		if (other.type == RenderTargetType::Texture2D)
 		{
@@ -432,6 +454,7 @@ public:
 			width = other.width;
 			height = other.height;
 			miplevels = other.miplevels;
+			active = other.active;
 		}
 		else if (other.type == RenderTargetType::RenderBuffer)
 		{
@@ -441,6 +464,7 @@ public:
 			width = other.width;
 			height = other.height;
 			miplevels = other.miplevels;
+			active = other.active;
 		}
 		else if (other.type == RenderTargetType::TextureCube)
 		{
@@ -450,6 +474,7 @@ public:
 			width = other.width;
 			height = other.height;
 			miplevels = other.miplevels;
+			active = other.active;
 		}
 		else //cube map follows
 		{
@@ -467,6 +492,7 @@ public:
 			width = other.width;
 			height = other.height;
 			miplevels = other.miplevels;
+			active = other.active;
 		}
 		if (other.type == RenderTargetType::Texture2D)
 		{
@@ -476,6 +502,7 @@ public:
 			width = other.width;
 			height = other.height;
 			miplevels = other.miplevels;
+			active = other.active;
 		}
 		else if (other.type == RenderTargetType::RenderBuffer)
 		{
@@ -485,6 +512,7 @@ public:
 			width = other.width;
 			height = other.height;
 			miplevels = other.miplevels;
+			active = other.active;
 		}
 		else if (other.type == RenderTargetType::TextureCube)
 		{
@@ -494,6 +522,7 @@ public:
 			width = other.width;
 			height = other.height;
 			miplevels = other.miplevels;
+			active = other.active;
 		}
 		else //cube map follows
 		{
@@ -509,6 +538,13 @@ public:
 	GLsizei height;
 	GLsizei miplevels;
 	GLenum attachment;
+	bool active;
+};
+
+struct RenderTargetSet
+{
+	std::vector<RenderTarget> colorTargets;
+	RenderTarget depthTarget;
 };
 
 class FrameBuffer
@@ -516,20 +552,13 @@ class FrameBuffer
 public:
 	FrameBuffer() : 
 		fbo(0),
-		depthTarget(),
-		colorTargets()
+		state(GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT)
 	{}
-	FrameBuffer(GLuint _fbo, const std::vector<RenderTarget>& _ct, const RenderTarget& _dt, GLenum _state) :
-		state(_state),
-		depthTarget(),
-		colorTargets()
+	FrameBuffer(GLuint _fbo) :
+		fbo(_fbo),
+		state(GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT)
 	{
-		if (_state == GL_FRAMEBUFFER_COMPLETE)
-		{
-			fbo = _fbo;
-			depthTarget = _dt;
-			colorTargets = _ct;
-		}
+		
 	}
 	~FrameBuffer()
 	{
@@ -540,9 +569,11 @@ public:
 	void unbind(GLenum target);
 	bool selectColorTargetMipmapLevel(size_t colorTargetIndex , GLint level);
 	bool selectDepthTargetMipmapLevel(GLint level);
+	bool attachRenderTargetSet(const RenderTargetSet& rtset);
 	GLuint fbo;
-	std::vector<RenderTarget> colorTargets;
-	RenderTarget depthTarget;
+	/*std::vector<RenderTarget> colorTargets;
+	RenderTarget depthTarget;*/
+	RenderTargetSet rtset;
 	GLenum state;
 	bool isComplete()
 	{

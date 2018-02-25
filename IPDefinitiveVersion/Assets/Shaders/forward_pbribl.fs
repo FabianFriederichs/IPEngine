@@ -12,7 +12,6 @@ layout (location = 0) out vec4 color;
 in struct VertexData
 {
 	vec3 pos;
-    vec4 posLightSpace;
 	vec2 uv;
 	vec3 normal;
     //TODO: add a mat3 TBNWorld for ibl calculations
@@ -82,11 +81,6 @@ uniform samplerCube u_irradianceMap;
 uniform samplerCube u_prefilterMap;
 uniform sampler2D u_brdfLUT;
 uniform float u_ibl_maxspeclod;
-//shadow map(s)
-uniform bool u_enableShadows;
-uniform sampler2D u_shadowMap;
-uniform float u_shadowVarianceBias;
-uniform float u_lightBleedReduction;
 
 //setup helpers
 vec3 normalFromNormalMap(vec3 texData, mat3 TBN)
@@ -95,50 +89,11 @@ vec3 normalFromNormalMap(vec3 texData, mat3 TBN)
     return normalize(TBN * n);
 }
 
-float lstep(float _min, float _max, float v)
-{
-    return clamp((v - _min) / (_max - _min), 0.0, 1.0);
-}
-
-float reduceLightBleeding(float p_max, float amount)
-{
-    // Remove the [0, Amount] tail and linearly rescale (Amount, 1].
-    return lstep(amount, 1.0, p_max);
-}
-
-//vsm shadow sampling
-float calcShadowFactor()
-{
-    vec3 fragDepth = vertexdat.posLightSpace.xyz / vertexdat.posLightSpace.w;
-    fragDepth = fragDepth * 0.5 + 0.5;
-    float lightDepthM1 = texture(u_shadowMap, fragDepth.xy).r;
-    float lightDepthM2 = texture(u_shadowMap, fragDepth.xy).g;
-    // float bias = max(0.002 * (1.0 - dot(n, -normalize(l))), 0.0005);
-    // if(fragDepth.z - bias < lightDepthM1)
-    //     return 1.0;
-    
-    float u = lightDepthM1;
-    float o2 = lightDepthM2 - (lightDepthM1 * lightDepthM1);//, 0.001);
-    o2 = max(o2, u_shadowVarianceBias);
-    float t = fragDepth.z;
-
-    float res = o2 / (o2 + (t - u) * (t - u));
-    res = reduceLightBleeding(res, u_lightBleedReduction);
-    return max(res, float(fragDepth.z <= lightDepthM1));
-}
-
 //light radiance calculation
 vec3 calcDirLightRadiance(int i)
 {
-    //incorrect, but we assume for now that dirlights are not attenuated
-    if(u_enableShadows)
-    {
-        return u_directionalLights[i].color * calcShadowFactor();
-    }
-    else
-    {
-        return u_directionalLights[i].color;
-    }
+    //incorrect, but we assume for now that dirlights are not attenuated    
+    return u_directionalLights[i].color;    
 }
 
 vec3 calcPointLightRadiance(int i, vec3 fPos)
@@ -308,7 +263,7 @@ void main()
     vec3 mt_emissive = ts_emissive.rgb;
 
 	//prepare vectors
-    vec3 N = mt_normal;
+    vec3 N = mt_normal * ( float(gl_FrontFacing) * 2.0f - 1.0f);
     vec3 V = normalize(-vertexdat.pos);
     vec3 P = vertexdat.pos;
 
