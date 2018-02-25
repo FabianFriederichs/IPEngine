@@ -44,7 +44,7 @@ private:
 	bool CreateFrameBuffer(int nWidth, int nHeight, FramebufferDesc &framebufferDesc)
 	{
 		int mssamples = static_cast<int>(m_core->getConfigManager().getInt("graphics.vr.msaa_samples"));
-		mssamples = mssamples != 0 ? mssamples : 4;
+		//mssamples = mssamples != 0 ? mssamples : 4;
 		//create multisample framebuffer
 		glGenFramebuffers(1, &framebufferDesc.m_nRenderFramebufferId); GLERR
 		glBindFramebuffer(GL_FRAMEBUFFER, framebufferDesc.m_nRenderFramebufferId); GLERR
@@ -85,7 +85,7 @@ private:
 
 	void resolveFB(GLint read, GLint draw, glm::uint32 renderwidth, glm::uint32 renderheight)
 	{
-		glDisable(GL_MULTISAMPLE);
+		//glDisable(GL_MULTISAMPLE);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, read);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw);
 		glBlitFramebuffer(0, 0, renderwidth, renderheight, 0, 0, renderwidth, renderheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);

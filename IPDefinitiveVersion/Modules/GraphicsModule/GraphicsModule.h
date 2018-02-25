@@ -24,7 +24,7 @@ public:
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
 	void render();
-	void render(int fbo, int viewportx, int viewporty) override;
+	void render(int fbo, int viewportx, int viewporty, bool multisample) override;
 	void render(ipengine::TaskContext& c);
 	virtual void setCameraEntity(ipengine::ipid v) override;
 	virtual void setFOV(uint32_t v) override;
@@ -47,7 +47,8 @@ private:
 	SDL_Window* window;
 	SDL_GLContext context;
 	HGLRC wincontext;
-	SDL_SysWMinfo info;	
+	SDL_SysWMinfo info;
+	bool m_multisample;
 	
 	//render data -------------------------------------------------------------------------------------------------
 	//camera

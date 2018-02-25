@@ -401,7 +401,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	auto proj = convert(ovrmodule->getSystem()->GetProjectionMatrix(vr::EVREye::Eye_Left, znear,zfar));
 	*matrices.view= glm::inverse(glm::mat4(convert(ovrmodule->getSystem()->GetEyeToHeadTransform(vr::EVREye::Eye_Left)))) * hmdView;
 	*matrices.proj= proj;
-	graphicsmodule->render(leftEyeDesc.m_nRenderFramebufferId, renderWidth, renderHeight);
+	graphicsmodule->render(leftEyeDesc.m_nRenderFramebufferId, renderWidth, renderHeight, true);
 
 	resolveFB(leftEyeDesc.m_nRenderFramebufferId, leftEyeDesc.m_nResolveFramebufferId, renderWidth, renderHeight);
 
@@ -411,7 +411,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	proj = convert(ovrmodule->getSystem()->GetProjectionMatrix(vr::EVREye::Eye_Right, znear, zfar));
 	*matrices.view = glm::inverse(glm::mat4(convert(ovrmodule->getSystem()->GetEyeToHeadTransform(vr::EVREye::Eye_Right)))) * hmdView;
 	*matrices.proj = proj;
-	graphicsmodule->render(rightEyeDesc.m_nRenderFramebufferId, renderWidth, renderHeight);
+	graphicsmodule->render(rightEyeDesc.m_nRenderFramebufferId, renderWidth, renderHeight, true);
 
 	resolveFB(rightEyeDesc.m_nRenderFramebufferId, rightEyeDesc.m_nResolveFramebufferId, renderWidth, renderHeight);
 
@@ -446,7 +446,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	float fPredictedSecondsFromNow = fFrameDuration - fSecondsSinceLastVsync + fVsyncToPhotons;
 
 	ovrmodule->getSystem()->GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin::TrackingUniverseStanding, fPredictedSecondsFromNow, lastposes, vr::k_unMaxTrackedDeviceCount);
-	glDisable(GL_MULTISAMPLE);
+	//glDisable(GL_MULTISAMPLE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, prew, preh);
 	graphicsmodule->setCameraEntity(scm->getEntityByName("OpenVRHMD")->m_entityId);

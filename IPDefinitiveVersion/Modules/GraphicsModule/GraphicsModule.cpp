@@ -74,13 +74,6 @@ void GraphicsModule::render(ipengine::TaskContext & c)
 {
 	updateData();
 
-	static bool first = true;
-	if (first)
-	{
-		first = false;
-		return;
-	}
-
 	if (m_shadows)
 	{
 		//for each dirlight
@@ -94,9 +87,9 @@ void GraphicsModule::render(ipengine::TaskContext & c)
 	anyvector.push_back(static_cast<IGraphics_API*>(this));
 	anyvector.push_back(renderMatrixes({&projmat, &viewmat}));
 	m_info.expoints.execute("PreRender", {"this", "rendermatrixes"}, anyvector);
-	anyvector.clear();	
+	anyvector.clear();
 
-	render(0, width, height);
+	render(0, width, height, this->m_multisample);
 
 	//render();
 
@@ -109,6 +102,13 @@ void GraphicsModule::render(ipengine::TaskContext & c)
 }
 void GraphicsModule::render()
 {
+	//vr init hack
+	/*static bool vrinited = false;
+	if (!vrinited)
+	{
+		updateData();
+		vrinited = true;
+	}*/
 	//forward pbr render pass
 	glViewport(0, 0, width, height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -121,8 +121,12 @@ void GraphicsModule::render()
 	//render opaque geometry
 	drawScene(shader);
 }
-void GraphicsModule::render(int fbo, int viewportx, int viewporty)
+void GraphicsModule::render(int fbo, int viewportx, int viewporty, bool multisample)
 {
+	if (multisample)
+		glEnable(GL_MULTISAMPLE);
+	else
+		glDisable(GL_MULTISAMPLE);
 	//forward pbr render pass
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glViewport(0, 0, viewportx, viewporty);
@@ -460,6 +464,7 @@ void GraphicsModule::readSettings()
 	//get settings from config file
 	width = static_cast<float>(m_core->getConfigManager().getInt("graphics.window.width"));
 	height = static_cast<float>(m_core->getConfigManager().getInt("graphics.window.height"));
+	m_multisample = m_core->getConfigManager().getBool("graphics.window.msaa");
 
 	//texture map params
 	bool en_mip = m_core->getConfigManager().getBool("graphics.materials.texturemaps.enable_mipmapping");
@@ -638,7 +643,6 @@ void GraphicsModule::setDefaultGLState()
 	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-	glEnable(GL_MULTISAMPLE);
 }
 void GraphicsModule::convertEnvMap()
 {
@@ -697,7 +701,7 @@ void GraphicsModule::setupSDL()
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, static_cast<int>(m_core->getConfigManager().getInt("graphics.opengl.version_major")));
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, static_cast<int>(m_core->getConfigManager().getInt("graphics.opengl.version_minor")));
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	if (m_core->getConfigManager().getBool("graphics.window.msaa"))
+	if (m_multisample)
 	{
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, static_cast<int>(m_core->getConfigManager().getInt("graphics.window.msaa_samples")));
@@ -1113,7 +1117,7 @@ void GraphicsModule::setMaterialTexParams(GLuint tex)
 void GraphicsModule::drawSCMMesh(ipengine::ipid meshid)
 {
 	auto vao = m_scmmeshtovao[meshid];
-	if (vao->vao != 0)
+	if (vao && vao->vao != 0)
 	{
 		glBindVertexArray(vao->vao);GLERR
 		glDrawElements(GL_TRIANGLES, vao->indexCount, GL_UNSIGNED_INT, 0);GLERR
