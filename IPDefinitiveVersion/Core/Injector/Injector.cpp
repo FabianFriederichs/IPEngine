@@ -24,49 +24,88 @@ bool Injector::recursiveInject(DGStuff::Module* mod)
 	{
 		pex = loadedExtensions[mod->identifier];
 		pexinf = pex->getInfo();
+		for (auto dep : mod->dependencies)
+		{
+			auto d = dep->getModule();
+			recursiveInject(d);
+			auto injectee = loadedModules[d->identifier];
+			auto depType = injectee->getModuleInfo()->iam;
+			std::string wantedType = "";
+			if (pexinf->depinfo.count(dep->identifier))
+			{
+				wantedType = pexinf->depinfo[dep->identifier].moduleType;
+			}
+			bool correctype = true;
+			correctype = wantedType != "" ? (depType.find(wantedType) != std::string::npos) : true;
+			if (dep->inject && injectee->isStartUp && !d->ignore && correctype)
+			{
+				pexinf->dependencies.assignDependency(dep->identifier, injectee);
+			}
+			else
+			{
+				//If dependency is mandatory and couldn't be assigned return without starting up the module
+				//This doesn't really have an effect 
+				if (pexinf->depinfo.count(dep->identifier) && pexinf->depinfo[dep->identifier].isMandatory)
+				{
+					return false;
+				}
+			}
+		}
+		pex->isActive = true;
+		return true;
 	}
 	else
 	{
 		p = loadedModules[mod->identifier];
 		pinf = p->getModuleInfo();
-	}
-	for (auto dep : mod->dependencies)
-	{
-		auto d = dep->getModule();
-		recursiveInject(d);
-
-		if (dep->inject && !d->ignore) //!optional check, return false if not optional
+		if (p->isStartUp)
+			return true;
+		for (auto dep : mod->dependencies)
 		{
+			auto d = dep->getModule();
+			recursiveInject(d);
 			auto injectee = loadedModules[d->identifier];
-			if (injectee->isStartUp) //!same optional memes
+			auto depType = injectee->getModuleInfo()->iam;
+			std::string wantedType = "";
+			if (pinf->depinfo.count(dep->identifier))
 			{
-				if (mod->isExtension)
-					pexinf->dependencies.assignDependency(dep->identifier, injectee);
-				else
-					pinf->dependencies.assignDependency(dep->identifier, injectee);
+				wantedType = pinf->depinfo[dep->identifier].moduleType;
 			}
+			bool correctype = true;
+			correctype = wantedType != "" ? (depType.find(wantedType) != std::string::npos) : true;
+			if (dep->inject && injectee->isStartUp && !d->ignore && correctype)
+			{
+				pinf->dependencies.assignDependency(dep->identifier, injectee);
+			}
+			else
+			{
+				//If dependency is mandatory and couldn't be assigned return without starting up the module
+				if (pinf->depinfo.count(dep->identifier) && pinf->depinfo[dep->identifier].isMandatory)
+				{
+					return false;
+				}
+			}
+			//check inject status, check ignore/inject meme then inject, and startup stuff
 		}
-		//check inject status, check ignore/inject meme then inject, and startup stuff
-	}
 
-	for (auto exp : mod->extensionpoints)
-	{
-		for (auto ext : exp->extensions)
+		for (auto exp : mod->extensionpoints)
 		{
-			auto e = ext.getModule();
-			recursiveInject(e);
-
-			if (!e->ignore && e->isExtension)
+			for (auto ext : exp->extensions)
 			{
-				auto injectee = loadedExtensions[e->identifier];
-				//injectee->isActive = ext.isActive; //! if I put active into depgraph
-				pinf->expoints.assignExtension(exp->identifier, ext.priority, injectee);
+				auto e = ext.getModule();
+				recursiveInject(e);
+
+				if (!e->ignore && e->isExtension)
+				{
+					auto injectee = loadedExtensions[e->identifier];
+					//injectee->isActive = ext.isActive; //! if I put active into depgraph
+					pinf->expoints.assignExtension(exp->identifier, ext.priority, injectee);
+				}
 			}
 		}
+		return p->startUp();
 	}
-	if (mod->isExtension)
-		return true;
-	return p->isStartUp?true:p->startUp();
+	
 }
 
 
@@ -146,7 +185,12 @@ void Injector::LoadModules(ipengine::Core * core, std::string path, bool reload 
 	//Iterate all loaded modules and inject memes.
 	for (auto& dtmodule : depgraph->getRoots())
 	{
-		recursiveInject(dtmodule);
+		//Optional dependencies are not guaranteed to be started up and injected
+		if (recursiveInject(dtmodule))
+		{
+			//Handle case of root module not being able to startup because of missing dependancy
+			//!
+		}
 	}
 }
 

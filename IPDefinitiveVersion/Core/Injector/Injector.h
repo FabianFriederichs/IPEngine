@@ -86,6 +86,11 @@ public:
 		if (minfo->dependencies.exists(dependencyID) && loadedModules[newModuleID]->getModuleInfo()->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam) != std::string::npos)
 		{
 			//reassignment should work, i think? 
+			//Check whether dependency is updatable at runtime
+			if (minfo->depinfo.count(dependencyID)&& !minfo->depinfo[dependencyID].isUpdatable)
+			{
+				return 0;
+			}
 			minfo->dependencies.assignDependency(dependencyID, loadedModules[newModuleID]);
 			mod->dependencyUpdated(dependencyID);
 			return 1;
@@ -105,6 +110,11 @@ public:
 		if (minfo->dependencies.exists(dependencyID) && loadedModules[newModuleID]->getModuleInfo()->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam)!=std::string::npos)
 		{
 			//reassignment should work, i think? 
+			//Check whether dependency is updatable at runtime
+			if (minfo->depinfo.count(dependencyID) && !minfo->depinfo[dependencyID].isUpdatable)
+			{
+				return 0;
+			}
 			minfo->dependencies.assignDependency(dependencyID, loadedModules[newModuleID]);
 			mod->dependencyUpdated(dependencyID);
 			return 1;

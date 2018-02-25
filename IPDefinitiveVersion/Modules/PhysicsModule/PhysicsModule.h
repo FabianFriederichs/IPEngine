@@ -36,16 +36,16 @@ public:
 		scenemodule = m_info.dependencies.getDep<ISimpleSceneModule_API>("SSM");
 		auto id = createCloth(
 			"testcloth",
-			30,
-			30,
+			20,
+			20,
 			SCM::TransformData(
 				glm::vec3(0.0f, 0.0f, -1.0f),
 				glm::quat(),
 				glm::vec3(1.0f, 1.0f, 1.0f)
 			),
 			IPhysicsModule_API::PhysicsContext{
-				glm::vec3(0.0f, -3.51f, 0.01f),
-				1.45f,
+				glm::vec3(0.0f, -75.51f, 0.0f),
+				3.45f,
 				0.6f,
 				40.0f,
 				0.12f,
@@ -57,17 +57,17 @@ public:
 				true,
 				true,
 				true,
-				0.02f,
+				0.01f,
 				5,
-				0.12f,
+				0.32f,
 				true
 			},
 			11
 		);
 
 		clothentities.push_back(id);
-		fixParticle(id, 0, 29, true);
-		fixParticle(id, 29, 29, true);
+		fixParticle(id, 0, 19, true);
+		fixParticle(id, 19, 19, true);
 		scenemodule->AddEntity(id);
 		contentmodule->getEntityById(id)->isActive = true;
 

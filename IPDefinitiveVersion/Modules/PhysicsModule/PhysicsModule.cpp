@@ -931,6 +931,7 @@ ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 	meshes.push_back(mdata);
 	meshedobjects.push_back(SCM::MeshedObject(std::vector<SCM::MeshData*>({ &meshes.back() }), m_core->createID()));
 	SCM::ThreeDimEntity* dimentity = new SCM::ThreeDimEntity(tcloth.id, SCM::Transform(transform), SCM::BoundingData(), true, false, &meshedobjects.back());
+	dimentity->m_name = name;
 	thrde[tcloth.id] = dimentity;
 	entities[name] = dimentity;
 	return tcloth.id;

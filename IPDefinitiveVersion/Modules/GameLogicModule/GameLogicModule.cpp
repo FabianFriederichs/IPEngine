@@ -20,6 +20,9 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 		initialized = true;
 		if (contentmodule->getEntityByName("Camera"))
 			graphics->setCameraEntity(contentmodule->getEntityByName("Camera")->m_entityId);
+		if (contentmodule->getEntityByName("MemeEntity2"))
+			contentmodule->getEntityByName("MemeEntity2")->m_transformData.setData()->m_location = { 4,1,0 };
+		osc = std::acos(-1);
 	}
 	modifier = delta.mic() / timing.mic();
 	auto now = std::chrono::high_resolution_clock::now();
@@ -82,6 +85,12 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 		{
 			entityUpdate(e.second);
 		}
+	}
+	auto pi = std::acos(-1);
+	osc += (pi/120.f)*modifier;
+	if (osc > 2.f*pi)
+	{
+		osc -= 2.f*pi;
 	}
 	mouseDelta = glm::vec2(0, 0);
 }
@@ -180,6 +189,18 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 			//cam->m_transformData.setData()->m_location += cam->m_transformData.setData()->m_localX*(float)modifier;
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
 		}
+		else if (i.data.kd.keycode == IInput::SCANCODE_SPACE)
+		{
+			box = !box;
+		}
+		else if (i.data.kd.keycode == IInput::SCANCODE_F)
+		{
+			yc = true;
+		}
+		else if (i.data.kd.keycode == IInput::SCANCODE_V)
+		{
+			vc = true;
+		}
 	}
 	if (i.data.kd.state == IInput::ButtonState::BUTTON_UP)
 	{
@@ -230,6 +251,20 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
 
 		}
+		else if (i.data.kd.keycode == IInput::SCANCODE_SPACE)
+		{
+			box = !box;
+			//cam->m_transformData.setData()->m_location += cam->m_transformData.setData()->m_localX*(float)modifier;
+			//cam->m_transformData.setData()->m_isMatrixDirty = true;
+		}
+		else if (i.data.kd.keycode == IInput::SCANCODE_F)
+		{
+			yc = false;
+		}
+		else if (i.data.kd.keycode == IInput::SCANCODE_V)
+		{
+			vc = false;
+		}
 	}
 }
 
@@ -276,7 +311,8 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 		e->m_transformData.setData()->m_isMatrixDirty = true;
 	}
 	
-	if (e->m_name == "Camera")//&& camVelocity != glm::vec3(0, 0, 0))
+
+	if (e->m_name == "Camera" && !box)//&& camVelocity != glm::vec3(0, 0, 0))
 	{
 
 		//auto x = e->m_transformData.getData()->m_localX*(float)camVelocity.x*(float)modifier;
@@ -284,10 +320,10 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 
 		auto 	x = e->m_transformData.getData()->m_localX*(float)(((a ? -1 : 0 )+(d ? 1 : 0))*modifier);
 		auto	y = e->m_transformData.getData()->m_localZ*(float)(((w ? -1 : 0 )+ (s ? 1 : 0))*modifier);
-
-		if (glm::length(x) != 0 || glm::length(y) !=0)
+		auto z = e->m_transformData.getData()->m_localY*(float)(((vc ? -1 : 0) + (yc ? 1 : 0))*modifier);
+		if (glm::length(x) != 0 || glm::length(y) !=0 || glm::length(z) != 0)
 		{
-			e->m_transformData.setData()->m_location += x * 0.1f + y * 0.1f;
+			e->m_transformData.setData()->m_location += x * 0.1f + y * 0.1f + 0.1f*z;
 			e->m_transformData.setData()->m_isMatrixDirty = true;
 		}
 	}
@@ -309,6 +345,43 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 
 void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 {
+
+	std::string tar = "MemeEntity1";
+
+	if (e->m_name == tar && box)//&& camVelocity != glm::vec3(0, 0, 0))
+	{
+
+		//auto x = e->m_transformData.getData()->m_localX*(float)camVelocity.x*(float)modifier;
+		//auto y = e->m_transformData.getData()->m_localZ*camVelocity.z*(float)modifier;
+		auto cam = contentmodule->getEntityByName("Camera");
+		auto camtrans = cam->m_transformData.getData();
+		auto 	x = camtrans->m_localX*(float)(((a ? -1 : 0) + (d ? 1 : 0))*modifier);
+		auto	y = camtrans->m_localZ*(float)(((w ? -1 : 0) + (s ? 1 : 0))*modifier);
+		auto z = camtrans->m_localY*(float)(((vc ? -1 : 0) + (yc ? 1 : 0))*modifier);
+
+		if (glm::length(x) != 0 || glm::length(y) != 0 || glm::length(z) != 0)
+		{
+			e->m_transformData.setData()->m_location += x * 0.1f + y * 0.1f+ z * 0.1f;
+			e->m_transformData.setData()->m_isMatrixDirty = true;
+		}
+	}
+
+	if (e->m_name == "MemeEntity2")//&& camVelocity != glm::vec3(0, 0, 0))
+	{
+		auto mod = std::sin(osc);
+		//std::cout << mod <<  "\n";
+		auto 	x = e->m_transformData.getData()->m_localX*(float)((mod*modifier*1.f));
+		auto	y = e->m_transformData.getData()->m_localZ*(float)((mod*modifier*1.f));
+		//auto z = e->m_transformData.getData()->m_localY*(float)(((vc ? -1 : 0) + (yc ? 1 : 0))*modifier);
+
+		if (glm::length(x) != 0 || glm::length(y) != 0)
+		{
+			e->m_transformData.setData()->m_location += y * 0.1f;// +y * 0.1f;
+			e->m_transformData.setData()->m_isMatrixDirty = true;
+		}
+	}
+
+
 	if (e->m_transformData.setData()->m_isMatrixDirty)
 	{
 		auto transdata = e->m_transformData.getData();

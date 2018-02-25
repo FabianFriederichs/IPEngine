@@ -122,7 +122,10 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		{
 			auto cntrid = m_core->createID();
 			auto cntrtrans = SCM::Transform();
-			auto cntrbounding = SCM::BoundingData(SCM::BoundingSphere());
+			SCM::BoundingSphere sph;
+			sph.m_center = { 0.f,0.f,0.f };
+			sph.m_radius = 5.f;
+			auto cntrbounding = SCM::BoundingData(sph);
 
 			//Create mesh from VR render model
 			auto rendermodels = ovrmodule->getRenderModels();
@@ -190,7 +193,10 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		{
 			auto cntrid = m_core->createID();
 			auto cntrtrans = SCM::Transform();
-			auto cntrbounding = SCM::BoundingData(SCM::BoundingSphere());
+			SCM::BoundingSphere sph;
+			sph.m_center = { 0.f,0.f,0.f };
+			sph.m_radius = 5.f;
+			auto cntrbounding = SCM::BoundingData(sph);
 
 			//Create mesh from VR render model
 			auto rendermodels = ovrmodule->getRenderModels();
