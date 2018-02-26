@@ -147,7 +147,7 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 	}
 	if (i.data.kd.state == IInput::ButtonState::BUTTON_DOWN && !i.data.kd.isrepeat)
 	{
-		if (i.data.kd.keycode == IInput::SCANCODE_W)
+		if (i.data.kd.keycode == IInput::SCANCODE_W || i.data.kd.keycode==IInput::SCANCODE_VRBUTTON_DPAD_UP)
 		{
 			camVelocity -= glm::vec3(0,0,1);
 			if (camVelocity.z < -1)
@@ -156,7 +156,7 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 			}
 			w = true;
 		}
-		else if (i.data.kd.keycode == IInput::SCANCODE_S)
+		else if (i.data.kd.keycode == IInput::SCANCODE_S || i.data.kd.keycode == IInput::SCANCODE_VRBUTTON_DPAD_DOWN)
 		{
 			camVelocity += glm::vec3(0, 0, 1);
 			if (camVelocity.z > 1)
@@ -167,7 +167,7 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 			//cam->m_transformData.setData()->m_location += cam->m_transformData.setData()->m_localZ*(float)modifier;
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
 		}
-		else if (i.data.kd.keycode == IInput::SCANCODE_A)
+		else if (i.data.kd.keycode == IInput::SCANCODE_A || i.data.kd.keycode == IInput::SCANCODE_VRBUTTON_DPAD_LEFT)
 		{
 			camVelocity -= glm::vec3(1, 0, 0);
 			if (camVelocity.x < -1)
@@ -178,7 +178,7 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 			//cam->m_transformData.setData()->m_location -= cam->m_transformData.setData()->m_localX*(float)modifier;
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
 		}
-		else if (i.data.kd.keycode == IInput::SCANCODE_D)
+		else if (i.data.kd.keycode == IInput::SCANCODE_D || i.data.kd.keycode == IInput::SCANCODE_VRBUTTON_DPAD_RIGHT)
 		{
 			camVelocity += glm::vec3(1, 0, 0);
 			if (camVelocity.x > 1)
@@ -204,7 +204,7 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 	}
 	if (i.data.kd.state == IInput::ButtonState::BUTTON_UP)
 	{
-		if (i.data.kd.keycode == IInput::SCANCODE_W)
+		if (i.data.kd.keycode == IInput::SCANCODE_W || i.data.kd.keycode == IInput::SCANCODE_VRBUTTON_DPAD_UP)
 		{
 			camVelocity += glm::vec3(0, 0, 1);
 			if (camVelocity.z > 1)
@@ -215,7 +215,7 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 			//cam->m_transformData.setData()->m_location -= cam->m_transformData.setData()->m_localZ*(float)modifier;
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
 		}
-		else if (i.data.kd.keycode == IInput::SCANCODE_S)
+		else if (i.data.kd.keycode == IInput::SCANCODE_S || i.data.kd.keycode == IInput::SCANCODE_VRBUTTON_DPAD_DOWN)
 		{
 			camVelocity -= glm::vec3(0, 0, 1);
 			if (camVelocity.z < -1)
@@ -227,7 +227,7 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
 
 		}
-		else if (i.data.kd.keycode == IInput::SCANCODE_A)
+		else if (i.data.kd.keycode == IInput::SCANCODE_A || i.data.kd.keycode == IInput::SCANCODE_VRBUTTON_DPAD_LEFT)
 		{
 			camVelocity += glm::vec3(1, 0, 0);
 			if (camVelocity.x > 1)
@@ -239,7 +239,7 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 			//cam->m_transformData.setData()->m_isMatrixDirty = true;
 
 		}
-		else if (i.data.kd.keycode == IInput::SCANCODE_D)
+		else if (i.data.kd.keycode == IInput::SCANCODE_D || i.data.kd.keycode == IInput::SCANCODE_VRBUTTON_DPAD_RIGHT)
 		{
 			camVelocity -= glm::vec3(1, 0, 0);
 			if (camVelocity.x < -1)
