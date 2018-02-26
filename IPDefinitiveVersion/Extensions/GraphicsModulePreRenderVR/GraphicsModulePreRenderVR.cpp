@@ -206,7 +206,9 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		}, tf.m_textureId);
 			rendermodels->FreeTexture(controllerdiffuse);
 			rendermodels->FreeRenderModel(controllermodel);
-			ents["OpenVRControllerLeft"] = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
+			auto lctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
+			lctde->generateBoundingSphere();
+			ents["OpenVRControllerLeft"] = lctde;// new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
 			if(scm->getEntityByName("Camera")!=nullptr)
 				ents["OpenVRControllerLeft"]->m_parent = scm->getEntityByName("Camera");
 			auto cntrent = ents["OpenVRControllerLeft"];
@@ -315,7 +317,9 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			}, tid);
 			rendermodels->FreeTexture(controllerdiffuse);
 			rendermodels->FreeRenderModel(controllermodel);
-			ents["OpenVRControllerRight"] = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
+			auto rctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
+			rctde->generateBoundingSphere();
+			ents["OpenVRControllerRight"] = rctde;//new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
 			if (scm->getEntityByName("Camera") != nullptr)
 				ents["OpenVRControllerRight"]->m_parent = scm->getEntityByName("Camera");
 			auto cntrent = ents["OpenVRControllerRight"];
@@ -476,9 +480,10 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	resolveFB(rightEyeDesc.m_nRenderFramebufferId, rightEyeDesc.m_nResolveFramebufferId, renderWidth, renderHeight);
 
 	vr::EVRCompositorError comperr;
-
 	vr::Texture_t leftEyeTexture = { (void*)leftEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
+	
 	comperr=vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+	glGetError();
 
 	if (comperr != vr::EVRCompositorError::VRCompositorError_None)
 	{
@@ -487,6 +492,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	
 	vr::Texture_t rightEyeTexture = { (void*)rightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
 	comperr= vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+	glGetError();
 	if (comperr != vr::EVRCompositorError::VRCompositorError_None)
 	{
 		throw;
