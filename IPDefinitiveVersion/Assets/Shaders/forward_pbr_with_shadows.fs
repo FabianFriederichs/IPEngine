@@ -41,6 +41,7 @@ struct DirLight {
     sampler2D shadowMap;
     float shadowVarianceBias;
     float lightBleedReduction;
+    float shadowWarpFactor;
 };
 
 struct PointLight {
@@ -102,21 +103,32 @@ float calcShadowFactor(int i)
 {
     vec3 fragDepth = vertexdat.posLightSpace[i].xyz / vertexdat.posLightSpace[i].w;
     fragDepth = fragDepth * 0.5 + 0.5;
-    vec2 ssamp = texture(u_directionalLights[i].shadowMap, fragDepth.xy).rg;
-    float lightDepthM1 = ssamp.r;
-    float lightDepthM2 = ssamp.g;
-    // float bias = max(0.002 * (1.0 - dot(n, -normalize(l))), 0.0005);
-    // if(fragDepth.z - bias < lightDepthM1)
-    //     return 1.0;
-    
-    float u = lightDepthM1;
-    float o2 = lightDepthM2 - (lightDepthM1 * lightDepthM1);//, 0.001);
-    o2 = max(o2, u_directionalLights[i].shadowVarianceBias);
-    float t = fragDepth.z;
+    vec4 ssamp = texture(u_directionalLights[i].shadowMap, fragDepth.xy);
+    float lightDepth1M1 = ssamp.r;
+    float lightDepth1M2 = ssamp.g;
+    float lightDepth2M1 = ssamp.b;
+    float lightDepth2M2 = ssamp.a;
 
-    float res = o2 / (o2 + (t - u) * (t - u));
+    float t1 = exp(u_directionalLights[i].shadowWarpFactor * fragDepth.z);
+    float t2 = -exp(-u_directionalLights[i].shadowWarpFactor * fragDepth.z);
+    
+    float u = lightDepth1M1;
+    float o2 = lightDepth1M2 - (lightDepth1M1 * lightDepth1M1);//, 0.001);
+    o2 = max(o2, u_directionalLights[i].shadowVarianceBias);
+    
+
+    float res1 = o2 / (o2 + (t1 - u) * (t1 - u));
+
+    u = lightDepth2M1;
+    o2 = lightDepth2M2 - (lightDepth2M1 * lightDepth2M1);//, 0.001);
+    o2 = max(o2, u_directionalLights[i].shadowVarianceBias);
+
+    float res2 = o2 / (o2 + (t2 - u) * (t2 - u));
+
+    float res = min(max(res1, float(t1 <= lightDepth1M1)), max(res2, float(t2 <= lightDepth2M1)));
+
     res = reduceLightBleeding(res, u_directionalLights[i].lightBleedReduction);
-    return max(res, float(fragDepth.z <= lightDepthM1));
+    return res;
 }
 
 //light radiance calculation

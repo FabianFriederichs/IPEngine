@@ -540,6 +540,7 @@ namespace SCM
 			int _shadowBlurPasses,
 			float _shadowVarianceBias,
 			float _lightBleedReduction,
+			float _shadowWarpFactor,
 			const glm::vec3& _shadowMapVolumeMin,
 			const glm::vec3& _shadowMapVolumeMax
 			) :
@@ -552,7 +553,8 @@ namespace SCM
 			shadowVarianceBias(_shadowVarianceBias),
 			lightBleedReduction(_lightBleedReduction),
 			shadowMapVolumeMin(_shadowMapVolumeMin),
-			shadowMapVolumeMax(_shadowMapVolumeMax)
+			shadowMapVolumeMax(_shadowMapVolumeMax),
+			shadowWarpFactor(_shadowWarpFactor)
 
 		{}
 
@@ -585,6 +587,7 @@ namespace SCM
 		float lightBleedReduction;
 		glm::vec3 shadowMapVolumeMin;
 		glm::vec3 shadowMapVolumeMax;
+		float shadowWarpFactor;
 	};
 
 	class PointLight : public Entity
