@@ -36,6 +36,7 @@ bool GraphicsModule::_startup()
 		1,
 		1.e-6,
 		0.3,
+		65.0f,
 		glm::vec3(-5, -5, 40.0f),
 		glm::vec3(5, 5, 0.1f)
 	);
@@ -54,6 +55,7 @@ bool GraphicsModule::_startup()
 		1,
 		1.e-6,
 		0.3,
+		65.0f,
 		glm::vec3(-5, -5, 40.0f),
 		glm::vec3(5, 5, 0.1f)
 	);
@@ -935,6 +937,7 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 							dl.second->shadowBlurPasses > 0 ? m_dirLightShadowBlurTargets2[dl.second->m_entityId].colorTargets[0].tex.get() : m_dirLightShadowTargets[dl.second->m_entityId].colorTargets[0].tex.get());
 			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].shadowVarianceBias").c_str(), dl.second->shadowVarianceBias);
 			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].lightBleedReduction").c_str(), dl.second->lightBleedReduction);
+			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].shadowWarpFactor").c_str(), dl.second->shadowWarpFactor);
 			++lc;
 		}
 		else
@@ -1053,7 +1056,7 @@ void GraphicsModule::renderDirectionalLightShadowMap(SCM::DirectionalLight& dirL
 				RenderTargetDesc{
 					dirLight.shadowResX,
 					dirLight.shadowResY,
-					GL_RG32F,
+					GL_RGBA32F,
 					GL_COLOR_ATTACHMENT0,
 					RenderTargetType::Texture2D
 				}
@@ -1084,6 +1087,7 @@ void GraphicsModule::renderDirectionalLightShadowMap(SCM::DirectionalLight& dirL
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, dirLight.shadowResX, dirLight.shadowResY);
 	m_s_shadow->use();
+	m_s_shadow->setUniform("u_shadowWarpFactor", dirLight.shadowWarpFactor);
 	m_s_shadow->setUniform("u_light_matrix", m_dirLightMatrices[dirLight.m_entityId], false);
 	drawSceneShadow(m_s_shadow.get());	
 	if (dirLight.shadowBlurPasses <= 0)
@@ -1101,7 +1105,7 @@ void GraphicsModule::renderDirectionalLightShadowMap(SCM::DirectionalLight& dirL
 				RenderTargetDesc{
 					dirLight.shadowResX,
 					dirLight.shadowResY,
-					GL_RG32F,
+					GL_RGBA32F,
 					GL_COLOR_ATTACHMENT0,
 					RenderTargetType::Texture2D
 				}
@@ -1118,7 +1122,7 @@ void GraphicsModule::renderDirectionalLightShadowMap(SCM::DirectionalLight& dirL
 				RenderTargetDesc{
 					dirLight.shadowResX,
 					dirLight.shadowResY,
-					GL_RG32F,
+					GL_RGBA32F,
 					GL_COLOR_ATTACHMENT0,
 					RenderTargetType::Texture2D
 				}
