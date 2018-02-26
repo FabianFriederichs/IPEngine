@@ -37,7 +37,7 @@ private:
 	bool initialized=false;
 	double modifier = 1;
 	void update(ipengine::TaskContext&);
-
+	bool automovebox = false;
 
 	void keyUpdate(IInput::Input&);
 	void mousemoveUpdate(IInput::Input&);

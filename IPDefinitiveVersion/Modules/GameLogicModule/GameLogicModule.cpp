@@ -366,7 +366,7 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 		}
 	}
 
-	if (e->m_name == "MemeEntity2")//&& camVelocity != glm::vec3(0, 0, 0))
+	if (e->m_name == "MemeEntity2" && automovebox)//&& camVelocity != glm::vec3(0, 0, 0))
 	{
 		auto mod = std::sin(osc);
 		//std::cout << mod <<  "\n";

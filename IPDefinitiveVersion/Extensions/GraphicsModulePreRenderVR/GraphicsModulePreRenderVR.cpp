@@ -130,7 +130,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			auto cntrtrans = SCM::Transform();
 			SCM::BoundingSphere sph;
 			sph.m_center = { 0.f,0.f,0.f };
-			sph.m_radius = 0.5f;
+			sph.m_radius = controllersphereradius;
 			auto cntrbounding = SCM::BoundingData(sph);
 
 			//Create mesh from VR render model
@@ -212,6 +212,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			auto cntrent = ents["OpenVRControllerLeft"];
 			cntrent->m_name = "OpenVRControllerLeft";
 			scm->getThreeDimEntities()[cntrent->m_entityId] = static_cast<SCM::ThreeDimEntity*>(cntrent);
+			scm->getThreeDimEntities()[cntrent->m_entityId]->generateBoundingSphere();
 		}
 		if (ents.count("OpenVRControllerRight") == 0)
 		{
@@ -219,9 +220,9 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			auto cntrtrans = SCM::Transform();
 			SCM::BoundingSphere sph;
 			sph.m_center = { 0.f,0.f,0.f };
-			sph.m_radius = 0.5f;
+			sph.m_radius = controllersphereradius;
 			auto cntrbounding = SCM::BoundingData(sph);
-
+			
 			//Create mesh from VR render model
 			auto rendermodels = ovrmodule->getRenderModels();
 			auto modelc = rendermodels->GetRenderModelCount();
@@ -246,36 +247,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			vr::RenderModel_t *controllermodel = new vr::RenderModel_t();
 			while (rendermodels->LoadRenderModel_Async("vr_controller_vive_1_5", &controllermodel) != vr::EVRRenderModelError::VRRenderModelError_None);
 
-			////get rendermodel components
-			//int cmpit = 0;
-			//int cmpnamel = 0;
-			//std::map<std::string, int> componentnames;
-			//while ((bufsize = rendermodels->GetComponentName("vr_controller_vive_1_5", cmpit, nullptr, 0)) > 0)
-			//{
-			//	char* realname = new char[bufsize];
-			//	rendermodels->GetComponentName("vr_controller_vive_1_5", cmpit++, realname, bufsize);
-			//	//std::cout << std::string(realname);
-			//	componentnames[std::string(realname)] = cmpit - 1;
-			//	delete realname;
-			//}
-
-			//auto &mobs = scm->getMeshes();
-			//mobs.push_back(SCM::MeshData());
-			//mobs.back().m_meshId = m_core->createID();
-			//vrrendermodeltoscmmeshobject(controllermodel, &mobs.back());
-			////controller material????
-			//mobs.back().m_material = &scm->getMaterials().front();
-			//std::vector<SCM::MeshData*> meshes;
-			////For every component?
-			//meshes.push_back(&mobs.back());
-			//scm->getMeshedObjects().push_back((SCM::MeshedObject(meshes, m_core->createID())));
-
-			//auto &cntrmeshes = scm->getMeshedObjects().back();
-			////cntrtrans.setData()->m_rotation = { 1,0,0,0 };
-			//cntrtrans.setData()->m_scale = { 1,1,1 };
-			//cntrtrans.setData()->m_localX = { 1,0,0 };
-			//cntrtrans.setData()->m_localY = { 0,1,0 };
-			//cntrtrans.setData()->m_localZ = { 0,0,1 };
+			
 			vr::RenderModel_TextureMap_t *controllerdiffuse;
 			while (rendermodels->LoadTexture_Async(controllermodel->diffuseTextureId, &controllerdiffuse) != vr::EVRRenderModelError::VRRenderModelError_None);
 			//get rendermodel components
@@ -349,6 +321,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			auto cntrent = ents["OpenVRControllerRight"];
 			cntrent->m_name = "OpenVRControllerRight";
 			scm->getThreeDimEntities()[cntrent->m_entityId] = static_cast<SCM::ThreeDimEntity*>(cntrent);
+			//scm->getThreeDimEntities()[cntrent->m_entityId]->generateBoundingSphere();
 		}
 
 		//auto rendermodels = ovrmodule->getRenderModels();
