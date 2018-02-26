@@ -92,7 +92,7 @@
       </dependencies>
     </Module>
    <Module>
-      <ignore>true</ignore>
+      <ignore>false</ignore>
       <identifier>GraphicsModulePreRenderVR</identifier>
       <isExPoint>true</isExPoint>
       <dependencies>
