@@ -338,7 +338,7 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 		data->m_localX = glm::normalize(glm::vec3(tmat[0][0], tmat[0][1], tmat[0][2]));
 		data->m_localY = glm::normalize(glm::vec3(tmat[1][0], tmat[1][1], tmat[1][2]));
 		data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
-		e->swap();
+		//e->swap();
 		e->m_transformData.setData()->m_isMatrixDirty = false;
 	}
 }
@@ -392,7 +392,7 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 		data->m_localX = glm::normalize(glm::vec3(tmat[0][0], tmat[0][1], tmat[0][2]));
 		data->m_localY = glm::normalize(glm::vec3(tmat[1][0], tmat[1][1], tmat[1][2]));
 		data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
-		e->swap();
+		//e->swap();
 		e->m_transformData.setData()->m_isMatrixDirty = false;
 
 	}

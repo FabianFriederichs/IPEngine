@@ -60,6 +60,12 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	{
 		return;
 	}
+
+	auto graphicsmodule = args[0].cast<IGraphics_API*>();
+	auto matrices = args[1].cast<IGraphics_API::renderMatrixes>();
+	auto preproj = glm::mat4(*matrices.proj);
+	auto preview = glm::mat4(*matrices.view);
+
 	if (!init)
 	{
 		//create frame buffers and memes
@@ -124,7 +130,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			auto cntrtrans = SCM::Transform();
 			SCM::BoundingSphere sph;
 			sph.m_center = { 0.f,0.f,0.f };
-			sph.m_radius = 5.f;
+			sph.m_radius = 0.5f;
 			auto cntrbounding = SCM::BoundingData(sph);
 
 			//Create mesh from VR render model
@@ -140,7 +146,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 				char* realname = new char[bufsize];
 				rendermodels->GetRenderModelName(rmit++, realname, bufsize);
 				//std::cout << std::string(realname);
-				rendermodelnames[std::string(realname)] =rmit-1;
+				rendermodelnames[std::string(realname)] = rmit - 1;
 				delete realname;
 			}
 			controllermodelindex = rendermodelnames["vr_controller_vive_1_5"];
@@ -148,9 +154,10 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			auto origpathsize = rendermodels->GetRenderModelOriginalPath("vr_controller_vive_1_5", nullptr, 0, &rendermodelerr);
 			char* origrendermodelpath = new char[origpathsize];
 			rendermodels->GetRenderModelOriginalPath("vr_controller_vive_1_5", origrendermodelpath, origpathsize, &rendermodelerr);
-			vr::RenderModel_t *controllermodel = new vr::RenderModel_t();
-			while(rendermodels->LoadRenderModel_Async("vr_controller_vive_1_5", &controllermodel)!= vr::EVRRenderModelError::VRRenderModelError_None);
-
+			vr::RenderModel_t *controllermodel;// = new vr::RenderModel_t();
+			while (rendermodels->LoadRenderModel_Async("vr_controller_vive_1_5", &controllermodel) != vr::EVRRenderModelError::VRRenderModelError_None);
+			vr::RenderModel_TextureMap_t *controllerdiffuse;
+			while (rendermodels->LoadTexture_Async(controllermodel->diffuseTextureId, &controllerdiffuse) != vr::EVRRenderModelError::VRRenderModelError_None);
 			//get rendermodel components
 			int cmpit = 0;
 			int cmpnamel = 0;
@@ -160,20 +167,32 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 				char* realname = new char[bufsize];
 				rendermodels->GetComponentName("vr_controller_vive_1_5", cmpit++, realname, bufsize);
 				//std::cout << std::string(realname);
-				componentnames[std::string(realname)] = cmpit-1;
+				componentnames[std::string(realname)] = cmpit - 1;
 				delete realname;
 			}
 
-			auto &mobs = scm->getMeshes();
-			mobs.push_back(SCM::MeshData());
-			mobs.back().m_meshId = m_core->createID();
-			vrrendermodeltoscmmeshobject(controllermodel, &mobs.back());
+			//generate new SCM texture for diffuse model texture
+			SCM::TextureFile tf{ m_core->createID(), "controllerdiff", false };
+			auto& texts = scm->getTextures();
+			texts.push_back(tf);
+			SCM::TextureData td{ tf.m_textureId };
+			td.m_size = { controllerdiffuse->unWidth, controllerdiffuse->unHeight };
+			//Generate material with this texture
+			SCM::MaterialData md{ m_core->createID(), scm->getShaders().back().m_shaderId, {{"albedo", td}} };
+			auto& mats = scm->getMaterials();
+			mats.push_back(md);
+			auto &scmmeshes = scm->getMeshes();
+			scmmeshes.push_back(SCM::MeshData());
+			auto& newmesh = scmmeshes.back();
+			newmesh.m_meshId = m_core->createID();
+			vrrendermodeltoscmmeshobject(controllermodel, &newmesh);
 			//controller material????
-			mobs.back().m_material = &scm->getMaterials().front();
+			newmesh.m_material = &mats.back();
 			std::vector<SCM::MeshData*> meshes;
 			//For every component?
-			meshes.push_back(&mobs.back());
-			scm->getMeshedObjects().push_back((SCM::MeshedObject(meshes, m_core->createID())));
+			meshes.push_back(&newmesh);
+			auto &mobs = scm->getMeshedObjects();
+			mobs.push_back((SCM::MeshedObject(meshes, m_core->createID())));
 
 			auto &cntrmeshes = scm->getMeshedObjects().back();
 			//cntrtrans.setData()->m_rotation = { 1,0,0,0 };
@@ -182,6 +201,11 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			cntrtrans.setData()->m_localY = { 0,1,0 };
 			cntrtrans.setData()->m_localZ = { 0,0,1 };
 
+			//Load data into graphicsmodule because texture data is not in a file
+			graphicsmodule->loadTextureFromMemory({controllerdiffuse->unWidth, controllerdiffuse->unHeight, 4, controllerdiffuse->rubTextureMapData
+		}, tf.m_textureId);
+			rendermodels->FreeTexture(controllerdiffuse);
+			rendermodels->FreeRenderModel(controllermodel);
 			ents["OpenVRControllerLeft"] = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
 			if(scm->getEntityByName("Camera")!=nullptr)
 				ents["OpenVRControllerLeft"]->m_parent = scm->getEntityByName("Camera");
@@ -195,7 +219,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			auto cntrtrans = SCM::Transform();
 			SCM::BoundingSphere sph;
 			sph.m_center = { 0.f,0.f,0.f };
-			sph.m_radius = 5.f;
+			sph.m_radius = 0.5f;
 			auto cntrbounding = SCM::BoundingData(sph);
 
 			//Create mesh from VR render model
@@ -222,6 +246,38 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			vr::RenderModel_t *controllermodel = new vr::RenderModel_t();
 			while (rendermodels->LoadRenderModel_Async("vr_controller_vive_1_5", &controllermodel) != vr::EVRRenderModelError::VRRenderModelError_None);
 
+			////get rendermodel components
+			//int cmpit = 0;
+			//int cmpnamel = 0;
+			//std::map<std::string, int> componentnames;
+			//while ((bufsize = rendermodels->GetComponentName("vr_controller_vive_1_5", cmpit, nullptr, 0)) > 0)
+			//{
+			//	char* realname = new char[bufsize];
+			//	rendermodels->GetComponentName("vr_controller_vive_1_5", cmpit++, realname, bufsize);
+			//	//std::cout << std::string(realname);
+			//	componentnames[std::string(realname)] = cmpit - 1;
+			//	delete realname;
+			//}
+
+			//auto &mobs = scm->getMeshes();
+			//mobs.push_back(SCM::MeshData());
+			//mobs.back().m_meshId = m_core->createID();
+			//vrrendermodeltoscmmeshobject(controllermodel, &mobs.back());
+			////controller material????
+			//mobs.back().m_material = &scm->getMaterials().front();
+			//std::vector<SCM::MeshData*> meshes;
+			////For every component?
+			//meshes.push_back(&mobs.back());
+			//scm->getMeshedObjects().push_back((SCM::MeshedObject(meshes, m_core->createID())));
+
+			//auto &cntrmeshes = scm->getMeshedObjects().back();
+			////cntrtrans.setData()->m_rotation = { 1,0,0,0 };
+			//cntrtrans.setData()->m_scale = { 1,1,1 };
+			//cntrtrans.setData()->m_localX = { 1,0,0 };
+			//cntrtrans.setData()->m_localY = { 0,1,0 };
+			//cntrtrans.setData()->m_localZ = { 0,0,1 };
+			vr::RenderModel_TextureMap_t *controllerdiffuse;
+			while (rendermodels->LoadTexture_Async(controllermodel->diffuseTextureId, &controllerdiffuse) != vr::EVRRenderModelError::VRRenderModelError_None);
 			//get rendermodel components
 			int cmpit = 0;
 			int cmpnamel = 0;
@@ -235,16 +291,45 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 				delete realname;
 			}
 
-			auto &mobs = scm->getMeshes();
-			mobs.push_back(SCM::MeshData());
-			mobs.back().m_meshId = m_core->createID();
-			vrrendermodeltoscmmeshobject(controllermodel, &mobs.back());
+			//generate new SCM texture for diffuse model texture
+			//SCM::TextureFile tf{ m_core->createID(), "controllerdiff", false };
+			auto& texts = scm->getTextures();
+			//texts.push_back(tf);
+			ipengine::ipid tid;
+			for (auto& t : scm->getTextures())
+			{
+				if (t.m_path == "controllerdiff")
+					tid = t.m_textureId;
+			}
+			if (tid != 0)
+			{
+
+			}
+			else
+			{
+				//generate new SCM texture for diffuse model texture
+				SCM::TextureFile tf{ m_core->createID(), "controllerdiff", false };
+				tid = tf.m_textureId;
+				texts.push_back(tf);
+			}
+			SCM::TextureData td{ tid};
+			td.m_size = { controllerdiffuse->unWidth, controllerdiffuse->unHeight };
+			//Generate material with this texture
+			SCM::MaterialData md{ m_core->createID(), scm->getShaders().back().m_shaderId,{ { "albedo", td } } };
+			auto& mats = scm->getMaterials();
+			mats.push_back(md);
+			auto &scmmeshes = scm->getMeshes();
+			scmmeshes.push_back(SCM::MeshData());
+			auto& newmesh = scmmeshes.back();
+			newmesh.m_meshId = m_core->createID();
+			vrrendermodeltoscmmeshobject(controllermodel, &newmesh);
 			//controller material????
-			mobs.back().m_material = &scm->getMaterials().front();
+			newmesh.m_material = &mats.back();
 			std::vector<SCM::MeshData*> meshes;
 			//For every component?
-			meshes.push_back(&mobs.back());
-			scm->getMeshedObjects().push_back((SCM::MeshedObject(meshes, m_core->createID())));
+			meshes.push_back(&newmesh);
+			auto &mobs = scm->getMeshedObjects();
+			mobs.push_back((SCM::MeshedObject(meshes, m_core->createID())));
 
 			auto &cntrmeshes = scm->getMeshedObjects().back();
 			//cntrtrans.setData()->m_rotation = { 1,0,0,0 };
@@ -253,6 +338,11 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			cntrtrans.setData()->m_localY = { 0,1,0 };
 			cntrtrans.setData()->m_localZ = { 0,0,1 };
 
+			//Load data into graphicsmodule because texture data is not in a file
+			graphicsmodule->loadTextureFromMemory({ controllerdiffuse->unWidth, controllerdiffuse->unHeight, 4, controllerdiffuse->rubTextureMapData
+			}, tid);
+			rendermodels->FreeTexture(controllerdiffuse);
+			rendermodels->FreeRenderModel(controllermodel);
 			ents["OpenVRControllerRight"] = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
 			if (scm->getEntityByName("Camera") != nullptr)
 				ents["OpenVRControllerRight"]->m_parent = scm->getEntityByName("Camera");
@@ -269,10 +359,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	//Set framebuffer 1 and set igraphics matrixes and call render 
 	
 
-	auto graphicsmodule = args[0].cast<IGraphics_API*>();
-	auto matrices = args[1].cast<IGraphics_API::renderMatrixes>();
-	auto preproj = glm::mat4(*matrices.proj);
-	auto preview = glm::mat4(*matrices.view);
+	
 	//SCM::Entity* cam;
 	//auto cameraentity = graphicsmodule->getCameraEntity();
 	//datastore->set("cameraid",cameraentity);

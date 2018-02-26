@@ -10,8 +10,11 @@ SimpleContentModule::SimpleContentModule(void)
 	m_info.identifier = "SimpleContentModule";
 	m_info.version = "1.0";
 	m_info.iam = "ISimpleContentModule_API";
-	getMeshedObjects().reserve(1000);
-	getMeshes().reserve(1000);
+	auto &mobs = getMeshedObjects();
+	mobs.reserve(1000);
+	auto& meshs = getMeshes();
+	meshs.reserve(1000);
+	getMaterials().reserve(1000);
 	return;
 }
 

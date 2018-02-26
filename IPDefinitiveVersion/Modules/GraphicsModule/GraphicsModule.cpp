@@ -60,6 +60,79 @@ bool GraphicsModule::_startup()
 	return true;
 }
 
+void GraphicsModule::loadTextureFromMemory(const GrAPI::t2d & data, const ipengine::ipid id)
+{
+	GLsizei width;
+	GLsizei height;
+	GLsizei channels;
+	GLuint texid = 0;
+	if (data.data == nullptr)
+	{
+		throw std::logic_error("Texture file coudn't be read.");
+	}
+	else
+	{
+		GLint internalformat;
+		GLenum format;
+		switch (data.channels)
+		{
+			case 1:
+				internalformat = GL_R8;
+				format = GL_RED;
+				break;
+			case 2:
+				internalformat = GL_RG8;
+				format = GL_RG;
+				break;
+			case 3:
+				internalformat = GL_RGB8;
+				format = GL_RGB;
+				break;
+			case 4:
+				internalformat = GL_RGBA8;
+				format = GL_RGBA;
+				break;
+			default:
+				internalformat = GL_RGB8;
+				format = GL_RGB;
+				break;
+		}
+		glGenTextures(1, &texid); GLERR
+		if (texid == 0)
+		{
+			throw std::logic_error("OpenGL texture object creation failed.");
+		}
+		glBindTexture(GL_TEXTURE_2D, texid); GLERR
+		glTexImage2D(
+			GL_TEXTURE_2D,		
+			0,					
+			internalformat,			
+			data.width,				
+			data.height,				
+			0,					
+			format,			
+			GL_UNSIGNED_BYTE,	
+			data.data				
+		);
+		if (checkglerror())
+		{
+			glDeleteTextures(1, &texid);
+			//SOIL_free_image_data(image);
+			throw std::logic_error("Error. Could not buffer texture data.");
+		}
+		/*if(genMipMaps)
+			glGenerateMipmap(GL_TEXTURE_2D); GLERR*/
+		glBindTexture(GL_TEXTURE_2D, 0); GLERR
+
+		//SOIL_free_image_data(image);
+	}
+
+	m_scmtexturetot2d[id] = std::make_shared<Texture2D>(texid);
+
+	//return std::make_shared<Texture2D>(texid);
+
+}
+
 //public interface implementation ---------------------------------------------------------------------------------------------
 GraphicsModule::GraphicsModule(void)
 {
@@ -774,10 +847,13 @@ void GraphicsModule::updateData()
 				}
 				else if (mesh->m_dynamic && mesh->m_dirty)//update dynamic meshes
 				{
-					auto& vao = m_scmmeshtovao[mesh->m_meshId];
-					mesh->updateNormals();
-					mesh->updateTangents();
-					GLUtils::updateVAO(vao, *mesh);
+					if (m_scmmeshtovao.count(mesh->m_meshId) > 0)
+					{
+						auto& vao = m_scmmeshtovao[mesh->m_meshId];
+						mesh->updateNormals();
+						mesh->updateTangents();
+						GLUtils::updateVAO(vao, *mesh);
+					}
 				}
 				if (m_scmshadertoprogram.count(mesh->m_material->m_shaderId) < 1)
 				{
@@ -1116,6 +1192,8 @@ void GraphicsModule::setMaterialTexParams(GLuint tex)
 }
 void GraphicsModule::drawSCMMesh(ipengine::ipid meshid)
 {
+	if (m_scmmeshtovao.count(meshid) < 1)
+		return;
 	auto vao = m_scmmeshtovao[meshid];
 	if (vao && vao->vao != 0)
 	{

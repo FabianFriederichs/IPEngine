@@ -188,6 +188,9 @@ private:
 
 	// Inherited via IGraphics_API
 	virtual bool _startup() override;
+
+	// Inherited via IGraphics_API
+	virtual void loadTextureFromMemory(const GrAPI::t2d &, const ipengine::ipid) override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT GraphicsModule module;
