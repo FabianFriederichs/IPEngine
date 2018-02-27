@@ -132,14 +132,14 @@ namespace SCM
 	public:
 		glm::quat m_rotation;
 		glm::vec3 m_center;
-		glm::vec3 m_size;
+		glm::vec3 m_size = { 0.f,0.f,0.f };
 	};
 
 	class BoundingSphere
 	{
 	public:
 		glm::vec3 m_center;
-		glm::float32 m_radius;
+		glm::float32 m_radius = 0.0f;
 	};
 
 	union BoundingData
@@ -403,6 +403,21 @@ namespace SCM
 		bool isActive;
 		//std::map<std::string, boost::any> m_decorators;
 		virtual void swap() { m_transformData.swap(); }
+
+		bool shouldCollide()
+		{
+			if (isBoundingBox)
+			{
+				if (glm::length(m_boundingData.box.m_size) > 0)
+					return true;
+			}
+			else
+			{
+				if (m_boundingData.sphere.m_radius > 1e-5)
+					return true;
+			}
+			return false;
+		}
 	};
 
 	class ThreeDimEntity : public Entity
