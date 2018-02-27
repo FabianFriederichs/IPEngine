@@ -232,6 +232,8 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 		//Check Mesh id
 		if (meshtointernid.find(meshid) != meshtointernid.end())
 		{
+			//auto ntde = new SCM::ThreeDimEntity(m_core->createID(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
+			//ntde->generateBoundingSphere();
 			entitystorage[entityname] = new SCM::ThreeDimEntity(m_core->createID(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
 			entitystorage[entityname]->m_name = entityname;
 			contentmodule->getThreeDimEntities()[entitystorage[entityname]->m_entityId] = static_cast<SCM::ThreeDimEntity*>(entitystorage[entityname]);
