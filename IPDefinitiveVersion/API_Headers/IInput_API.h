@@ -353,6 +353,7 @@ namespace IInput
 
 																																																																										 SCANCODE_APP1 = 283,
 																																																																										 SCANCODE_APP2 = 284,
+																																																												 /* @} *//* Walther keys */
 																																																																										 SCANCODE_MOUSEBUTTON1,
 																																																																										 SCANCODE_MOUSEBUTTON2,
 																																																																										 SCANCODE_MOUSEBUTTON3,
@@ -370,7 +371,8 @@ namespace IInput
 																																																																										 SCANCODE_VRBUTTON_AXIS4,
 																																																																										 SCANCODE_VRBUTTON_TOUCHPAD,
 																																																																										 SCANCODE_VRBUTTON_TRIGGER,
-																																																																										 /* @} *//* Walther keys */
+																																																																										SCANCODE_VRBUTTON_DPAD_LEFT,
+																																																												 SCANCODE_VRBUTTON_DPAD_UP, SCANCODE_VRBUTTON_DPAD_RIGHT, SCANCODE_VRBUTTON_DPAD_DOWN,
 
 																																																																										 /* Add any other keys here. */
 

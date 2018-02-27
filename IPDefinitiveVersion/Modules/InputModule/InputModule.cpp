@@ -157,6 +157,8 @@ void InputModule::pollData()
 		while (vrsys->PollNextEvent(&vreve, sizeof(vr::VREvent_t)))
 		{
 			IInput::Input i;
+			vr::VRControllerState_t state;
+
 			switch (vreve.eventType)
 			{
 			case vr::VREvent_ButtonPress:
@@ -164,6 +166,8 @@ void InputModule::pollData()
 				i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
 				i.data.kd.state = IInput::ButtonState::BUTTON_DOWN;
 				i.data.kd.deviceIndex = vreve.trackedDeviceIndex;
+				i.data.kd.isrepeat = false;
+				vrsys->GetControllerState(vreve.trackedDeviceIndex, &state, sizeof(state));
 				switch (vreve.data.controller.button)
 				{
 				case vr::EVRButtonId::k_EButton_ApplicationMenu:
@@ -176,7 +180,33 @@ void InputModule::pollData()
 					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_GRIP;
 					break;
 				case vr::EVRButtonId::k_EButton_SteamVR_Touchpad:
-					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TOUCHPAD;
+				{if (state.rAxis[0].y > 0.7f)
+				{
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_UP;
+				}
+				else if (state.rAxis[0].y < -0.7f)
+				{
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_DOWN;
+				}
+				IInput::Scancode checksecondinput = IInput::Scancode::NUM_SCANCODES;
+				if (state.rAxis[0].x > 0.7f)
+				{
+					checksecondinput = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_RIGHT;
+				}
+				else if (state.rAxis[0].x < -0.7f)
+				{
+					checksecondinput = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_LEFT;
+				}
+				if (checksecondinput != IInput::Scancode::NUM_SCANCODES)
+				{
+					IInput::Input second(i);
+					second.data.kd.keycode = checksecondinput;
+					if (second.timeStamp.nano() == lasttiming)
+					{
+						second.timeStamp = ipengine::Time(lasttiming + 1);
+					}
+					tempInput.insert({ second.timeStamp.nano(), second });
+				}}
 					break;
 				case vr::EVRButtonId::k_EButton_SteamVR_Trigger:
 					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TRIGGER;
@@ -189,15 +219,27 @@ void InputModule::pollData()
 					break;
 				case vr::EVRButtonId::k_EButton_Axis4:
 					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS4;
+					break;
+				case vr::EVRButtonId::k_EButton_DPad_Left:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_LEFT;
+					break;
+				case vr::EVRButtonId::k_EButton_DPad_Up:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_UP;
+					break;
+				case vr::EVRButtonId::k_EButton_DPad_Right:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_RIGHT;
+					break;
+				case vr::EVRButtonId::k_EButton_DPad_Down:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_DOWN;
 					break;
 				}
 				break;
 			case vr::VREvent_ButtonUnpress:
 				i.type = IInput::InputType::INPUT_KEY;
-				i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count());
+				i.timeStamp = ipengine::Time(clock.now().time_since_epoch().count()+10);
 				i.data.kd.state = IInput::ButtonState::BUTTON_UP;
 				i.data.kd.deviceIndex = vreve.trackedDeviceIndex;
-
+				vrsys->GetControllerState(vreve.trackedDeviceIndex, &state, sizeof(state));
 				switch (vreve.data.controller.button)
 				{
 				case vr::EVRButtonId::k_EButton_ApplicationMenu:
@@ -210,7 +252,33 @@ void InputModule::pollData()
 					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_GRIP;
 					break;
 				case vr::EVRButtonId::k_EButton_SteamVR_Touchpad:
-					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TOUCHPAD;
+				{if (state.rAxis[0].y > 0.7f)
+				{
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_UP;
+				}
+				else if (state.rAxis[0].y < -0.7f)
+				{
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_DOWN;
+				}
+				IInput::Scancode checksecondinput = IInput::Scancode::NUM_SCANCODES;
+				if (state.rAxis[0].x > 0.7f)
+				{
+					checksecondinput = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_RIGHT;
+				}
+				else if (state.rAxis[0].x < -0.7f)
+				{
+					checksecondinput = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_LEFT;
+				}
+				if (checksecondinput != IInput::Scancode::NUM_SCANCODES)
+				{
+					IInput::Input second(i);
+					second.data.kd.keycode = checksecondinput;
+					if (second.timeStamp.nano() == lasttiming)
+					{
+						second.timeStamp = ipengine::Time(lasttiming + 10);
+					}
+					tempInput.insert({ second.timeStamp.nano(), second });
+				}}
 					break;
 				case vr::EVRButtonId::k_EButton_SteamVR_Trigger:
 					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_TRIGGER;
@@ -223,6 +291,18 @@ void InputModule::pollData()
 					break;
 				case vr::EVRButtonId::k_EButton_Axis4:
 					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_AXIS4;
+					break;
+				case vr::EVRButtonId::k_EButton_DPad_Left:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_LEFT;
+					break;
+				case vr::EVRButtonId::k_EButton_DPad_Up:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_UP;
+					break;
+				case vr::EVRButtonId::k_EButton_DPad_Right:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_RIGHT;
+					break;
+				case vr::EVRButtonId::k_EButton_DPad_Down:
+					i.data.kd.keycode = IInput::Scancode::SCANCODE_VRBUTTON_DPAD_DOWN;
 					break;
 				}
 				break;
@@ -231,6 +311,11 @@ void InputModule::pollData()
 			case vr::VREvent_ButtonUntouch:
 				break;
 			}
+			if (i.timeStamp.nano() == lasttiming)
+			{
+				i.timeStamp = ipengine::Time(lasttiming + 1);
+			}
+			tempInput.insert({ i.timeStamp.nano(), i });
 		}
 	}
 
