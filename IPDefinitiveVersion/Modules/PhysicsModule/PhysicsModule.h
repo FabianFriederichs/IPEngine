@@ -34,15 +34,17 @@ public:
 	{
 		contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
 		scenemodule = m_info.dependencies.getDep<ISimpleSceneModule_API>("SSM");
+		auto clothtr = SCM::TransformData(
+			glm::vec3(0.0f, 0.0f, -1.0f),
+			glm::quat(),
+			glm::vec3(1.0f, 1.0f, 1.0f)
+		);
+		clothtr.updateTransform();
 		auto id = createCloth(
 			"testcloth",
 			50,
 			50,
-			SCM::TransformData(
-				glm::vec3(0.0f, 0.0f, -1.0f),
-				glm::quat(),
-				glm::vec3(1.0f, 1.0f, 1.0f)
-			),
+			clothtr,
 			IPhysicsModule_API::PhysicsContext{
 				glm::vec3(0.0f, -10.0f, 0.0f),
 				1.0f,

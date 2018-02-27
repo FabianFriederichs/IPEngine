@@ -408,12 +408,12 @@ namespace SCM
 		{
 			if (isBoundingBox)
 			{
-				if (glm::length(m_boundingData.box.m_size) > 0)
+				if (glm::dot(m_boundingData.box.m_size, m_boundingData.box.m_size) > 1.e-5)
 					return true;
 			}
 			else
 			{
-				if (m_boundingData.sphere.m_radius > 1e-5)
+				if (m_boundingData.sphere.m_radius > 1.e-5)
 					return true;
 			}
 			return false;

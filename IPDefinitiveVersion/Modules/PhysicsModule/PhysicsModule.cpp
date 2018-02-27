@@ -413,21 +413,18 @@ void PhysicsModule::handleCollisions(ipengine::TaskContext & context)
 		for (auto& e : entities)
 		{
 			auto& entity = e.second;
-			if (entity->m_entityId == ub.m_cloth->id)
-				continue;
-			if (entity->isActive)
-			{				
-				glm::vec3 cvec = tryCollide(ub.m_cloth, p, entity, ub.dt, c);
-				wp.m_velocity += cvec;
+			if (!entity->isActive || entity->m_entityId == ub.m_cloth->id || !entity->shouldCollide())
+				continue;			
+			glm::vec3 cvec = tryCollide(ub.m_cloth, p, entity, ub.dt, c);
+			wp.m_velocity += cvec;
 
-				if (c)
+			if (c)
+			{
+				if (ub.m_cloth->m_currentCollision.load(std::memory_order::memory_order_relaxed) != entity->m_entityId)
 				{
-					if (ub.m_cloth->m_currentCollision.load(std::memory_order::memory_order_relaxed) != entity->m_entityId)
-					{
-						ub.m_cloth->m_collisionqueue.enqueue(entity->m_entityId);
-					}
+					ub.m_cloth->m_collisionqueue.enqueue(entity->m_entityId);
 				}
-			}
+			}			
 		}
 
 		wp.m_position = p.m_position;
@@ -442,13 +439,16 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 	if (entity->isBoundingBox)
 	{
 		///*do an optimistic test at the beginning. construct a sphere from the largest size dim of the box and
+		//transform everything into world space
+
+
 		//do a quick sphere-sphere intersection test. quit early if the test renders negative*/
 
-		//if (glm::length(particle.m_position - collider.m_center + wpos) > particle.m_radius + (glm::max(collider.m_size.x, glm::max(collider.m_size.y, collider.m_size.z))))
-		//{
-		//	collided = false;
-		//	return glm::vec3(0.0f, 0.0f, 0.0f);
-		//}
+		/*if (glm::length(particle.m_position - collider.m_center + wpos) > particle.m_radius + (glm::max(collider.m_size.x, glm::max(collider.m_size.y, collider.m_size.z))))
+		{
+			collided = false;
+			return glm::vec3(0.0f, 0.0f, 0.0f);
+		}*/
 
 		////Calculate planes from bounding box
 		//glm::mat3 rotmat = glm::mat3(glm::normalize(entity->m_transformData.getData()->m_rotation * entity->m_boundingData.box.m_rotation));
@@ -662,6 +662,8 @@ ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 	cloth.m_particles_buf2 = ipengine::alloc_aligned_array<Particle, TS_CACHE_LINE_SIZE>(width * height);
 	cloth.m_springs = ipengine::alloc_aligned_array<Spring, TS_CACHE_LINE_SIZE>(width * height * MAX_SPRINGS_PER_PARTICLE);
 
+	auto transm = transform.m_transformMatrix;
+
 	//cloth.m_vertices.reserve(width * height);
 	cloth.m_csidx.reserve(width * height);
 	//cloth.m_indices.reserve(width * height * 2 * 3);
@@ -679,7 +681,7 @@ ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 		{
 			Particle p;
 			//position			
-			p.m_position = curpos + transform.m_location;
+			p.m_position = glm::vec3(transm * glm::vec4(curpos, 1.0f));
 			curpos.x += cloth.m_distance;
 			//std::cout << p.m_position.x << " " << p.m_position.y << " " << p.m_position.z << "\n";
 			p.m_velocity = glm::vec3(0.0f);
