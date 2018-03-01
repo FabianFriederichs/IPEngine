@@ -37,7 +37,7 @@ private:
 	std::shared_ptr<DGStuff::DependencyGraph> depgraph;
 	std::string depgraphpath;
 	std::map<std::string, boost::shared_ptr<IModule_API>> loadedModules;
-	std::map<std::string, boost::shared_ptr<IExtensionPoint>> loadedExtensions;
+	std::map<std::string, boost::shared_ptr<IExtension>> loadedExtensions;
 	std::vector<boost::filesystem::path> dlibFilePaths;	
 
 	//Unnecessary, using std::find_if with lambda instead.
@@ -101,7 +101,7 @@ public:
 		}
 	}
 
-	uint32_t reassignDependency(boost::shared_ptr<IExtensionPoint> mod, std::string dependencyID, std::string newModuleID)
+	uint32_t reassignDependency(boost::shared_ptr<IExtension> mod, std::string dependencyID, std::string newModuleID)
 	{
 		//change dependency "dependencyID" in module "moduleID" to the module "newModuleID"
 		//Do checks whether it's correct and then update the pointer in "moduleID"s moduleinfo of specified dependency

@@ -25,7 +25,6 @@ private:
 	std::string contentmoduleidentifier = "SCM";
 	std::unordered_map<ipengine::ipid, Scene> m_scenes;
 	ipengine::ipid m_activeScene;
-	ipengine::ipid m_maxId = std::numeric_limits<ipengine::ipid>::max();
 	// Inherited via ISimpleSceneModule_API
 	virtual ipengine::ipid LoadSceneFromFile(std::string filepath) override;
 	virtual std::vector<ipengine::ipid> LoadSceneFromFile(std::vector<std::string>::const_iterator filepathstart, std::vector<std::string>::const_iterator filepathend) override;

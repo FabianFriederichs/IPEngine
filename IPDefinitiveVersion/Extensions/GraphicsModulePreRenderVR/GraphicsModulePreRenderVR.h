@@ -11,14 +11,14 @@
 #include <IDataStoreModuleh_API.h>
 #include <ISimpleSceneModule_API.h>
 #include "glerror.h"
-class GraphicsModulePreRenderVR : public IExtensionPoint {
+class GraphicsModulePreRenderVR : public IExtension {
 public:
 	GraphicsModulePreRenderVR();
 	// TODO: add your methods here.
 	virtual void execute(std::vector<std::string> argnames, std::vector<ipengine::any>& args) override;
 
 
-	// Inherited via IExtensionPoint
+	// Inherited via IExtension
 	virtual ExtensionInformation * getInfo() override;
 
 	struct FramebufferDesc

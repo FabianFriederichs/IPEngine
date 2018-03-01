@@ -16,7 +16,7 @@ DGStuff::Module * Injector::getModuleByIdentifier(std::vector<DGStuff::Module>* 
 
 bool Injector::recursiveInject(DGStuff::Module* mod)
 {
-	boost::shared_ptr<IExtensionPoint> pex;
+	boost::shared_ptr<IExtension> pex;
 	ExtensionInformation* pexinf;
 	boost::shared_ptr<IModule_API> p;
 	ModuleInformation* pinf;
@@ -153,7 +153,7 @@ void Injector::LoadModules(ipengine::Core * core, std::string path, bool reload 
 			//load extensions
 			if (lib.has("extension"))
 			{
-				auto tmp = boost::dll::import<IExtensionPoint>(path, "extension", boost::dll::load_mode::default_mode);
+				auto tmp = boost::dll::import<IExtension>(path, "extension", boost::dll::load_mode::default_mode);
 				tmp->m_core = core;
 				//!fallback name if identifier is empty
 				loadedExtensions.insert({ tmp->getInfo()->identifier, tmp });

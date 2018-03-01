@@ -19,7 +19,7 @@ namespace DependencyFlags {
 
 class IModule_API;
 class Injector;
-class IExtensionPoint;
+class IExtension;
 class DependencyContainer
 {
 private:
@@ -107,7 +107,7 @@ struct DependencyInformation
 
 struct ExtensionInformation
 {
-	//using ExtensionReceptor = std::map<std::string, std::vector<boost::shared_ptr<IExtensionPoint>>>; //ExP name : [priority]:ExP object 
+	//using ExtensionReceptor = std::map<std::string, std::vector<boost::shared_ptr<IExtension>>>; //ExP name : [priority]:ExP object 
 	DependencyContainer dependencies;
 	//std::vector<std::string> dependencies; //List of the dependency names this module takes. Has to be identical to the string key used by the IModule_API to hold the IModule_API reference. Maybe add flags for whethher it's optional?
 	//std::string iam; //Maybe make this a string container and have it contain every possible upcast? then you can easily check whether a module can be used as a dependency for X
@@ -118,7 +118,7 @@ struct ExtensionInformation
 
 };
 
-class IExtensionPoint
+class IExtension
 {
 	friend class Injector;
 public:
@@ -164,7 +164,7 @@ public:
 		}
 	}
 
-	void assignExtension(std::string pointIdent, uint32_t prio, boost::shared_ptr<IExtensionPoint> iexp)
+	void assignExtension(std::string pointIdent, uint32_t prio, boost::shared_ptr<IExtension> iexp)
 	{
 		auto it = expoints[pointIdent].begin();
 		if (prio >= expoints[pointIdent].size())
@@ -174,12 +174,12 @@ public:
 		expoints[pointIdent].insert(it, iexp);
 	}
 
-	std::map<std::string, std::vector<boost::shared_ptr<IExtensionPoint>>> expoints;
+	std::map<std::string, std::vector<boost::shared_ptr<IExtension>>> expoints;
 };
 
 struct ModuleInformation
 {
-	//using ExtensionReceptor = std::map<std::string, std::vector<boost::shared_ptr<IExtensionPoint>>>; //ExP name : [priority]:ExP object 
+	//using ExtensionReceptor = std::map<std::string, std::vector<boost::shared_ptr<IExtension>>>; //ExP name : [priority]:ExP object 
 	DependencyContainer dependencies;
 	//std::vector<std::string> dependencies; //List of the dependency names this module takes. Has to be identical to the string key used by the IModule_API to hold the IModule_API reference. Maybe add flags for whethher it's optional?
 	std::string iam; //Maybe make this a string container and have it contain every possible upcast? then you can easily check whether a module can be used as a dependency for X
