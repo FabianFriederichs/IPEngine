@@ -450,96 +450,103 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 			return glm::vec3(0.0f, 0.0f, 0.0f);
 		}*/
 
-		////Calculate planes from bounding box
-		//glm::mat3 rotmat = glm::mat3(glm::normalize(entity->m_transformData.getData()->m_rotation * entity->m_boundingData.box.m_rotation));
-		//glm::vec3 localx(
-		//	rotmat[0]
-		//);
+		//calculate boundingbox transformation matrix
+		auto& bb = entity->m_boundingData.box;
+		glm::mat4 bbtoentity = glm::translate(bb.m_center) * glm::mat4(bb.m_rotation) * glm::scale(bb.m_size * 0.5f);
+		glm::mat4 bbtoworld = entity->m_transformData.getData()->m_transformMatrix * bbtoentity;
 
-		//glm::vec3 localy(
-		//	rotmat[1]
-		//);
+		glm::vec3 localx(
+			glm::normalize(bbtoworld[0])
+		);
 
-		//glm::vec3 localz(
-		//	rotmat[2]
-		//);
+		glm::vec3 localy(
+			glm::normalize(bbtoworld[1])
+		);
 
-		////Calculate box points
-		//glm::vec3 boxpoints[8];
+		glm::vec3 localz(
+			glm::normalize(bbtoworld[2])
+		);
 
-		//glm::vec3 xoff = localx * (collider.m_size.x * 0.5f);
-		//glm::vec3 yoff = localy * (collider.m_size.y * 0.5f);
-		//glm::vec3 zoff = localz * (collider.m_size.z * 0.5f);
+		glm::vec3 center = glm::vec3(bbtoworld[3]);
 
-		//boxpoints[0] = collider.m_center + wpos + zoff - xoff - yoff;
-		//boxpoints[1] = collider.m_center + wpos + zoff + xoff - yoff;
-		//boxpoints[2] = collider.m_center + wpos + zoff - xoff + yoff;
-		//boxpoints[3] = collider.m_center + wpos + zoff + xoff + yoff;
-		//boxpoints[4] = collider.m_center + wpos - zoff - xoff - yoff;
-		//boxpoints[5] = collider.m_center + wpos - zoff + xoff - yoff;
-		//boxpoints[6] = collider.m_center + wpos - zoff - xoff + yoff;
-		//boxpoints[7] = collider.m_center + wpos - zoff + xoff + yoff;
+		glm::vec3 size = glm::vec3(glm::length(localx), glm::length(localy), glm::length(localz)) * 2.0f;
+
+		//Calculate box points
+		glm::vec3 boxpoints[8];
+
+		glm::vec3 xoff = localx * (size.x * 0.5f);
+		glm::vec3 yoff = localy * (size.y * 0.5f);
+		glm::vec3 zoff = localz * (size.z * 0.5f);
+
+		boxpoints[0] = center + zoff - xoff - yoff;
+		boxpoints[1] = center + zoff + xoff - yoff;
+		boxpoints[2] = center + zoff - xoff + yoff;
+		boxpoints[3] = center + zoff + xoff + yoff;
+		boxpoints[4] = center - zoff - xoff - yoff;
+		boxpoints[5] = center - zoff + xoff - yoff;
+		boxpoints[6] = center - zoff - xoff + yoff;
+		boxpoints[7] = center - zoff + xoff + yoff;
 
 
-		////use sat to detect collision
-		////calculate nearest point on box surface to sphere center, use spherecenter - closest point as seperating axis
+		//use sat to detect collision
+		//calculate nearest point on box surface to sphere center, use spherecenter - closest point as seperating axis
 
-		////project particle position on every axis and clamp them to box bounds
-		//glm::vec3 projectedPosition(
-		//	glm::dot(particle.m_position - collider.m_center + wpos, localx),
-		//	glm::dot(particle.m_position - collider.m_center + wpos, localy),
-		//	glm::dot(particle.m_position - collider.m_center + wpos, localz)
-		//);
+		//project particle position on every axis and clamp them to box bounds
+		glm::vec3 projectedPosition(
+			glm::dot(particle.m_position - center, localx),
+			glm::dot(particle.m_position - center, localy),
+			glm::dot(particle.m_position - center, localz)
+		);
 
-		////something goes wrong here
-		//projectedPosition.x = glm::clamp(projectedPosition.x, -collider.m_size.x * 0.5f, collider.m_size.x * 0.5f);//(collider.m_size.x * 0.5f) / glm::abs(projectedPosition.x);
-		//projectedPosition.y = glm::clamp(projectedPosition.y, -collider.m_size.y * 0.5f, collider.m_size.y * 0.5f);//(collider.m_size.y * 0.5f) / glm::abs(projectedPosition.y);
-		//projectedPosition.z = glm::clamp(projectedPosition.z, -collider.m_size.z * 0.5f, collider.m_size.z * 0.5f);//(collider.m_size.z * 0.5f) / glm::abs(projectedPosition.z);
+		//something goes wrong here
+		projectedPosition.x = glm::clamp(projectedPosition.x, -size.x * 0.5f, size.x * 0.5f);
+		projectedPosition.y = glm::clamp(projectedPosition.y, -size.y * 0.5f, size.y * 0.5f);
+		projectedPosition.z = glm::clamp(projectedPosition.z, -size.z * 0.5f, size.z * 0.5f);
 
-		//glm::vec3 nearestPointOnBox(
-		//	localx * projectedPosition.x +
-		//	localy * projectedPosition.y +
-		//	localz * projectedPosition.z
-		//);
+		glm::vec3 nearestPointOnBox(
+			localx * projectedPosition.x +
+			localy * projectedPosition.y +
+			localz * projectedPosition.z
+		);
 
-		//nearestPointOnBox += collider.m_center + wpos;
+		nearestPointOnBox += center;
 
-		//float mindistance = glm::length(nearestPointOnBox - particle.m_position);
+		float mindistance = glm::length(nearestPointOnBox - particle.m_position);
 
-		//glm::vec3 sataxis = (nearestPointOnBox - particle.m_position) / glm::abs(mindistance);
+		glm::vec3 sataxis = (nearestPointOnBox - particle.m_position) / glm::abs(mindistance);
 
-		//float minprojbox = std::numeric_limits<float>::max();
-		//float maxprojbox = std::numeric_limits<float>::lowest();
+		float minprojbox = std::numeric_limits<float>::max();
+		float maxprojbox = std::numeric_limits<float>::lowest();
 
-		//float minprojparticle;
-		//float maxprojparticle;
+		float minprojparticle;
+		float maxprojparticle;
 
-		//float maxproj;
-		//float minproj;
+		float maxproj;
+		float minproj;
 
-		//for (size_t i = 0; i < 8; i++)
-		//{
-		//	float proj = glm::dot(boxpoints[i], sataxis);
-		//	minprojbox = glm::min(minprojbox, proj);
-		//	maxprojbox = glm::max(maxprojbox, proj);
-		//}
+		for (size_t i = 0; i < 8; i++)
+		{
+			float proj = glm::dot(boxpoints[i], sataxis);
+			minprojbox = glm::min(minprojbox, proj);
+			maxprojbox = glm::max(maxprojbox, proj);
+		}
 
-		//minprojparticle = glm::min(glm::dot(particle.m_position + particle.m_radius * sataxis, sataxis), glm::dot(particle.m_position - particle.m_radius * sataxis, sataxis));
-		//maxprojparticle = glm::max(glm::dot(particle.m_position + particle.m_radius * sataxis, sataxis), glm::dot(particle.m_position - particle.m_radius * sataxis, sataxis));
+		minprojparticle = glm::min(glm::dot(particle.m_position + particle.m_radius * sataxis, sataxis), glm::dot(particle.m_position - particle.m_radius * sataxis, sataxis));
+		maxprojparticle = glm::max(glm::dot(particle.m_position + particle.m_radius * sataxis, sataxis), glm::dot(particle.m_position - particle.m_radius * sataxis, sataxis));
 
-		//minproj = glm::min(minprojbox, minprojparticle);
-		//maxproj = glm::max(maxprojbox, maxprojparticle);
+		minproj = glm::min(minprojbox, minprojparticle);
+		maxproj = glm::max(maxprojbox, maxprojparticle);
 
-		//if ((maxprojbox - minprojbox) + (maxprojparticle - minprojparticle) > maxproj - minproj)
-		//{
-		//	//collision!
-		//	//calculate penetration depth
-		//	//wrong if particle is completely inside box
-		//	float penetrationDepth = ((maxprojbox - minprojbox) + (maxprojparticle - minprojparticle)) - (maxproj - minproj);//glm::length((particle.m_position + (sataxis * particle.m_radius)) - nearestPointOnBox);
+		if ((maxprojbox - minprojbox) + (maxprojparticle - minprojparticle) > maxproj - minproj)
+		{
+			//collision!
+			//calculate penetration depth
+			//wrong if particle is completely inside box
+			float penetrationDepth = ((maxprojbox - minprojbox) + (maxprojparticle - minprojparticle)) - (maxproj - minproj);//glm::length((particle.m_position + (sataxis * particle.m_radius)) - nearestPointOnBox);
 
-		//	collided = true;																												//std::cout << penetrationDepth << "\n";
-		//	return (penetrationDepth * -sataxis) / dt;//planes[minpidx].n) / dt;
-		//}
+			collided = true;																												//std::cout << penetrationDepth << "\n";
+			return (penetrationDepth * -sataxis) / dt;//planes[minpidx].n) / dt;
+		}
 		collided = false;
 		return glm::vec3(0.0f, 0.0f, 0.0f);
 	}
