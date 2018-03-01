@@ -42,13 +42,13 @@ public:
 		clothtr.updateTransform();
 		auto id = createCloth(
 			"testcloth",
-			50,
-			50,
+			20,
+			20,
 			clothtr,
 			IPhysicsModule_API::PhysicsContext{
-				glm::vec3(0.0f, -10.0f, 0.0f),
-				1.0f,
-				0.1f,
+				glm::vec3(0.0f, -50.0f, 0.0f),
+				3.0f,
+				0.8f,
 				40.0f,
 				0.12f,
 				40.0f,
@@ -68,8 +68,8 @@ public:
 		);
 
 		clothentities.push_back(id);
-		fixParticle(id, 0, 49, true);
-		fixParticle(id, 49, 49, true);
+		fixParticle(id, 0, 19, true);
+		fixParticle(id, 19, 19, true);
 		scenemodule->AddEntity(id);
 		contentmodule->getEntityById(id)->isActive = true;
 
