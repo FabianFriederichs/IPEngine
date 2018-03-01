@@ -451,9 +451,8 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 		}*/
 
 		//calculate boundingbox transformation matrix
-		auto& bb = entity->m_boundingData.box;
-		glm::mat4 bbtoentity = glm::translate(bb.m_center) * glm::mat4(bb.m_rotation) * glm::scale(bb.m_size * 0.5f);
-		glm::mat4 bbtoworld = entity->m_transformData.getData()->m_transformMatrix * bbtoentity;
+		auto& bb = entity->m_boundingData.box;		
+		glm::mat4& bbtoworld = entity->m_boundingData.box.bdtoworld;
 
 		glm::vec3 localx(
 			glm::normalize(bbtoworld[0])
@@ -469,7 +468,7 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 
 		glm::vec3 center = glm::vec3(bbtoworld[3]);
 
-		glm::vec3 size = glm::vec3(glm::length(localx), glm::length(localy), glm::length(localz)) * 2.0f;
+		glm::vec3 size = glm::vec3(glm::length(glm::vec3(bbtoworld[0])), glm::length(glm::vec3(bbtoworld[1])), glm::length(glm::vec3(bbtoworld[2]))) * 2.0f;
 
 		//Calculate box points
 		glm::vec3 boxpoints[8];
@@ -552,7 +551,7 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 	}
 	else
 	{
-		auto scolcenter = ((entity->m_transformData.getData()->m_rotation * entity->m_boundingData.sphere.m_center) + entity->m_transformData.getData()->m_location);
+		auto scolcenter = glm::vec3(entity->m_boundingData.sphere.bdtoworld[3]);
 		auto scolrad = entity->m_boundingData.sphere.m_radius * glm::max(entity->m_transformData.getData()->m_scale.x, glm::max(entity->m_transformData.getData()->m_scale.y, entity->m_transformData.getData()->m_scale.z));
 		glm::vec3 psvec = particle.m_position - scolcenter;
 		float pslth = glm::length(psvec);

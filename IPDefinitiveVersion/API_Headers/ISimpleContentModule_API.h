@@ -133,6 +133,7 @@ namespace SCM
 		glm::quat m_rotation;
 		glm::vec3 m_center;
 		glm::vec3 m_size = { 0.f,0.f,0.f };
+		glm::mat4 bdtoworld;
 	};
 
 	class BoundingSphere
@@ -140,6 +141,7 @@ namespace SCM
 	public:
 		glm::vec3 m_center;
 		glm::float32 m_radius = 0.0f;
+		glm::mat4 bdtoworld;
 	};
 
 	union BoundingData
@@ -151,7 +153,7 @@ namespace SCM
 		BoundingData(BoundingBox b) :box(b) {}
 		BoundingData(BoundingSphere s) : sphere(s) {}
 		BoundingBox box;
-		BoundingSphere sphere;
+		BoundingSphere sphere;		
 	};
 
 	class ShaderData

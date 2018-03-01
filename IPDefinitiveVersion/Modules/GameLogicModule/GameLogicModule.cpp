@@ -79,7 +79,7 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 	{
 		if (threde.count(e.second->m_entityId))
 		{
-			entity3dUpdate(static_cast<SCM::ThreeDimEntity*>(e.second));
+			entity3dUpdate(static_cast<SCM::ThreeDimEntity*>(e.second));			
 		}
 		else
 		{
@@ -340,6 +340,7 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 		data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
 		//e->swap();
 		e->m_transformData.setData()->m_isMatrixDirty = false;
+		updateBoundingData(e);
 	}
 }
 
@@ -394,7 +395,25 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 		data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
 		//e->swap();
 		e->m_transformData.setData()->m_isMatrixDirty = false;
+		updateBoundingData(e);
 
+	}
+}
+
+void GameLogicModule::updateBoundingData(SCM::Entity * entity)
+{
+	if (entity->shouldCollide())
+	{
+		if (entity->isBoundingBox)
+		{
+			glm::mat4 bbtoentity = glm::translate(entity->m_boundingData.box.m_center) * glm::mat4(entity->m_boundingData.box.m_rotation) * glm::scale(entity->m_boundingData.box.m_size * 0.5f);
+			entity->m_boundingData.box.bdtoworld = entity->m_transformData.getData()->m_transformMatrix * bbtoentity;
+		}
+		else
+		{
+			glm::mat4 bstoentity = glm::translate(entity->m_boundingData.sphere.m_center);
+			entity->m_boundingData.sphere.bdtoworld = entity->m_transformData.getData()->m_transformMatrix * bstoentity;
+		}
 	}
 }
 
