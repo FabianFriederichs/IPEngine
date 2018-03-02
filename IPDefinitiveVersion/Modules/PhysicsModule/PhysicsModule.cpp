@@ -548,7 +548,7 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 			collided = true;
 			glm::vec3 cvel(0.0f);//std::cout << penetrationDepth << "\n";
 								 //contstraint velocity
-			cvel += (penetrationDepth * -sataxis) / dt;
+			cvel += (penetrationDepth * -sataxis * m_pencm) / dt;
 
 			if (m_doVelocityCollisionResponse)
 			{
@@ -581,7 +581,7 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 			//calculate a velocity that puishes the particle penetrationDepth in collisionNormal direction. add friction later (just scale the part orthogonal to the collision response)
 			//particle.m_position += (collisionNormal * penetrationDepth);
 			//constraint velocity:
-			cvel += (collisionNormal * penetrationDepth) / dt;
+			cvel += (collisionNormal * penetrationDepth * m_pencm) / dt;
 
 			if (m_doVelocityCollisionResponse)
 			{
@@ -1045,6 +1045,7 @@ bool PhysicsModule::_startup()
 	particles_per_task = particles_per_task != 0 ? particles_per_task : PARTICLES_PER_TASK;
 	m_doVelocityCollisionResponse = m_core->getConfigManager().getBool("physics.cloth_simulation.do_impulse_based_collision_response");
 	m_collisionfric = static_cast<float>(m_core->getConfigManager().getFloat("physics.cloth_simulation.collision_fric"));
+	m_pencm = static_cast<float>(m_core->getConfigManager().getFloat("physics.cloth_simulation.penetration_correction_multiplier"));
 	contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
 	return true;
 }

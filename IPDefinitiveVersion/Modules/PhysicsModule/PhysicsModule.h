@@ -74,6 +74,7 @@ public:
 
 	}
 private:
+	float m_pencm;
 	bool m_doVelocityCollisionResponse;
 	float m_collisionfric;
 	ModuleInformation m_info;
