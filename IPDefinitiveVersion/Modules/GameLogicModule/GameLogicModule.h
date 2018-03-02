@@ -44,6 +44,7 @@ private:
 	void mousescrollUpdate(IInput::Input&);
 	void entityUpdate(SCM::Entity*);
 	void entity3dUpdate(SCM::ThreeDimEntity*);
+	void updateBoundingData(SCM::Entity*);
 
 	// Inherited via IModule_API
 	virtual bool _startup() override;

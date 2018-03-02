@@ -207,7 +207,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			rendermodels->FreeTexture(controllerdiffuse);
 			rendermodels->FreeRenderModel(controllermodel);
 			auto lctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
-			lctde->generateBoundingSphere();
+			lctde->generateBoundingBox();
 			ents["OpenVRControllerLeft"] = lctde;// new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
 			if(scm->getEntityByName("Camera")!=nullptr)
 				ents["OpenVRControllerLeft"]->m_parent = scm->getEntityByName("Camera");
@@ -318,7 +318,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			rendermodels->FreeTexture(controllerdiffuse);
 			rendermodels->FreeRenderModel(controllermodel);
 			auto rctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
-			rctde->generateBoundingSphere();
+			rctde->generateBoundingBox();
 			ents["OpenVRControllerRight"] = rctde;//new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
 			if (scm->getEntityByName("Camera") != nullptr)
 				ents["OpenVRControllerRight"]->m_parent = scm->getEntityByName("Camera");
