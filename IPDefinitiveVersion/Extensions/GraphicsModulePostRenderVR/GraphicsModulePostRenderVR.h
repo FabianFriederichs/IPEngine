@@ -9,14 +9,14 @@
 #include <GraphicsModulePReRenderVR/GraphicsModulePreRenderVR.h>
 #include <IDataStoreModuleh_API.h>
 
-class GraphicsModulePostRenderVR : public IExtensionPoint {
+class GraphicsModulePostRenderVR : public IExtension {
 public:
 	GraphicsModulePostRenderVR();
 	// TODO: add your methods here.
 	virtual void execute(std::vector<std::string> argnames, std::vector<ipengine::any>& args) override;
 
 
-	// Inherited via IExtensionPoint
+	// Inherited via IExtension
 	virtual ExtensionInformation * getInfo() override;
 private:
 	ExtensionInformation m_info;

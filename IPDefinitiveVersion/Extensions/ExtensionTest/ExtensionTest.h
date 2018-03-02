@@ -5,14 +5,14 @@
 #include <IModule_API.h>
 #include <ISimpleContentModule_API.h>
 #include <IGraphics_API.h>
-class ExtensionTest : public IExtensionPoint {
+class ExtensionTest : public IExtension {
 public:
 	ExtensionTest();
 	// TODO: add your methods here.
 	virtual void execute(std::vector<std::string> argnames, std::vector<ipengine::any>& args) override;
 
 
-	// Inherited via IExtensionPoint
+	// Inherited via IExtension
 	virtual ExtensionInformation * getInfo() override;
 	void changeCamera(ipengine::TaskContext& c);
 private:

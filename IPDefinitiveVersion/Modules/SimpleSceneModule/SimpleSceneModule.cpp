@@ -229,25 +229,61 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 			}
 		}
 		
-		//Check Mesh id
-		if (meshtointernid.find(meshid) != meshtointernid.end())
+		auto exttype = node.second.find("ExtendedType");
+		if (exttype != node.second.not_found())
 		{
-			//auto ntde = new SCM::ThreeDimEntity(m_core->createID(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
-			//ntde->generateBoundingSphere();
-			entitystorage[entityname] = new SCM::ThreeDimEntity(m_core->createID(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
-			entitystorage[entityname]->m_name = entityname;
-			contentmodule->getThreeDimEntities()[entitystorage[entityname]->m_entityId] = static_cast<SCM::ThreeDimEntity*>(entitystorage[entityname]);
-			entitytointernid[entityid] = entitystorage[entityname]->m_entityId;
+			auto& extrec = m_info.expoints;
+			std::vector<ipengine::any> anyvector;
+			anyvector.push_back(static_cast<ISimpleSceneModule_API*>(this));
+			auto typestring = exttype->second.get_value<std::string>();
+			size_t position;
+			while ((position = typestring.find("\n")) != std::string::npos)
+			{
+				typestring.replace(position,std::string("\n").length(), "");
+			}
+			while ((position = typestring.find(" ")) != std::string::npos)
+			{
+				typestring.replace(position, 1, "");
+			}
+			anyvector.push_back(typestring);
+			anyvector.push_back(node.second);
+			SCM::Entity tempent;// SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
+			tempent.m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
+			tempent.isBoundingBox = boxorsphere;
+			tempent.m_transformData = SCM::Transform(transdata);
+			tempent.m_name = entityname;
+			anyvector.push_back(entityid);
+			anyvector.push_back(&tempent);
+			anyvector.push_back(contentmodule);
+			anyvector.push_back(&entitytointernid);
+			anyvector.push_back(&meshtointernid);
+			anyvector.push_back(&shadertointernid);
+			anyvector.push_back(&materialtointernid);
+			anyvector.push_back(&texturetointernid);
+			//SimpleSceneModule, String, ptree, Entity, SimpleContentModule, unordered_map<string, entity*
+			extrec.execute("ExtendedEntity", { "this", "type", "tree","entityid", "entity", "contentmodule", "entitymap", "meshmap", "shadermap", "materialmap", "texturemap" }, anyvector);
 		}
-		else
-		{
-			entitystorage[entityname] = new SCM::Entity();// SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
-			entitystorage[entityname]->m_entityId = m_core->createID();
-			entitystorage[entityname]->m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
-			entitystorage[entityname]->isBoundingBox = boxorsphere;
-			entitystorage[entityname]->m_transformData = SCM::Transform(transdata);
-			entitystorage[entityname]->m_name = entityname;
-			entitytointernid[entityid] = entitystorage[entityname]->m_entityId;
+		else {
+			//Check Mesh id
+			if (meshtointernid.find(meshid) != meshtointernid.end())
+			{
+				//auto ntde = new SCM::ThreeDimEntity(m_core->createID(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
+				//ntde->generateBoundingSphere();
+				entitystorage[entityname] = new SCM::ThreeDimEntity(m_core->createID(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
+				entitystorage[entityname]->m_name = entityname;
+				contentmodule->getThreeDimEntities()[entitystorage[entityname]->m_entityId] = static_cast<SCM::ThreeDimEntity*>(entitystorage[entityname]);
+				entitytointernid[entityid] = entitystorage[entityname]->m_entityId;
+			}
+			else
+			{
+				entitystorage[entityname] = new SCM::Entity();// SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
+				entitystorage[entityname]->m_entityId = m_core->createID();
+				entitystorage[entityname]->m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
+				entitystorage[entityname]->isBoundingBox = boxorsphere;
+				entitystorage[entityname]->m_transformData = SCM::Transform(transdata);
+				entitystorage[entityname]->m_name = entityname;
+				entitytointernid[entityid] = entitystorage[entityname]->m_entityId;
+			}
 		}
 		//auto pos = meshpath.find_last_of('.');
 		//std::string extension = pos != std::string::npos ? meshpath.substr(pos + 1) : "";
@@ -363,22 +399,23 @@ bool SimpleSceneModule::SwitchActiveScene(ipengine::ipid id)
 
 bool SimpleSceneModule::AddEntity(ipengine::ipid entityid, ipengine::ipid sceneid)
 {
-	if (sceneid == m_maxId)
+	if (sceneid == IPID_INVALID)
 	{
 		sceneid = m_activeScene;
 	}
 	auto it = m_scenes.find(sceneid);
 	if (it != m_scenes.end())
 	{
-		if(it->second.addEntity(entityid)==1)
+		if (it->second.addEntity(entityid) == 1)
+		{
+			if (sceneid == m_activeScene)
+			{
+				auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
+
+				scm->getEntityById(entityid)->isActive = true;
+			}
 			return true;
-	}
-
-	if (sceneid == m_activeScene)
-	{
-		auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
-
-		scm->getEntityById(entityid)->isActive = true;
+		}
 	}
 
 	return false;
@@ -386,10 +423,6 @@ bool SimpleSceneModule::AddEntity(ipengine::ipid entityid, ipengine::ipid scenei
 
 int SimpleSceneModule::AddEntity(std::vector<ipengine::ipid>::const_iterator entityidstart, std::vector<ipengine::ipid>::const_iterator entityidend, ipengine::ipid sceneid)
 {
-	if (sceneid == m_maxId)
-	{
-		sceneid = m_activeScene;
-	}
 	int c = 0;
 	for (; entityidstart < entityidend; entityidstart++)
 	{
@@ -400,7 +433,7 @@ int SimpleSceneModule::AddEntity(std::vector<ipengine::ipid>::const_iterator ent
 
 bool SimpleSceneModule::RemoveEntity(ipengine::ipid entityid, ipengine::ipid sceneid)
 {
-	if (sceneid == m_maxId)
+	if (sceneid == IPID_INVALID)
 	{
 		sceneid = m_activeScene;
 	}
@@ -408,14 +441,15 @@ bool SimpleSceneModule::RemoveEntity(ipengine::ipid entityid, ipengine::ipid sce
 	if (it != m_scenes.end())
 	{
 		if (it->second.removeEntity(entityid) == 1)
-			return true;
-	}
-	
-	if (sceneid == m_activeScene)
-	{
-		auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
+		{
+			if (sceneid == m_activeScene)
+			{
+				auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
 
-		scm->getEntityById(entityid)->isActive = false;
+				scm->getEntityById(entityid)->isActive = false;
+			}
+			return true;
+		}
 	}
 
 	return false;
@@ -423,10 +457,6 @@ bool SimpleSceneModule::RemoveEntity(ipengine::ipid entityid, ipengine::ipid sce
 
 int SimpleSceneModule::RemoveEntity(std::vector<ipengine::ipid>::const_iterator entityidstart, std::vector<ipengine::ipid>::const_iterator entityidend, ipengine::ipid sceneid)
 {
-	if (sceneid == m_maxId)
-	{
-		sceneid = m_activeScene;
-	}
 	int c=0;
 	for (; entityidstart < entityidend; entityidstart++)
 	{
