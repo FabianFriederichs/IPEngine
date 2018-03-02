@@ -14,7 +14,7 @@ DGStuff::Module * Injector::getModuleByIdentifier(std::vector<DGStuff::Module>* 
 	return nullptr;
 }
 
-bool Injector::recursiveInject(DGStuff::Module* mod)
+bool Injector::recursiveInject(DGStuff::Module* mod, bool doextension)
 {
 	boost::shared_ptr<IExtension> pex;
 	ExtensionInformation* pexinf;
@@ -58,8 +58,30 @@ bool Injector::recursiveInject(DGStuff::Module* mod)
 	{
 		p = loadedModules[mod->identifier];
 		pinf = p->getModuleInfo();
+		
 		if (p->isStartUp)
+		{
+			if (doextension)
+			{
+				for (auto exp : mod->extensionpoints)
+				{
+					for (auto ext : exp->extensions)
+					{
+						auto e = ext.getModule();
+						recursiveInject(e);
+
+						if (!e->ignore && e->isExtension)
+						{
+							auto injectee = loadedExtensions[e->identifier];
+							//injectee->isActive = ext.isActive; //! if I put active into depgraph
+							pinf->expoints.assignExtension(exp->identifier, ext.priority, injectee);
+						}
+					}
+				}
+			}
 			return true;
+		}
+			
 		for (auto dep : mod->dependencies)
 		{
 			auto d = dep->getModule();
@@ -88,21 +110,6 @@ bool Injector::recursiveInject(DGStuff::Module* mod)
 			//check inject status, check ignore/inject meme then inject, and startup stuff
 		}
 
-		for (auto exp : mod->extensionpoints)
-		{
-			for (auto ext : exp->extensions)
-			{
-				auto e = ext.getModule();
-				recursiveInject(e);
-
-				if (!e->ignore && e->isExtension)
-				{
-					auto injectee = loadedExtensions[e->identifier];
-					//injectee->isActive = ext.isActive; //! if I put active into depgraph
-					pinf->expoints.assignExtension(exp->identifier, ext.priority, injectee);
-				}
-			}
-		}
 		return p->startUp();
 	}
 	
@@ -187,6 +194,15 @@ void Injector::LoadModules(ipengine::Core * core, std::string path, bool reload 
 	{
 		//Optional dependencies are not guaranteed to be started up and injected
 		if (recursiveInject(dtmodule))
+		{
+			//Handle case of root module not being able to startup because of missing dependancy
+			//!
+		}
+	}
+	for (auto& dtmodule : depgraph->getModules())
+	{
+		//Optional dependencies are not guaranteed to be started up and injected
+		if (recursiveInject(&dtmodule, true))
 		{
 			//Handle case of root module not being able to startup because of missing dependancy
 			//!

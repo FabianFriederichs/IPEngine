@@ -230,23 +230,38 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 		}
 		
 		auto exttype = node.second.find("ExtendedType");
-		if (boundingdata != node.second.not_found())
+		if (exttype != node.second.not_found())
 		{
 			auto& extrec = m_info.expoints;
 			std::vector<ipengine::any> anyvector;
-			anyvector.push_back(static_cast<IModule_API*>(this));
-			anyvector.push_back(exttype->first);
+			anyvector.push_back(static_cast<ISimpleSceneModule_API*>(this));
+			auto typestring = exttype->second.get_value<std::string>();
+			size_t position;
+			while ((position = typestring.find("\n")) != std::string::npos)
+			{
+				typestring.replace(position,std::string("\n").length(), "");
+			}
+			while ((position = typestring.find(" ")) != std::string::npos)
+			{
+				typestring.replace(position, 1, "");
+			}
+			anyvector.push_back(typestring);
 			anyvector.push_back(node.second);
 			SCM::Entity tempent;// SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
 			tempent.m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
 			tempent.isBoundingBox = boxorsphere;
 			tempent.m_transformData = SCM::Transform(transdata);
 			tempent.m_name = entityname;
+			anyvector.push_back(entityid);
 			anyvector.push_back(&tempent);
 			anyvector.push_back(contentmodule);
-			anyvector.push_back(&entitystorage);
+			anyvector.push_back(&entitytointernid);
+			anyvector.push_back(&meshtointernid);
+			anyvector.push_back(&shadertointernid);
+			anyvector.push_back(&materialtointernid);
+			anyvector.push_back(&texturetointernid);
 			//SimpleSceneModule, String, ptree, Entity, SimpleContentModule, unordered_map<string, entity*
-			extrec.execute("ExtendedEntity", { "this", "type", "tree" "entity", "contentmodule", "entitymap" }, anyvector);
+			extrec.execute("ExtendedEntity", { "this", "type", "tree","entityid", "entity", "contentmodule", "entitymap", "meshmap", "shadermap", "materialmap", "texturemap" }, anyvector);
 		}
 		else {
 			//Check Mesh id
@@ -408,10 +423,6 @@ bool SimpleSceneModule::AddEntity(ipengine::ipid entityid, ipengine::ipid scenei
 
 int SimpleSceneModule::AddEntity(std::vector<ipengine::ipid>::const_iterator entityidstart, std::vector<ipengine::ipid>::const_iterator entityidend, ipengine::ipid sceneid)
 {
-	if (sceneid == m_maxId)
-	{
-		sceneid = m_activeScene;
-	}
 	int c = 0;
 	for (; entityidstart < entityidend; entityidstart++)
 	{
@@ -422,7 +433,7 @@ int SimpleSceneModule::AddEntity(std::vector<ipengine::ipid>::const_iterator ent
 
 bool SimpleSceneModule::RemoveEntity(ipengine::ipid entityid, ipengine::ipid sceneid)
 {
-	if (sceneid == m_maxId)
+	if (sceneid == IPID_INVALID)
 	{
 		sceneid = m_activeScene;
 	}
@@ -430,14 +441,15 @@ bool SimpleSceneModule::RemoveEntity(ipengine::ipid entityid, ipengine::ipid sce
 	if (it != m_scenes.end())
 	{
 		if (it->second.removeEntity(entityid) == 1)
-			return true;
-	}
-	
-	if (sceneid == m_activeScene)
-	{
-		auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
+		{
+			if (sceneid == m_activeScene)
+			{
+				auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
 
-		scm->getEntityById(entityid)->isActive = false;
+				scm->getEntityById(entityid)->isActive = false;
+			}
+			return true;
+		}
 	}
 
 	return false;
@@ -445,10 +457,6 @@ bool SimpleSceneModule::RemoveEntity(ipengine::ipid entityid, ipengine::ipid sce
 
 int SimpleSceneModule::RemoveEntity(std::vector<ipengine::ipid>::const_iterator entityidstart, std::vector<ipengine::ipid>::const_iterator entityidend, ipengine::ipid sceneid)
 {
-	if (sceneid == m_maxId)
-	{
-		sceneid = m_activeScene;
-	}
 	int c=0;
 	for (; entityidstart < entityidend; entityidstart++)
 	{

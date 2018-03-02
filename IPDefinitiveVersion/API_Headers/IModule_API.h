@@ -86,7 +86,7 @@ public:
 
 struct DependencyInformation
 {
-	DependencyInformation():isMandatory(false), isUpdatable(false), moduleType("")
+	/*DependencyInformation():isMandatory(false), isUpdatable(false), moduleType("")
 	{
 
 	}
@@ -100,9 +100,14 @@ struct DependencyInformation
 
 	}
 
-	const bool isMandatory;
-	const bool isUpdatable;
-	const std::string moduleType;
+	DependencyInformation &operator=(const DependencyInformation& di) :
+		isMandatory()
+	{
+
+	}*/
+	const bool isMandatory = false;
+	const bool isUpdatable = false;
+	const std::string moduleType = "";
 };
 
 struct ExtensionInformation

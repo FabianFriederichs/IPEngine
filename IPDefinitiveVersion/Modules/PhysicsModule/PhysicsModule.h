@@ -67,7 +67,6 @@ public:
 			11
 		);
 
-		clothentities.push_back(id);
 		fixParticle(id, 0, 19, true);
 		fixParticle(id, 19, 19, true);
 		scenemodule->AddEntity(id);

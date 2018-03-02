@@ -940,6 +940,7 @@ ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 	dimentity->m_name = name;
 	thrde[tcloth.id] = dimentity;
 	entities[name] = dimentity;
+	clothentities.push_back(tcloth.id);
 	return tcloth.id;
 }
 
@@ -1010,6 +1011,7 @@ bool PhysicsModule::_startup()
 
 	particles_per_task = m_core->getConfigManager().getInt("physics.cloth_simulation.particles_per_task");
 	particles_per_task = particles_per_task != 0 ? particles_per_task : PARTICLES_PER_TASK;
+	contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
 	return true;
 }
 //

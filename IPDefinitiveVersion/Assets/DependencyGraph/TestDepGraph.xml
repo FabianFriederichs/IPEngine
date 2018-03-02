@@ -74,6 +74,17 @@
           <moduleID>SimpleContentModule</moduleID>
         </dependency>
       </dependencies>
+      <ExtensionPoints>
+        <Point>
+          <identifier>ExtendedEntity</identifier>
+          <Extensions>
+            <Extension>
+              <extensionname>exSSMExtendedPBRPhysicsLoader</extensionname>
+              <priority>0</priority>
+            </Extension>
+          </Extensions>
+        </Point>
+      </ExtensionPoints>
     </Module>
     <Module>
       <ignore>false</ignore>
@@ -110,6 +121,18 @@
           <inject>true</inject>
           <identifier>openvr</identifier>
           <moduleID>BasicOpenVRModule</moduleID>
+        </dependency>
+      </dependencies>
+    </Module>
+    <Module>
+      <identifier>exSSMExtendedPBRPhysicsLoader</identifier>
+      <ignore>false</ignore>
+      <isExPoint>true</isExPoint>
+      <dependencies>
+        <dependency>
+          <inject>true</inject>
+          <identifier>physics</identifier>
+          <moduleID>PhysicsModule</moduleID>
         </dependency>
       </dependencies>
     </Module>

@@ -43,7 +43,7 @@ private:
 	//Unnecessary, using std::find_if with lambda instead.
 	DGStuff::Module* getModuleByIdentifier(std::vector<DGStuff::Module> *modules, std::string id);
 
-	bool recursiveInject(DGStuff::Module*);
+	bool recursiveInject(DGStuff::Module*, bool = false);
 
 public:
 	Injector()
