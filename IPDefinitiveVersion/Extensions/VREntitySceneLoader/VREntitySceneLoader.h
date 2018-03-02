@@ -10,7 +10,7 @@
 #include <glew\include\GL\glew.h>
 #include <IDataStoreModuleh_API.h>
 #include "glerror.h"
-class VREntitySceneLoader : public IExtensionPoint {
+class VREntitySceneLoader : public IExtension {
 public:
 	VREntitySceneLoader();
 	// TODO: add your methods here.
