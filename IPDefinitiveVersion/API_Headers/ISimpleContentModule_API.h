@@ -134,6 +134,7 @@ namespace SCM
 		glm::vec3 m_center;
 		glm::vec3 m_size = { 0.f,0.f,0.f };
 		glm::mat4 bdtoworld;
+		glm::vec3 m_velocity;
 	};
 
 	class BoundingSphere
@@ -142,6 +143,7 @@ namespace SCM
 		glm::vec3 m_center;
 		glm::float32 m_radius = 0.0f;
 		glm::mat4 bdtoworld;
+		glm::vec3 m_velocity;
 	};
 
 	union BoundingData

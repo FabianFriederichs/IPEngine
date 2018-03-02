@@ -44,7 +44,7 @@ private:
 	void mousescrollUpdate(IInput::Input&);
 	void entityUpdate(SCM::Entity*);
 	void entity3dUpdate(SCM::ThreeDimEntity*);
-	void updateBoundingData(SCM::Entity*);
+	void updateBoundingData(SCM::Entity*, const glm::vec3&, const glm::vec3&, float);
 
 	// Inherited via IModule_API
 	virtual bool _startup() override;

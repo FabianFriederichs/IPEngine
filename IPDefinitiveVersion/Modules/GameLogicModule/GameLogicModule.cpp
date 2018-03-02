@@ -330,6 +330,7 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 
 	if (e->m_transformData.setData()->m_isMatrixDirty)
 	{
+		glm::vec3 oldpos = glm::vec3(e->m_transformData.getData()->m_transformMatrix[3]);
 		auto transdata = e->m_transformData.getData();
 		glm::mat4 tmat = glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
 		auto data = e->m_transformData.setData();
@@ -340,7 +341,7 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 		data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
 		//e->swap();
 		e->m_transformData.setData()->m_isMatrixDirty = false;
-		updateBoundingData(e);
+		updateBoundingData(e, oldpos, e->m_transformData.getData()->m_location, static_cast<float>(delta.sec()));
 	}
 }
 
@@ -385,6 +386,7 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 
 	if (e->m_transformData.setData()->m_isMatrixDirty)
 	{
+		glm::vec3 oldpos = glm::vec3(e->m_transformData.getData()->m_transformMatrix[3]);
 		auto transdata = e->m_transformData.getData();
 		glm::mat4 tmat = glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
 		auto data = e->m_transformData.setData();
@@ -395,12 +397,12 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 		data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
 		//e->swap();
 		e->m_transformData.setData()->m_isMatrixDirty = false;
-		updateBoundingData(e);
-
+		
+		updateBoundingData(e, oldpos, e->m_transformData.getData()->m_location, static_cast<float>(delta.sec()));
 	}
 }
 
-void GameLogicModule::updateBoundingData(SCM::Entity * entity)
+void GameLogicModule::updateBoundingData(SCM::Entity * entity, const glm::vec3& oldpos, const glm::vec3& newpos, float deltasecs)
 {
 	if (entity->shouldCollide())
 	{
@@ -408,11 +410,13 @@ void GameLogicModule::updateBoundingData(SCM::Entity * entity)
 		{
 			glm::mat4 bbtoentity = glm::translate(entity->m_boundingData.box.m_center) * glm::mat4(entity->m_boundingData.box.m_rotation) * glm::scale(entity->m_boundingData.box.m_size * 0.5f);
 			entity->m_boundingData.box.bdtoworld = entity->m_transformData.getData()->m_transformMatrix * bbtoentity;
+			entity->m_boundingData.box.m_velocity = (newpos - oldpos) / deltasecs;
 		}
 		else
 		{
 			glm::mat4 bstoentity = glm::translate(entity->m_boundingData.sphere.m_center);
 			entity->m_boundingData.sphere.bdtoworld = entity->m_transformData.getData()->m_transformMatrix * bstoentity;
+			entity->m_boundingData.sphere.m_velocity = (newpos - oldpos) / deltasecs;
 		}
 	}
 }

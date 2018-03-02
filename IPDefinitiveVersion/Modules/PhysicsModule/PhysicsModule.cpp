@@ -410,13 +410,13 @@ void PhysicsModule::handleCollisions(ipengine::TaskContext & context)
 		Particle& wp = pwritebuf[pid];
 		bool c = false;
 		auto &  entities = contentmodule->getEntities();
+		glm::vec3 cvel(0.0f);
 		for (auto& e : entities)
 		{
 			auto& entity = e.second;
 			if (!entity->isActive || entity->m_entityId == ub.m_cloth->id || !entity->shouldCollide())
 				continue;			
-			glm::vec3 cvec = tryCollide(ub.m_cloth, p, entity, ub.dt, c);
-			wp.m_velocity += cvec;
+			cvel += tryCollide(ub.m_cloth, p, entity, ub.dt, c);
 
 			if (c)
 			{
@@ -426,7 +426,7 @@ void PhysicsModule::handleCollisions(ipengine::TaskContext & context)
 				}
 			}			
 		}
-
+		wp.m_velocity = p.m_velocity + cvel;
 		wp.m_position = p.m_position;
 		wp.m_acceleration = p.m_acceleration;
 	}
@@ -436,6 +436,7 @@ void PhysicsModule::handleCollisions(ipengine::TaskContext & context)
 
 glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Entity* entity, float dt, bool& collided)
 {
+	glm::vec3 previewpos = particle.m_position + particle.m_velocity * static_cast<float>(dt) + 0.5f * particle.m_acceleration * static_cast<float>(dt * dt);
 	if (entity->isBoundingBox)
 	{
 		///*do an optimistic test at the beginning. construct a sphere from the largest size dim of the box and
@@ -444,7 +445,7 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 
 		//do a quick sphere-sphere intersection test. quit early if the test renders negative*/
 
-		/*if (glm::length(particle.m_position - collider.m_center + wpos) > particle.m_radius + (glm::max(collider.m_size.x, glm::max(collider.m_size.y, collider.m_size.z))))
+		/*if (glm::length(previewpos - collider.m_center + wpos) > particle.m_radius + (glm::max(collider.m_size.x, glm::max(collider.m_size.y, collider.m_size.z))))
 		{
 			collided = false;
 			return glm::vec3(0.0f, 0.0f, 0.0f);
@@ -492,9 +493,9 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 
 		//project particle position on every axis and clamp them to box bounds
 		glm::vec3 projectedPosition(
-			glm::dot(particle.m_position - center, localx),
-			glm::dot(particle.m_position - center, localy),
-			glm::dot(particle.m_position - center, localz)
+			glm::dot(previewpos - center, localx),
+			glm::dot(previewpos - center, localy),
+			glm::dot(previewpos - center, localz)
 		);
 
 		//something goes wrong here
@@ -510,9 +511,9 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 
 		nearestPointOnBox += center;
 
-		float mindistance = glm::length(nearestPointOnBox - particle.m_position);
+		float mindistance = glm::length(nearestPointOnBox - previewpos);
 
-		glm::vec3 sataxis = (nearestPointOnBox - particle.m_position) / glm::abs(mindistance);
+		glm::vec3 sataxis = (nearestPointOnBox - previewpos) / glm::abs(mindistance);
 
 		float minprojbox = std::numeric_limits<float>::max();
 		float maxprojbox = std::numeric_limits<float>::lowest();
@@ -530,8 +531,8 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 			maxprojbox = glm::max(maxprojbox, proj);
 		}
 
-		minprojparticle = glm::min(glm::dot(particle.m_position + particle.m_radius * sataxis, sataxis), glm::dot(particle.m_position - particle.m_radius * sataxis, sataxis));
-		maxprojparticle = glm::max(glm::dot(particle.m_position + particle.m_radius * sataxis, sataxis), glm::dot(particle.m_position - particle.m_radius * sataxis, sataxis));
+		minprojparticle = glm::min(glm::dot(previewpos + particle.m_radius * sataxis, sataxis), glm::dot(previewpos - particle.m_radius * sataxis, sataxis));
+		maxprojparticle = glm::max(glm::dot(previewpos + particle.m_radius * sataxis, sataxis), glm::dot(previewpos - particle.m_radius * sataxis, sataxis));
 
 		minproj = glm::min(minprojbox, minprojparticle);
 		maxproj = glm::max(maxprojbox, maxprojparticle);
@@ -541,10 +542,26 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 			//collision!
 			//calculate penetration depth
 			//wrong if particle is completely inside box
-			float penetrationDepth = ((maxprojbox - minprojbox) + (maxprojparticle - minprojparticle)) - (maxproj - minproj);//glm::length((particle.m_position + (sataxis * particle.m_radius)) - nearestPointOnBox);
 
-			collided = true;																												//std::cout << penetrationDepth << "\n";
-			return (penetrationDepth * -sataxis) / dt;//planes[minpidx].n) / dt;
+			float penetrationDepth = ((maxprojbox - minprojbox) + (maxprojparticle - minprojparticle)) - (maxproj - minproj);//glm::length((previewpos + (sataxis * particle.m_radius)) - nearestPointOnBox);
+
+			collided = true;	
+			glm::vec3 cvel(0.0f);//std::cout << penetrationDepth << "\n";
+			//contstraint velocity
+			cvel += (penetrationDepth * -sataxis) / dt;
+
+			if (m_doVelocityCollisionResponse)
+			{
+				//velocity collision response. Introduces a lot of jitter
+				glm::vec3 relvel = particle.m_velocity - entity->m_boundingData.sphere.m_velocity;
+				float j = glm::max(-glm::dot(relvel, -sataxis), 0.0f);
+				glm::vec3 vn = j * -sataxis;
+				cvel += vn;
+				glm::vec3 opart = relvel - (glm::dot(relvel, -sataxis) * -sataxis);
+				cvel -= opart * m_collisionfric;
+			}
+
+			return cvel;//planes[minpidx].n) / dt;
 		}
 		collided = false;
 		return glm::vec3(0.0f, 0.0f, 0.0f);
@@ -553,16 +570,32 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 	{
 		auto scolcenter = glm::vec3(entity->m_boundingData.sphere.bdtoworld[3]);
 		auto scolrad = entity->m_boundingData.sphere.m_radius * glm::max(entity->m_transformData.getData()->m_scale.x, glm::max(entity->m_transformData.getData()->m_scale.y, entity->m_transformData.getData()->m_scale.z));
-		glm::vec3 psvec = particle.m_position - scolcenter;
+		glm::vec3 psvec = previewpos - scolcenter;
 		float pslth = glm::length(psvec);
 		
 		if (pslth <= (particle.m_radius + scolrad))
 		{
 			glm::vec3 collisionNormal = psvec / pslth;
 			float penetrationDepth = (particle.m_radius + scolrad) - pslth;
+			glm::vec3 cvel(0.0f);
 			//calculate a velocity that puishes the particle penetrationDepth in collisionNormal direction. add friction later (just scale the part orthogonal to the collision response)
-			glm::vec3 cvel = (collisionNormal * penetrationDepth) / dt;
-			collided = true;
+			//particle.m_position += (collisionNormal * penetrationDepth);
+			//constraint velocity:
+			cvel += (collisionNormal * penetrationDepth) / dt;
+
+			if (m_doVelocityCollisionResponse)
+			{
+				//velocity based collision response ?????
+				glm::vec3 relvel = particle.m_velocity - entity->m_boundingData.sphere.m_velocity;
+				float j = glm::max(-glm::dot(relvel, collisionNormal), 0.0f);
+				glm::vec3 vn = j * collisionNormal;
+				collided = true;
+				cvel += vn;
+
+				glm::vec3 opart = relvel - (glm::dot(relvel, collisionNormal) * collisionNormal);
+				cvel -= opart * m_collisionfric;
+			}
+
 			return cvel;
 		}
 		collided = false;
@@ -1009,6 +1042,8 @@ bool PhysicsModule::_startup()
 
 	particles_per_task = m_core->getConfigManager().getInt("physics.cloth_simulation.particles_per_task");
 	particles_per_task = particles_per_task != 0 ? particles_per_task : PARTICLES_PER_TASK;
+	m_doVelocityCollisionResponse = m_core->getConfigManager().getBool("physics.cloth_simulation.do_impulse_based_collision_response");
+	m_collisionfric = static_cast<float>(m_core->getConfigManager().getFloat("physics.cloth_simulation.collision_fric"));
 	return true;
 }
 //
