@@ -35,7 +35,7 @@ public:
 		contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
 		scenemodule = m_info.dependencies.getDep<ISimpleSceneModule_API>("SSM");
 		auto clothtr = SCM::TransformData(
-			glm::vec3(0.0f, 0.0f, -1.0f),
+			glm::vec3(0.0f, 0.0f, -3.0f),
 			glm::quat(),
 			glm::vec3(1.0f, 1.0f, 1.0f)
 		);
@@ -74,6 +74,9 @@ public:
 
 	}
 private:
+	float m_pencm;
+	bool m_doVelocityCollisionResponse;
+	float m_collisionfric;
 	ModuleInformation m_info;
 	//scheduler subscription
 	std::vector<ipengine::Scheduler::SubHandle> schedulerSubscriptionHandle;
