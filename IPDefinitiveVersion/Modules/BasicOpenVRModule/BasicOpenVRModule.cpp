@@ -44,6 +44,14 @@ bool BasicOpenVRModule::_startup()
 	return false;
 }
 
+bool BasicOpenVRModule::_shutdown()
+{
+	//TODO
+	connected = false;
+	vr::VR_Shutdown();
+	return true;
+}
+
 boost::shared_ptr<vr::IVRSystem> BasicOpenVRModule::getSystem() //Return the pointer to the initialized IVRSystem.
 {
 	return vrsystem;

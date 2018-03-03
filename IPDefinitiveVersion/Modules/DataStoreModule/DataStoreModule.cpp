@@ -38,3 +38,10 @@ bool DataStoreModule::_startup()
 {
 	return true;
 }
+
+bool DataStoreModule::_shutdown()
+{
+	//TODO
+	data.clear();
+	return true;
+}

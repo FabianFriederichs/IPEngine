@@ -76,6 +76,9 @@ private:
 
 	// Inherited via IInput_API
 	virtual bool _startup() override;
+
+	// Inherited via IInput_API
+	virtual bool _shutdown() override;
 };
 extern "C" BOOST_SYMBOL_EXPORT InputModule module;
 InputModule module;

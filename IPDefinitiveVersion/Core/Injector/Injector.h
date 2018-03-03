@@ -130,6 +130,9 @@ public:
 	//Save the current dependency graph to it's source file it was loaded from
 	bool saveDependencyGraph();
 	bool saveDependencyGraph(std::string);
+
+	bool shutdown();
+	bool shutdownModule(std::string);
 };
 
 #endif

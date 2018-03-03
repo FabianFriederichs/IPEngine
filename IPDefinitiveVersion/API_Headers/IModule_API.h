@@ -214,12 +214,19 @@ protected:
 		return isStartUp;
 	}
 
+	bool shutDown()
+	{
+		isStartUp = _shutdown();
+		return isStartUp;
+	}
+
 	//Should be overriden by modules that have dependencies that can be updated at runtime.
 	virtual void dependencyUpdated(std::string depID) {};
 
 	//virtual bool injectDependency(std::string dependencyID, IModule_API *dependency) = 0;
 private:
 	virtual bool _startup() = 0;
+	virtual bool _shutdown() = 0;
 	bool isStartUp = false;
 };
 

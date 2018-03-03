@@ -471,3 +471,23 @@ bool SimpleSceneModule::_startup()
 	return true;
 }
 
+bool SimpleSceneModule::_shutdown()
+{
+	//!TODO delete all scene related entities 
+	auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
+	auto &entities = scm->getEntities();
+	for (auto& scene : m_scenes)
+	{
+		if (scene.first == m_activeScene)
+		{
+			for (auto& ent : scene.second.getEntities())
+			{
+				entities.erase(scm->getEntityById(ent)->m_name);
+			}
+		}
+	}
+	m_scenes.clear();
+	m_activeScene = IPID_INVALID;
+	return true;
+}
+

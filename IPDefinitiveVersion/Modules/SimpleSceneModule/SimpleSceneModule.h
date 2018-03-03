@@ -38,6 +38,9 @@ private:
 
 	// Inherited via ISimpleSceneModule_API
 	virtual bool _startup() override;
+
+	// Inherited via ISimpleSceneModule_API
+	virtual bool _shutdown() override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT SimpleSceneModule module;

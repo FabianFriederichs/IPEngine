@@ -40,6 +40,9 @@ private:
 
 	// Inherited via IBasicOpenVRModule_API
 	virtual bool _startup() override;
+
+	// Inherited via IBasicOpenVRModule_API
+	virtual bool _shutdown() override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT BasicOpenVRModule module;
