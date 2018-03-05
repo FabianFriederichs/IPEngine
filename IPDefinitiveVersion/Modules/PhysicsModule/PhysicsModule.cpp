@@ -1049,6 +1049,11 @@ bool PhysicsModule::_startup()
 	contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
 	return true;
 }
+bool PhysicsModule::_shutdown()
+{
+	//!TODO
+	return false;
+}
 //
 //bool PhysicsModule::_startup()
 //{

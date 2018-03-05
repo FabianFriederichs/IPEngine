@@ -121,3 +121,21 @@ bool SimpleContentModule::_startup()
 
 	return true;
 }
+
+bool SimpleContentModule::_shutdown()
+{
+	getEntities().clear();
+	getThreeDimEntities().clear();
+	getDirLights().clear();
+	getPointLights().clear();
+	getSpotLights().clear();
+	getShaders().clear();
+	getMaterials().clear();
+	getTextures().clear();
+	getMeshes().clear();
+	getMeshedObjects().clear();
+	getMeshedObjects().reserve(1000);
+	getMeshes().reserve(1000);
+	getMaterials().reserve(1000);
+	return true;
+}

@@ -22,6 +22,7 @@ bool Injector::recursiveInject(DGStuff::Module* mod, bool doextension)
 	ModuleInformation* pinf;
 	if (mod->isExtension)
 	{
+		//!TODO Make sure the extension exists so no nullptr is used 
 		pex = loadedExtensions[mod->identifier];
 		pexinf = pex->getInfo();
 		for (auto dep : mod->dependencies)
@@ -56,6 +57,8 @@ bool Injector::recursiveInject(DGStuff::Module* mod, bool doextension)
 	}
 	else
 	{
+		//!TODO Make sure the extension exists so no nullptr is used 
+
 		p = loadedModules[mod->identifier];
 		pinf = p->getModuleInfo();
 		
@@ -237,4 +240,19 @@ bool Injector::saveDependencyGraph(std::string path)
 {
 	XMLParser parser;
 	return parser.write(*depgraph, path) == DependencyParser::ParseResult::WRITING_SUCCESS ? true : false;
+}
+
+bool Injector::shutdown()
+{
+	bool completeshutdown = true;
+	for (auto mod : loadedModules)
+	{
+		completeshutdown = mod.second->shutDown();
+	}
+	return completeshutdown;
+}
+
+bool Injector::shutdownModule(std::string identifier)
+{
+	return loadedModules.find(identifier)!=loadedModules.end()?loadedModules[identifier]->shutDown() : false;
 }

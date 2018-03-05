@@ -26,6 +26,10 @@ private:
 	// Inherited via IDataStoreModuleh_API
 	virtual bool _startup() override;
 
+
+	// Inherited via IDataStoreModuleh_API
+	virtual bool _shutdown() override;
+
 };
 
 extern "C" BOOST_SYMBOL_EXPORT DataStoreModule module;

@@ -135,6 +135,17 @@ void GraphicsModule::loadTextureFromMemory(const GrAPI::t2d & data, const ipengi
 
 }
 
+bool GraphicsModule::_shutdown()
+{
+	for (auto& handle : handles)
+	{
+		handle.~SubHandle();
+	}
+	//!TODO free graphics related stuff
+	SDL_DestroyWindow(window);
+	return true;
+}
+
 //public interface implementation ---------------------------------------------------------------------------------------------
 GraphicsModule::GraphicsModule(void)
 {

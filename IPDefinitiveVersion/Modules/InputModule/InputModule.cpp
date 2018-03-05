@@ -46,6 +46,19 @@ bool InputModule::_startup()
 	return true;
 }
 
+bool InputModule::_shutdown()
+{
+	for (auto& handle : handles)
+	{
+		handle.~SubHandle();
+	}
+	isVRconnected = false;
+	inputData.clear();
+	isManipulating = false;
+	
+	return true;
+}
+
 void InputModule::pollData()
 {
 	//if (window == nullptr)

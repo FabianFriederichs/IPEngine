@@ -221,6 +221,9 @@ private:
 
 	// Inherited via IPhysicsModule_API
 	virtual bool _startup() override;
+
+	// Inherited via IPhysicsModule_API
+	virtual bool _shutdown() override;
 };
 
 

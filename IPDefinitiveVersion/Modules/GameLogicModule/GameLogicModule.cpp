@@ -437,3 +437,14 @@ bool GameLogicModule::_startup()
 	lastUpdate = ipengine::Time(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 	return true;
 }
+
+bool GameLogicModule::_shutdown()
+{
+	//!TODO
+	for (auto& handle : handles)
+	{
+		handle.~SubHandle();
+	}
+	initialized = false;
+	return true;
+}
