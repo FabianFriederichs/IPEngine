@@ -26,7 +26,10 @@ void ipengine::Core::initialize(const iprstr configpath)
 	cmodule_scheduler = new Scheduler();	
 	cmodule_threadingservices = new ThreadPool(cmodule_configmanager->getInt("core.threading.max_worker_threads"));
 	cmodule_endpointregistry = new EndpointRegistry();
-	core_msgep = cmodule_endpointregistry->createEndpoint("CORE");	
+	core_msgep = cmodule_endpointregistry->createEndpoint("CORE");
+	setupCoreConsoleCommands();
+	m_isstopping.store(false);
+	m_stopped.store(false);
 }
 
 void ipengine::Core::run()
@@ -36,16 +39,26 @@ void ipengine::Core::run()
 
 void ipengine::Core::shutdown()
 {
+	m_isstopping.store(true, std::memory_order_relaxed);
 	cmodule_threadingservices->stopWorkers();
+	//do other shutdown stuff neccessary
+
+	m_stopped.store(true, std::memory_order_relaxed);
 }
 
 ipengine::Time ipengine::Core::tick(bool& shouldstop)
 {
 	auto t1 = Time::now();
 
-	cmodule_scheduler->schedule();
-	core_msgep->sendPendingMessages();
-	core_msgep->dispatch();
+	if (!m_isstopping.load(std::memory_order_relaxed))
+	{
+		cmodule_scheduler->schedule();
+		core_msgep->sendPendingMessages();
+		core_msgep->dispatch();
+	}
+
+	if (m_stopped.load(std::memory_order_relaxed))
+		shouldstop = true;
 
 	auto t2 = Time::now();
 	return Time(t2.nano() - t1.nano());
@@ -84,4 +97,22 @@ ipengine::MemoryManager & ipengine::Core::getMemoryManager()
 ipengine::ConfigManager & ipengine::Core::getConfigManager()
 {
 	return *cmodule_configmanager;
+}
+
+void ipengine::Core::setupCoreConsoleCommands()
+{
+	cmodule_console->addCommand("core.shutdown", CommandFunc::make_func<Core, &Core::cmd_shutdown>(this), "Stops scheduling and all workers.");
+	cmodule_console->addCommand("help", CommandFunc::make_func<Core, &Core::cmd_listcommands>(this), "Prints a list of available console commands.");
+}
+
+void ipengine::Core::cmd_shutdown(const ConsoleParams & params)
+{
+	if (params.getParamCount() == 1)
+		cmodule_console->println(params.get(0));
+	shutdown();
+}
+
+void ipengine::Core::cmd_listcommands(const ConsoleParams & params)
+{
+	cmodule_console->listCommands();
 }

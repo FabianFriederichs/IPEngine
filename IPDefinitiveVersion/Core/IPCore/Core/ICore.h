@@ -44,6 +44,12 @@ namespace ipengine
 		//Platform Services //internally interfaces with PAL 
 
 	private:
+		void setupCoreConsoleCommands();
+
+		//command handlers
+		void cmd_shutdown(const ConsoleParams& params);
+		void cmd_listcommands(const ConsoleParams& params);
+
 		//Subsystem implementing class-objects
 		//Question: abtract interface for each subsystem? (This way we could simply publish those interfaces and reduce the uglyness of this header.
 		//TODO: pimpl the core!
@@ -61,6 +67,10 @@ namespace ipengine
 
 		//single atomic for generating global ids. 0 is always an invalid id.
 		std::atomic<ipid> core_idgen;
+
+		//flag to indicate stop
+		std::atomic<bool> m_isstopping;
+		std::atomic<bool> m_stopped;
 	};
 }
 
