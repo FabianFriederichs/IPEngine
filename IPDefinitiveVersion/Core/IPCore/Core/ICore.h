@@ -23,6 +23,7 @@ namespace ipengine
 		void initialize(const iprstr configPath);
 		void run();
 		void shutdown();
+		void stop();
 		Time tick(bool& shouldstop); //TODO: figure out how to shutdown the engine
 
 		//id stuff
@@ -69,8 +70,7 @@ namespace ipengine
 		std::atomic<ipid> core_idgen;
 
 		//flag to indicate stop
-		std::atomic<bool> m_isstopping;
-		std::atomic<bool> m_stopped;
+		std::atomic<bool> m_isrunning;
 	};
 }
 

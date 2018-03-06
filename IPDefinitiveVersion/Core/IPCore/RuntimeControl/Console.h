@@ -9,11 +9,13 @@
 #include <cctype>
 #include <IPCore/Core/ICoreTypes.h>
 #include <mutex>
+#include <type_traits>
 
 #define MAX_COMMAND_LENGTH 127
 #define MAX_COMMAND_PARAMS 32
 #define MAX_DESC_LENGTH 4096
 
+#define MEM_FUNC( fname , instance ) CommandFunc::make_func< std::remove_pointer<instance>::type , &std::remove_pointer<instance>::type##::fname>
 
 namespace ipengine
 {
@@ -67,8 +69,10 @@ namespace ipengine
 		bool in(ipcrstr line);
 		void print(ipcrstr text);
 		void println(ipcrstr text);
+		void prompt();
 		void listCommands();
 	private:
+		void printprompt();
 		std::unordered_map<std::string, ConsoleCommand> m_commands;
 		std::ostream& outstream;
 		//direct call buffer

@@ -37,7 +37,8 @@ private:
 
 	void shutdown()
 	{
-		//core->shutdown();
+		inj->shutdown();
+		core->shutdown();
 	}
 
 	void consoleThreadFunc(Application& app)

@@ -28,36 +28,41 @@ void ipengine::Core::initialize(const iprstr configpath)
 	cmodule_endpointregistry = new EndpointRegistry();
 	core_msgep = cmodule_endpointregistry->createEndpoint("CORE");
 	setupCoreConsoleCommands();
-	m_isstopping.store(false);
-	m_stopped.store(false);
+	m_isrunning.store(false);
 }
 
 void ipengine::Core::run()
 {
 	cmodule_threadingservices->startWorkers();
+	m_isrunning.store(true);
 }
 
 void ipengine::Core::shutdown()
 {
-	m_isstopping.store(true, std::memory_order_relaxed);
-	cmodule_threadingservices->stopWorkers();
-	//do other shutdown stuff neccessary
+	if (!m_isrunning.load())
+	{
+		//TODO: shutdown stuff
+	}
+}
 
-	m_stopped.store(true, std::memory_order_relaxed);
+void ipengine::Core::stop()
+{	
+	cmodule_threadingservices->stopWorkers();
+	m_isrunning.store(false);
 }
 
 ipengine::Time ipengine::Core::tick(bool& shouldstop)
 {
 	auto t1 = Time::now();
 
-	if (!m_isstopping.load(std::memory_order_relaxed))
+	if (m_isrunning.load(std::memory_order_relaxed))
 	{
 		cmodule_scheduler->schedule();
 		core_msgep->sendPendingMessages();
 		core_msgep->dispatch();
 	}
 
-	if (m_stopped.load(std::memory_order_relaxed))
+	if (!m_isrunning.load(std::memory_order_relaxed))
 		shouldstop = true;
 
 	auto t2 = Time::now();
@@ -109,7 +114,7 @@ void ipengine::Core::cmd_shutdown(const ConsoleParams & params)
 {
 	if (params.getParamCount() == 1)
 		cmodule_console->println(params.get(0));
-	shutdown();
+	stop();
 }
 
 void ipengine::Core::cmd_listcommands(const ConsoleParams & params)

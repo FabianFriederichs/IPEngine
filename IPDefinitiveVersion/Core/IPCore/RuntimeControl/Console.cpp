@@ -100,8 +100,6 @@ ipengine::ipbool ipengine::Console::call(ipengine::ipcrstr name, ipengine::Conso
 
 bool ipengine::Console::in(ipcrstr line)
 {
-	//TODO: do parsing of one line here and call the command
-	//char params[MAX_COMMAND_PARAMS + 1][MAX_COMMAND_LENGTH + 1];
 	ipsize i1 = 0;
 	ipsize i2 = 0;
 
@@ -137,7 +135,10 @@ bool ipengine::Console::in(ipcrstr line)
 		else if (*rp == '"')
 		{
 			if (i1 == 0)
+			{
+				printprompt();
 				return false;
+			}
 			++rp;
 			bool closed = false;
 			while (*rp)
@@ -156,12 +157,14 @@ bool ipengine::Console::in(ipcrstr line)
 					++i2;
 					if (i2 >= MAX_COMMAND_LENGTH)
 					{
+						printprompt();
 						return false;
 					}
 				}
 			}
 			if (!closed)
 			{
+				printprompt();
 				return false;
 			}
 		}
@@ -176,6 +179,7 @@ bool ipengine::Console::in(ipcrstr line)
 			++i2;
 			if (i2 >= MAX_COMMAND_LENGTH)
 			{
+				printprompt();
 				return false;
 			}
 		}
@@ -190,7 +194,9 @@ bool ipengine::Console::in(ipcrstr line)
 	}
 
 	ConsoleParams p(argbuffer, i1);
-	return call(cmdname, p);
+	bool res = call(cmdname, p);
+	printprompt();
+	return res;
 }
 
 void ipengine::Console::print(ipengine::ipcrstr text)
@@ -205,6 +211,11 @@ void ipengine::Console::println(ipcrstr text)
 	outstream << text << "\n";
 }
 
+void ipengine::Console::prompt()
+{
+	printprompt();
+}
+
 void ipengine::Console::listCommands()
 {
 	autolock lock(m_mtx);
@@ -215,8 +226,13 @@ void ipengine::Console::listCommands()
 		println(c.second.getName());
 		println("\nDescription:");
 		println(c.second.getDescription());
-		println("\n");
+		println("--------");
 	}
+}
+
+void ipengine::Console::printprompt()
+{
+	print(">");
 }
 
 ipengine::ConsoleParams::ConsoleParams(iprstr _parambuffer[], ipsize _paramcount) :
