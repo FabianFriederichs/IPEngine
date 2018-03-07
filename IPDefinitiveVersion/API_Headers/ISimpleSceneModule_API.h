@@ -10,7 +10,7 @@ public:
 	//Load scene file, return id
 	virtual ipengine::ipid LoadSceneFromFile(std::string filepath) = 0;
 	virtual std::vector<ipengine::ipid> LoadSceneFromFile(std::vector<std::string>::const_iterator filepathstart, std::vector<std::string>::const_iterator filepathend) = 0;
-
+	virtual void WriteSceneToFile(std::string filepath, ipengine::ipid sceneid) =0;
 	virtual bool RemoveScene(ipengine::ipid id) = 0;
 	virtual int RemoveScene(std::vector<ipengine::ipid>::const_iterator idstart, std::vector<ipengine::ipid>::const_iterator idend) = 0;
 

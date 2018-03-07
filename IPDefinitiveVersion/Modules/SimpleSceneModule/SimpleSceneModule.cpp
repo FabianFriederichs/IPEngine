@@ -11,6 +11,29 @@ SimpleSceneModule::SimpleSceneModule(void)
 	return;
 }
 
+std::string Vec3ToString(glm::vec3 v)
+{
+	std::string result;
+	result += std::to_string(v.x);
+	result += "/";
+	result += std::to_string(v.y);
+	result += "/";
+	result += std::to_string(v.z);
+	return result;
+}
+
+std::string QuatToString(glm::quat q)
+{
+	std::string result;
+	result += std::to_string(q.w);
+	result += "/";
+	result += std::to_string(q.x);
+	result += "/";
+	result += std::to_string(q.y);
+	result += "/";
+	result += std::to_string(q.z);
+	return result;
+}
 
 glm::vec3 parseVectorFromString(std::string s)
 {
@@ -309,6 +332,190 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 		
 	}
 	return sc.m_sceneid;
+}
+
+void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sceneid)
+{
+	if(m_scenes.count(sceneid)<1)
+	{
+		//Scene not found
+		return;
+	}
+	auto &scene = m_scenes[sceneid];
+	
+	std::unordered_map<ipengine::ipid, int> meshtointernid;
+	std::unordered_map<ipengine::ipid, int> entitytointernid;
+	std::unordered_map<ipengine::ipid, int> shadertointernid;
+	std::unordered_map<ipengine::ipid, int> materialtointernid;
+	std::unordered_map<ipengine::ipid, int> texturetointernid;
+
+	boost::property_tree::ptree tree;
+	//set up base
+	auto& scenenode = tree.add("Scene", "");
+	
+	//Write Entities
+	auto contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(contentmoduleidentifier);
+	auto &entitiesnode = scenenode.add("Entities", "");
+	int entityidcounter = 0;
+	int meshidcounter = 0;
+	for (auto entid : scene.getEntities())
+	{
+		auto entity = contentmodule->getEntityById(entid);
+		auto &entitynode = entitiesnode.add("Entity", "");
+		int tempid = entityidcounter;
+		if (entitytointernid.count(entity->m_entityId) > 0)
+			tempid = entitytointernid[entity->m_entityId];
+		else
+			entitytointernid[entity->m_entityId] = entityidcounter;
+		entitynode.add("Id", tempid);
+		auto parent = entity->m_parent;
+		if (parent)
+		{
+			entitynode.add("ParentId", ++entityidcounter);
+			entitytointernid[parent->m_entityId] = entityidcounter;
+		}
+		entitynode.add("StringName", entity->m_name);
+
+		//Mesh Id
+		if (contentmodule->getThreeDimEntities().count(entity->m_entityId) > 0)
+		{
+			auto threedentity = contentmodule->getThreeDimEntities()[entity->m_entityId];
+			int tempmeshid = meshidcounter;
+			if (meshtointernid.count(threedentity->m_mesheObjects->m_meshObjectId) < 1)
+				meshtointernid[entity->m_entityId] = meshidcounter++;
+			entitynode.add("MeshId", meshtointernid[threedentity->m_mesheObjects->m_meshObjectId]);
+		}
+
+		//Transform Data
+		auto transform = entity->m_transformData.getData();
+		auto &transformnode = entitynode.add("TransformData", "");
+		transformnode.add("Location", Vec3ToString(transform->m_location));
+		transformnode.add("Rotation", QuatToString(transform->m_rotation));
+		transformnode.add("Scale", Vec3ToString(transform->m_scale));
+		transformnode.add("LocalY", Vec3ToString(transform->m_localY));
+		transformnode.add("LocalX", Vec3ToString(transform->m_localX));
+		transformnode.add("localZ", Vec3ToString(transform->m_localZ));
+
+		//Bounding Data
+		auto bdata = entity->m_boundingData;
+		auto &boundingnode = entitynode.add("BoundingData","");
+		if (entity->isBoundingBox)
+		{
+			boundingnode.add("Center", Vec3ToString(bdata.box.m_center));
+			boundingnode.add("Size", Vec3ToString(bdata.box.m_size));
+			boundingnode.add("Rotation", QuatToString(bdata.box.m_rotation));
+		}
+		else
+		{
+			boundingnode.add("Center", Vec3ToString(bdata.sphere.m_center));
+			boundingnode.add("Radius", std::to_string(bdata.sphere.m_radius));
+		}
+
+		//if(entity.components.size()>0) //Or something like that to check whether it is extended by components
+		{
+			auto typestring = "";
+			entitynode.add("ExtendedType", typestring); //Replace "" with typestring from component?
+
+			//Call Extensions for this Type
+			auto& extrec = m_info.expoints;
+			std::vector<ipengine::any> anyvector;
+			anyvector.push_back(static_cast<ISimpleSceneModule_API*>(this));
+			anyvector.push_back(typestring);
+			anyvector.push_back(&entitynode);
+			anyvector.push_back(entity);
+			anyvector.push_back(contentmodule.get());
+			anyvector.push_back(&entitytointernid);
+			anyvector.push_back(&meshtointernid);
+			anyvector.push_back(&shadertointernid);
+			anyvector.push_back(&materialtointernid);
+			anyvector.push_back(&texturetointernid);
+			//SimpleSceneModule*, String, ptree*, Entity*, SimpleContentModule*, unordered_map<string, entity*
+			extrec.execute("ExtendedEntity", { "this", "type", "tree","entityid", "pentity", "contentmodule", "entitymap", "meshmap", "shadermap", "materialmap", "texturemap" }, anyvector);
+			//!TODO write extension for certain extended entities
+		}
+
+		entityidcounter++;
+	}
+
+	//Write Meshes
+	auto &mobs = contentmodule->getMeshedObjects();
+	auto &meshesnode = scenenode.add("Meshes", "");
+	int materialidcounter = 0;
+	for (auto &meshobj : mobs)
+	{
+		auto& meshnode = meshesnode.add("Mesh", "");
+		if (meshtointernid.count(meshobj.m_meshObjectId) < 1)
+			meshtointernid[meshobj.m_meshObjectId] = meshidcounter++;
+		meshnode.add("Id", meshtointernid.count[meshobj.m_meshObjectId]);
+		meshnode.add("Path", meshobj.filepath);
+		auto &materialsnode = meshnode.add("Materials", "");
+
+		for (auto mesh : meshobj.m_meshes)
+		{
+			auto &materialnode = materialsnode.add("Material", "");
+			if (materialtointernid.count(mesh->m_material->m_materialId) < 1)
+				materialtointernid[mesh->m_material->m_materialId] = materialidcounter++;
+			materialnode.add("MaterialId", materialtointernid[mesh->m_material->m_materialId]);
+		}
+	}
+
+
+	//Write Shaders
+	auto &shaders = contentmodule->getShaders();
+	auto& shadersnode = scenenode.add("Shaders", "");
+	int shaderidcounter = 0;
+	for (auto &shader : shaders)
+	{
+		auto& shadernode = shadersnode.add("Shader", "");
+		if (shadertointernid.count(shader.m_shaderId) < 1)
+			shadertointernid[shader.m_shaderId] = shaderidcounter++;
+		shadernode.add("Id", shadertointernid[shader.m_shaderId]);
+		shadernode.add("VSPath", shader.m_shaderFiles.size()>0?shader.m_shaderFiles[0]:"");
+		shadernode.add("FSPath", shader.m_shaderFiles.size()>1 ? shader.m_shaderFiles[1]:"");
+	}
+
+	//Write Materials
+	auto &materials = contentmodule->getMaterials();
+	auto& materialsnode = scenenode.add("Materials", "");
+	int texturecounter = 0;
+	int materialcounter = 0;
+	for (auto &mat : materials)
+	{
+		auto& matnode = materialsnode.add("Material", "");
+		if (materialtointernid.count(mat.m_materialId) < 1)
+			materialtointernid[mat.m_materialId] = materialcounter++;
+		matnode.add("Id", materialtointernid[mat.m_materialId]);
+		auto &texturesnode = matnode.add("Textures", "");
+		for (auto &tex : mat.m_textures)
+		{
+			auto &texnode = texturesnode.add("Texture", "");
+			if (texturetointernid.count(tex.second.m_texturefileId) < 1)
+				texturetointernid[tex.second.m_texturefileId] = texturecounter++;
+			texnode.add("Name", tex.first);
+			texnode.add("Id", texturetointernid[tex.second.m_texturefileId]);
+		}
+	}
+	
+	//Write Textures
+	auto& textures = contentmodule->getTextures();
+	auto &texturesnode = scenenode.add("Textures", "");
+	for (auto &tex : textures)
+	{
+		auto& texnode = texturesnode.add("Texture", "");
+		if (texturetointernid.count(tex.m_textureId) < 1)
+			texturetointernid[tex.m_textureId] = texturecounter++;
+		texnode.add("Id", texturetointernid[tex.m_textureId]);
+		texnode.add("TexturePath", tex.m_path);
+	}
+
+	try {
+		boost::property_tree::write_xml(filepath, tree);
+	}
+	catch (boost::property_tree::xml_parser_error ex)
+	{
+		//!TODO handle stuff
+	}
+
 }
 
 std::vector<ipengine::ipid> SimpleSceneModule::LoadSceneFromFile(std::vector<std::string>::const_iterator filepathstart, std::vector<std::string>::const_iterator filepathend)

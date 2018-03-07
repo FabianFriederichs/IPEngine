@@ -191,12 +191,13 @@ void Injector::LoadModules(ipengine::Core * core, std::string path, bool reload 
 	}
 
 	//!!!Check for circular dependencies
-
+	bool incompleteInject = false;
+	//auto tcopy = depgraph->deepCopy();
 	//Iterate all loaded modules and inject memes.
 	for (auto& dtmodule : depgraph->getRoots())
 	{
 		//Optional dependencies are not guaranteed to be started up and injected
-		if (recursiveInject(dtmodule))
+		if (incompleteInject = !recursiveInject(dtmodule))
 		{
 			//Handle case of root module not being able to startup because of missing dependancy
 			//!
@@ -205,11 +206,17 @@ void Injector::LoadModules(ipengine::Core * core, std::string path, bool reload 
 	for (auto& dtmodule : depgraph->getModules())
 	{
 		//Optional dependencies are not guaranteed to be started up and injected
-		if (recursiveInject(&dtmodule, true))
+		if (incompleteInject = !recursiveInject(&dtmodule, true))
 		{
 			//Handle case of root module not being able to startup because of missing dependancy
 			//!
 		}
+	}
+	if (incompleteInject)
+	{
+		//graphs[std::make_shared<DGStuff::DependencyGraph>(tcopy)] = depgraphpath;
+		graphHasChanges[depgraph] = incompleteInject;
+		
 	}
 }
 

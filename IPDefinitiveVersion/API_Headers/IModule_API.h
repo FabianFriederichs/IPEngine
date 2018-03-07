@@ -22,8 +22,22 @@ class Injector;
 class IExtension;
 class DependencyContainer
 {
+	friend class Injector;
 private:
 	std::unordered_map<std::string, boost::shared_ptr<IModule_API>> dependencies;
+protected:
+	void assignDependency(const std::string dependencyID, boost::shared_ptr<IModule_API> module)
+	{
+		//assert(size() == 0);
+		/*if (!exists(dependencyID))
+		{
+		dependencies[dependencyID] = module;
+		}
+		else if (dependencies[dependencyID].second[DependencyFlags::DP_UPDATABLE])
+		{
+		}*/
+		dependencies[dependencyID] = module;
+	}
 public:
 	DependencyContainer() :dependencies() {}
 
@@ -44,21 +58,6 @@ public:
 	size_t size()
 	{
 		return dependencies.size();
-	}
-
-
-	void assignDependency(const std::string dependencyID, boost::shared_ptr<IModule_API> module)
-	{
-		//assert(size() == 0);
-		/*if (!exists(dependencyID))
-		{
-			dependencies[dependencyID] = module;
-		}
-		else if (dependencies[dependencyID].second[DependencyFlags::DP_UPDATABLE])
-		{
-		}*/
-		dependencies[dependencyID] = module;
-
 	}
 
 	template<typename T>

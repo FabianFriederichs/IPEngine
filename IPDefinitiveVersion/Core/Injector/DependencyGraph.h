@@ -172,8 +172,50 @@ namespace  DGStuff
 
 	public:
 		DependencyGraph() {}
-		DependencyGraph(const DependencyGraph& other) : modules(other.modules) 
+		DependencyGraph(const DependencyGraph& other) : modules(other.modules)
 		{
+		}
+
+		DependencyGraph(DependencyGraph&& other)
+		{
+			modules.swap(other.modules);
+		}
+
+		DependencyGraph deepCopy()
+		{
+			DependencyGraph g;
+			for (auto m : modules)
+			{
+				Module tm;
+				tm.identifier = m.identifier;
+				tm.ignore = m.ignore;
+				tm.isExtension = m.isExtension;
+				g.modules.push_back(tm);
+			}
+
+			for (auto m : modules)
+			{
+				auto dependent = g.findModule(m.identifier);
+				for (auto& deps : m.dependencies)
+				{
+					auto dependency = g.findModule(deps->getModule()->identifier);
+					auto shdep = std::make_shared<Dependency>(dependency, deps->inject);
+					shdep->identifier = deps->identifier;
+					dependent->dependencies.push_back(shdep);
+				}
+				for (auto& exp : m.extensionpoints)
+				{
+					auto tpoint = std::make_shared<ExtensionPoint>();
+					tpoint->identifier = exp->identifier;
+					for (auto& ext : exp->extensions)
+					{
+						auto extensionmod = g.findModule(ext.getModule()->identifier);
+						tpoint->extensions.push_back({ extensionmod, ext.priority });
+					}
+					dependent->extensionpoints.push_back(tpoint);
+				}
+			}
+			return g;
 		}
 
 		void add(const Module m)
@@ -200,6 +242,20 @@ namespace  DGStuff
 				return nullptr;
 			}
 			return &*mod;
+		}
+
+		void changeDependency(std::string dependentIdent, std::string dependencyIdent, std::string replacingModule)
+		{
+			auto dependent = findModule(dependentIdent);
+			auto replacer = findModule(replacingModule);
+			if (dependent != nullptr && replacer != nullptr)
+			{
+				auto dependency = std::find_if(dependent->dependencies.begin(), dependent->dependencies.end(), [dependencyIdent](std::shared_ptr<DGStuff::Dependency> e)->bool {return e->identifier == dependencyIdent; });
+				if (dependency != dependent->dependencies.end())
+				{
+					(*dependency)->setModule();
+				}
+			}
 		}
 
 		std::list<Module>& getModules()

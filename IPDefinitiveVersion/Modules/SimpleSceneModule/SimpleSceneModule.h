@@ -27,6 +27,7 @@ private:
 	ipengine::ipid m_activeScene;
 	// Inherited via ISimpleSceneModule_API
 	virtual ipengine::ipid LoadSceneFromFile(std::string filepath) override;
+	virtual void WriteSceneToFile(std::string filepath, ipengine::ipid sceneid) override;
 	virtual std::vector<ipengine::ipid> LoadSceneFromFile(std::vector<std::string>::const_iterator filepathstart, std::vector<std::string>::const_iterator filepathend) override;
 	virtual bool RemoveScene(ipengine::ipid id) override;
 	virtual int RemoveScene(std::vector<ipengine::ipid>::const_iterator idstart, std::vector<ipengine::ipid>::const_iterator idend) override;

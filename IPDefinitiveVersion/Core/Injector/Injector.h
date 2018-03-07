@@ -35,6 +35,8 @@ class Injector
 private:
 	std::string libFolderPath;
 	std::shared_ptr<DGStuff::DependencyGraph> depgraph;
+	std::unordered_map<std::shared_ptr<DGStuff::DependencyGraph>, std::string> graphs;
+	std::unordered_map<std::shared_ptr<DGStuff::DependencyGraph>, bool> graphHasChanges;
 	std::string depgraphpath;
 	std::map<std::string, boost::shared_ptr<IModule_API>> loadedModules;
 	std::map<std::string, boost::shared_ptr<IExtension>> loadedExtensions;
@@ -60,8 +62,12 @@ public:
 			//TODO
 			//error handling
 		}
-		depgraph = g; //? will this delete the object after g and thus the last shared_ptr is destroyed by exiting scope? Or is the copy assign ctor fixing this?
+		
+		
 		depgraphpath = dependencyXMLPath;
+		graphs[g] = depgraphpath;
+		graphHasChanges[g] = false;
+		depgraph = g;
 		 //if (parseDepGraphFromPropertyTree(parsePropTreeFromXML(dependencyXMLPath)))
 		//{
 		//	//TODO
@@ -93,6 +99,9 @@ public:
 			}
 			minfo->dependencies.assignDependency(dependencyID, loadedModules[newModuleID]);
 			mod->dependencyUpdated(dependencyID);
+			//Update dependencygraph accordingly
+			depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
+		
 			return 1;
 		}
 		else
@@ -117,6 +126,8 @@ public:
 			}
 			minfo->dependencies.assignDependency(dependencyID, loadedModules[newModuleID]);
 			mod->dependencyUpdated(dependencyID);
+			//Update dependencygraph accordingly
+			depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
 			return 1;
 		}
 		else

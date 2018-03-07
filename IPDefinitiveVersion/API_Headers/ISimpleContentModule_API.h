@@ -351,9 +351,10 @@ namespace SCM
 	class MeshedObject
 	{
 	public:
-		MeshedObject(std::vector<MeshData*>& mdata, ipengine::ipid id) :m_meshes(mdata), m_meshObjectId(id) {}
+		MeshedObject(std::vector<MeshData*>& mdata, ipengine::ipid id, std::string path = "") :m_meshes(mdata), m_meshObjectId(id) {}
 		ipengine::ipid m_meshObjectId;
 		std::vector<MeshData*> m_meshes;
+		std::string filepath;
 		virtual void swap()
 		{
 			for (auto& mesh : m_meshes)

@@ -59,7 +59,7 @@ ipengine::ipid SimpleContentModule::addMeshFromFile(std::string path, std::strin
 			meshindex++;
 		}
 		auto id = m_core->createID();
-		getMeshedObjects().push_back(SCM::MeshedObject(meshes,id));
+		getMeshedObjects().push_back(SCM::MeshedObject(meshes,id, path));
 		return id;
 	}
 	
