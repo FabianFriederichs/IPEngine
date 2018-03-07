@@ -137,11 +137,42 @@ void GraphicsModule::loadTextureFromMemory(const GrAPI::t2d & data, const ipengi
 
 bool GraphicsModule::_shutdown()
 {
-	for (auto& handle : handles)
-	{
-		handle.~SubHandle();
-	}
+	handles.clear();
 	//!TODO free graphics related stuff
+	//destroy all opengl objects
+
+	m_dirLightShadowTargets.clear();
+	m_dirLightShadowBlurTargets1.clear();
+	m_dirLightShadowBlurTargets2.clear();
+	m_dirLightMatrices.clear();
+	m_cube_envmap.reset();
+	m_er_envmap.reset();
+	m_s_pbrforward.reset();
+	m_s_pbriblforward.reset();
+	m_s_gblur.reset();
+	m_s_skybox.reset();
+	m_s_shadow.reset();
+	m_s_ibldiff.reset();
+	m_s_iblspec.reset();
+	m_s_iblbrdf.reset();
+	m_s_envconv.reset();
+	m_fb_shadow.reset();
+	m_fb_gblur1.reset();
+	m_fb_gblur2.reset();
+	m_fb_iblgenirradiance.reset();
+	m_fb_iblgenspecular.reset();
+	m_fb_iblgenbrdf.reset();
+	m_fb_envconv.reset();
+	m_ot_shadowmap.reset();
+	m_ot_irradiance.reset();
+	m_ot_specularradiance.reset();
+	m_ot_brdfresponse.reset();
+	m_scmmeshtovao.clear();
+	m_scmshadertoprogram.clear();
+	m_scmtexturetot2d.clear();
+
+
+	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
 	return true;
 }

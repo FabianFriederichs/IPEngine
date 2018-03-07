@@ -46,14 +46,14 @@ public:
 		auto mods = getInjector().getLoadedModules();
 		auto ssm = boost::dynamic_pointer_cast<ISimpleSceneModule_API>(mods["SimpleSceneModule"]);
 		auto scm = boost::dynamic_pointer_cast<SCM::ISimpleContentModule_API>(mods["SimpleContentModule"]);
-		auto phys = boost::dynamic_pointer_cast<IPhysicsModule_API>(mods["PhysicsModule"]);
+		//auto phys = boost::dynamic_pointer_cast<IPhysicsModule_API>(mods["PhysicsModule"]);
 		auto sceneid = ssm->LoadSceneFromFile("../Assets/Scenes/TestScene.xml");
 		ssm->SwitchActiveScene(sceneid);
-		phys->createcloth();
+		//phys->createcloth();
 		auto entity = scm->getEntityById(0);
-		std::cout << sceneid << "\n";
-		std::cout << SCM::allEntitiesAsString(*scm, true);
-		std::cout << SCM::allMeshObjectsAsString(*scm, true);
+		//std::cout << sceneid << "\n";
+		//std::cout << SCM::allEntitiesAsString(*scm, true);
+		//std::cout << SCM::allMeshObjectsAsString(*scm, true);
 	}
 
 	virtual void onShutdown() override
