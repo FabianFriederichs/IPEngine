@@ -446,7 +446,7 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 		auto& meshnode = meshesnode.add("Mesh", "");
 		if (meshtointernid.count(meshobj.m_meshObjectId) < 1)
 			meshtointernid[meshobj.m_meshObjectId] = meshidcounter++;
-		meshnode.add("Id", meshtointernid.count[meshobj.m_meshObjectId]);
+		meshnode.add("Id", meshtointernid[meshobj.m_meshObjectId]);
 		meshnode.add("Path", meshobj.filepath);
 		auto &materialsnode = meshnode.add("Materials", "");
 
@@ -689,7 +689,9 @@ bool SimpleSceneModule::_shutdown()
 		{
 			for (auto& ent : scene.second.getEntities())
 			{
-				entities.erase(scm->getEntityById(ent)->m_name);
+				auto enttodelete = scm->getEntityById(ent);
+				if(enttodelete)
+					entities.erase(scm->getEntityById(ent)->m_name);
 			}
 		}
 	}

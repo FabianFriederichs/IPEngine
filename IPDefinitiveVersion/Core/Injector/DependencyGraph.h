@@ -253,7 +253,7 @@ namespace  DGStuff
 				auto dependency = std::find_if(dependent->dependencies.begin(), dependent->dependencies.end(), [dependencyIdent](std::shared_ptr<DGStuff::Dependency> e)->bool {return e->identifier == dependencyIdent; });
 				if (dependency != dependent->dependencies.end())
 				{
-					(*dependency)->setModule();
+					(*dependency)->setModule(replacer);
 				}
 			}
 		}

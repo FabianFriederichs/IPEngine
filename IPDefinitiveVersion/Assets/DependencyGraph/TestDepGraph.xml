@@ -114,11 +114,6 @@
         </dependency>
         <dependency>
           <inject>true</inject>
-          <identifier>datastore</identifier>
-          <moduleID>DataStoreModule</moduleID>
-        </dependency>
-        <dependency>
-          <inject>true</inject>
           <identifier>openvr</identifier>
           <moduleID>BasicOpenVRModule</moduleID>
         </dependency>
@@ -157,10 +152,6 @@
           <moduleID>GraphicsModule</moduleID>
         </dependency>
       </dependencies>
-    </Module>
-    <Module>
-      <ignore>false</ignore>
-      <identifier>DataStoreModule</identifier>
     </Module>
   </Modules>
   <Extensions>
