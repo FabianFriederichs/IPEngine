@@ -117,6 +117,8 @@ private:
 		Cloth();
 		Cloth(const Cloth& other) = delete;  //no copying! would be unnecessary complicated
 		Cloth(Cloth&& other);
+		Cloth& operator=(const Cloth& other) = delete;
+		Cloth& operator=(Cloth&& other);
 		~Cloth();
 
 		ipengine::ipid id;
@@ -216,7 +218,7 @@ public:
 private:
 	//private data
 	std::vector<Cloth> clothInstances;
-	ipengine::MessageEndpoint* collisionMessageEp;	
+	ipengine::MessageEndpoint* collisionMessageEp;
 	int particles_per_task;
 
 	// Inherited via IPhysicsModule_API

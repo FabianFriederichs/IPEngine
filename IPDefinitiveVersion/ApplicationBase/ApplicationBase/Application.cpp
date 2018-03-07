@@ -2,6 +2,7 @@
 
 #include <Injector/Injector.h>
 #include <IPCore/Core/ICore.h>
+#include <iostream>
 //implementation
 class ipengine::Application::ApplicationImpl
 {
@@ -36,17 +37,19 @@ private:
 
 	void shutdown()
 	{
+		inj->shutdown();
 		core->shutdown();
 	}
 
 	void consoleThreadFunc(Application& app)
 	{
 		auto sleepinterval = core->getConfigManager().getInt("core.application.console_thread_sleep_interval");
+		std::string cmd;
 		while (!shouldStopFlag.load(std::memory_order_acquire))
 		{
-			//some callback to application and management of core console
-			//TODO: wire up application callback and core console
 			app.onConsole();
+			std::getline(std::cin, cmd);
+			getCore().getConsole().in(cmd.c_str());
 			std::this_thread::sleep_for(std::chrono::milliseconds(sleepinterval));
 		}
 	}
@@ -70,8 +73,11 @@ private:
 		}
 
 		shouldStopFlag.store(true, std::memory_order_release);
-		if(enableConsole)
-			consoleThread.join();
+		if (enableConsole)
+		{
+			//consoleThread.join();
+			consoleThread.detach();
+		}
 
 		shutdown();
 		app.onShutdown();

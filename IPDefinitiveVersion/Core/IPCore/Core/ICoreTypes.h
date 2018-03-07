@@ -26,6 +26,7 @@ namespace ipengine
 
 	//some other stuff
 	using iprstr = char*;
+	using ipcrstr = const char*;
 	using ipchar = char;
 
 	//export string from here

@@ -29,6 +29,15 @@ void PhysicsModule::update(ipengine::TaskContext & context)
 	updateMesh(&cloth);
 	}*/
 
+	//remove dead cloth objects
+	for (Cloth& cloth : clothInstances)
+	{
+		if (contentmodule->getEntityById(cloth.id))
+		{
+			destroyCloth(cloth.id);
+		}
+	}
+
 	ipengine::TaskHandle updateMainTask = context.getPool()->createEmpty();
 	for (Cloth& cloth : clothInstances)
 	{
@@ -978,7 +987,15 @@ ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 
 void PhysicsModule::destroyCloth(ipengine::ipid id)
 {
-	//search for cloth with entity id, remove the entity and then free the internal buffers
+	auto et = contentmodule->getEntityById(id);
+	if (et)
+	{
+		//remove entity
+	}
+	else
+	{
+
+	}
 }
 
 void PhysicsModule::fixParticle(const ipengine::ipid name, size_t x, size_t y, bool fixed)
@@ -1116,6 +1133,12 @@ PhysicsModule::Cloth::Cloth(Cloth && other) :
 {
 	other.m_width = 0;
 	other.m_height = 0;
+}
+
+PhysicsModule::Cloth & PhysicsModule::Cloth::operator=(Cloth && other)
+{
+	// TODO: hier Rückgabeanweisung eingeben
+	return *this;
 }
 
 PhysicsModule::Cloth::~Cloth()

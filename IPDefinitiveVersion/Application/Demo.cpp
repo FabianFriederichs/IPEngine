@@ -73,13 +73,15 @@ public:
 
 	virtual void onConsole() override
 	{
-		//Do console stuff here
+		//this is optional. Do whatever you want to do in a console cycle		
 	}
 
 	void runapp()
 	{
 		run();
 	}
+
+	std::string cmd;
 };
 
 int _tmain(int argc, _TCHAR* argv[])
