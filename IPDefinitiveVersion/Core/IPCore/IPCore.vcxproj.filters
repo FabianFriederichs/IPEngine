@@ -128,7 +128,7 @@
     <ClInclude Include="DebugMonitoring\DebugMonitor.h">
       <Filter>CoreModules\DebugMonitoring</Filter>
     </ClInclude>
-    <ClInclude Include="DebugMonitoring\ErrorHandler.h">
+    <ClInclude Include="DebugMonitoring\Error.h">
       <Filter>CoreModules\DebugMonitoring</Filter>
     </ClInclude>
   </ItemGroup>
@@ -166,7 +166,7 @@
     <ClCompile Include="DebugMonitoring\DebugMonitor.cpp">
       <Filter>CoreModules\DebugMonitoring</Filter>
     </ClCompile>
-    <ClCompile Include="DebugMonitoring\ErrorHandler.cpp">
+    <ClCompile Include="DebugMonitoring\Error.cpp">
       <Filter>CoreModules\DebugMonitoring</Filter>
     </ClCompile>
   </ItemGroup>

@@ -282,6 +282,12 @@ namespace ipengine {
 			else
 				return (*func_store.moffunction)(object_ptr, std::forward<ARGS>(args)...);
 		}
+
+		//other member functions
+		bool isEmpty()
+		{
+			return func_store.function == nullptr;
+		}
 	};
 
 }
