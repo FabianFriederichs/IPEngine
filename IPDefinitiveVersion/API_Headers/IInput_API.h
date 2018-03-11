@@ -417,7 +417,8 @@ namespace IInput
 		HMD,
 		CONTROLLER_LEFT,
 		CONTROLLER_RIGHT,
-		GENERICTRACKER
+		GENERICTRACKER,
+		NONE
 	};
 
 	struct keydata
@@ -469,4 +470,5 @@ public:
 	
 	//virtual void printStuffToSomething(std::string) = 0;
 	virtual const std::vector<IInput::Input> getInputBuffered(ipengine::Time, bool vrpositions = false) = 0;
+	virtual IInput::VRDevices getDeviceFromIndex(int index) = 0;
 };

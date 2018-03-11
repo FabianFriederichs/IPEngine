@@ -201,6 +201,20 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 		{
 			vc = true;
 		}
+		else if (i.data.kd.keycode == IInput::SCANCODE_VRBUTTON_TRIGGER)
+		{
+			IInput::VRDevices role = IInput::VRDevices::NONE;
+			if ((role = inputmodule->getDeviceFromIndex(i.data.kd.deviceIndex)) == IInput::VRDevices::CONTROLLER_LEFT)
+			{
+				isHoldEntityButton1Pressed[0] = isHoldEntityButton1Pressed[1];
+				isHoldEntityButton1Pressed[1] = true;
+			}
+			else if (role == IInput::VRDevices::CONTROLLER_RIGHT)
+			{
+				isHoldEntityButton2Pressed[0] = isHoldEntityButton2Pressed[1];
+				isHoldEntityButton2Pressed[1] = true;
+			}
+		}
 	}
 	if (i.data.kd.state == IInput::ButtonState::BUTTON_UP)
 	{
@@ -265,6 +279,26 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 		{
 			vc = false;
 		}
+		else if (i.data.kd.keycode == IInput::SCANCODE_VRBUTTON_TRIGGER)
+		{
+			IInput::VRDevices role = IInput::VRDevices::NONE;
+			if ((role = inputmodule->getDeviceFromIndex(i.data.kd.deviceIndex)) == IInput::VRDevices::CONTROLLER_LEFT)
+			{
+				isHoldEntityButton1Pressed[0] = isHoldEntityButton1Pressed[1];
+				isHoldEntityButton1Pressed[1] = false;
+				onHoldStop(holder[0], heldEntity[0]);
+				holder1busy = false;
+				heldEntity[0] = IPID_INVALID;
+			}
+			else if (role == IInput::VRDevices::CONTROLLER_RIGHT)
+			{
+				isHoldEntityButton2Pressed[0] = isHoldEntityButton2Pressed[1];
+				isHoldEntityButton2Pressed[1] = false;
+				onHoldStop(holder[1], heldEntity[1]);
+				holder2busy = false;
+				heldEntity[1] = IPID_INVALID;
+			}
+		}
 	}
 }
 
@@ -327,6 +361,45 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 			e->m_transformData.setData()->m_isMatrixDirty = true;
 		}
 	}
+
+	if (e->m_name == holder1Name)
+	{
+		if (holder[0] == IPID_INVALID)
+			holder[0] = e->m_entityId;
+	}
+	else if (e->m_name == holder2Name)
+	{
+		if (holder[1] == IPID_INVALID)
+			holder[1] = e->m_entityId;
+	}
+	else
+	{
+		if (isHoldEntityButton1Pressed[0] != isHoldEntityButton1Pressed[1] && !holder1busy)
+		{
+			if (isHoldEntityButton1Pressed[1])
+			{
+				if (inProximity(e->m_entityId, holder[0], 0.1f))
+				{
+					holder1busy = true;
+					heldEntity[0] = e->m_entityId;
+					onHoldStart(holder[0], e->m_entityId);
+				}
+			}
+		}
+		if (isHoldEntityButton2Pressed[0] != isHoldEntityButton2Pressed[1] && !holder2busy)
+		{
+			if (isHoldEntityButton2Pressed[1])
+			{
+				if (inProximity(e->m_entityId, holder[1], 0.1f))
+				{
+					holder1busy = true;
+					heldEntity[1] = e->m_entityId;
+					onHoldStart(holder[1], e->m_entityId);
+				}
+			}
+		}
+	}
+
 
 	if (e->m_transformData.setData()->m_isMatrixDirty)
 	{
@@ -447,4 +520,82 @@ bool GameLogicModule::_shutdown()
 	}
 	initialized = false;
 	return true;
+}
+
+ipengine::ipid GameLogicModule::getAncestor(ipengine::ipid child)
+{
+	auto ent = contentmodule->getEntityById(child);
+	if (ent)
+	{
+		while (ent->m_parent)
+		{
+			ent = ent->m_parent;
+		}
+		return ent->m_entityId;
+	}
+	return IPID_INVALID;
+}
+
+bool GameLogicModule::inProximity(ipengine::ipid source, ipengine::ipid target, float maxDistance)
+{
+	auto entsource = contentmodule->getEntityById(source);
+	auto enttarget = contentmodule->getEntityById(target);
+	if (entsource && enttarget && entsource->shouldCollide() && enttarget->shouldCollide())
+	{
+		float distance,minx,miny,maxx,maxy, minz, maxz;
+		if (enttarget->isBoundingBox)
+		{
+			auto box = entsource->m_boundingData.box;
+			auto targetcenter = enttarget->m_boundingData.sphere.m_center;
+			auto sourcecenter = entsource->m_boundingData.sphere.m_center;
+			auto halfx = box.m_size.x / 2;
+			auto halfy = box.m_size.y / 2;
+			auto halfz = box.m_size.z / 2;
+			minx = sourcecenter.x - halfx;
+			maxx = sourcecenter.x + halfx;
+			miny = sourcecenter.y - halfy;
+			maxy = sourcecenter.y + halfy;
+			minz = sourcecenter.z - halfz;
+			maxz = sourcecenter.z + halfz;
+
+			auto dx = glm::max(minx - targetcenter.x, targetcenter.x - maxx);
+			auto dy = glm::max(miny - targetcenter.y, targetcenter.y - maxy);
+			auto dz = glm::max(minz - targetcenter.z, targetcenter.z - maxz);
+			distance = glm::sqrt(dx*dx + dy*dy + dz*dz);
+			//https://stackoverflow.com/a/18157551 source for this formula
+			return distance < maxDistance ? true : false; //! this has to be tested likely wrong
+		}
+		else
+		{
+			distance = glm::distance(entsource->m_boundingData.sphere.m_center,enttarget->m_boundingData.sphere.m_center) - entsource->m_boundingData.sphere.m_radius;
+			return distance < maxDistance ? true : false;
+		}
+	}
+	return false;
+}
+
+void GameLogicModule::onHoldStart(ipengine::ipid source, ipengine::ipid target)
+{
+	auto enttarget = contentmodule->getEntityById(target);
+	auto entsource = contentmodule->getEntityById(source);
+	if (enttarget && entsource && !enttarget->m_parent)
+	{
+		enttarget->m_parent = entsource;
+	}
+}
+
+void GameLogicModule::onHoldStop(ipengine::ipid source, ipengine::ipid target)
+{
+	auto enttarget = contentmodule->getEntityById(target);
+	auto entsource = contentmodule->getEntityById(source);
+	if (enttarget && entsource && enttarget->m_parent)
+	{
+		auto targettrans = enttarget->m_transformData.setData();
+		auto sourcetrans = entsource->m_transformData.getData();
+		targettrans->m_location = sourcetrans->m_location;
+		//! todo adjust target transform rotation. Apply source rotation to target rotaiton
+
+
+		enttarget->m_parent = nullptr;
+	}
 }
