@@ -856,6 +856,7 @@ void GraphicsModule::updateData()
 	auto& entities = m_scm->getThreeDimEntities();
 	auto& shaders = m_scm->getShaders();
 	auto& textures = m_scm->getTextures();
+	std::vector<ipengine::ipid> parents;
 	for (auto eid : activeentitynames)
 	{
 		auto findent = entities.find(eid);
@@ -1055,7 +1056,17 @@ void GraphicsModule::setMaterialUniforms(SCM::MaterialData * mdata, ShaderProgra
 void GraphicsModule::drawEntity(SCM::ThreeDimEntity * entity, ShaderProgram* shader)
 {
 	//set per entity uniforms
-	const glm::mat4& transformMat = entity->m_transformData.getData()->m_transformMatrix;
+	glm::mat4 transformMat = entity->m_transformData.getData()->m_transformMatrix;
+
+	//add parent transforms
+	SCM::Entity* parentent = entity->m_parent;
+	while (parentent)
+	{
+		transformMat = parentent->m_transformData.getData()->m_transformMatrix* transformMat;
+		parentent = parentent->m_parent;
+	}
+
+
 	shader->setUniform("u_model_matrix", transformMat, false);	
 	//draw all meshes
 	

@@ -55,7 +55,7 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 			break;
 		case IInput::InputType::INPUT_MOUSEMOVE:
 			extrec.execute("mousemove", paras, anyvector);
-			mousemoveUpdate(i);
+			//mousemoveUpdate(i);
 			break;
 		case IInput::InputType::INPUT_MOUSESCROLL:
 			extrec.execute("mousescroll", paras, anyvector);
@@ -362,43 +362,7 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 		}
 	}
 
-	if (e->m_name == holder1Name)
-	{
-		if (holder[0] == IPID_INVALID)
-			holder[0] = e->m_entityId;
-	}
-	else if (e->m_name == holder2Name)
-	{
-		if (holder[1] == IPID_INVALID)
-			holder[1] = e->m_entityId;
-	}
-	else
-	{
-		if (isHoldEntityButton1Pressed[0] != isHoldEntityButton1Pressed[1] && !holder1busy)
-		{
-			if (isHoldEntityButton1Pressed[1])
-			{
-				if (inProximity(e->m_entityId, holder[0], 0.1f))
-				{
-					holder1busy = true;
-					heldEntity[0] = e->m_entityId;
-					onHoldStart(holder[0], e->m_entityId);
-				}
-			}
-		}
-		if (isHoldEntityButton2Pressed[0] != isHoldEntityButton2Pressed[1] && !holder2busy)
-		{
-			if (isHoldEntityButton2Pressed[1])
-			{
-				if (inProximity(e->m_entityId, holder[1], 0.1f))
-				{
-					holder1busy = true;
-					heldEntity[1] = e->m_entityId;
-					onHoldStart(holder[1], e->m_entityId);
-				}
-			}
-		}
-	}
+	
 
 
 	if (e->m_transformData.setData()->m_isMatrixDirty)
@@ -456,21 +420,59 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 		}
 	}
 
+	if (e->m_name == holder1Name)
+	{
+		if (holder[0] == IPID_INVALID)
+			holder[0] = e->m_entityId;
+	}
+	else if (e->m_name == holder2Name)
+	{
+		if (holder[1] == IPID_INVALID)
+			holder[1] = e->m_entityId;
+	}
+	else
+	{
+		if (isHoldEntityButton1Pressed[0] != isHoldEntityButton1Pressed[1] && !holder1busy)
+		{
+			if (isHoldEntityButton1Pressed[1])
+			{
+				if (inProximity(e->m_entityId, holder[0], 0.1f))
+				{
+					holder1busy = true;
+					heldEntity[0] = e->m_entityId;
+					onHoldStart(holder[0], e->m_entityId);
+				}
+			}
+		}
+		if (isHoldEntityButton2Pressed[0] != isHoldEntityButton2Pressed[1] && !holder2busy)
+		{
+			if (isHoldEntityButton2Pressed[1])
+			{
+				if (inProximity(e->m_entityId, holder[1], 0.1f))
+				{
+					holder2busy = true;
+					heldEntity[1] = e->m_entityId;
+					onHoldStart(holder[1], e->m_entityId);
+				}
+			}
+		}
+	}
 
 	if (e->m_transformData.setData()->m_isMatrixDirty)
 	{
 		glm::vec3 oldpos = glm::vec3(e->m_transformData.getData()->m_transformMatrix[3]);
-		auto transdata = e->m_transformData.getData();
-		glm::mat4 tmat = glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
-		auto data = e->m_transformData.setData();
-		data->m_transformMatrix = tmat;//glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
-		data->m_isMatrixDirty = false;
-		data->m_localX = glm::normalize(glm::vec3(tmat[0][0], tmat[0][1], tmat[0][2]));
-		data->m_localY = glm::normalize(glm::vec3(tmat[1][0], tmat[1][1], tmat[1][2]));
-		data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
-		//e->swap();
-		e->m_transformData.setData()->m_isMatrixDirty = false;
-		
+		//auto transdata = e->m_transformData.getData();
+		e->m_transformData.setData()->calcTransformMatrix();
+		//glm::mat4 tmat = glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
+		//auto data = e->m_transformData.setData();
+		//data->m_transformMatrix = tmat;//glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
+		//data->m_isMatrixDirty = false;
+		//data->m_localX = glm::normalize(glm::vec3(tmat[0][0], tmat[0][1], tmat[0][2]));
+		//data->m_localY = glm::normalize(glm::vec3(tmat[1][0], tmat[1][1], tmat[1][2]));
+		//data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
+		////e->swap();
+		//e->m_transformData.setData()->m_isMatrixDirty = false;
+		//
 		updateBoundingData(e, oldpos, e->m_transformData.getData()->m_location, static_cast<float>(delta.sec()));
 	}
 }
@@ -593,8 +595,9 @@ void GameLogicModule::onHoldStop(ipengine::ipid source, ipengine::ipid target)
 		auto targettrans = enttarget->m_transformData.setData();
 		auto sourcetrans = entsource->m_transformData.getData();
 		targettrans->m_location = sourcetrans->m_location;
+		targettrans->m_rotation = sourcetrans->m_rotation * targettrans->m_rotation;
+		targettrans->m_isMatrixDirty = true;
 		//! todo adjust target transform rotation. Apply source rotation to target rotaiton
-
 
 		enttarget->m_parent = nullptr;
 	}

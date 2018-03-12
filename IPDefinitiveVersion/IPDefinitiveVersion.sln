@@ -104,6 +104,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VREntitySceneLoader", "Exte
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "exSSMExtendedPBRPhysicsLoader", "Extensions\exSSMExtendedPBRPhysicsLoader\exSSMExtendedPBRPhysicsLoader.vcxproj", "{B59FCB62-D437-4FD4-A1CF-4155BF664A11}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "exSSMExtendedWriterPhysics", "Extensions\exSSMExtendedWriterPhysics\exSSMExtendedWriterPhysics.vcxproj", "{B1969DE1-EA39-45D1-BF10-0CC0D442CA85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -256,6 +258,14 @@ Global
 		{B59FCB62-D437-4FD4-A1CF-4155BF664A11}.Release|x64.Build.0 = Release|x64
 		{B59FCB62-D437-4FD4-A1CF-4155BF664A11}.Release|x86.ActiveCfg = Release|Win32
 		{B59FCB62-D437-4FD4-A1CF-4155BF664A11}.Release|x86.Build.0 = Release|Win32
+		{B1969DE1-EA39-45D1-BF10-0CC0D442CA85}.Debug|x64.ActiveCfg = Debug|x64
+		{B1969DE1-EA39-45D1-BF10-0CC0D442CA85}.Debug|x64.Build.0 = Debug|x64
+		{B1969DE1-EA39-45D1-BF10-0CC0D442CA85}.Debug|x86.ActiveCfg = Debug|Win32
+		{B1969DE1-EA39-45D1-BF10-0CC0D442CA85}.Debug|x86.Build.0 = Debug|Win32
+		{B1969DE1-EA39-45D1-BF10-0CC0D442CA85}.Release|x64.ActiveCfg = Release|x64
+		{B1969DE1-EA39-45D1-BF10-0CC0D442CA85}.Release|x64.Build.0 = Release|x64
+		{B1969DE1-EA39-45D1-BF10-0CC0D442CA85}.Release|x86.ActiveCfg = Release|Win32
+		{B1969DE1-EA39-45D1-BF10-0CC0D442CA85}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -277,6 +287,7 @@ Global
 		{8F5D02FD-B9EC-4A98-A576-264EC8224D34} = {613BA2EF-077C-4E18-9DDE-2EB2CDB335B0}
 		{56BA1EF9-DDA3-4598-96F2-32F998998A51} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
 		{B59FCB62-D437-4FD4-A1CF-4155BF664A11} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
+		{B1969DE1-EA39-45D1-BF10-0CC0D442CA85} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8D852F7-90CA-4379-BF8E-6B6E1D793FA0}
