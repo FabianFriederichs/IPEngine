@@ -16,6 +16,7 @@
 #include "libheaders.h"
 #include "Utils.h"
 #include <IGraphics_API.h>
+#include <stack>
 //#define GLEW_STATIC
 // This class is exported from the Plugin2.dll
 class GraphicsModule : public IGraphics_API {

@@ -439,8 +439,8 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			hmd->m_parent->m_transformData.setData()->m_rotation = glm::normalize(trans->m_rotation);
 			hmd->m_parent->m_transformData.setData()->m_isMatrixDirty = true;
 		}
-		//trans->m_isMatrixDirty = true;
-		trans->calcTransformMatrix();
+		trans->m_isMatrixDirty = true;
+		//trans->calcTransformMatrix();
 
 	}
 	//Check if controller is active
