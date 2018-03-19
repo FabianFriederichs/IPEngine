@@ -583,8 +583,8 @@ bool GameLogicModule::inProximity(ipengine::ipid source, ipengine::ipid target, 
 		if (enttarget->isBoundingBox)
 		{
 			auto box = entsource->m_boundingData.box;
-			auto targetcenter = enttarget->m_boundingData.sphere.m_center;
-			auto sourcecenter = entsource->m_boundingData.sphere.m_center;
+			auto targetcenter = enttarget->m_boundingData.box.m_center + enttarget->m_transformData.getData()->m_location;
+			auto sourcecenter = entsource->m_boundingData.sphere.m_center + enttarget->m_transformData.getData()->m_location;
 			auto halfx = box.m_size.x / 2;
 			auto halfy = box.m_size.y / 2;
 			auto halfz = box.m_size.z / 2;
@@ -604,7 +604,7 @@ bool GameLogicModule::inProximity(ipengine::ipid source, ipengine::ipid target, 
 		}
 		else
 		{
-			distance = glm::distance(entsource->m_boundingData.sphere.m_center,enttarget->m_boundingData.sphere.m_center) - entsource->m_boundingData.sphere.m_radius;
+			distance = glm::distance(entsource->m_boundingData.sphere.m_center + entsource->m_transformData.getData()->m_location,enttarget->m_boundingData.sphere.m_center + enttarget->m_transformData.getData()->m_location) - entsource->m_boundingData.sphere.m_radius;
 			return distance < maxDistance ? true : false;
 		}
 	}
@@ -621,6 +621,7 @@ void GameLogicModule::onHoldStart(ipengine::ipid source, ipengine::ipid target)
 
 		//set location to be relative to parent
 		enttarget->m_transformData.setData()->m_location = entsource->m_transformData.getData()->m_location - enttarget->m_transformData.getData()->m_location;
+		enttarget->m_transformData.setData()->m_rotation = glm::normalize(glm::inverse(entsource->m_transformData.getData()->m_rotation) * enttarget->m_transformData.setData()->m_rotation);
 		enttarget->m_transformData.setData()->m_isMatrixDirty = true;
 	}
 }
@@ -633,8 +634,16 @@ void GameLogicModule::onHoldStop(ipengine::ipid source, ipengine::ipid target)
 	{
 		auto targettrans = enttarget->m_transformData.setData();
 		auto sourcetrans = entsource->m_transformData.getData();
-		targettrans->m_location = targettrans->m_location + sourcetrans->m_location;
+	/*	targettrans->m_location = targettrans->m_location + sourcetrans->m_location;
 		targettrans->m_rotation = glm::normalize(sourcetrans->m_rotation*targettrans->m_rotation);
+		targettrans->m_isMatrixDirty = true;*/
+		auto newtargettrans = sourcetrans->m_transformMatrix * targettrans->m_transformMatrix;
+		targettrans->m_location = glm::vec3(newtargettrans[3]);
+		targettrans->m_rotation = glm::toQuat(glm::mat3(
+			glm::normalize(glm::vec3(newtargettrans[0])),
+			glm::normalize(glm::vec3(newtargettrans[1])),
+			glm::normalize(glm::vec3(newtargettrans[2]))
+		));
 		targettrans->m_isMatrixDirty = true;
 		//! todo adjust target transform rotation. Apply source rotation to target rotaiton
 
