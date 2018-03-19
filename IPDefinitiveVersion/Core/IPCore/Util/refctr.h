@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _REF_CT_H_
+#define _REF_CT_H_
 #include <atomic>
 
 namespace ipengine {
@@ -46,3 +47,5 @@ namespace ipengine {
 		}
 	};
 }
+
+#endif

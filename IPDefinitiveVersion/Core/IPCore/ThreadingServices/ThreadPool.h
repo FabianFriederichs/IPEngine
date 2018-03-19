@@ -1,6 +1,10 @@
 #pragma once
 
 //TODO: implement continuation passing!
+//TODO: fork this thingy and create version without slow main thread helper path.
+//instead "busy" wait with the main thread and yield. This should increase throughput and remove a huge amount of
+//complexity and some contention problems from the system.
+//All of that under the assumption that the OS and runtime liraries implement a meaningful "yield" operation
 
 #include <IPCore/ThreadingServices/Task.h>
 #include <IPCore/ThreadingServices/TaskHandle.h>

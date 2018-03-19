@@ -74,7 +74,7 @@ void PhysicsModule::update(ipengine::TaskContext & context)
 		for (auto i = cloth.m_collidedEntities.begin(); i != it; ++i) //and send a message for each unque cloth-entity collision
 		{
 			ipengine::Message msg;
-			msg.type = IPMSG_CLOTH_ENTITY_COLLISION;
+			msg.type = collisionMessageType;
 			msg.senderid = collisionMessageEp->getID();
 			msg.payload = Collision{cloth.id, *i};
 			collisionMessageEp->enqueueMessage(msg);
@@ -1047,6 +1047,7 @@ bool PhysicsModule::_startup()
 {
 	//Setup messaging
 	collisionMessageEp = m_core->getEndpointRegistry().createEndpoint("PHYSICS_MODULE_ENDPOINT");
+	collisionMessageType = m_core->getEndpointRegistry().registerMessageType("CLOTH_OBJECT_COLLISION");
 
 	/*	m_info.dependencies.getDep<IPrinter_API>("printer")->printStuffToSomething(m_info.identifier + " successfully started up as " + m_info.iam); return true; */
 	schedulerSubscriptionHandle.push_back(

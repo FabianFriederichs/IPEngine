@@ -2,7 +2,7 @@
 #define _ERROR_H_
 #include <IPCore/core_config.h>
 #include <IPCore/Core/ICoreTypes.h>
-#include <IPCore/Util/function.h>
+
 
 namespace ipengine
 {
@@ -11,8 +11,7 @@ namespace ipengine
 		fatal,
 		error,
 		warning,
-		info,
-		noerror
+		info
 	};
 
 	class CORE_API ipex
@@ -35,24 +34,7 @@ namespace ipengine
 		virtual ipcrstr getMessage();
 		virtual ipcrstr getRaiseLocation();
 		virtual ipex_severity getSeverity();
-	};
-
-	class CORE_API ErrorManager
-	{
-	private:
-	};
-
-	using ErrorHandlerFunc = ipengine::function<void(ipex&)>;
-
-	class CORE_API ErrorHandler
-	{
-	private:
-		ErrorManager* emanager;
-		ipex last;
-		ErrorHandlerFunc ehfunc;
-
-	public:
-		ErrorHandler(ErrorManager* manager);
+		virtual ipuint32 getExTag();
 	};
 }
 #endif
