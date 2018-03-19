@@ -10,6 +10,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <chrono>
+#include <IPCore/Messaging/EndpointRegistry.h>
+#include <IPCore/DebugMonitoring/ErrorHandler.h>
+#include <IPhysicsModule_API.h>
 
 class GameLogicModule : public IModule_API {
 public:
@@ -17,6 +20,11 @@ public:
 	// TODO: add your methods here.
 	ModuleInformation* getModuleInfo(){ return &m_info; }
 private:
+	//messaging test
+	ipengine::EndpointHandle m_gameLogicEndpoint;
+	//error handler
+	ipengine::ErrorHandler m_errhandler;
+	ipengine::MessageType m_collisionmsgtype;
 	ModuleInformation m_info;
 	ipengine::Time delta;
 	ipengine::Time lastUpdate;
@@ -45,6 +53,9 @@ private:
 	void entityUpdate(SCM::Entity*);
 	void entity3dUpdate(SCM::ThreeDimEntity*);
 	void updateBoundingData(SCM::Entity*, const glm::vec3&, const glm::vec3&, float);
+
+	void messageCallback(ipengine::Message& msg);
+	void onError(ipengine::ipex& ex);
 
 	// Inherited via IModule_API
 	virtual bool _startup() override;

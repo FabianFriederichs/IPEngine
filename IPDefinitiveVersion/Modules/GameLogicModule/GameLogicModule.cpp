@@ -15,6 +15,7 @@ GameLogicModule::GameLogicModule()
 
 void GameLogicModule::update(ipengine::TaskContext& c)
 {
+	BEGINEX
 	if (!initialized)
 	{
 		initialized = true;
@@ -93,6 +94,9 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 		osc -= 2.f*pi;
 	}
 	mouseDelta = glm::vec2(0, 0);
+
+	m_gameLogicEndpoint->dispatch();
+	ENDEX(m_errhandler)
 }
 
 void GameLogicModule::keyUpdate(IInput::Input &i)
@@ -503,6 +507,20 @@ void GameLogicModule::updateBoundingData(SCM::Entity * entity, const glm::vec3& 
 	}
 }
 
+void GameLogicModule::messageCallback(ipengine::Message & msg)
+{
+	if (msg.type == m_collisionmsgtype)
+	{
+		IPhysicsModule_API::Collision col = msg.payload;
+		std::cout << "Collision! Cloth " << col.e1 << " collided with " << col.e2 << "\n";
+	}
+}
+
+void GameLogicModule::onError(ipengine::ipex & ex)
+{
+	//do stuff
+}
+
 bool GameLogicModule::_startup()
 {
 	//Initialize your module
@@ -517,6 +535,16 @@ bool GameLogicModule::_startup()
 	if (contentmodule->getEntityByName("Camera"))
 		graphics->setCameraEntity(contentmodule->getEntityByName("Camera")->m_entityId);
 	lastUpdate = ipengine::Time(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+
+	//messaging test
+	m_gameLogicEndpoint = m_core->getEndpointRegistry().createEndpoint("GAME_LOGIC_ENDPOINT");
+	//m_gameLogicEndpoint->connectTo(m_core->getEndpointRegistry().getEndpoint("PHYSICS_MODULE_ENDPOINT"));
+	m_gameLogicEndpoint->registerCallback(ipengine::MessageCallback::make_func<GameLogicModule, &GameLogicModule::messageCallback>(this));
+	m_collisionmsgtype = m_core->getEndpointRegistry().getMessageTypeByName("CLOTH_OBJECT_COLLISION");
+
+	m_errhandler = m_core->getErrorManager().createHandlerInstance();
+	m_errhandler.registerCustomHandler(ipengine::ErrorHandlerFunc::make_func<GameLogicModule, &GameLogicModule::onError>(this));
+
 	return true;
 }
 

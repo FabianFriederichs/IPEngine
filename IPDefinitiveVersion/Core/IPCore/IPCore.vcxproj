@@ -146,6 +146,8 @@
     <ClInclude Include="core_config.h" />
     <ClInclude Include="DebugMonitoring\DebugMonitor.h" />
     <ClInclude Include="DebugMonitoring\Error.h" />
+    <ClInclude Include="DebugMonitoring\ErrorHandler.h" />
+    <ClInclude Include="DebugMonitoring\ErrorManager.h" />
     <ClInclude Include="Memory\allocators.h" />
     <ClInclude Include="Memory\lowlevel_allocators.h" />
     <ClInclude Include="Memory\MemoryManager.h" />
@@ -166,6 +168,7 @@
     <ClInclude Include="Util\any.h" />
     <ClInclude Include="Util\Deque.h" />
     <ClInclude Include="Util\function.h" />
+    <ClInclude Include="Util\handle.h" />
     <ClInclude Include="Util\hazard_pointer.h" />
     <ClInclude Include="Util\LFDS.h" />
     <ClInclude Include="Util\refctr.h" />
@@ -178,6 +181,8 @@
     <ClCompile Include="Core\ICore.cpp" />
     <ClCompile Include="DebugMonitoring\DebugMonitor.cpp" />
     <ClCompile Include="DebugMonitoring\Error.cpp" />
+    <ClCompile Include="DebugMonitoring\ErrorHandler.cpp" />
+    <ClCompile Include="DebugMonitoring\ErrorManager.cpp" />
     <ClCompile Include="Memory\MemoryManager.cpp" />
     <ClCompile Include="Messaging\EndpointRegistry.cpp" />
     <ClCompile Include="Messaging\MessageEndpoint.cpp" />

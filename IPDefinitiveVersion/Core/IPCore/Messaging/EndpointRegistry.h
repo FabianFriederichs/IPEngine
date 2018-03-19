@@ -15,21 +15,22 @@ namespace ipengine
 		EndpointRegistry();
 		~EndpointRegistry();
 
-		MessageEndpoint* createEndpoint(const std::string& name);
-		void destroyEndpoint(MessageEndpoint*& endpoint);
+		EndpointHandle createEndpoint(const std::string& name);
+		void destroyEndpoint(EndpointHandle& handle);
 
 		//TODO: implement those
 		MessageType registerMessageType(const ipstring& name);
 		MessageType getMessageTypeByName(const ipstring& name);
 		const ipstring& getMessageTypeName(MessageType mtype);
 
-		MessageEndpoint* getEndpoint(ipid id);
-		MessageEndpoint* getEndpoint(const std::string& name);
+		EndpointHandle getEndpoint(ipid id);
+		EndpointHandle getEndpoint(const std::string& name);
 
 	private:
-		std::map<ipid, ipengine::MessageEndpoint*> m_endpoints;
+		std::map<ipid, EndpointHandle> m_endpoints;
 		std::map<MessageType, ipstring> m_messageTypes;
 		YieldingSpinLock<5000> m_lock;
+		YieldingSpinLock<5000> m_mtlock;
 		std::atomic<ipid> m_idgen;
 	};
 }

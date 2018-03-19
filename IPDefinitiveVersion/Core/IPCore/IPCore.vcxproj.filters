@@ -131,6 +131,15 @@
     <ClInclude Include="DebugMonitoring\Error.h">
       <Filter>CoreModules\DebugMonitoring</Filter>
     </ClInclude>
+    <ClInclude Include="DebugMonitoring\ErrorHandler.h">
+      <Filter>CoreModules\DebugMonitoring</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugMonitoring\ErrorManager.h">
+      <Filter>CoreModules\DebugMonitoring</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\handle.h">
+      <Filter>Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThreadingServices\TaskHandle.cpp">
@@ -167,6 +176,12 @@
       <Filter>CoreModules\DebugMonitoring</Filter>
     </ClCompile>
     <ClCompile Include="DebugMonitoring\Error.cpp">
+      <Filter>CoreModules\DebugMonitoring</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugMonitoring\ErrorHandler.cpp">
+      <Filter>CoreModules\DebugMonitoring</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugMonitoring\ErrorManager.cpp">
       <Filter>CoreModules\DebugMonitoring</Filter>
     </ClCompile>
   </ItemGroup>

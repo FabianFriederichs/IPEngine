@@ -218,7 +218,8 @@ public:
 private:
 	//private data
 	std::vector<Cloth> clothInstances;
-	ipengine::MessageEndpoint* collisionMessageEp;
+	ipengine::EndpointHandle collisionMessageEp;
+	ipengine::MessageType collisionMessageType;
 	int particles_per_task;
 
 	// Inherited via IPhysicsModule_API

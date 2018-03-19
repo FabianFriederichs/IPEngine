@@ -1,4 +1,5 @@
 #include <IPCore/Core/ICore.h>
+#include <sstream>
 
 ipengine::Core::Core() :
 	cmodule_console(nullptr),
@@ -17,6 +18,8 @@ void ipengine::Core::initialize(const iprstr configpath)
 {
 	cmodule_memorymanager = new MemoryManager();
 	cmodule_configmanager = new ConfigManager();
+	cmodule_errormanager = new ErrorManager();
+	cmodule_errormanager->registerHandlerFunc(ErrorHandlerFunc::make_func<Core, &Core::handleError>(this));
 	if (!cmodule_configmanager->loadConfigFile(configpath))
 	{
 		//report error somehow (debug interface!)
@@ -55,6 +58,8 @@ ipengine::Time ipengine::Core::tick(bool& shouldstop)
 {
 	auto t1 = Time::now();
 
+	cmodule_errormanager->handlePendingExceptions();
+
 	if (m_isrunning.load(std::memory_order_relaxed))
 	{
 		cmodule_scheduler->schedule();
@@ -67,6 +72,36 @@ ipengine::Time ipengine::Core::tick(bool& shouldstop)
 
 	auto t2 = Time::now();
 	return Time(t2.nano() - t1.nano());
+}
+
+void ipengine::Core::handleError(ipex & ex)
+{
+	std::stringstream msg;
+	msg << "Exception raised at '" << ex.getRaiseLocation() << "': " << ex.getMessage() << "\nSeverity: ";
+
+	//TODO: implement logging
+	switch (ex.getSeverity())
+	{
+		case ipex_severity::info:
+			msg << "INFO";
+			cmodule_console->println(msg.rdbuf()->str().c_str());
+			break;
+		case ipex_severity::warning:
+			msg << "WARNING";
+			cmodule_console->println(msg.rdbuf()->str().c_str());
+			break;
+		case ipex_severity::error:
+			msg << "ERROR";
+			cmodule_console->println(msg.rdbuf()->str().c_str());
+			break;
+		case ipex_severity::fatal:
+			msg << "FATAL ERROR";
+			cmodule_console->println(msg.rdbuf()->str().c_str());
+			stop();
+			break;
+		default:
+			break;
+	}
 }
 
 ipengine::ipid ipengine::Core::createID()
@@ -102,6 +137,11 @@ ipengine::MemoryManager & ipengine::Core::getMemoryManager()
 ipengine::ConfigManager & ipengine::Core::getConfigManager()
 {
 	return *cmodule_configmanager;
+}
+
+ipengine::ErrorManager & ipengine::Core::getErrorManager()
+{
+	return *cmodule_errormanager;
 }
 
 void ipengine::Core::setupCoreConsoleCommands()
