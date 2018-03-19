@@ -355,6 +355,41 @@
       <innerAngle></innerAngle>
       <outerAngle></outerAngle>
     </Entity>
+    <Entity>
+      <Id>9</Id>
+      <StringName>sandfloor</StringName>
+      <MeshId>1</MeshId>
+      <ParentId></ParentId>
+      <TransformData>
+        <Location>0/0/0</Location>
+        <!--Vector-->
+        <Rotation>1/0/0/0</Rotation>
+        <!--Quaternion-->
+        <Scale>100/100/100</Scale>
+        <!--Vector-->
+        <LocalY>0/1/0</LocalY>
+        <!--Vector-->
+        <LocalX>1/0/0</LocalX>
+        <!--Vector-->
+        <LocalZ>0/0/1</LocalZ>
+        <!--Vector-->
+      </TransformData>
+      <BoundingData>
+        <Sphere>
+          <Center>0/0/0</Center>
+          <!--X,Y,Z - Vector-->
+          <Radius>0</Radius>
+        </Sphere>
+        <Box>
+          <Center>0/0/0</Center>
+          <!--Vector-->
+          <Size>0/0/0</Size>
+          <!--Vector-->
+          <Rotation>0/0/0/0</Rotation>
+          <!--Quaternion-->
+        </Box>
+      </BoundingData>
+    </Entity>
   </Entities>
   
   <Meshes> 
@@ -370,8 +405,16 @@
         </Material>
       </Materials>
     </Mesh>
-    <!--
     <Mesh>
+      <Id>1</Id>
+      <Path>../assets/models/sandyground.obj</Path>
+      <Materials>
+        <Material>
+          <MaterialId>4</MaterialId>
+        </Material>
+      </Materials>
+    </Mesh>
+    <!--<Mesh>
       <Id>1</Id>
       <Path>..assets/models/ground.obj</Path>
     </Mesh>
@@ -498,6 +541,29 @@
       </Textures>
       <ShaderId>1</ShaderId>
     </Material>
+    <!-- PBR sand floor-->
+    <Material>
+      <Id>4</Id>
+      <Textures>
+        <Texture>
+          <Name>albedo</Name>
+          <Id>18</Id>
+        </Texture>
+        <Texture>
+          <Name>mrar</Name>
+          <Id>19</Id>
+        </Texture>
+        <Texture>
+          <Name>normal</Name>
+          <Id>20</Id>
+        </Texture>
+        <Texture>
+          <Name>emissive</Name>
+          <Id>21</Id>
+        </Texture>
+      </Textures>
+      <ShaderId>1</ShaderId>
+    </Material>
   </Materials>
 
   <Textures>
@@ -572,6 +638,22 @@
     <Texture>
       <Id>17</Id>
       <TexturePath>../assets/textures/metalpbr/emissive.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>18</Id>
+      <TexturePath>../assets/textures/sandypbr/albedo.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>19</Id>
+      <TexturePath>../assets/textures/sandypbr/mrar.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>20</Id>
+      <TexturePath>../assets/textures/sandypbr/normal.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>21</Id>
+      <TexturePath>../assets/textures/sandypbr/emissive.png</TexturePath>
     </Texture>
   </Textures>
 </Scene>
