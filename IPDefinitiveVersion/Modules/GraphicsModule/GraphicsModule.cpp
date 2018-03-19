@@ -1362,8 +1362,8 @@ glm::mat4 GraphicsModule::parentInfluencedTransform(ipengine::ipid childid)
 		transformMat = transformMat * parentents.top()->m_transformData.getData()->m_transformMatrix;
 		parentents.pop();
 	}
-	if (entity->m_parent)
-		return  entity->m_parent->m_transformData.getData()->m_transformMatrix*entity->m_transformData.getData()->m_transformMatrix;
+	/*if (entity->m_parent)
+		return  entity->m_parent->m_transformData.getData()->m_transformMatrix*entity->m_transformData.getData()->m_transformMatrix;*/
 	return transformMat;
 }
 
