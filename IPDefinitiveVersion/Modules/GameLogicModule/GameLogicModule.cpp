@@ -620,9 +620,10 @@ void GameLogicModule::onHoldStart(ipengine::ipid source, ipengine::ipid target)
 		enttarget->m_parent = entsource;
 
 		//set location to be relative to parent
-		enttarget->m_transformData.setData()->m_location = enttarget->m_transformData.getData()->m_location - entsource->m_transformData.getData()->m_location;
+		/*enttarget->m_transformData.setData()->m_location = enttarget->m_transformData.getData()->m_location - entsource->m_transformData.getData()->m_location;
 		enttarget->m_transformData.setData()->m_rotation = glm::normalize(glm::inverse(entsource->m_transformData.getData()->m_rotation) * enttarget->m_transformData.setData()->m_rotation);
-		enttarget->m_transformData.setData()->m_isMatrixDirty = true;
+		enttarget->m_transformData.setData()->m_isMatrixDirty = true;*/
+		enttarget->m_transformData.setData()->setTransformMatrix(entsource->m_transformData.getData()->getInverseTransform() * enttarget->m_transformData.getData()->m_transformMatrix);
 	}
 }
 

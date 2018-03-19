@@ -92,7 +92,30 @@ namespace SCM
 			calcTransformMatrix();
 			calcLocalAxes();
 			m_isMatrixDirty = false;
-		}		
+		}
+
+		void setTransformMatrix(const glm::mat4& tmat)
+		{
+			m_transformMatrix = tmat;
+			calcLocalAxes();
+			m_location = glm::vec3(m_transformMatrix[3]);
+			m_scale = glm::vec3(
+				glm::length(glm::vec3(m_transformMatrix[0])),
+				glm::length(glm::vec3(m_transformMatrix[1])),
+				glm::length(glm::vec3(m_transformMatrix[2]))
+			);
+			m_rotation = glm::toQuat(glm::mat3(
+				m_localX,
+				m_localY,
+				m_localZ
+			));
+			m_isMatrixDirty = false;
+		}
+
+		glm::mat4 getInverseTransform() const
+		{
+			return glm::inverse(m_transformMatrix);
+		}
 	};
 
 	class Transform
