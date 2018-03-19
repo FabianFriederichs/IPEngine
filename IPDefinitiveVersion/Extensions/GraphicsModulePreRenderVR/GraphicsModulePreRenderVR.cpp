@@ -501,6 +501,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	resolveFB(rightEyeDesc.m_nRenderFramebufferId, rightEyeDesc.m_nResolveFramebufferId, renderWidth, renderHeight);
 
 	vr::EVRCompositorError comperr;
+	//TODO: switch between gamma and linear color space if gpu supports srgb framebuffers
 	vr::Texture_t leftEyeTexture = { (void*)leftEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
 	
 	comperr=vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);

@@ -19,6 +19,7 @@
 #include <stack>
 //#define GLEW_STATIC
 // This class is exported from the Plugin2.dll
+//TODO: sRGB default framebuffer if supported
 class GraphicsModule : public IGraphics_API {
 public:
 	GraphicsModule(void);

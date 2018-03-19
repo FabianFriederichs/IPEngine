@@ -361,11 +361,11 @@
       <MeshId>1</MeshId>
       <ParentId></ParentId>
       <TransformData>
-        <Location>0/0/0</Location>
+        <Location>0/-2/0</Location>
         <!--Vector-->
         <Rotation>1/0/0/0</Rotation>
         <!--Quaternion-->
-        <Scale>100/100/100</Scale>
+        <Scale>5/5/5</Scale>
         <!--Vector-->
         <LocalY>0/1/0</LocalY>
         <!--Vector-->

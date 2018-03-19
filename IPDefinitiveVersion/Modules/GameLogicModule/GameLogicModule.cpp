@@ -56,7 +56,7 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 			break;
 		case IInput::InputType::INPUT_MOUSEMOVE:
 			extrec.execute("mousemove", paras, anyvector);
-			//mousemoveUpdate(i);
+			mousemoveUpdate(i);
 			break;
 		case IInput::InputType::INPUT_MOUSESCROLL:
 			extrec.execute("mousescroll", paras, anyvector);

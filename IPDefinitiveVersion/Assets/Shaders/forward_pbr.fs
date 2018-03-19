@@ -197,7 +197,7 @@ void main()
     vec4 ts_emissive = texture(u_material.emissive.tex, vertexdat.uv * u_material.emissive.scale + u_material.emissive.offset);
 
     //split material data
-    vec3 mt_albedo = ts_albedo.rgb;
+    vec3 mt_albedo = pow(ts_albedo.rgb, vec3(2.2));;
     float mt_alpha = ts_albedo.a;
     float mt_metalness = ts_mrar.r;
     float mt_roughness = ts_mrar.g;
