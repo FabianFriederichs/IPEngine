@@ -55,8 +55,25 @@ bool InputModule::_shutdown()
 	isVRconnected = false;
 	inputData.clear();
 	isManipulating = false;
-	
+
 	return true;
+}
+
+IInput::VRDevices InputModule::getDeviceFromIndex(int index)
+{
+	if (isVRconnected)
+	{
+		vr::ETrackedControllerRole role = vr::ETrackedControllerRole::TrackedControllerRole_Invalid;
+		if((role = openvr->getSystem()->GetControllerRoleForTrackedDeviceIndex(index)) == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand)
+		{
+			return IInput::VRDevices::CONTROLLER_LEFT;
+		}
+		else if (role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand)
+		{
+			return IInput::VRDevices::CONTROLLER_RIGHT;
+		}
+	}
+	return IInput::VRDevices::NONE;
 }
 
 void InputModule::pollData()

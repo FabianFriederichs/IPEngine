@@ -382,7 +382,8 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			contr->m_parent->m_transformData.setData()->m_rotation = trans->m_rotation;
 			contr->m_parent->m_transformData.setData()->m_isMatrixDirty = true;
 		}
-		trans->m_isMatrixDirty = true;
+		//trans->m_isMatrixDirty = true;
+		trans->calcTransformMatrix();
 	}
 	if (ovrmodule->getSystem()->IsTrackedDeviceConnected(righthandcontrollerindex))
 	{
@@ -409,7 +410,9 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			contr->m_parent->m_transformData.setData()->m_rotation = trans->m_rotation;
 			contr->m_parent->m_transformData.setData()->m_isMatrixDirty = true;
 		}
-		trans->m_isMatrixDirty = true;
+		trans->calcTransformMatrix();
+
+		//trans->m_isMatrixDirty = true;
 	}
 	if (ovrmodule->getSystem()->IsTrackedDeviceConnected(vr::k_unTrackedDeviceIndex_Hmd))
 	{
@@ -437,6 +440,8 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			hmd->m_parent->m_transformData.setData()->m_isMatrixDirty = true;
 		}
 		trans->m_isMatrixDirty = true;
+		//trans->calcTransformMatrix();
+
 	}
 	//Check if controller is active
 

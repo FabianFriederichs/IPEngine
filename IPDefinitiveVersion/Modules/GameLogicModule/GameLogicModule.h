@@ -62,6 +62,22 @@ private:
 
 	// Inherited via IModule_API
 	virtual bool _shutdown() override;
+
+
+	//Move Entity stuff
+	std::string holder1Name = "OpenVRControllerLeft";
+	std::string holder2Name = "OpenVRControllerRight";
+
+	bool isHoldEntityButton1Pressed[2] = { false };
+	bool isHoldEntityButton2Pressed[2] = { false };
+	bool holder1busy = false;
+	bool holder2busy = false;
+	ipengine::ipid heldEntity[2] = { IPID_INVALID,IPID_INVALID };
+	ipengine::ipid holder[2] = { IPID_INVALID, IPID_INVALID };
+	ipengine::ipid getAncestor(ipengine::ipid child);
+	bool inProximity(ipengine::ipid source, ipengine::ipid target, float maxDistance);
+	void onHoldStart(ipengine::ipid source, ipengine::ipid target);
+	void onHoldStop(ipengine::ipid source, ipengine::ipid target);
 };
 
 extern "C" BOOST_SYMBOL_EXPORT GameLogicModule module;
