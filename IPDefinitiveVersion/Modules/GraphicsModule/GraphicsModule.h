@@ -186,7 +186,8 @@ private:
 	
 	//helpers ------------------------------------------------------------------------------------------------
 	std::vector<ipengine::ipid> getActiveEntityNames(SCM::ISimpleContentModule_API & scm);
-
+	glm::mat4 parentInfluencedTransform(ipengine::ipid childid);
+	glm::mat4 parentInfluencedView(ipengine::ipid childid);
 	// Inherited via IGraphics_API
 	virtual bool _startup() override;
 

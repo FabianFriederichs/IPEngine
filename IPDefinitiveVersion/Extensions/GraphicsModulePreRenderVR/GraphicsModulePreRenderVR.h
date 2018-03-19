@@ -37,7 +37,7 @@ public:
 	FramebufferDesc leftEyeDesc;
 	FramebufferDesc rightEyeDesc;
 	vr::TrackedDevicePose_t lastposes[vr::k_unMaxTrackedDeviceCount];
-	float controllersphereradius = 0.005f;
+	float controllersphereradius = 0.05f;
 private:
 
 	static const GLfloat QuadVerts[];

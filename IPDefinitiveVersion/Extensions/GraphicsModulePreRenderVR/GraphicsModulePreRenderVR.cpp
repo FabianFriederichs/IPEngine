@@ -120,8 +120,12 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			hmdent->m_transformData.setData()->m_location.y = 0;
 			hmdent->m_transformData.setData()->m_location.z = 0;
 			hmdent->m_name = "OpenVRHMD";
-			if (scm->getEntityByName("Camera") != nullptr)
-				hmdent->m_parent = scm->getEntityByName("Camera");
+			if (ents.count("Camera") > 0)
+			{
+				//ents["Camera"]->m_parent = ents["OpenVRHMD"];
+			}
+			/*if (scm->getEntityByName("Camera") != nullptr)
+				hmdent->m_parent = scm->getEntityByName("Camera");*/
 		}
 		//Do the controller model stuff
 		if (ents.count("OpenVRControllerLeft") == 0)
@@ -207,10 +211,10 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			rendermodels->FreeTexture(controllerdiffuse);
 			rendermodels->FreeRenderModel(controllermodel);
 			auto lctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
-			lctde->generateBoundingBox();
+			//lctde->generateBoundingBox();
 			ents["OpenVRControllerLeft"] = lctde;// new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
-			if(scm->getEntityByName("Camera")!=nullptr)
-				ents["OpenVRControllerLeft"]->m_parent = scm->getEntityByName("Camera");
+			/*if(scm->getEntityByName("Camera")!=nullptr)
+				ents["OpenVRControllerLeft"]->m_parent = scm->getEntityByName("Camera");*/
 			auto cntrent = ents["OpenVRControllerLeft"];
 			cntrent->m_name = "OpenVRControllerLeft";
 			scm->getThreeDimEntities()[cntrent->m_entityId] = static_cast<SCM::ThreeDimEntity*>(cntrent);
@@ -318,10 +322,10 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			rendermodels->FreeTexture(controllerdiffuse);
 			rendermodels->FreeRenderModel(controllermodel);
 			auto rctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
-			rctde->generateBoundingBox();
+			//rctde->generateBoundingBox();
 			ents["OpenVRControllerRight"] = rctde;//new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
-			if (scm->getEntityByName("Camera") != nullptr)
-				ents["OpenVRControllerRight"]->m_parent = scm->getEntityByName("Camera");
+			/*if (scm->getEntityByName("Camera") != nullptr)
+				ents["OpenVRControllerRight"]->m_parent = scm->getEntityByName("Camera");*/
 			auto cntrent = ents["OpenVRControllerRight"];
 			cntrent->m_name = "OpenVRControllerRight";
 			scm->getThreeDimEntities()[cntrent->m_entityId] = static_cast<SCM::ThreeDimEntity*>(cntrent);
@@ -338,7 +342,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 	
 	//SCM::Entity* cam;
-	//auto cameraentity = graphicsmodule->getCameraEntity();
+	auto cameraentity = scm->getEntityById(graphicsmodule->getCameraEntity());
 	//datastore->set("cameraid",cameraentity);
 	//cam = scm->getEntityById(cameraentity);
 	graphicsmodule->setCameraEntity(scm->getEntityByName("OpenVRHMD")->m_entityId);
@@ -360,15 +364,17 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	if (ovrmodule->getSystem()->IsTrackedDeviceConnected(lefthandcontrollerindex))
 	{
 		auto contr = scm->getEntityByName("OpenVRControllerLeft");
+		cameraentity = scm->getEntityByName("Camera");
 		auto leftcontrollerpose = lastposes[lefthandcontrollerindex];
 		auto convertedpose = convert(leftcontrollerpose.mDeviceToAbsoluteTracking);
 		auto trans = contr->m_transformData.setData();
 		trans->m_location.x = convertedpose[3][0];
 		trans->m_location.y = convertedpose[3][1];
 		trans->m_location.z = convertedpose[3][2];
-		if (contr->m_parent != nullptr)
+		if (cameraentity)//contr->m_parent != nullptr)
 		{
-			auto parenttrans = contr->m_parent->m_transformData.getData();
+			auto parenttrans = cameraentity->m_transformData.getData();//contr->m_parent->m_transformData.getData();
+			//trans->m_location += parenttrans->m_location;
 			trans->m_location.x += parenttrans->m_location.x;
 			trans->m_location.y += parenttrans->m_location.y;
 			trans->m_location.z += parenttrans->m_location.z;
@@ -377,26 +383,30 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 		//Extract orientation quat
 		trans->m_rotation = glm::quat_cast(glm::mat4(convertedpose));
-		if (contr->m_parent != nullptr)
+		/*if (contr->m_parent != nullptr)
 		{
 			contr->m_parent->m_transformData.setData()->m_rotation = trans->m_rotation;
 			contr->m_parent->m_transformData.setData()->m_isMatrixDirty = true;
-		}
+		}*/
 		//trans->m_isMatrixDirty = true;
-		trans->calcTransformMatrix();
+		trans->updateTransform();
 	}
 	if (ovrmodule->getSystem()->IsTrackedDeviceConnected(righthandcontrollerindex))
 	{
 		auto contr = scm->getEntityByName("OpenVRControllerRight");
+		cameraentity = scm->getEntityByName("Camera");
+
 		auto rightcontrollerpose = lastposes[righthandcontrollerindex];
 		auto convertedpose = convert(rightcontrollerpose.mDeviceToAbsoluteTracking);
 		auto trans = contr->m_transformData.setData();
 		trans->m_location.x = convertedpose[3][0];
 		trans->m_location.y = convertedpose[3][1];
 		trans->m_location.z = convertedpose[3][2];
-		if (contr->m_parent != nullptr)
+		if (cameraentity)//contr->m_parent != nullptr)
 		{
-			auto parenttrans = contr->m_parent->m_transformData.getData();
+			auto parenttrans = cameraentity->m_transformData.getData();//contr->m_parent->m_transformData.getData();
+			//trans->m_location += parenttrans->m_location;
+
 			trans->m_location.x += parenttrans->m_location.x;
 			trans->m_location.y += parenttrans->m_location.y;
 			trans->m_location.z += parenttrans->m_location.z;
@@ -405,27 +415,31 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 		//Extract orientation quat
 		trans->m_rotation = glm::quat_cast(glm::mat4(convertedpose));
-		if (contr->m_parent != nullptr)
+		/*if (contr->m_parent != nullptr)
 		{
 			contr->m_parent->m_transformData.setData()->m_rotation = trans->m_rotation;
 			contr->m_parent->m_transformData.setData()->m_isMatrixDirty = true;
-		}
-		trans->calcTransformMatrix();
+		}*/
+		trans->updateTransform();
 
 		//trans->m_isMatrixDirty = true;
 	}
 	if (ovrmodule->getSystem()->IsTrackedDeviceConnected(vr::k_unTrackedDeviceIndex_Hmd))
 	{
 		auto hmd = scm->getEntityByName("OpenVRHMD");
+		cameraentity = scm->getEntityByName("Camera");
+
 		auto hmdpose = lastposes[vr::k_unTrackedDeviceIndex_Hmd];
 		auto convertedpose = convert(hmdpose.mDeviceToAbsoluteTracking);
 		auto trans = hmd->m_transformData.setData();
 		trans->m_location.x = convertedpose[3][0];
 		trans->m_location.y = convertedpose[3][1];
 		trans->m_location.z = convertedpose[3][2];
-		if (hmd->m_parent != nullptr)
+		if (cameraentity)
 		{
-			auto parenttrans = hmd->m_parent->m_transformData.getData();
+			auto parenttrans = cameraentity->m_transformData.getData();
+			//trans->m_location += parenttrans->m_location;
+
 			trans->m_location.x += parenttrans->m_location.x;
 			trans->m_location.y += parenttrans->m_location.y;
 			trans->m_location.z += parenttrans->m_location.z;
@@ -434,13 +448,15 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 		//Extract orientation quat
 		trans->m_rotation = glm::quat_cast(glm::mat4(convertedpose));
-		if (hmd->m_parent != nullptr)
+		if (cameraentity)
 		{
-			hmd->m_parent->m_transformData.setData()->m_rotation = glm::normalize(trans->m_rotation);
-			hmd->m_parent->m_transformData.setData()->m_isMatrixDirty = true;
+			cameraentity->m_transformData.setData()->m_rotation = glm::normalize(trans->m_rotation);
+			//cameraentity->m_transformData.setData()->m_location = trans->m_location;
+			cameraentity->m_transformData.setData()->m_isMatrixDirty = true;
+			cameraentity->m_transformData.setData()->updateTransform();
 		}
 		trans->m_isMatrixDirty = true;
-		//trans->calcTransformMatrix();
+		trans->updateTransform();
 
 	}
 	//Check if controller is active
@@ -449,8 +465,8 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	//contr->m_transformData.setData()->m_scale = { 1,1,1 };
 	//contr->m_transformData.setData()->m_location = { 0,0,5 };
 	//contr->m_transformData.setData()->m_isMatrixDirty = true;
-
-	auto trans = scm->getEntityByName("OpenVRHMD")->m_transformData.getData()->m_location;
+	auto hmdentity = scm->getEntityByName("OpenVRHMD");
+	auto trans = hmdentity->m_transformData.getData()->m_location;
 	auto hmdView = /*scm->getEntityByName("OpenVRHMD")->m_transformData.getData()->m_transformMatrix;*/glm::mat4(convert(lastposes[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking));
 
 	hmdView[3][0] = trans.x;
@@ -520,7 +536,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	//glDisable(GL_MULTISAMPLE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, prew, preh);
-	graphicsmodule->setCameraEntity(scm->getEntityByName("OpenVRHMD")->m_entityId);
+	graphicsmodule->setCameraEntity(hmdentity->m_entityId);//scm->getEntityByName("OpenVRHMD")->m_parent->m_entityId);
 
 	*matrices.proj = preproj;
 	*matrices.view = preview;

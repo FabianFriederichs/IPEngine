@@ -135,14 +135,18 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 	}
 	if (i.data.kd.keycode == IInput::SCANCODE_E && i.data.kd.state == IInput::ButtonState::BUTTON_UP &&!i.data.kd.isrepeat)
 	{
-		auto data = cam->m_transformData.getData();
-
-		std::cout << data->m_localX.x << " | " << data->m_localX.y << " | " << data->m_localX.z;
+		auto data = contentmodule->getEntityByName("OpenVRHMD")->m_transformData.getData();
+		std::cout << data->m_location.x << " | " << data->m_location.y << " | " << data->m_location.z;
+		std::cout << "\n";
+		data = contentmodule->getEntityByName("Camera")->m_transformData.getData();
+		std::cout << data->m_location.x << " | " << data->m_location.y << " | " << data->m_location.z;
+		std::cout << "\n";
+		/*std::cout << data->m_localX.x << " | " << data->m_localX.y << " | " << data->m_localX.z;
 		std::cout << "\n";
 		std::cout << data->m_localY.x << " | " << data->m_localY.y << " | " << data->m_localY.z;
 		std::cout << "\n";
 		std::cout << data->m_localZ.x << " | " << data->m_localZ.y << " | " << data->m_localZ.z;
-		std::cout << "\n=\n";
+		std::cout << "\n=\n";*/
 
 	}
 	if (i.data.kd.state == IInput::ButtonState::BUTTON_DOWN && !i.data.kd.isrepeat)
@@ -351,10 +355,13 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 
 		//auto x = e->m_transformData.getData()->m_localX*(float)camVelocity.x*(float)modifier;
 		//auto y = e->m_transformData.getData()->m_localZ*camVelocity.z*(float)modifier;
+		const SCM::TransformData* trans;
 
-		auto 	x = e->m_transformData.getData()->m_localX*(float)(((a ? -1 : 0 )+(d ? 1 : 0))*modifier);
-		auto	y = e->m_transformData.getData()->m_localZ*(float)(((w ? -1 : 0 )+ (s ? 1 : 0))*modifier);
-		auto z = e->m_transformData.getData()->m_localY*(float)(((vc ? -1 : 0) + (yc ? 1 : 0))*modifier);
+		
+		trans = e->m_transformData.getData();
+		auto 	x = trans->m_localX*(float)(((a ? -1 : 0 )+(d ? 1 : 0))*modifier);
+		auto	y = trans->m_localZ*(float)(((w ? -1 : 0 )+ (s ? 1 : 0))*modifier);
+		auto z = trans->m_localY*(float)(((vc ? -1 : 0) + (yc ? 1 : 0))*modifier);
 		if (glm::length(x) != 0 || glm::length(y) !=0 || glm::length(z) != 0)
 		{
 			e->m_transformData.setData()->m_location += x * 0.1f + y * 0.1f + 0.1f*z;
@@ -462,7 +469,7 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 	{
 		glm::vec3 oldpos = glm::vec3(e->m_transformData.getData()->m_transformMatrix[3]);
 		//auto transdata = e->m_transformData.getData();
-		e->m_transformData.setData()->calcTransformMatrix();
+		e->m_transformData.setData()->updateTransform();
 		//glm::mat4 tmat = glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
 		//auto data = e->m_transformData.setData();
 		//data->m_transformMatrix = tmat;//glm::translate(transdata->m_location) * glm::toMat4(transdata->m_rotation) * glm::scale(transdata->m_scale);
@@ -583,6 +590,10 @@ void GameLogicModule::onHoldStart(ipengine::ipid source, ipengine::ipid target)
 	if (enttarget && entsource && !enttarget->m_parent)
 	{
 		enttarget->m_parent = entsource;
+
+		//set location to be relative to parent
+		enttarget->m_transformData.setData()->m_location = entsource->m_transformData.getData()->m_location - enttarget->m_transformData.getData()->m_location;
+		enttarget->m_transformData.setData()->m_isMatrixDirty = true;
 	}
 }
 
@@ -594,8 +605,8 @@ void GameLogicModule::onHoldStop(ipengine::ipid source, ipengine::ipid target)
 	{
 		auto targettrans = enttarget->m_transformData.setData();
 		auto sourcetrans = entsource->m_transformData.getData();
-		targettrans->m_location = sourcetrans->m_location;
-		targettrans->m_rotation = sourcetrans->m_rotation * targettrans->m_rotation;
+		targettrans->m_location = targettrans->m_location + sourcetrans->m_location;
+		targettrans->m_rotation = glm::normalize(sourcetrans->m_rotation*targettrans->m_rotation);
 		targettrans->m_isMatrixDirty = true;
 		//! todo adjust target transform rotation. Apply source rotation to target rotaiton
 
