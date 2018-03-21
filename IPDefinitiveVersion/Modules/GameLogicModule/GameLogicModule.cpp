@@ -56,7 +56,8 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 			break;
 		case IInput::InputType::INPUT_MOUSEMOVE:
 			extrec.execute("mousemove", paras, anyvector);
-			mousemoveUpdate(i);
+			if(mousecamera)
+				mousemoveUpdate(i);
 			break;
 		case IInput::InputType::INPUT_MOUSESCROLL:
 			extrec.execute("mousescroll", paras, anyvector);
@@ -366,9 +367,14 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 		auto 	x = trans->m_localX*(float)(((a ? -1 : 0 )+(d ? 1 : 0))*modifier);
 		auto	y = trans->m_localZ*(float)(((w ? -1 : 0 )+ (s ? 1 : 0))*modifier);
 		auto z = trans->m_localY*(float)(((vc ? -1 : 0) + (yc ? 1 : 0))*modifier);
+
+			
+
 		if (glm::length(x) != 0 || glm::length(y) !=0 || glm::length(z) != 0)
 		{
 			e->m_transformData.setData()->m_location += x * 0.1f + y * 0.1f + 0.1f*z;
+			if (e->m_transformData.getData()->m_location.y < minimum_y)
+				e->m_transformData.setData()->m_location.y = minimum_y;
 			e->m_transformData.setData()->m_isMatrixDirty = true;
 		}
 	}
@@ -544,7 +550,8 @@ bool GameLogicModule::_startup()
 
 	m_errhandler = m_core->getErrorManager().createHandlerInstance();
 	m_errhandler.registerCustomHandler(ipengine::ErrorHandlerFunc::make_func<GameLogicModule, &GameLogicModule::onError>(this));
-
+	mousecamera = m_core->getConfigManager().getBool("GameLogic.Camera.mouse_move");
+	minimum_y = m_core->getConfigManager().getFloat("GameLogic.Camera.minimum_y");
 	return true;
 }
 

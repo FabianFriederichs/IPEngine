@@ -138,6 +138,43 @@ public:
 
 	std::map<std::string, boost::shared_ptr<IModule_API>> getModulesOfType(std::string type);
 
+	void cmd_loadModule(const ipengine::ConsoleParams& params)
+	{
+		//!TODO
+	}
+
+	void cmd_reassignDep(const ipengine::ConsoleParams& params)
+	{
+		//!TODO
+	}
+
+	void cmd_getLoadedModules(const ipengine::ConsoleParams& params)
+	{
+		//!TODO
+	}
+
+	void cmd_getDependencies(const ipengine::ConsoleParams& params)
+	{
+		//!TODO
+	}
+
+	void cmd_getDependencyInfo(const ipengine::ConsoleParams& params)
+	{
+		//!TODO
+	}
+
+	void registerCommands(ipengine::Core *core)
+	{
+		auto& console = core->getConsole();
+		console.addCommand("injector.loadmodule", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_loadModule>(this), "ech filepath");
+		console.addCommand("injector.reassign", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_reassignDep>(this), "ech targetmoduleid targetdepid newdependencyid");
+		console.addCommand("injector.getloadedmodules", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_getLoadedModules>(this), "ech");
+		console.addCommand("injector.getdeps", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_getDependencies>(this), "ech moduleid");
+		console.addCommand("injector.getdepinfo", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_getDependencyInfo>(this), "ech moduleid");
+	}
+
+	
+
 	//Save the current dependency graph to it's source file it was loaded from
 	bool saveDependencyGraph();
 	bool saveDependencyGraph(std::string);

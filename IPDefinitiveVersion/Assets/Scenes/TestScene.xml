@@ -41,7 +41,7 @@
       <MeshId>0</MeshId>
       <ParentId></ParentId>
       <TransformData>
-        <Location>0/0/0</Location><!--Vector-->
+        <Location>1/1/0</Location><!--Vector-->
         <Rotation>1/0/0/0</Rotation><!--Quaternion-->
         <Scale>1/1/1</Scale><!--Vector-->
         <LocalY>0/1/0</LocalY><!--Vector-->
@@ -66,7 +66,7 @@
       <MeshId>0</MeshId>
       <ParentId></ParentId>
       <TransformData>
-        <Location>4/1/0</Location>
+        <Location>2/1/0</Location>
         <!--Vector-->
         <Rotation>1/0/0/0</Rotation>
         <!--Quaternion-->
@@ -101,11 +101,11 @@
       <MeshId>0</MeshId>
       <ParentId></ParentId>
       <TransformData>
-        <Location>-1/-1/0</Location>
+        <Location>-1/1/0</Location>
         <!--Vector-->
         <Rotation>1/0/0/0</Rotation>
         <!--Quaternion-->
-        <Scale>1/1/1</Scale>
+        <Scale>0.5/0.5/0.5</Scale>
         <!--Vector-->
         <LocalY>0/1/0</LocalY>
         <!--Vector-->
@@ -136,11 +136,11 @@
       <MeshId>0</MeshId>
       <ParentId></ParentId>
       <TransformData>
-        <Location>1/-1/0</Location>
+        <Location>-2/1/0</Location>
         <!--Vector-->
         <Rotation>1/0/0/0</Rotation>
         <!--Quaternion-->
-        <Scale>1/1/1</Scale>
+        <Scale>0.5/0.5/0.5</Scale>
         <!--Vector-->
         <LocalY>0/1/0</LocalY>
         <!--Vector-->
@@ -361,7 +361,7 @@
       <MeshId>1</MeshId>
       <ParentId></ParentId>
       <TransformData>
-        <Location>0/-2/0</Location>
+        <Location>0/-0.083/0</Location>
         <!--Vector-->
         <Rotation>1/0/0/0</Rotation>
         <!--Quaternion-->

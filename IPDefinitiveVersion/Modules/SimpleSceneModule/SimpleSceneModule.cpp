@@ -336,6 +336,8 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 
 void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sceneid)
 {
+	if (sceneid == IPID_INVALID)
+		sceneid = m_activeScene;
 	if(m_scenes.count(sceneid)<1)
 	{
 		//Scene not found
@@ -672,9 +674,42 @@ int SimpleSceneModule::RemoveEntity(std::vector<ipengine::ipid>::const_iterator 
 	return c;
 }
 
+void SimpleSceneModule::cmd_load(const ipengine::ConsoleParams &params)
+{
+	if (params.getParamCount() == 1)
+	{
+		m_core->getConsole().println(("Successfuly loaded scene. Scene id: " + std::to_string(LoadSceneFromFile(params.get(0)))).c_str());
+	}
+	else
+		m_core->getConsole().println("Please supply a scene filepath");
+
+}
+
+void SimpleSceneModule::cmd_write(const ipengine::ConsoleParams &params)
+{
+	if (params.getParamCount() == 1)
+	{
+		WriteSceneToFile(params.get(0), m_activeScene);
+		m_core->getConsole().println("Successfuly wrote active scene to file.");
+	}
+	else if (params.getParamCount() == 2)
+	{
+		WriteSceneToFile(params.get(0), params.getInt(1));
+		m_core->getConsole().println("Successfuly wrote scene to file.");
+	}
+	else
+		m_core->getConsole().println("Please supply a filepath to save the scene to");
+	//m_core->getConsole().println("Overwriting active scene")
+}
+
 bool SimpleSceneModule::_startup()
 {
 	m_activeScene = -1; 
+
+	//Register sceneload and scenewrite to console
+	auto& console = m_core->getConsole();
+	console.addCommand("ssm.loadscene", ipengine::CommandFunc::make_func<SimpleSceneModule, &SimpleSceneModule::cmd_load>(this), "Loads scene via SimpleSceneModule. First parameter has to be a valid filepath to a scene file");
+	console.addCommand("ssm.writescene", ipengine::CommandFunc::make_func<SimpleSceneModule, &SimpleSceneModule::cmd_write>(this), "Writes scene via SimpleSceneModule. First parameter has to be a valid filepath. If a file doesn't exist it will be created. Second parameter can be a scene id. Uses active scene if omitted");
 	return true;
 }
 
