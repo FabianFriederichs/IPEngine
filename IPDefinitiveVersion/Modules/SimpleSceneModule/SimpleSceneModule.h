@@ -37,6 +37,10 @@ private:
 	virtual bool RemoveEntity(ipengine::ipid entityid, ipengine::ipid sceneid = IPID_INVALID) override;
 	virtual int RemoveEntity(std::vector<ipengine::ipid>::const_iterator entityidstart, std::vector<ipengine::ipid>::const_iterator entityidend, ipengine::ipid sceneid=IPID_INVALID) override;
 
+	void cmd_load(const ipengine::ConsoleParams & params);
+
+	void cmd_write(const ipengine::ConsoleParams & params);
+
 	// Inherited via ISimpleSceneModule_API
 	virtual bool _startup() override;
 

@@ -46,6 +46,8 @@ private:
 	double modifier = 1;
 	void update(ipengine::TaskContext&);
 	bool automovebox = false;
+	bool mousecamera = true;
+	float minimum_y = 0.f;
 
 	void keyUpdate(IInput::Input&);
 	void mousemoveUpdate(IInput::Input&);
