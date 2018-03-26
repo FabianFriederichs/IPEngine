@@ -140,6 +140,9 @@
     <ClInclude Include="Util\handle.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="ThreadingServices\Common.h">
+      <Filter>CoreModules\ThreadingServices</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThreadingServices\TaskHandle.cpp">

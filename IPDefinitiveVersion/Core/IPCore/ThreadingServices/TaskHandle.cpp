@@ -1,5 +1,5 @@
 #include <IPCore/ThreadingServices/TaskHandle.h>
-//TODO: error checking here
+#include <IPCore/ThreadingServices/ThreadPool.h>
 
 ipengine::TaskHandle::TaskHandle() :
 	m_task(nullptr),
@@ -65,22 +65,22 @@ ipengine::TaskHandle::~TaskHandle()
 
 
 //we'll need a reference to a threadpool. cyclic dependency. outch
-bool ipengine::TaskHandle::wait(TaskContext* tcptr)
+bool ipengine::TaskHandle::wait(WorkerToken wtok)
 {
 	if (isValid() && m_isinpool)
 	{
-		m_pool->wait(*this, tcptr);
+		m_pool->wait(*this, wtok);
 		m_isinpool = false;
 		return true;
 	}
 	return false;
 }
 
-bool ipengine::TaskHandle::wait_recycle(TaskContext * tcptr)
+bool ipengine::TaskHandle::wait_recycle(WorkerToken wtok)
 {
 	if (isValid() && m_isinpool)
 	{
-		m_pool->wait(*this, tcptr);
+		m_pool->wait(*this, wtok);
 		m_isinpool = false;
 		m_pool->recycle(m_task);	//reset unifnished count to 1. Now the task can be thrown into the pool again.
 		return true;
@@ -106,11 +106,11 @@ bool ipengine::TaskHandle::addContinuation(TaskHandle & continuationTask)
 	return false;
 }
 
-bool ipengine::TaskHandle::spawn(TaskContext* tcptr)
+bool ipengine::TaskHandle::spawn(WorkerToken wtok)
 {
 	if (isValid() && !m_isinpool)
 	{
-		if (m_pool->spawn(*this, tcptr))
+		if (m_pool->spawn(*this, wtok))
 		{
 			m_isinpool = true;
 			return true;
@@ -140,4 +140,12 @@ void ipengine::TaskHandle::execute()
 	{
 		m_pool->executeImmediate(*this);
 	}
+}
+
+ipengine::TaskContext * ipengine::TaskHandle::getContext()
+{	
+	if (isValid())
+		return &m_task->m_context;
+	else
+		return nullptr;	
 }

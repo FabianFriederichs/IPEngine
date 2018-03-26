@@ -23,7 +23,6 @@ void ipengine::ThreadPool::Worker::run()
 		if (task != nullptr)
 		{
 			m_pool->execute(task, this);
-			//m_pool->finalize(task);
 		}
 		else
 		{
@@ -45,37 +44,11 @@ void ipengine::ThreadPool::Worker::stop()
 	m_thread.join();
 }
 
-void ipengine::ThreadPool::execute(Task * task)
-{
-	//assert(task != nullptr && task->m_refct.load() > 0 && task->m_unfinished > 0);
-	try
-	{
-		task->m_context.workerid = -1;
-		task->m_context.pool = this;
-		task->m_func(task->m_context);
-		finalize(task, nullptr);
-	}
-	catch (std::exception& ex)
-	{
-		size_t exlth = std::char_traits<char>::length(ex.what()) + 1;
-		char* ex_msg = new char[exlth];
-		strncpy_s(ex_msg, exlth, ex.what(), exlth);
-		task->m_context.ex.reset(ex_msg);				//store exceptions inside task context for later rethrowing
-	}
-	catch (...)
-	{
-		size_t exlth = std::char_traits<char>::length("Unknown exception") + 1;
-		char* ex_msg = new char[exlth];
-		strncpy_s(ex_msg, exlth, "Unknown exception", exlth);
-		task->m_context.ex.reset(ex_msg);
-	}
-}
-
 void ipengine::ThreadPool::execute(Task * task, Worker* worker)
 {
 	try
 	{
-		task->m_context.workerid = static_cast<int>(worker->id);
+		task->m_context.wtok = WorkerToken(worker->id);
 		task->m_context.pool = this;
 		task->m_func(task->m_context);
 		finalize(task, worker);
@@ -98,15 +71,6 @@ void ipengine::ThreadPool::execute(Task * task, Worker* worker)
 
 void ipengine::ThreadPool::finalize(Task * task, Worker* worker)
 {
-	/*if (task->m_unfinished.fetch_sub(1, std::memory_order_acq_rel) == 1)
-	{
-	if (task->m_parent)
-	{
-	finalize(task->m_parent);
-	}
-	release(task);
-	}*/
-
 	Task* c = task;
 	Task* r;
 
@@ -116,16 +80,7 @@ void ipengine::ThreadPool::finalize(Task * task, Worker* worker)
 		c = c->m_parent;
 
 		for (size_t i = 0; i < r->m_contcount.load(std::memory_order_acquire); i++)
-		{
-			if (worker != nullptr)
-			{
-				worker->local_queue.push(r->m_continuations[i]);
-			}
-			else
-			{
-				m_helperqueue.push_left(r->m_continuations[i]);
-			}
-		}
+			worker->local_queue.push(r->m_continuations[i]);
 
 		release(r);
 	}
@@ -133,57 +88,47 @@ void ipengine::ThreadPool::finalize(Task * task, Worker* worker)
 
 ipengine::Task * ipengine::ThreadPool::tryGetTask(Worker * worker)
 {
+	assert(worker != nullptr);
 	Task* task = nullptr;
 	bool sc;
 
-	//try pop from local queue
-	if (worker != nullptr)
-	{
-		sc = worker->local_queue.pop(task);
-
-		if (sc && task != nullptr)
-		{
-			//std::cout << "LOCAL TASK " << std::this_thread::get_id() << "\n";
-			//	assert(task->m_unfinished.load() > 0);
-			return task;
-		}
-	}
-	else //non worker helpers
-	{
-		sc = m_helperqueue.try_pop_left(task);
-		if (sc && task != nullptr)
-		{
-			//assert(task->m_unfinished.load() > 0);
-			return task;
-		}
-	}
-
+	//try pop from local queue	
+	sc = worker->local_queue.pop(task);
+	if (sc && task != nullptr)
+		return task;	
 
 	//try pop from global queue
 	sc = m_globalWorkQueue.try_dequeue(task);
 	if (sc && task != nullptr)
-	{
 		return task;
-	}
-
 
 	//try steal
 	task = trySteal(worker);
 	if (task != nullptr)
-	{
 		return task;
-	}
 
 	return nullptr;
 }
 
-void ipengine::ThreadPool::waitForTask(Task * task, TaskContext* tcptr)
+void ipengine::ThreadPool::waitForTask(Task * task, const WorkerToken& wtok)
 {
-	while (task->m_unfinished.load(std::memory_order_acquire) > 0)
+	Worker* w = getWorkerFromToken(wtok);
+	if (w)
 	{
-		if (!help((tcptr && tcptr->workerid > -1 ? m_workers[tcptr->workerid].get() : nullptr)))
-			std::this_thread::yield();
+		while (task->m_unfinished.load(std::memory_order_acquire) > 0)
+		{
+			if (!help(w))
+				std::this_thread::yield();
+		}
 	}
+	else
+	{
+		while (task->m_unfinished.load(std::memory_order_acquire) > 0)
+		{
+			std::this_thread::yield();
+		}
+	}
+
 	if (task->m_context.ex != nullptr)
 		throw std::logic_error(task->m_context.ex.get());
 }
@@ -192,47 +137,22 @@ void ipengine::ThreadPool::waitForTask(Task * task, TaskContext* tcptr)
 
 bool ipengine::ThreadPool::help(Worker* _worker)
 {
-	Worker* worker = (_worker != nullptr ? _worker : getWorkerByThreadID(std::this_thread::get_id()));
-
-	Task * task = tryGetTask(worker);
+	Task * task = tryGetTask(_worker);
 	if (task != nullptr)
 	{
-		if (worker != nullptr)
-			execute(task, worker);
-		else
-			execute(task);
+		execute(task, _worker);
 		return true;
 	}
-	else
-	{
-		return false;
-	}
+	return false;
 }
 
 ipengine::Task * ipengine::ThreadPool::trySteal(Worker* worker)
 {
-	size_t wid;
-	if (worker != nullptr)
-		wid = worker->id;
-	else
-		wid = m_workers.size();
-	size_t rwid = randomWorkerIndex(wid);
+	size_t rwid = randomWorkerIndex(worker->id);
 	Task* task = nullptr;
 	bool sc = m_workers[rwid]->local_queue.steal(task);
 	if (sc && task != nullptr)
-	{
-		//	assert(task->m_unfinished.load() > 0);
 		return task;
-	}
-	else if (worker != nullptr)
-	{
-		m_helperqueue.try_pop_right(task);
-		if (task != nullptr)
-		{
-			//		assert(task->m_unfinished.load() > 0);
-			return task;
-		}
-	}
 	return nullptr;
 }
 
@@ -295,18 +215,9 @@ void ipengine::ThreadPool::use(Task * task)
 
 void ipengine::ThreadPool::release(Task * task, bool forcerelease)
 {
-	//if ((task->m_refct.load() == 0 || task->m_refct.fetch_sub(1) == 1) && (task->m_unfinished.load() == 0 || forcerelease))
-	//{
-	//	/*if (task->m_parent)
-	//		task->m_parent->m_refct.fetch_sub(1);*/
-	//	//delete task;
-	//	TaskAlloc::deallocate(task);
-	//}
-
 	if (task->m_refct.fetch_sub(1, std::memory_order_release) == 1)
 	{
 		std::atomic_thread_fence(std::memory_order_acquire);
-		//task->isdead.store(true);
 		task->~Task();
 		TaskAlloc::deallocate(task);
 	}
@@ -314,7 +225,15 @@ void ipengine::ThreadPool::release(Task * task, bool forcerelease)
 
 void ipengine::ThreadPool::recycle(Task * task)
 {
-	task->m_unfinished.store(1, std::memory_order_relaxed);
+	task->m_unfinished.store(1, std::memory_order_relaxed); //Todo: recycle continuations
+}
+
+ipengine::ThreadPool::Worker * ipengine::ThreadPool::getWorkerFromToken(const WorkerToken & tok)
+{
+	if (tok.worker_id != -1)
+		return m_workers[tok.worker_id].get();
+	else
+		return getWorkerByThreadID(std::this_thread::get_id());
 }
 
 ipengine::ThreadPool::Worker * ipengine::ThreadPool::getWorkerByThreadID(std::thread::id id)
@@ -370,7 +289,6 @@ bool ipengine::ThreadPool::submit(TaskHandle& handle)
 	if (handle.isValid() && m_isrunning.load(std::memory_order_acquire))
 	{
 		use(handle.m_task);
-		//m_globalWorkQueue.push_right(handle.m_task);
 		m_globalWorkQueue.enqueue(handle.m_task);
 
 		return true;
@@ -378,23 +296,20 @@ bool ipengine::ThreadPool::submit(TaskHandle& handle)
 	return false;
 }
 
-bool ipengine::ThreadPool::spawn(TaskHandle& handle, TaskContext* tcptr)
+bool ipengine::ThreadPool::spawn(TaskHandle& handle, WorkerToken wtok)
 {
 	if (handle.isValid() && m_isrunning.load(std::memory_order_acquire))
 	{
-		Worker* w = (tcptr && tcptr->workerid > -1 ? m_workers[tcptr->workerid].get() : getWorkerByThreadID(std::this_thread::get_id())); //TODO: Fix this
+		Worker* w = getWorkerFromToken(wtok);
 		if (w != nullptr)
 		{
 			use(handle.m_task);
-			//	assert(handle.m_task->m_unfinished.load() != 0);// && handle.m_task->isdead.load() == false);
 			w->local_queue.push(handle.m_task);
 			return true;
 		}
 		else
 		{
-			use(handle.m_task);
-			//	assert(handle.m_task->m_unfinished.load() != 0);// && handle.m_task->isdead.load() == false);
-			m_helperqueue.push_left(handle.m_task);					//and that
+			executeImmediate(handle);
 			return true;
 		}
 	}
@@ -564,15 +479,13 @@ bool ipengine::ThreadPool::addContinuation(TaskHandle & task, TaskHandle & conti
 
 void ipengine::ThreadPool::executeImmediate(TaskHandle & task)
 {
-	task.m_task->m_context.workerid = -1;
+	task.m_task->m_context.wtok = WorkerToken();
 	task.m_task->m_context.pool = this;
 	task.m_task->m_func(task.m_task->m_context);
 }
 
-void ipengine::ThreadPool::wait(TaskHandle & handle, TaskContext* tcptr)
+void ipengine::ThreadPool::wait(TaskHandle & handle, WorkerToken wtok)
 {
 	if (handle.isValid())
-		waitForTask(handle.m_task, tcptr);
+		waitForTask(handle.m_task, wtok);
 }
-
-
