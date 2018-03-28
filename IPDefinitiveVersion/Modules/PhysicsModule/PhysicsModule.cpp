@@ -50,10 +50,10 @@ void PhysicsModule::update(ipengine::TaskContext & context)
 		ipengine::TaskHandle child = context.getPool()->createChild(ipengine::TaskFunction::make_func<PhysicsModule, &PhysicsModule::updateCloth>(this),
 																	ipengine::TaskContext(ub),
 																	updateMainTask);
-		child.spawn(&context);
+		child.spawn(context.getWorkerToken());
 	}
-	updateMainTask.spawn(&context);
-	updateMainTask.wait(&context);
+	updateMainTask.spawn(context.getWorkerToken());
+	updateMainTask.wait(context.getWorkerToken());
 
 	//filter cloth-entity collisions and send a message for each unique one.
 	
@@ -114,10 +114,10 @@ void PhysicsModule::updateCloth(Cloth * cloth, double dt, ipengine::TaskContext 
 				ipengine::TaskHandle child = parentContext.getPool()->createChild(ipengine::TaskFunction::make_func<PhysicsModule, &PhysicsModule::satisfyConstraintBatch>(this),
 																				  ipengine::TaskContext(ub),
 																				  constraintMainTask);
-				child.spawn(&parentContext);
+				child.spawn(parentContext.getWorkerToken());
 			}
-			constraintMainTask.spawn(&parentContext);
-			constraintMainTask.wait(&parentContext);
+			constraintMainTask.spawn(parentContext.getWorkerToken());
+			constraintMainTask.wait(parentContext.getWorkerToken());
 
 			//satisfyConstraintBatch(ub);
 			cloth->swapBuffers();
@@ -137,10 +137,10 @@ void PhysicsModule::updateCloth(Cloth * cloth, double dt, ipengine::TaskContext 
 		ipengine::TaskHandle child = parentContext.getPool()->createChild(ipengine::TaskFunction::make_func<PhysicsModule, &PhysicsModule::handleCollisions>(this),
 																		  ipengine::TaskContext(ub),
 																		  collisionContext);
-		child.spawn(&parentContext);
+		child.spawn(parentContext.getWorkerToken());
 	}
-	collisionContext.spawn(&parentContext);
-	collisionContext.wait(&parentContext);
+	collisionContext.spawn(parentContext.getWorkerToken());
+	collisionContext.wait(parentContext.getWorkerToken());
 	cloth->swapBuffers();
 
 
@@ -157,10 +157,10 @@ void PhysicsModule::updateCloth(Cloth * cloth, double dt, ipengine::TaskContext 
 		ipengine::TaskHandle child = parentContext.getPool()->createChild(ipengine::TaskFunction::make_func<PhysicsModule, &PhysicsModule::updateParticleBatchPass1>(this),
 																		  ipengine::TaskContext(ub),
 																		  updateMainTask);
-		child.spawn(&parentContext);
+		child.spawn(parentContext.getWorkerToken());
 	}
-	updateMainTask.spawn(&parentContext);
-	updateMainTask.wait(&parentContext);
+	updateMainTask.spawn(parentContext.getWorkerToken());
+	updateMainTask.wait(parentContext.getWorkerToken());
 
 	cloth->swapBuffers();
 
@@ -178,10 +178,10 @@ void PhysicsModule::updateCloth(Cloth * cloth, double dt, ipengine::TaskContext 
 		ipengine::TaskHandle child = parentContext.getPool()->createChild(ipengine::TaskFunction::make_func<PhysicsModule, &PhysicsModule::updateParticleBatchPass2>(this),
 																		  ipengine::TaskContext(ub),
 																		  updateMainTask2);
-		child.spawn(&parentContext);
+		child.spawn(parentContext.getWorkerToken());
 	}
-	updateMainTask2.spawn(&parentContext);
-	updateMainTask2.wait(&parentContext);
+	updateMainTask2.spawn(parentContext.getWorkerToken());
+	updateMainTask2.wait(parentContext.getWorkerToken());
 	//updateParticleBatchPass2(ipengine::TaskContext(ub));
 	cloth->swapBuffers();
 }

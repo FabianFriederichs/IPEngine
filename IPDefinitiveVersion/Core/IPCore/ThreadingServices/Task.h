@@ -3,8 +3,10 @@
 #include <functional>
 #include <atomic>
 #include <memory>
-#include <IPCore/ThreadingServices/TaskContext.h>
 #include <IPCore/Util/function.h>
+
+#include <IPCore/ThreadingServices/TaskContext.h>
+
 namespace ipengine {
 
 	using TaskFunction = ipengine::function<void(TaskContext&)>;

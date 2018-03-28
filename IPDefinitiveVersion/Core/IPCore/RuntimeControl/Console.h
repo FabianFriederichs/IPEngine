@@ -20,7 +20,7 @@
 namespace ipengine
 {
 	class Console;
-	class ConsoleParams
+	class CORE_API ConsoleParams
 	{
 	private:
 		iprstr* parambuffer;

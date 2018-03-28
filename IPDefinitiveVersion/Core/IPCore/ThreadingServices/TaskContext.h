@@ -3,7 +3,12 @@
 #include <IPCore/Util/any.h>
 #include <memory>
 #include <IPCore/core_config.h>
-namespace ipengine {
+
+#include <IPCore/ThreadingServices/Common.h>
+
+namespace ipengine
+{
+	class ThreadPool;
 
 	class CORE_API TaskContext
 	{
@@ -12,14 +17,14 @@ namespace ipengine {
 		TaskContext() :
 			ex(nullptr),
 			data(),
-			workerid(-1)
+			wtok()
 		{}
 
 		template <typename T>
 		TaskContext(T data) :
 			ex(nullptr),
 			data(data),
-			workerid(-1)
+			wtok()
 		{
 		}
 
@@ -27,7 +32,7 @@ namespace ipengine {
 		TaskContext(const TaskContext& other) :
 			ex(std::move(const_cast<TaskContext&>(other).ex)),
 			data(other.data),
-			workerid(other.workerid)
+			wtok(other.wtok)
 		{
 
 		}
@@ -35,7 +40,7 @@ namespace ipengine {
 		TaskContext(TaskContext&& other) :
 			ex(std::move(other.ex)),
 			data(std::move(other.data)),
-			workerid(other.workerid)
+			wtok(other.wtok)
 		{
 
 		}
@@ -56,7 +61,7 @@ namespace ipengine {
 				return *this;
 			ex.swap(other.ex);
 			data = std::move(other.data);
-			workerid = other.workerid;
+			wtok = other.wtok;
 			return *this;
 		}
 
@@ -67,9 +72,9 @@ namespace ipengine {
 			other.ex = e;*/
 			ex.swap(other.ex);
 			data.swap(other.data);
-			int wid = workerid;
-			workerid = other.workerid;
-			other.workerid = wid;
+			WorkerToken w = wtok;
+			wtok = other.wtok;
+			other.wtok = w;
 		}
 
 		~TaskContext() {}
@@ -108,13 +113,18 @@ namespace ipengine {
 			return pool;
 		}
 
+		ipengine::WorkerToken getWorkerToken()
+		{
+			return wtok;
+		}
+
 	private:
 		//char* ex_msg; //maybe this way. risky when exception is "bad_alloc" but we'd have space for the pool pointer. just new ex_msg on demand and throw a new exception later
 		//max 72
 		ipengine::soo_any data;								//48
 		ThreadPool* pool;									//8
 		std::unique_ptr<char[]> ex;							//8
-		int workerid; //fixes the "find the worker" thing	//4
+		WorkerToken wtok;//int workerid; //fixes the "find the worker" thing	//4
 	};
 
 }

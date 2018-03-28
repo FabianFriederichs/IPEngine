@@ -6,8 +6,6 @@
 //complexity and some contention problems from the system.
 //All of that under the assumption that the OS and runtime liraries implement a meaningful "yield" operation
 
-#include <IPCore/ThreadingServices/Task.h>
-#include <IPCore/ThreadingServices/TaskHandle.h>
 #include <IPCore/Util/Deque.h>
 #include <random>
 #include <vector>
@@ -20,6 +18,13 @@
 #include <IPCore/libs/concurrentqueue.h>
 #include <string>
 #include <IPCore/core_config.h>
+
+#include <IPCore/ThreadingServices/Common.h>
+#include <IPCore/ThreadingServices/Task.h>
+#include <IPCore/ThreadingServices/TaskHandle.h>
+#include <IPCore/ThreadingServices/TaskContext.h>
+
+
 namespace ipengine
 {
 	class CORE_API ThreadPool
@@ -42,12 +47,11 @@ namespace ipengine
 			ThreadPool* m_pool;
 			std::atomic<bool> m_runflag;
 			size_t id;
+		};		
 
-
-
-		};
 		//public interface
 	public:
+
 		ThreadPool(size_t nworkers);
 		~ThreadPool();
 
@@ -55,8 +59,8 @@ namespace ipengine
 		void stopWorkers();
 
 		bool submit(TaskHandle& handle);
-		bool spawn(TaskHandle& handle, TaskContext* tcptr = nullptr);
-		void wait(TaskHandle& handle, TaskContext* tcptr = nullptr);
+		bool spawn(TaskHandle& handle, WorkerToken wtok = WorkerToken());
+		void wait(TaskHandle& handle, WorkerToken wtok = WorkerToken());
 		//void wait_recycle(TaskHandle& handle, TaskContext* tcptr = nullptr);
 
 		TaskHandle createTask(const TaskFunction& func, const TaskContext& context);
@@ -83,14 +87,14 @@ namespace ipengine
 		}
 
 	private:
-		void execute(Task* task);
 		void execute(Task* task, Worker* worker);
 		void finalize(Task* task, Worker* worker);
-		void waitForTask(Task*, TaskContext* tcptr = nullptr);
-		bool help(Worker* worker = nullptr);
+		void waitForTask(Task*, const WorkerToken& wtok);
+		bool help(Worker* worker);
 		Task* trySteal(Worker* worker);
 		Task* tryGetTask(Worker* worker);
 
+		Worker* getWorkerFromToken(const WorkerToken& tok);
 		Worker* getWorkerByThreadID(std::thread::id id);
 
 		Task* create(const TaskFunction& func, const TaskContext& context);
