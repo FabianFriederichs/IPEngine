@@ -118,6 +118,32 @@ bool Injector::recursiveInject(DGStuff::Module* mod, bool doextension)
 	
 }
 
+void Injector::LoadModule(ipengine::Core *core, std::string path)
+{
+	try {
+		boost::dll::shared_library lib(path, boost::dll::load_mode::default_mode);
+		if (lib.has("module"))
+		{
+			auto tmp = boost::dll::import<IModule_API>(path, "module", boost::dll::load_mode::default_mode);
+			tmp->m_core = core;
+			//!fallback name if identifier is empty
+
+			loadedModules.insert({ tmp->getModuleInfo()->identifier, tmp });
+		}
+		//load extensions
+		if (lib.has("extension"))
+		{
+			auto tmp = boost::dll::import<IExtension>(path, "extension", boost::dll::load_mode::default_mode);
+			tmp->m_core = core;
+			//!fallback name if identifier is empty
+			loadedExtensions.insert({ tmp->getInfo()->identifier, tmp });
+		}
+	}
+	catch (std::exception ex)
+	{
+		//!exception do stuff
+	}
+}
 
 void Injector::LoadModules(ipengine::Core * core, std::string path, bool reload )
 {
@@ -150,29 +176,7 @@ void Injector::LoadModules(ipengine::Core * core, std::string path, bool reload 
 	//load modules from the found library paths. 
 	for (auto path : dlibFilePaths)
 	{
-		try {
-			boost::dll::shared_library lib(path, boost::dll::load_mode::default_mode);
-			if (lib.has("module"))
-			{				
-				auto tmp = boost::dll::import<IModule_API>(path, "module", boost::dll::load_mode::default_mode);
-				tmp->m_core = core;
-				//!fallback name if identifier is empty
-
-				loadedModules.insert({ tmp->getModuleInfo()->identifier, tmp });
-			}
-			//load extensions
-			if (lib.has("extension"))
-			{
-				auto tmp = boost::dll::import<IExtension>(path, "extension", boost::dll::load_mode::default_mode);
-				tmp->m_core = core;
-				//!fallback name if identifier is empty
-				loadedExtensions.insert({ tmp->getInfo()->identifier, tmp });
-			}
-		}
-		catch (std::exception ex)
-		{
-			//!exception do stuff
-		}
+		LoadModule(core, path.generic_string());
 	}
 
 
