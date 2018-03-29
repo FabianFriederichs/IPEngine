@@ -30,9 +30,9 @@ private:
 		core = new ipengine::Core();
 		core->initialize(_configPath);
 
-		inj = new Injector(core->getConfigManager().getString("core.injector.depgraph_path"),
+		inj = new Injector(core, core->getConfigManager().getString("core.injector.depgraph_path"),
 						   core->getConfigManager().getString("core.injector.module_path"));
-		inj->LoadModules(core);		
+		inj->LoadModules();		
 	}
 
 	void shutdown()

@@ -145,7 +145,18 @@ void Injector::LoadModule(ipengine::Core *core, std::string path)
 	}
 }
 
-void Injector::LoadModules(ipengine::Core * core, std::string path, bool reload )
+void Injector::registerCommands(ipengine::Core * core)
+{
+	auto& console = core->getConsole();
+	console.addCommand("injector.loadmodule", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_loadModule>(this), "ech filepath");
+	console.addCommand("injector.reassign", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_reassignDep>(this), "ech targetmoduleid targetdepid newdependencyid");
+	console.addCommand("injector.getloadedmodules", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_getLoadedModules>(this), "ech");
+	console.addCommand("injector.getdeps", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_getDependencies>(this), "ech moduleid");
+	console.addCommand("injector.getdepinfo", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_getDependencyInfo>(this), "ech moduleid");
+	console.addCommand("injector.getmodulesoftype", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_getModulesOfType>(this), "ech moduletype");
+}
+
+void Injector::LoadModules(std::string path, bool reload )
 {
 	//Check if given path is valid. If it is not previous path or local will be used for dll location
 	bool newPath = false;
@@ -176,7 +187,7 @@ void Injector::LoadModules(ipengine::Core * core, std::string path, bool reload 
 	//load modules from the found library paths. 
 	for (auto path : dlibFilePaths)
 	{
-		LoadModule(core, path.generic_string());
+		LoadModule(m_core, path.generic_string());
 	}
 
 
