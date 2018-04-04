@@ -171,6 +171,7 @@
     <ClInclude Include="Util\function.h" />
     <ClInclude Include="Util\handle.h" />
     <ClInclude Include="Util\hazard_pointer.h" />
+    <ClInclude Include="Util\idgen.h" />
     <ClInclude Include="Util\LFDS.h" />
     <ClInclude Include="Util\refctr.h" />
     <ClInclude Include="Util\Scanner.h" />

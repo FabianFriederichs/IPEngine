@@ -6,7 +6,7 @@ ipengine::Core::Core() :
 	cmodule_scheduler(nullptr),
 	cmodule_threadingservices(nullptr),
 	cmodule_endpointregistry(nullptr),
-	core_idgen(1)
+	core_idgen()
 {
 }
 
@@ -106,7 +106,12 @@ void ipengine::Core::handleError(ipex & ex)
 
 ipengine::ipid ipengine::Core::createID()
 {
-	return core_idgen.fetch_add(1, std::memory_order_relaxed);
+	return core_idgen.createID();
+}
+
+ipengine::IdGen & ipengine::Core::getIDGen()
+{
+	return core_idgen;
 }
 
 ipengine::Scheduler & ipengine::Core::getScheduler()

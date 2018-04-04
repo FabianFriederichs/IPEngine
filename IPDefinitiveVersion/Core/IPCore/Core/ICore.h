@@ -8,6 +8,7 @@
 #include <IPCore/Config/ConfigManager.h>
 #include <IPCore/Memory/MemoryManager.h>
 #include <IPCore/DebugMonitoring/ErrorManager.h>
+#include <IPCore/Util/idgen.h>
 
 #include <IPCore/Core/ICoreTypes.h>
 //TODO: create core interface and core implementation. Maybe pimpl the whole thing
@@ -30,6 +31,7 @@ namespace ipengine
 
 		//id stuff
 		ipid createID();
+		IdGen& getIDGen();
 		//Console  
 		Console& getConsole();
 		//Runtime Control 
@@ -44,7 +46,7 @@ namespace ipengine
 		ConfigManager& getConfigManager();
 		//Debug/Monitoring 
 		ErrorManager& getErrorManager();
-		//Platform Services //internally interfaces with PAL 
+		//Platform Services //internally interfaces with PAL
 
 	private:
 		void setupCoreConsoleCommands();
@@ -70,7 +72,7 @@ namespace ipengine
 		EndpointHandle core_msgep;
 
 		//single atomic for generating global ids. 0 is always an invalid id.
-		std::atomic<ipid> core_idgen;
+		IdGen core_idgen;
 
 		//flag to indicate stop
 		std::atomic<bool> m_isrunning;
