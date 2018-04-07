@@ -99,7 +99,7 @@ public:
 		auto minfo = mod->getModuleInfo();
 		if (loadedModules.count(newModuleID) < 1)
 			return 0;
-		if (minfo->dependencies.exists(dependencyID) && loadedModules[newModuleID]->getModuleInfo()->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam) != std::string::npos)
+		if (loadedModules[newModuleID]->getModuleInfo()->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam) != std::string::npos)
 		{
 			//reassignment should work, i think? 
 			//Check whether dependency is updatable at runtime
@@ -315,7 +315,56 @@ public:
 		
 	}
 
+	void cmd_removeDependency(const ipengine::ConsoleParams& params)
+	{
+		auto &console = m_core->getConsole();
+		if (params.getParamCount() != 2)
+		{
+			console.println("Parameter incorrect. three parameters: A Module ID, a Dependency ID and a bool");
+		}
+		auto modid = params.get(0);
+		auto depid = params.get(1);
 
+		if (loadedModules.count(modid) > 0)
+		{
+			auto modinfo = loadedModules[modid]->getModuleInfo();
+			modinfo->dependencies.removeDependency(depid);
+			
+		}
+		else if (loadedExtensions.count(modid) > 0)
+		{
+			auto modinfo = loadedExtensions[modid]->getInfo();
+			modinfo->dependencies.removeDependency(depid);
+		}
+		else
+		{
+			console.println("Module not found");
+		}
+
+	}
+
+	void cmd_enableExtension(const ipengine::ConsoleParams& params)
+	{
+		auto &console = m_core->getConsole();
+		if (params.getParamCount() != 4)
+		{
+			console.println("Parameter incorrect. three parameters: A Module ID, a Dependency ID and a bool");
+		}
+		auto modid = params.get(0);
+		auto exid = params.get(1);
+		auto prio = params.getInt(2);
+		auto active = params.get(3);
+		if (loadedModules.count(modid) > 0)
+		{
+			auto modinfo = loadedModules[modid]->getModuleInfo();
+			modinfo->expoints.setActive(exid, prio, active);
+		}
+		else
+		{
+			console.println("Module not found");
+		}
+	}
+	
 	
 
 	//Save the current dependency graph to it's source file it was loaded from

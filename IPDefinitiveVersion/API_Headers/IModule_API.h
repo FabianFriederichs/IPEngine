@@ -38,6 +38,14 @@ protected:
 		}*/
 		dependencies[dependencyID] = module;
 	}
+
+	void removeDependency(const std::string dependencyID)
+	{
+		if (exists(dependencyID))
+		{
+			dependencies.erase(dependencyID);
+		}
+	}
 public:
 	DependencyContainer() :dependencies() {}
 
@@ -164,7 +172,10 @@ public:
 		auto ex = expoints.find(extensionpointname);
 		if (ex != expoints.end())
 		{
-			ex->second[prio]->isActive = val;
+			if (ex->second.size() > prio)
+				ex->second[prio]->isActive = val;
+			else
+				ex->second.back()->isActive = val;
 		}
 	}
 
