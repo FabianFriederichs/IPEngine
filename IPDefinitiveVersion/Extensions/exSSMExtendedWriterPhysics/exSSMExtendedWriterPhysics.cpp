@@ -76,60 +76,57 @@ void exSSMExtendedWriterPhysics::execute(std::vector<std::string> argnames, std:
 	auto entitymap = args[6].cast<std::unordered_map<ipengine::ipid, int>*>();
 	auto materialmap = args[9].cast<std::unordered_map<ipengine::ipid,int>*>();
 
-	if (auto ccomp = entity->getComponent<IPhysicsModule_API::ClothComponent>())
+	if (entity && type == "ClothComponent")
 	{
-		auto data = ccomp->getClothData();
+		if (auto ccomp = entity->getComponent<IPhysicsModule_API::ClothComponent>())
+		{
+			auto data = ccomp->getClothData();
+			auto &contextnode = tree.add("PhysicsContext", "");
+			contextnode.add("gravity", vec3ToString(data.pcontext.gravity));
+			contextnode.add("particleMass",std::to_string(data.pcontext.particleMass));
+			contextnode.add("particleDistance", std::to_string(data.pcontext.particleDistance));
+			contextnode.add("struct_springKs", std::to_string(data.pcontext.struct_springKs));
+			contextnode.add("struct_springKd", std::to_string(data.pcontext.struct_springKd));
+			contextnode.add("shear_springKs", std::to_string(data.pcontext.shear_springKs));
+			contextnode.add("shear_springKd", std::to_string(data.pcontext.shear_springKd));
+			contextnode.add("bend_springKs", std::to_string(data.pcontext.bend_springKs));
+			contextnode.add("bend_springKd", std::to_string(data.pcontext.bend_springKd));
+			contextnode.add("struct_springs", std::to_string(data.pcontext.struct_springs));
+			contextnode.add("shear_springs", std::to_string(data.pcontext.shear_springs));
+			contextnode.add("bend_springs", std::to_string(data.pcontext.bend_springs));
+			contextnode.add("use_constraints", std::to_string(data.pcontext.use_constraints));
+			contextnode.add("max_stretch", std::to_string(data.pcontext.max_stretch));
+			contextnode.add("constraint_iterations", std::to_string(data.pcontext.constraint_iterations));
+			contextnode.add("airfric", std::to_string(data.pcontext.airfric));
+			contextnode.add("two_pass_integration", std::to_string(data.pcontext.two_pass_integration));
+				
+			tree.add("width", std::to_string(data.width));
+			tree.add("height", std::to_string(data.height));
+
+			//get material
+			int matid = -1;
+
+			//get 3dentity
+			auto thrde = scm->getThreeDimEntities()[entity->m_entityId];
+			if (thrde->m_mesheObjects->m_meshes.size()>0 && materialmap->count(thrde->m_mesheObjects->m_meshes.front()->m_material->m_materialId) > 0)
+			{
+				matid = materialmap->at(thrde->m_mesheObjects->m_meshes.front()->m_material->m_materialId);
+			}
+			else
+			{
+				//!TODO fuck
+			}
+			tree.add("materialid", std::to_string(matid));
+
+			auto &fixednodes = tree.add("fixedParticles", "");
+			for (auto particle : data.fixedParticles)
+			{
+				auto& fixnode = tree.add("fix", "");
+				fixnode.add("x", std::to_string(particle.x));
+				fixnode.add("y", std::to_string(particle.y));
+			}
+		}
 	}
-
-	//if (type == "physicsCloth")
-	//{
-	//	//auto &mobs = contentmodule->getMeshedObjects();
-
-	//	//Get cloth from physics by entity id
-	//	
-	//	auto &contextnode = tree.add("PhysicsContext", "");
-	//	contextnode.add("gravity", vec3ToString(thing));
-	//	contextnode.add("particleMass",std::to_string(thing));
-	//	contextnode.add("particleDistance", std::to_string(thing));
-	//	contextnode.add("struct_springKs", std::to_string(thing));
-	//	contextnode.add("struct_springKd", std::to_string(thing));
-	//	contextnode.add("shear_springKs", std::to_string(thing));
-	//	contextnode.add("shear_springKd", std::to_string(thing));
-	//	contextnode.add("bend_springKs", std::to_string(thing));
-	//	contextnode.add("bend_springKd", std::to_string(thing));
-	//	contextnode.add("struct_springs", std::to_string(thing));
-	//	contextnode.add("shear_springs", std::to_string(thing));
-	//	contextnode.add("bend_springs", std::to_string(thing));
-	//	contextnode.add("use_constraints", std::to_string(thing));
-	//	contextnode.add("max_stretch", std::to_string(thing));
-	//	contextnode.add("constraint_iterations", std::to_string(thing));
-	//	contextnode.add("airfric", std::to_string(thing));
-	//	contextnode.add("two_pass_integration", std::to_string(thing));
-	//	
-	//	tree.add("width", std::to_string(thing));
-	//	tree.add("height", std::to_string(thing));
-
-	//	//get material
-	//	int matid = -1;
-	//	if (materialmap->count(physicsentity.materialid) > 0)
-	//	{
-	//		matid = materialmap[physicsentity.materialid];
-	//	}
-	//	else
-	//	{
-	//		//!TODO fuck
-	//	}
-	//	tree.add("materialid", std::to_string(matid));
-
-	//	auto &fixednodes = tree.add("fixedParticles", "");
-	//	for (auto particle : thing)
-	//	{
-	//		auto& fixnode = tree.add("fix", "");
-	//		fixnode.add("x", std::to_string(thing));
-	//		fixnode.add("y", std::to_string(thing));
-	//	}
-	//}
-
 }
 
 ExtensionInformation * exSSMExtendedWriterPhysics::getInfo()

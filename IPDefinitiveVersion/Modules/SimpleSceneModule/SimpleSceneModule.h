@@ -41,6 +41,10 @@ private:
 
 	void cmd_write(const ipengine::ConsoleParams & params);
 
+	void cmd_setactive(const ipengine::ConsoleParams & params);
+
+	void cmd_listscenes(const ipengine::ConsoleParams & params);
+
 	// Inherited via ISimpleSceneModule_API
 	virtual bool _startup() override;
 

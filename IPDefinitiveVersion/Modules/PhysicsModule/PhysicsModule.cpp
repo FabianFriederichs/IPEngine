@@ -973,8 +973,15 @@ ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 	mdata.m_dirty = false;
 	mdata.m_isdoublesided = true;
 	
-	mdata.m_material = &contentmodule->getMaterials().front();
-
+	auto mat = contentmodule->getMaterialById(materialid);
+	if (mat)
+	{
+		mdata.m_material = mat;
+	}
+	else
+	{
+		mdata.m_material = &contentmodule->getMaterials().front();
+	}
 	meshes.push_back(mdata);
 	//mesh vertex positions are always calculated in world space, therefore igore the transform
 	meshedobjects.push_back(SCM::MeshedObject(std::vector<SCM::MeshData*>({ &meshes.back() }), m_core->createID()));

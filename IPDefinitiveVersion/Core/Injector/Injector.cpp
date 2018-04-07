@@ -154,6 +154,8 @@ void Injector::registerCommands(ipengine::Core * core)
 	console.addCommand("injector.getdeps", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_getDependencies>(this), "ech moduleid");
 	console.addCommand("injector.getdepinfo", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_getDependencyInfo>(this), "ech moduleid");
 	console.addCommand("injector.getmodulesoftype", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_getModulesOfType>(this), "ech moduletype");
+	console.addCommand("injector.activateExt", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_enableExtension>(this), "ech modid exid prio active");
+	console.addCommand("injector.removeDep", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_removeDependency>(this), "ech modid depid");
 }
 
 void Injector::LoadModules(std::string path, bool reload )

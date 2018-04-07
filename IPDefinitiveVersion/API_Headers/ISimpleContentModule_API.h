@@ -375,7 +375,7 @@ namespace SCM
 	class MeshedObject
 	{
 	public:
-		MeshedObject(std::vector<MeshData*>& mdata, ipengine::ipid id, std::string path = "") :m_meshes(mdata), m_meshObjectId(id) {}
+		MeshedObject(std::vector<MeshData*>& mdata, ipengine::ipid id, std::string path = "") :m_meshes(mdata), m_meshObjectId(id), filepath(path) {}
 		ipengine::ipid m_meshObjectId;
 		std::vector<MeshData*> m_meshes;
 		std::string filepath;
@@ -427,7 +427,8 @@ namespace SCM
 			m_entityId(-1),
 			m_parent(nullptr),
 			isBoundingBox(true),
-			isActive(false)
+			isActive(false),
+			m_components()
 		{}
 		Entity(const Entity& other) :
 			m_transformData(other.m_transformData),
@@ -466,8 +467,11 @@ namespace SCM
 				isBoundingBox(boundingbox),
 				isActive(active),
 				m_transformData(transform),
-				m_boundingData(boundingdata)
-		{}
+				m_boundingData(boundingdata),
+			m_components()
+		{
+			m_components.reserve(50);
+		}
 
 		//virtual ~Entity() {};
 
@@ -1019,6 +1023,12 @@ namespace SCM
 			if (it != componentTypes.end())
 				return it->second;
 			return IPID_INVALID;
+		}
+
+		std::string getComponentTypenameById(const ipengine::ipid ctypeid)
+		{
+			auto ctypeit = std::find_if(componentTypes.begin(), componentTypes.end(), [ctypeid](auto& c) {return c.second == ctypeid; });
+			return ctypeit != componentTypes.end() ? ctypeit->first : "";
 		}
 
 		bool isComponent(ipengine::ipid comptype)

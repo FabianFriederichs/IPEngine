@@ -331,6 +331,7 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 		}
 		
 	}
+	sc.filepath = filepath;
 	return sc.m_sceneid;
 }
 
@@ -413,9 +414,9 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 			boundingnode.add("Radius", std::to_string(bdata.sphere.m_radius));
 		}
 
-		//if(entity.components.size()>0) //Or something like that to check whether it is extended by components
+		for(auto &comp : entity->m_components) //Or something like that to check whether it is extended by components
 		{
-			auto typestring = "";
+			auto typestring = contentmodule->getComponentTypenameById(comp->getTypeID());
 			entitynode.add("ExtendedType", typestring); //Replace "" with typestring from component?
 
 			//Call Extensions for this Type
@@ -432,7 +433,7 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 			anyvector.push_back(&materialtointernid);
 			anyvector.push_back(&texturetointernid);
 			//SimpleSceneModule*, String, ptree*, Entity*, SimpleContentModule*, unordered_map<string, entity*
-			extrec.execute("ExtendedEntity", { "this", "type", "tree","entityid", "pentity", "contentmodule", "entitymap", "meshmap", "shadermap", "materialmap", "texturemap" }, anyvector);
+			extrec.execute("WriteExtendedEntity", { "this", "type", "tree","entityid", "pentity", "contentmodule", "entitymap", "meshmap", "shadermap", "materialmap", "texturemap" }, anyvector);
 			//!TODO write extension for certain extended entities
 		}
 
@@ -445,6 +446,8 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 	int materialidcounter = 0;
 	for (auto &meshobj : mobs)
 	{
+		if (meshobj.filepath.empty())
+			continue;
 		auto& meshnode = meshesnode.add("Mesh", "");
 		if (meshtointernid.count(meshobj.m_meshObjectId) < 1)
 			meshtointernid[meshobj.m_meshObjectId] = meshidcounter++;
@@ -496,6 +499,7 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 			texnode.add("Name", tex.first);
 			texnode.add("Id", texturetointernid[tex.second.m_texturefileId]);
 		}
+		matnode.add("ShaderId", shadertointernid[mat.m_shaderId]);
 	}
 	
 	//Write Textures
@@ -511,7 +515,8 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 	}
 
 	try {
-		boost::property_tree::write_xml(filepath, tree);
+		boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
+		boost::property_tree::write_xml(filepath, tree, std::locale(), settings);
 	}
 	catch (boost::property_tree::xml_parser_error ex)
 	{
@@ -591,7 +596,7 @@ bool SimpleSceneModule::SwitchActiveScene(ipengine::ipid id)
 		{
 			for (auto ide : missing)
 			{
-				scm->getEntityById(id)->isActive = false;
+				scm->getEntityById(ide)->isActive = false;
 			}
 		}
 
@@ -599,7 +604,7 @@ bool SimpleSceneModule::SwitchActiveScene(ipengine::ipid id)
 		{
 			for (auto ide : missing)
 			{
-				scm->getEntityById(id)->isActive = true;
+				scm->getEntityById(ide)->isActive = true;
 			}
 		}
 	}
@@ -702,6 +707,29 @@ void SimpleSceneModule::cmd_write(const ipengine::ConsoleParams &params)
 	//m_core->getConsole().println("Overwriting active scene")
 }
 
+void SimpleSceneModule::cmd_setactive(const ipengine::ConsoleParams & params)
+{
+	if (params.getParamCount() == 1)
+	{
+		//WriteSceneToFile(params.get(0), m_activeScene);
+		auto sceneid = params.getInt(0);
+		if(m_scenes.count(sceneid)>0)
+			SwitchActiveScene(sceneid);
+		m_core->getConsole().println("Successfuly switched active scene");
+	}
+}
+
+void SimpleSceneModule::cmd_listscenes(const ipengine::ConsoleParams & params)
+{
+	auto& console = m_core->getConsole();
+	for (auto sc : m_scenes)
+	{
+		console.print(std::to_string(sc.first).c_str());
+		console.print((": " + sc.second.filepath).c_str());
+		console.println("");
+	}
+}
+
 bool SimpleSceneModule::_startup()
 {
 	m_activeScene = -1; 
@@ -710,6 +738,9 @@ bool SimpleSceneModule::_startup()
 	auto& console = m_core->getConsole();
 	console.addCommand("ssm.loadscene", ipengine::CommandFunc::make_func<SimpleSceneModule, &SimpleSceneModule::cmd_load>(this), "Loads scene via SimpleSceneModule. First parameter has to be a valid filepath to a scene file");
 	console.addCommand("ssm.writescene", ipengine::CommandFunc::make_func<SimpleSceneModule, &SimpleSceneModule::cmd_write>(this), "Writes scene via SimpleSceneModule. First parameter has to be a valid filepath. If a file doesn't exist it will be created. Second parameter can be a scene id. Uses active scene if omitted");
+	console.addCommand("ssm.list", ipengine::CommandFunc::make_func<SimpleSceneModule, &SimpleSceneModule::cmd_listscenes>(this), "Lists all loaded scenes");
+	console.addCommand("ssm.activate", ipengine::CommandFunc::make_func<SimpleSceneModule, &SimpleSceneModule::cmd_setactive>(this), "Set provided scene to active");
+
 	return true;
 }
 

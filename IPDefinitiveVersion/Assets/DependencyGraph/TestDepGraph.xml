@@ -27,7 +27,7 @@
 <DependencyGraph>
   <Modules>
     <Module>
-      <ignore>true</ignore>
+      <ignore>false</ignore>
       <identifier>BasicOpenVRModule</identifier>
     </Module>
     <Module>
@@ -84,6 +84,15 @@
             </Extension>
           </Extensions>
         </Point>
+        <Point>
+          <identifier>WriteExtendedEntity</identifier>
+          <Extensions>
+            <Extension>
+              <extensionname>exSSMExtendedWriterPhysics</extensionname>
+              <priority>0</priority>
+            </Extension>
+          </Extensions>
+        </Point>
       </ExtensionPoints>
     </Module>
     <Module>
@@ -103,7 +112,7 @@
       </dependencies>
     </Module>
    <Module>
-      <ignore>true</ignore>
+      <ignore>false</ignore>
       <identifier>GraphicsModulePreRenderVR</identifier>
       <isExPoint>true</isExPoint>
       <dependencies>
