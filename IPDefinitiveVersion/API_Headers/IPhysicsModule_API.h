@@ -41,6 +41,49 @@ public:
 		bool two_pass_integration;
 	};
 
+	struct ParticleCoord
+	{
+		size_t x;
+		size_t y;
+	};
+
+	class ClothData
+	{
+	public:
+		ClothData() :
+			width(0),
+			height(0)
+		{}
+		size_t width;
+		size_t height;
+		SCM::TransformData transform;
+		PhysicsContext pcontext;
+		std::vector<ParticleCoord> fixedParticles;
+	};
+
+	//TODO: Optimization: use internalID as array index for cloth instance
+	class ClothComponent : public SCM::Component
+	{
+	public:
+		ClothComponent(const ipengine::ipid& iid, const ipengine::ipid& tid, const ipengine::ipid& eid, IPhysicsModule_API* _pmod) :
+			Component(iid, tid, eid),
+			pmod(_pmod)
+		{}
+
+		~ClothComponent()
+		{
+			pmod->destroyCloth(getEntity());
+		}
+
+		ClothData getClothData()
+		{
+			return pmod->getClothData(getEntity());
+		}
+
+	private:
+		IPhysicsModule_API* pmod;
+	};
+
 	using ClothVertex = SCM::VertexData;
 
 
@@ -53,6 +96,10 @@ public:
 	virtual void destroyCloth(const ipengine::ipid) = 0;
 	virtual void fixParticle(const ipengine::ipid id, size_t x, size_t y, bool fixed) = 0;
 	virtual void createcloth() = 0;
+
+	virtual ClothData getClothData(ipengine::ipid entityid) = 0;
+	//virtual ClothData getClothData(ipengine::ipid entityid) = 0;
+	//virtual ClothData getClothData(SCM::Entity* entity) = 0;
 };
 
 #endif

@@ -397,6 +397,17 @@ namespace SCM
 			entityID(eid)
 		{}
 
+		Component() :
+			internalID(IPID_INVALID),
+			typeID(IPID_INVALID),
+			entityID(IPID_INVALID)
+		{}
+
+		Component(const Component& other) = default;
+		Component(Component&& other) = default;
+		Component& operator=(const Component& other) = default;
+		Component& operator=(Component&& other) = default;
+
 		virtual ~Component() {}
 
 		const ipengine::ipid& getInternalID() { return internalID; }
@@ -409,7 +420,6 @@ namespace SCM
 		ipengine::ipid entityID;
 	};
 
-	class ISimpleContentModule_API;
 	class Entity
 	{
 	public:
@@ -419,15 +429,31 @@ namespace SCM
 			isBoundingBox(true),
 			isActive(false)
 		{}
-		Entity(const Entity& other):
+		Entity(const Entity& other) :
 			m_transformData(other.m_transformData),
 			m_parent(other.m_parent),
 			m_name(other.m_name),
 			m_boundingData(other.m_boundingData),
 			isBoundingBox(other.isBoundingBox),
-			isActive(other.isActive)
+			isActive(other.isActive),
+			m_components()
 		{
 			m_entityId = -1;
+
+			//TODO: component vector copy
+		}
+		Entity(Entity&& other) :
+			m_transformData(std::move(other.m_transformData)),
+			m_parent(other.m_parent),
+			m_name(std::move(other.m_name)),
+			m_boundingData(other.m_boundingData),
+			isBoundingBox(other.isBoundingBox),
+			isActive(other.isActive),
+			m_components(std::move(other.m_components))
+		{
+			m_entityId = -1;
+
+			//TODO: move vector copy
 		}
 		Entity(
 			ipengine::ipid id,
@@ -475,6 +501,7 @@ namespace SCM
 		{
 			//TODO: prevent doubles
 			m_components.push_back(std::unique_ptr<Component>(component));
+			return true;
 		}
 
 		void removeComponent(ipengine::ipid comptype)
@@ -499,7 +526,7 @@ namespace SCM
 		}
 
 		template <typename ComponentType>
-		Component* getComponent()
+		ComponentType* getComponent()
 		{
 			for (auto& c : m_components)
 			{
@@ -1017,7 +1044,7 @@ namespace SCM
 		std::vector<TextureFile> texturefiles;
 		std::vector<MeshData> meshes;
 		std::vector<MeshedObject> meshedobjects;
-
+	protected:
 		std::unordered_map<std::string, ipengine::ipid> componentTypes;
 	};
 
