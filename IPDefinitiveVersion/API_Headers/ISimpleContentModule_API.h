@@ -470,7 +470,6 @@ namespace SCM
 				m_boundingData(boundingdata),
 			m_components()
 		{
-			m_components.reserve(50);
 		}
 
 		//virtual ~Entity() {};
