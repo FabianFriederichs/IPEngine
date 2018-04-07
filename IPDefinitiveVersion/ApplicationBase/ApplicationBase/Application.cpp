@@ -75,7 +75,6 @@ private:
 		shouldStopFlag.store(true, std::memory_order_release);
 		if (enableConsole)
 		{
-			//consoleThread.join();
 			consoleThread.detach();
 		}
 

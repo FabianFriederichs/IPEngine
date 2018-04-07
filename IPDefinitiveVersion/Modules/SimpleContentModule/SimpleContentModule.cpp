@@ -119,7 +119,19 @@ bool SimpleContentModule::_startup()
 	generateDefaultShader();
 	generateDefaultTexture();
 
+	m_core->getConsole().addCommand("scm.showcomponents", ipengine::CommandFunc::make_func<SimpleContentModule, &SimpleContentModule::cmd_showcomponents>(this), "Lists currently registered component types.");
+
 	return true;
+}
+
+void SimpleContentModule::cmd_showcomponents(const ipengine::ConsoleParams& params)
+{
+	m_core->getConsole().println("Currently registered component types (id, name):");
+	for (auto& e : componentTypes)
+	{
+		std::string line = std::to_string(e.second) + "\t" + e.first;
+		m_core->getConsole().println(line.c_str());
+	}
 }
 
 bool SimpleContentModule::_shutdown()

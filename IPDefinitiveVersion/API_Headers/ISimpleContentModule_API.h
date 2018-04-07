@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/transform.hpp>
+#include <type_traits>
 
 
 namespace SCM
@@ -387,6 +388,38 @@ namespace SCM
 		}
 	};
 
+	class Component
+	{
+	public:
+		Component(const ipengine::ipid& iid, const ipengine::ipid& tid, const ipengine::ipid& eid) :
+			internalID(iid),
+			typeID(tid),
+			entityID(eid)
+		{}
+
+		Component() :
+			internalID(IPID_INVALID),
+			typeID(IPID_INVALID),
+			entityID(IPID_INVALID)
+		{}
+
+		Component(const Component& other) = default;
+		Component(Component&& other) = default;
+		Component& operator=(const Component& other) = default;
+		Component& operator=(Component&& other) = default;
+
+		virtual ~Component() {}
+
+		const ipengine::ipid& getInternalID() { return internalID; }
+		const ipengine::ipid& getTypeID() { return typeID; }
+		const ipengine::ipid& getEntity() { return entityID; }
+		
+	private:
+		ipengine::ipid internalID;
+		ipengine::ipid typeID; //quite redundant... //but more efficient later on
+		ipengine::ipid entityID;
+	};
+
 	class Entity
 	{
 	public:
@@ -396,15 +429,31 @@ namespace SCM
 			isBoundingBox(true),
 			isActive(false)
 		{}
-		Entity(const Entity& other):
+		Entity(const Entity& other) :
 			m_transformData(other.m_transformData),
 			m_parent(other.m_parent),
 			m_name(other.m_name),
 			m_boundingData(other.m_boundingData),
 			isBoundingBox(other.isBoundingBox),
-			isActive(other.isActive)
+			isActive(other.isActive),
+			m_components()
 		{
 			m_entityId = -1;
+
+			//TODO: component vector copy
+		}
+		Entity(Entity&& other) :
+			m_transformData(std::move(other.m_transformData)),
+			m_parent(other.m_parent),
+			m_name(std::move(other.m_name)),
+			m_boundingData(other.m_boundingData),
+			isBoundingBox(other.isBoundingBox),
+			isActive(other.isActive),
+			m_components(std::move(other.m_components))
+		{
+			m_entityId = -1;
+
+			//TODO: move vector copy
 		}
 		Entity(
 			ipengine::ipid id,
@@ -429,6 +478,7 @@ namespace SCM
 		BoundingData m_boundingData;
 		bool isBoundingBox; //True for Box, False for Sphere in Union BoundingData
 		bool isActive;
+		std::vector<std::unique_ptr<Component>> m_components;
 		//std::map<std::string, boost::any> m_decorators;
 		virtual void swap() { m_transformData.swap(); }
 
@@ -445,6 +495,46 @@ namespace SCM
 					return true;
 			}
 			return false;
+		}
+
+		bool addComponent(Component* component)
+		{
+			//TODO: prevent doubles
+			m_components.push_back(std::unique_ptr<Component>(component));
+			return true;
+		}
+
+		void removeComponent(ipengine::ipid comptype)
+		{
+			m_components.erase(std::remove_if(m_components.begin(), m_components.end(), [comptype](auto& p) { return p->getTypeID() == comptype; }), m_components.end());
+		}
+
+		template <typename ComponentType>
+		void removeComponent()
+		{		
+			m_components.erase(std::remove_if(m_components.begin(), m_components.end(), [](auto& p) { return dynamic_cast<ComponentType*>(p.get()); }), m_components.end());
+		}
+
+		Component* getComponent(ipengine::ipid comptype)
+		{
+			for (auto& c : m_components)
+			{
+				if (c.get()->getTypeID() == comptype)
+					return c.get();
+			}
+			return nullptr;
+		}
+
+		template <typename ComponentType>
+		ComponentType* getComponent()
+		{
+			for (auto& c : m_components)
+			{
+				auto cp = dynamic_cast<ComponentType*>(c.get());
+				if (cp)
+					return cp;
+			}
+			return nullptr;
 		}
 	};
 
@@ -911,6 +1001,36 @@ namespace SCM
 			return false;
 		}
 
+		ipengine::ipid registerComponentType(const std::string& ctypename)
+		{
+			auto newid = m_core->getIDGen().createID();
+			componentTypes.insert(std::make_pair(ctypename, newid));
+			return newid;
+		}
+
+		bool unregisterComponentType(const std::string& ctypename)
+		{
+			return componentTypes.erase(ctypename);
+		}
+
+		ipengine::ipid getComponentTypeByName(const std::string& ctypename)
+		{
+			auto it = componentTypes.find(ctypename);
+			if (it != componentTypes.end())
+				return it->second;
+			return IPID_INVALID;
+		}
+
+		bool isComponent(ipengine::ipid comptype)
+		{
+			return std::find_if(componentTypes.begin(), componentTypes.end(), [comptype](auto& c) {return c.second == comptype; }) != componentTypes.end();
+		}
+
+		bool isComponent(const std::string& comptypename)
+		{
+			return componentTypes.find(comptypename) != componentTypes.end();
+		}
+
 		//Would prefer add/remove/const get functions over returning container refs. All virtual so SCMs can change their implementation more freely
 	private:
 
@@ -924,6 +1044,8 @@ namespace SCM
 		std::vector<TextureFile> texturefiles;
 		std::vector<MeshData> meshes;
 		std::vector<MeshedObject> meshedobjects;
+	protected:
+		std::unordered_map<std::string, ipengine::ipid> componentTypes;
 	};
 
 	static std::string glmvec2tostring(glm::vec2 v)

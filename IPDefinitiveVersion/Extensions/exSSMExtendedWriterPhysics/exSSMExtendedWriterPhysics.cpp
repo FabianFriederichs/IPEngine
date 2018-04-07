@@ -76,6 +76,11 @@ void exSSMExtendedWriterPhysics::execute(std::vector<std::string> argnames, std:
 	auto entitymap = args[6].cast<std::unordered_map<ipengine::ipid, int>*>();
 	auto materialmap = args[9].cast<std::unordered_map<ipengine::ipid,int>*>();
 
+	if (auto ccomp = entity->getComponent<IPhysicsModule_API::ClothComponent>())
+	{
+		auto data = ccomp->getClothData();
+	}
+
 	//if (type == "physicsCloth")
 	//{
 	//	//auto &mobs = contentmodule->getMeshedObjects();

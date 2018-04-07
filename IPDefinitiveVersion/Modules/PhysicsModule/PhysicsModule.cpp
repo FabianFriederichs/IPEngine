@@ -32,7 +32,7 @@ void PhysicsModule::update(ipengine::TaskContext & context)
 	//remove dead cloth objects
 	for (Cloth& cloth : clothInstances)
 	{
-		if (contentmodule->getEntityById(cloth.id))
+		if (!contentmodule->getEntityById(cloth.id))
 		{
 			destroyCloth(cloth.id);
 		}
@@ -704,6 +704,7 @@ ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 	cloth.m_height = height;
 	cloth.m_distance = physicsContext.particleDistance;
 	cloth.id = m_core->createID();
+	cloth.m_initialTransform = transform;
 
 	//setup buffers
 	cloth.m_particles_buf1 = ipengine::alloc_aligned_array<Particle, TS_CACHE_LINE_SIZE>(width * height);
@@ -978,6 +979,7 @@ ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 	//mesh vertex positions are always calculated in world space, therefore igore the transform
 	meshedobjects.push_back(SCM::MeshedObject(std::vector<SCM::MeshData*>({ &meshes.back() }), m_core->createID()));
 	SCM::ThreeDimEntity* dimentity = new SCM::ThreeDimEntity(tcloth.id, SCM::Transform(), SCM::BoundingData(), true, false, &meshedobjects.back());
+	dimentity->addComponent(new ClothComponent(1, this->clothComponentType, tcloth.id, this));
 	dimentity->m_name = name;
 	thrde[tcloth.id] = dimentity;
 	entities[name] = dimentity;
@@ -990,11 +992,14 @@ void PhysicsModule::destroyCloth(ipengine::ipid id)
 	auto et = contentmodule->getEntityById(id);
 	if (et)
 	{
-		//remove entity
-	}
-	else
-	{
-
+		auto ccomp = et->getComponent<ClothComponent>();
+		if (ccomp)
+		{
+			auto eid = ccomp->getEntity();
+			clothInstances.erase(std::remove_if(clothInstances.begin(), clothInstances.end(), [eid](auto& c) {
+				return c.id == eid;
+			}), clothInstances.end());
+		}
 	}
 }
 
@@ -1043,6 +1048,33 @@ void PhysicsModule::fixParticle(const ipengine::ipid name, size_t x, size_t y, b
 	}
 }
 
+IPhysicsModule_API::ClothData PhysicsModule::getClothData(ipengine::ipid entityid)
+{
+	ClothData cdata;	
+	auto c = getCLothFromEID(entityid);
+	if (c)
+	{
+		cdata.width = c->m_width;
+		cdata.height = c->m_height;
+		cdata.transform = c->m_initialTransform;
+		cdata.pcontext = c->m_pctx;
+		for (size_t i = 0; i < c->particleCount(); ++i)
+		{
+			if (c->oldBuf()[i].m_fixed)
+			{
+				cdata.fixedParticles.push_back(
+					ParticleCoord{
+						i % c->m_width,
+						i / c->m_width
+					}
+				);
+			}
+		}
+		return cdata;
+	}
+	return cdata;
+}
+
 bool PhysicsModule::_startup()
 {
 	//Setup messaging
@@ -1065,13 +1097,17 @@ bool PhysicsModule::_startup()
 	m_collisionfric = static_cast<float>(m_core->getConfigManager().getFloat("physics.cloth_simulation.collision_fric"));
 	m_pencm = static_cast<float>(m_core->getConfigManager().getFloat("physics.cloth_simulation.penetration_correction_multiplier"));
 	contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
+
+	//register ClothComponent
+	clothComponentType = contentmodule->registerComponentType("ClothComponent");
 	return true;
 }
 bool PhysicsModule::_shutdown()
 {
-	//!TODO
-	return false;
+	clear();
+	return true;
 }
+
 //
 //bool PhysicsModule::_startup()
 //{
@@ -1100,6 +1136,38 @@ bool PhysicsModule::intersectsPlane(const glm::vec3 & p, float radius, const Pla
 	return glm::abs(pointPlaneDistance(p, plane)) <= radius;
 }
 
+PhysicsModule::Cloth* PhysicsModule::getCLothFromEID(const ipengine::ipid id)
+{
+	auto ent = contentmodule->getEntityById(id);
+	if (ent)
+	{
+		auto ccomp = ent->getComponent<ClothComponent>();
+		if (ccomp)
+		{
+			return getClothFromComponent(ccomp);
+		}
+	}
+	return nullptr;
+}
+
+PhysicsModule::Cloth* PhysicsModule::getClothFromComponent(ClothComponent * ccomp)
+{
+	auto eid = ccomp->getEntity();
+	auto it = std::find_if(clothInstances.begin(), clothInstances.end(), [eid](auto& c) {
+		return c.id == eid;
+	});
+
+	if (it != clothInstances.end())
+		return &(*it);
+
+	return nullptr;
+}
+
+void PhysicsModule::clear()
+{
+	clothInstances.clear();
+}
+
 float PhysicsModule::pointPlaneDistance(const glm::vec3& p, const Plane & plane)
 {
 	return glm::dot(plane.n, p - plane.p);
@@ -1117,7 +1185,9 @@ PhysicsModule::Cloth::Cloth() :
 	m_springs(),
 	m_pctx(),
 	m_current_old(1),
-	m_csidx()
+	m_csidx(),
+	id(IPID_INVALID),
+	m_initialTransform()
 {}
 
 PhysicsModule::Cloth::Cloth(Cloth && other) :
@@ -1130,7 +1200,9 @@ PhysicsModule::Cloth::Cloth(Cloth && other) :
 	m_pctx(std::move(other.m_pctx)),
 	m_current_old(other.m_current_old),
 	id(std::move(other.id)),
-	m_csidx(std::move(other.m_csidx))
+	m_csidx(std::move(other.m_csidx)),
+	m_initialTransform(std::move(other.m_initialTransform))
+
 {
 	other.m_width = 0;
 	other.m_height = 0;
@@ -1138,7 +1210,28 @@ PhysicsModule::Cloth::Cloth(Cloth && other) :
 
 PhysicsModule::Cloth & PhysicsModule::Cloth::operator=(Cloth && other)
 {
-	// TODO: hier Rückgabeanweisung eingeben
+	if(this == &other)
+		return *this;
+
+	ipengine::free_aligned_array(m_particles_buf1);
+	ipengine::free_aligned_array(m_particles_buf2);
+	ipengine::free_aligned_array(m_springs);
+
+	m_width = other.m_width;
+	m_height = other.m_height;
+	m_distance = other.m_distance;
+	m_particles_buf1 = std::move(other.m_particles_buf1);
+	m_particles_buf2 = std::move(other.m_particles_buf2);
+	m_springs = std::move(other.m_springs);
+	m_pctx = std::move(other.m_pctx);
+	m_current_old = other.m_current_old;
+	id = std::move(other.id);
+	m_csidx = std::move(other.m_csidx);
+	m_initialTransform = std::move(other.m_initialTransform);
+
+	other.m_width = 0;
+	other.m_height = 0;
+
 	return *this;
 }
 

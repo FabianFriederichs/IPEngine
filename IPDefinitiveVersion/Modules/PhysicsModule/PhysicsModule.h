@@ -119,30 +119,29 @@ private:
 		Cloth(Cloth&& other);
 		Cloth& operator=(const Cloth& other) = delete;
 		Cloth& operator=(Cloth&& other);
-		~Cloth();
+		~Cloth();		
 
-		ipengine::ipid id;
-		size_t m_width;
-		size_t m_height;
 		size_t particleCount();
-		float m_distance;
-		//pingpong between these two particle buffers
-		//use cache aligned storage to prevent false sharing
-		ipengine::aligned_ptr<Particle> m_particles_buf1;
-		ipengine::aligned_ptr<Particle> m_particles_buf2;
-		ipengine::aligned_ptr<Spring> m_springs;
-		PhysicsContext m_pctx;
-		char m_current_old; //either 1 or 2
-
 		void swapBuffers();
 		ipengine::aligned_ptr<Particle>& oldBuf();
 		ipengine::aligned_ptr<Particle>& newBuf();
 
+		ipengine::aligned_ptr<Particle> m_particles_buf1;
+		ipengine::aligned_ptr<Particle> m_particles_buf2;
+		ipengine::aligned_ptr<Spring> m_springs;
+		PhysicsContext m_pctx;
+		size_t m_width;
+		size_t m_height;
+		float m_distance;
+		char m_current_old; //either 1 or 2
+
+		ipengine::ipid id;
+		SCM::TransformData m_initialTransform;
+
 		std::vector<size_t> m_csidx;
-		//std::vector<size_t> m_fixedparticles;
 		moodycamel::ConcurrentQueue<ipengine::ipid> m_collisionqueue;
-		std::atomic<ipengine::ipid> m_currentCollision; //hmmm
-		std::vector<ipengine::ipid> m_collidedEntities; //for uniqifying
+		std::atomic<ipengine::ipid> m_currentCollision;
+		std::vector<ipengine::ipid> m_collidedEntities;
 	};
 
 	class UpdateBatch //32 bytes
@@ -205,6 +204,11 @@ private:
 	bool isOutsidePlane(const glm::vec3& p, const Plane& plane);
 	bool intersectsPlane(const glm::vec3& p, float radius, const Plane& plane);
 
+	Cloth* getCLothFromEID(const ipengine::ipid id);
+	Cloth* getClothFromComponent(ClothComponent* ccomp);
+
+	void clear();
+
 public:
 	Particle& getParticle(const ipengine::ipid name, size_t x, size_t y);
 	//creation
@@ -215,12 +219,15 @@ public:
 	void destroyCloth(const ipengine::ipid id) override;
 	void fixParticle(const ipengine::ipid id, size_t x, size_t y, bool fixed) override;
 
+	ClothData getClothData(ipengine::ipid entityid)	override;
+
 private:
 	//private data
 	std::vector<Cloth> clothInstances;
 	ipengine::EndpointHandle collisionMessageEp;
 	ipengine::MessageType collisionMessageType;
 	int particles_per_task;
+	ipengine::ipid clothComponentType;
 
 	// Inherited via IPhysicsModule_API
 	virtual bool _startup() override;
