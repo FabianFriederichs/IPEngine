@@ -37,7 +37,7 @@ struct Material {
 struct DirLight {
     vec3 color;
     vec3 direction;
-    //bool enableShadows;
+    bool enableShadows;
     sampler2D shadowMap;
     float shadowVarianceBias;
     float lightBleedReduction;
@@ -144,7 +144,7 @@ vec3 calcDirLightRadiance(int i)
     //incorrect, but we assume for now that dirlights are not attenuated
     // if(u_enableShadows)
     // {
-    return u_directionalLights[i].color * calcShadowFactor(i);
+    return u_directionalLights[i].color * (u_directionalLights[i].enableShadows ? calcShadowFactor(i) : 1.0f);
     // }
     // else
     // {

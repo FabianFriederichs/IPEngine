@@ -196,7 +196,8 @@ void GraphicsModule::render(ipengine::TaskContext & c)
 		//for each dirlight
 		for (auto& dl : m_scm->getDirLights())
 		{
-			renderDirectionalLightShadowMap(*dl.second);
+			if(dl.second->castShadows)
+				renderDirectionalLightShadowMap(*dl.second);
 		}
 	}
 
@@ -976,18 +977,31 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 
 	int lc = 0;
 	//somehow store shadow stuff in light structs and set that too
-	for (auto dl : dirlights)
+	for (auto& dl : dirlights)
 	{
 		if (m_shadows)
 		{
-			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].color").c_str(), dl.second->m_color);
-			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].direction").c_str(), dl.second->getVSDirection(viewmat));
-			shader->setUniform(("u_light_matrix[" + std::to_string(lc) + "]").c_str(), m_dirLightMatrices[dl.second->m_entityId], false);
-			shader->bindTex(("u_directionalLights[" + std::to_string(lc) + "].shadowMap").c_str(),
-							dl.second->shadowBlurPasses > 0 ? m_dirLightShadowBlurTargets2[dl.second->m_entityId].colorTargets[0].tex.get() : m_dirLightShadowTargets[dl.second->m_entityId].colorTargets[0].tex.get());
-			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].shadowVarianceBias").c_str(), dl.second->shadowVarianceBias);
-			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].lightBleedReduction").c_str(), dl.second->lightBleedReduction);
-			shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].shadowWarpFactor").c_str(), dl.second->shadowWarpFactor);
+			//TODO: fix for non shadow casting dir lights
+			if (dl.second->castShadows)
+			{
+				shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].color").c_str(), dl.second->m_color);
+				shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].direction").c_str(), dl.second->getVSDirection(viewmat));
+				shader->setUniform(("u_light_matrix[" + std::to_string(lc) + "]").c_str(), m_dirLightMatrices[dl.second->m_entityId], false);
+				shader->bindTex(("u_directionalLights[" + std::to_string(lc) + "].shadowMap").c_str(),
+					dl.second->shadowBlurPasses > 0 ? m_dirLightShadowBlurTargets2[dl.second->m_entityId].colorTargets[0].tex.get() : m_dirLightShadowTargets[dl.second->m_entityId].colorTargets[0].tex.get());
+				shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].shadowVarianceBias").c_str(), dl.second->shadowVarianceBias);
+				shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].lightBleedReduction").c_str(), dl.second->lightBleedReduction);
+				shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].shadowWarpFactor").c_str(), dl.second->shadowWarpFactor);
+				shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].shadowWarpFactor").c_str(), dl.second->shadowWarpFactor);
+				shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].enableShadows").c_str(), dl.second->castShadows);
+			}
+			else
+			{
+				shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].color").c_str(), dl.second->m_color);
+				shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].direction").c_str(), dl.second->getVSDirection(viewmat));
+				shader->occupyTex(("u_directionalLights[" + std::to_string(lc) + "].shadowMap").c_str());
+				shader->setUniform(("u_directionalLights[" + std::to_string(lc) + "].enableShadows").c_str(), dl.second->castShadows);
+			}
 			++lc;
 		}
 		else

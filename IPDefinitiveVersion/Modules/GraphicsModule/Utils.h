@@ -133,6 +133,7 @@ public:
 
 	bool bindTex(const char* name, Texture2D* tex);
 	bool bindTex(const char* name, TextureCube* tex);
+	bool occupyTex(const char* name);
 	void resetTU(int newCurrentTU = 0);
 	int getCurrentTU();
 
@@ -171,6 +172,17 @@ inline bool ShaderProgram::bindTex(const char * name, Texture2D * tex)
 		setUniform(name, currentTu);
 		++currentTu;
 		return true;		
+	}
+	return false;
+}
+
+inline bool ShaderProgram::occupyTex(const char * name)
+{
+	if (isActive() && getUniformLocation(name) != -1)
+	{
+		setUniform(name, currentTu);
+		++currentTu;
+		return true;
 	}
 	return false;
 }
