@@ -870,6 +870,14 @@ void Texture2D::setTexParams(GLint minf, GLint magf, GLint wraps, GLint wrapt, f
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Texture2D::setBorderColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
+{	
+	GLfloat fv[]{ r, g, b, a };
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, fv);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 ShaderProgram::ShaderProgram(GLuint program) :
 	prog(program)
 {

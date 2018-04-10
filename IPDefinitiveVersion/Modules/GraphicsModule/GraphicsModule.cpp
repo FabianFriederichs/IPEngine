@@ -41,7 +41,7 @@ bool GraphicsModule::_startup()
 		glm::vec3(5, 5, 0.1f)
 	);
 
-	lid = m_core->createID();
+	/*lid = m_core->createID();
 
 	m_scm->getDirLights()[lid] = new SCM::DirectionalLight(
 		lid,
@@ -58,7 +58,7 @@ bool GraphicsModule::_startup()
 		65.0f,
 		glm::vec3(-5, -5, 40.0f),
 		glm::vec3(5, 5, 0.1f)
-	);
+	);*/
 	return true;
 }
 
@@ -1155,6 +1155,13 @@ void GraphicsModule::renderDirectionalLightShadowMap(SCM::DirectionalLight& dirL
 			}
 		};
 		m_dirLightShadowTargets[dirLight.m_entityId] = GLUtils::createRenderTargetSet(sfbd);
+		m_dirLightShadowTargets[dirLight.m_entityId].colorTargets[0].tex->setBorderColor(
+			std::numeric_limits<GLfloat>::infinity(),
+			std::numeric_limits<GLfloat>::infinity(),			
+			-std::numeric_limits<GLfloat>::infinity(),
+			-std::numeric_limits<GLfloat>::infinity()
+		);
+		m_dirLightShadowTargets[dirLight.m_entityId].colorTargets[0].tex->setTexParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, m_mtexAniso ? m_mtexMaxAnisoLevel : 0);
 	}
 	if (m_dirLightMatrices.find(dirLight.m_entityId) == m_dirLightMatrices.end())
 	{
@@ -1168,13 +1175,16 @@ void GraphicsModule::renderDirectionalLightShadowMap(SCM::DirectionalLight& dirL
 	//render scene into shadow map
 	m_fb_shadow->bind(GL_FRAMEBUFFER);
 	m_fb_shadow->attachRenderTargetSet(m_dirLightShadowTargets[dirLight.m_entityId]);
-	glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+	glClearColor(std::numeric_limits<GLfloat>::infinity(),
+		std::numeric_limits<GLfloat>::infinity(),
+		-std::numeric_limits<GLfloat>::infinity(),
+		-std::numeric_limits<GLfloat>::infinity());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, dirLight.shadowResX, dirLight.shadowResY);
 	m_s_shadow->use();
 	m_s_shadow->setUniform("u_shadowWarpFactor", dirLight.shadowWarpFactor);
 	m_s_shadow->setUniform("u_light_matrix", m_dirLightMatrices[dirLight.m_entityId], false);
-	drawSceneShadow(m_s_shadow.get());	
+	drawSceneShadow(m_s_shadow.get());
 	if (dirLight.shadowBlurPasses <= 0)
 	{
 		m_fb_shadow->unbind(GL_FRAMEBUFFER);
@@ -1197,6 +1207,13 @@ void GraphicsModule::renderDirectionalLightShadowMap(SCM::DirectionalLight& dirL
 			},
 		};
 		m_dirLightShadowBlurTargets1[dirLight.m_entityId] = GLUtils::createRenderTargetSet(sfbd);
+		m_dirLightShadowBlurTargets1[dirLight.m_entityId].colorTargets[0].tex->setBorderColor(
+			std::numeric_limits<GLfloat>::infinity(),
+			std::numeric_limits<GLfloat>::infinity(),
+			-std::numeric_limits<GLfloat>::infinity(),
+			-std::numeric_limits<GLfloat>::infinity()
+		);
+		m_dirLightShadowBlurTargets1[dirLight.m_entityId].colorTargets[0].tex->setTexParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, m_mtexAniso ? m_mtexMaxAnisoLevel : 0);
 	}
 
 	if (m_dirLightShadowBlurTargets2.find(dirLight.m_entityId) == m_dirLightShadowBlurTargets2.end())
@@ -1214,6 +1231,13 @@ void GraphicsModule::renderDirectionalLightShadowMap(SCM::DirectionalLight& dirL
 			},
 		};
 		m_dirLightShadowBlurTargets2[dirLight.m_entityId] = GLUtils::createRenderTargetSet(sfbd);
+		m_dirLightShadowBlurTargets2[dirLight.m_entityId].colorTargets[0].tex->setBorderColor(
+			std::numeric_limits<GLfloat>::infinity(),
+			std::numeric_limits<GLfloat>::infinity(),
+			-std::numeric_limits<GLfloat>::infinity(),
+			-std::numeric_limits<GLfloat>::infinity()
+		);
+		m_dirLightShadowBlurTargets2[dirLight.m_entityId].colorTargets[0].tex->setTexParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, m_mtexAniso ? m_mtexMaxAnisoLevel : 0);
 	}
 
 	m_s_gblur->use();

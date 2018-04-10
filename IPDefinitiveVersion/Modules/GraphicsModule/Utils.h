@@ -95,6 +95,7 @@ public:
 	void bind(GLuint textureUnit = 0);
 	void unbind();
 	void setTexParams(GLint minf = GL_LINEAR, GLint magf = GL_LINEAR, GLint wraps = GL_REPEAT, GLint wrapt = GL_REPEAT, float maxAniso = 0);
+	void setBorderColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
 	GLuint tex;
 	GLuint tu;
 	bool ishdr;
