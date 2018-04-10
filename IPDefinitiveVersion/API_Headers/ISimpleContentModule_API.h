@@ -715,15 +715,15 @@ namespace SCM
 		}
 
 		glm::vec3 m_color;
-		bool castShadows;
-		int shadowResX;
-		int shadowResY;
-		int shadowBlurPasses;
-		float shadowVarianceBias;
-		float lightBleedReduction;
-		glm::vec3 shadowMapVolumeMin;
-		glm::vec3 shadowMapVolumeMax;
-		float shadowWarpFactor;
+		bool castShadows = false;
+		int shadowResX = 0;
+		int shadowResY = 0;
+		int shadowBlurPasses = 0;
+		float shadowVarianceBias = 0;
+		float lightBleedReduction = 0;
+		glm::vec3 shadowMapVolumeMin = { 0,0,0 };
+		glm::vec3 shadowMapVolumeMax = { 0,0,0 };
+		float shadowWarpFactor = 1;
 	};
 
 	class PointLight : public Entity

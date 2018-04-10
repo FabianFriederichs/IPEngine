@@ -62,15 +62,15 @@ void exSSMExtendedWriterPhysics::execute(std::vector<std::string> argnames, std:
 		return;
 	}
 
-	if (!physics)
-	{
-		physics = m_info.dependencies.getDep<IPhysicsModule_API>("physics");
-	}
+	//if (!physics)
+	//{
+	//	physics = m_info.dependencies.getDep<IPhysicsModule_API>("physics");
+	//}
 
 	auto ssm = args[0].cast<ISimpleSceneModule_API*>();
-	auto entid = args[3].cast<int>();
+	auto entid = args[3].cast<ipengine::ipid>();
 	auto type = args[1].cast<std::string>();
-	auto tree = args[2].cast<boost::property_tree::ptree>();
+	auto tree = args[2].cast<boost::property_tree::ptree*>();
 	auto entity = args[4].cast<SCM::Entity*>();
 	auto scm = args[5].cast<boost::shared_ptr<SCM::ISimpleContentModule_API>>();
 	auto entitymap = args[6].cast<std::unordered_map<ipengine::ipid, int>*>();
@@ -81,7 +81,7 @@ void exSSMExtendedWriterPhysics::execute(std::vector<std::string> argnames, std:
 		if (auto ccomp = entity->getComponent<IPhysicsModule_API::ClothComponent>())
 		{
 			auto data = ccomp->getClothData();
-			auto &contextnode = tree.add("PhysicsContext", "");
+			auto &contextnode = tree->add("PhysicsContext", "");
 			contextnode.add("gravity", vec3ToString(data.pcontext.gravity));
 			contextnode.add("particleMass",std::to_string(data.pcontext.particleMass));
 			contextnode.add("particleDistance", std::to_string(data.pcontext.particleDistance));
@@ -100,28 +100,34 @@ void exSSMExtendedWriterPhysics::execute(std::vector<std::string> argnames, std:
 			contextnode.add("airfric", std::to_string(data.pcontext.airfric));
 			contextnode.add("two_pass_integration", std::to_string(data.pcontext.two_pass_integration));
 				
-			tree.add("width", std::to_string(data.width));
-			tree.add("height", std::to_string(data.height));
+			tree->add("width", std::to_string(data.width));
+			tree->add("height", std::to_string(data.height));
 
 			//get material
 			int matid = -1;
-
+			int materialcounter = -1;
+			for (auto v : *materialmap)
+			{
+				if (materialcounter < v.second)
+					materialcounter = v.second;
+			}
 			//get 3dentity
 			auto thrde = scm->getThreeDimEntities()[entity->m_entityId];
 			if (thrde->m_mesheObjects->m_meshes.size()>0 && materialmap->count(thrde->m_mesheObjects->m_meshes.front()->m_material->m_materialId) > 0)
 			{
 				matid = materialmap->at(thrde->m_mesheObjects->m_meshes.front()->m_material->m_materialId);
 			}
-			else
+			else if(thrde->m_mesheObjects->m_meshes.size()>0)
 			{
-				//!TODO fuck
+				matid = ++materialcounter;
+				materialmap->insert_or_assign(thrde->m_mesheObjects->m_meshes.front()->m_material->m_materialId, matid);
 			}
-			tree.add("materialid", std::to_string(matid));
+			tree->add("materialid", std::to_string(matid));
 
-			auto &fixednodes = tree.add("fixedParticles", "");
+			auto &fixednodes = tree->add("fixedParticles", "");
 			for (auto particle : data.fixedParticles)
 			{
-				auto& fixnode = tree.add("fix", "");
+				auto& fixnode = fixednodes.add("fix", "");
 				fixnode.add("x", std::to_string(particle.x));
 				fixnode.add("y", std::to_string(particle.y));
 			}
