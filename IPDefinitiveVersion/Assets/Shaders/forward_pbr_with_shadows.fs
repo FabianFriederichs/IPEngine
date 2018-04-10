@@ -37,7 +37,7 @@ struct Material {
 struct DirLight {
     vec3 color;
     vec3 direction;
-    //bool enableShadows;
+    bool enableShadows;
     sampler2D shadowMap;
     float shadowVarianceBias;
     float lightBleedReduction;
@@ -105,6 +105,8 @@ float calcShadowFactor(int i)
     fragDepth = fragDepth * 0.5 + 0.5;
     vec4 ssamp = texture(u_directionalLights[i].shadowMap, fragDepth.xy);
     float lightDepth1M1 = ssamp.r;
+    if(isinf(lightDepth1M1))
+        return 1.0f
     float lightDepth1M2 = ssamp.g;
     float lightDepth2M1 = ssamp.b;
     float lightDepth2M2 = ssamp.a;
@@ -135,7 +137,7 @@ float calcShadowFactor(int i)
 vec3 calcDirLightRadiance(int i)
 {
     //incorrect, but we assume for now that dirlights are not attenuated    
-    return u_directionalLights[i].color * calcShadowFactor(i);
+    return u_directionalLights[i].color * (u_directionalLights[i].enableShadows ? calcShadowFactor(i) : 1.0f);
 }
 
 vec3 calcPointLightRadiance(int i, vec3 fPos)

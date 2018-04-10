@@ -95,6 +95,7 @@ public:
 	void bind(GLuint textureUnit = 0);
 	void unbind();
 	void setTexParams(GLint minf = GL_LINEAR, GLint magf = GL_LINEAR, GLint wraps = GL_REPEAT, GLint wrapt = GL_REPEAT, float maxAniso = 0);
+	void setBorderColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
 	GLuint tex;
 	GLuint tu;
 	bool ishdr;
@@ -133,6 +134,7 @@ public:
 
 	bool bindTex(const char* name, Texture2D* tex);
 	bool bindTex(const char* name, TextureCube* tex);
+	bool occupyTex(const char* name);
 	void resetTU(int newCurrentTU = 0);
 	int getCurrentTU();
 
@@ -171,6 +173,17 @@ inline bool ShaderProgram::bindTex(const char * name, Texture2D * tex)
 		setUniform(name, currentTu);
 		++currentTu;
 		return true;		
+	}
+	return false;
+}
+
+inline bool ShaderProgram::occupyTex(const char * name)
+{
+	if (isActive() && getUniformLocation(name) != -1)
+	{
+		setUniform(name, currentTu);
+		++currentTu;
+		return true;
 	}
 	return false;
 }
