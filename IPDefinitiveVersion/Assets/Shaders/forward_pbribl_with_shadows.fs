@@ -112,8 +112,8 @@ float calcShadowFactor(int i)
     fragDepth = fragDepth * 0.5 + 0.5;
     vec4 ssamp = texture(u_directionalLights[i].shadowMap, fragDepth.xy);
     float lightDepth1M1 = ssamp.r;
-    if(isinf(lightDepth1M1))
-        return 1.0f;
+    // if(isinf(lightDepth1M1))
+    //     return 1.0f;
     float lightDepth1M2 = ssamp.g;
     float lightDepth2M1 = ssamp.b;
     float lightDepth2M2 = ssamp.a;
