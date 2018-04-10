@@ -129,6 +129,11 @@
       </dependencies>
     </Module>
     <Module>
+      <identifier>exSSMExtendedWriterPhysics</identifier>
+      <ignore>false</ignore>
+      <isExPoint>true</isExPoint>
+    </Module>
+    <Module>
       <identifier>exSSMExtendedPBRPhysicsLoader</identifier>
       <ignore>false</ignore>
       <isExPoint>true</isExPoint>

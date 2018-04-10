@@ -199,7 +199,7 @@
         </Box>
       </BoundingData>
       <ExtendedType>
-        physicsCloth
+        ClothComponent
       </ExtendedType>
       <PhysicsContext>
         <gravity>0/-30/0</gravity>
@@ -234,37 +234,37 @@
         </fix>
       </fixedParticles>
     </Entity>
-    <Entity>
+    <!--<Entity>
       <Id>6</Id>
       <StringName>testDirlight</StringName>
       <ParentId></ParentId>
       <TransformData>
         <Location>1/-1/0</Location>
-        <!--Vector-->
+        <!--Vector--
         <Rotation>1/0/0/0</Rotation>
-        <!--Quaternion-->
+        <!--Quaternion--
         <Scale>1/1/1</Scale>
-        <!--Vector-->
+        <!--Vector--
         <LocalY>0/1/0</LocalY>
-        <!--Vector-->
+        <!--Vector--
         <LocalX>1/0/0</LocalX>
-        <!--Vector-->
+        <!--Vector--
         <LocalZ>0/0/1</LocalZ>
-        <!--Vector-->
+        <!--Vector--
       </TransformData>
       <BoundingData>
         <Sphere>
           <Center>0/0/0</Center>
-          <!--X,Y,Z - Vector-->
+          <!--X,Y,Z - Vector--
           <Radius>1</Radius>
         </Sphere>
         <Box>
           <Center>0/0/0</Center>
-          <!--Vector-->
+          <!--Vector--
           <Size>0/0/0</Size>
-          <!--Vector-->
+          <!--Vector--
           <Rotation>0/0/0/0</Rotation>
-          <!--Quaternion-->
+          <!--Quaternion--
         </Box>
       </BoundingData>
       <ExtendedType>
@@ -273,7 +273,7 @@
      
       <color>0/1/0</color>
 
-    </Entity>
+    </Entity>-->
     <Entity>
       <Id>7</Id>
       <StringName>testPointlight</StringName>

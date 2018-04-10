@@ -198,7 +198,7 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 	for (auto node : tree.get_child("Scene.Entities"))
 	{
 		std::string entityname;
-		int entityid;
+		ipengine::ipid entityid;
 		int meshid;
 		SCM::TransformData transdata;
 		SCM::BoundingBox boxdata;
@@ -361,9 +361,17 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 	auto &entitiesnode = scenenode.add("Entities", "");
 	int entityidcounter = 0;
 	int meshidcounter = 0;
+	auto &dirlights = contentmodule->getDirLights();
+	auto &pointlights = contentmodule->getPointLights();
+	auto &spotlights = contentmodule->getSpotLights();
+
 	for (auto entid : scene.getEntities())
 	{
 		auto entity = contentmodule->getEntityById(entid);
+
+		//Skip entities without name. 
+		if (entity->m_name == "")
+			continue;
 		auto &entitynode = entitiesnode.add("Entity", "");
 		int tempid = entityidcounter;
 		if (entitytointernid.count(entity->m_entityId) > 0)
@@ -385,7 +393,7 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 			auto threedentity = contentmodule->getThreeDimEntities()[entity->m_entityId];
 			int tempmeshid = meshidcounter;
 			if (meshtointernid.count(threedentity->m_mesheObjects->m_meshObjectId) < 1)
-				meshtointernid[entity->m_entityId] = meshidcounter++;
+				meshtointernid[threedentity->m_mesheObjects->m_meshObjectId] = meshidcounter++;
 			entitynode.add("MeshId", meshtointernid[threedentity->m_mesheObjects->m_meshObjectId]);
 		}
 
@@ -404,14 +412,17 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 		auto &boundingnode = entitynode.add("BoundingData","");
 		if (entity->isBoundingBox)
 		{
-			boundingnode.add("Center", Vec3ToString(bdata.box.m_center));
-			boundingnode.add("Size", Vec3ToString(bdata.box.m_size));
-			boundingnode.add("Rotation", QuatToString(bdata.box.m_rotation));
+			auto &boxnode = boundingnode.add("Box", "");
+			boxnode.add("Center", Vec3ToString(bdata.box.m_center));
+			boxnode.add("Size", Vec3ToString(bdata.box.m_size));
+			boxnode.add("Rotation", QuatToString(bdata.box.m_rotation));
 		}
 		else
 		{
-			boundingnode.add("Center", Vec3ToString(bdata.sphere.m_center));
-			boundingnode.add("Radius", std::to_string(bdata.sphere.m_radius));
+			auto &spherenode = boundingnode.add("Sphere", "");
+
+			spherenode.add("Center", Vec3ToString(bdata.sphere.m_center));
+			spherenode.add("Radius", std::to_string(bdata.sphere.m_radius));
 		}
 
 		for(auto &comp : entity->m_components) //Or something like that to check whether it is extended by components
@@ -425,8 +436,9 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 			anyvector.push_back(static_cast<ISimpleSceneModule_API*>(this));
 			anyvector.push_back(typestring);
 			anyvector.push_back(&entitynode);
+			anyvector.push_back(entity->m_entityId);
 			anyvector.push_back(entity);
-			anyvector.push_back(contentmodule.get());
+			anyvector.push_back(contentmodule);
 			anyvector.push_back(&entitytointernid);
 			anyvector.push_back(&meshtointernid);
 			anyvector.push_back(&shadertointernid);
@@ -437,13 +449,41 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 			//!TODO write extension for certain extended entities
 		}
 
+		if (dirlights.count(entity->m_entityId) > 0)
+		{
+			entitynode.add("ExtendedType", "dirlight");
+			entitynode.add("color", Vec3ToString(dirlights[entity->m_entityId]->m_color));
+		}
+		else if (spotlights.count(entity->m_entityId) > 0)
+		{
+			entitynode.add("ExtendedType", "spotlight");
+			entitynode.add("color", Vec3ToString(spotlights[entity->m_entityId]->m_color));
+			entitynode.add("range", std::to_string(spotlights[entity->m_entityId]->m_range));
+			entitynode.add("innerAngle", std::to_string(spotlights[entity->m_entityId]->m_innerConeAngle));
+			entitynode.add("outerAngle", std::to_string(spotlights[entity->m_entityId]->m_outerConeAngle));
+
+		}
+		else if (pointlights.count(entity->m_entityId) > 0)
+		{
+			entitynode.add("ExtendedType", "pointlight");
+			entitynode.add("color", Vec3ToString(pointlights[entity->m_entityId]->m_color));
+			entitynode.add("range", std::to_string(pointlights[entity->m_entityId]->m_range));
+		}
+
 		entityidcounter++;
 	}
 
 	//Write Meshes
 	auto &mobs = contentmodule->getMeshedObjects();
 	auto &meshesnode = scenenode.add("Meshes", "");
-	int materialidcounter = 0;
+	int materialidcounter = -1;
+	//get most recent materialid
+	for (auto v : materialtointernid)
+	{
+		if (materialidcounter < v.second)
+			materialidcounter = v.second;
+	}
+	materialidcounter++;
 	for (auto &meshobj : mobs)
 	{
 		if (meshobj.filepath.empty())
@@ -483,12 +523,11 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 	auto &materials = contentmodule->getMaterials();
 	auto& materialsnode = scenenode.add("Materials", "");
 	int texturecounter = 0;
-	int materialcounter = 0;
 	for (auto &mat : materials)
 	{
 		auto& matnode = materialsnode.add("Material", "");
 		if (materialtointernid.count(mat.m_materialId) < 1)
-			materialtointernid[mat.m_materialId] = materialcounter++;
+			materialtointernid[mat.m_materialId] = materialidcounter++;
 		matnode.add("Id", materialtointernid[mat.m_materialId]);
 		auto &texturesnode = matnode.add("Textures", "");
 		for (auto &tex : mat.m_textures)

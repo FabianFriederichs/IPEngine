@@ -210,7 +210,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		}, tf.m_textureId);
 			rendermodels->FreeTexture(controllerdiffuse);
 			rendermodels->FreeRenderModel(controllermodel);
-			auto lctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
+			auto lctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);
 			//lctde->generateBoundingBox();
 			ents["OpenVRControllerLeft"] = lctde;// new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
 			/*if(scm->getEntityByName("Camera")!=nullptr)
@@ -321,7 +321,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			}, tid);
 			rendermodels->FreeTexture(controllerdiffuse);
 			rendermodels->FreeRenderModel(controllermodel);
-			auto rctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
+			auto rctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);
 			//rctde->generateBoundingBox();
 			ents["OpenVRControllerRight"] = rctde;//new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
 			/*if (scm->getEntityByName("Camera") != nullptr)
@@ -390,6 +390,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		}*/
 		//trans->m_isMatrixDirty = true;
 		trans->updateTransform();
+		contr->isActive = (leftcontrollerpose.bDeviceIsConnected && leftcontrollerpose.bPoseIsValid && leftcontrollerpose.eTrackingResult == vr::ETrackingResult::TrackingResult_Running_OK);
 	}
 	if (ovrmodule->getSystem()->IsTrackedDeviceConnected(righthandcontrollerindex))
 	{
@@ -421,7 +422,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			contr->m_parent->m_transformData.setData()->m_isMatrixDirty = true;
 		}*/
 		trans->updateTransform();
-
+		contr->isActive = (rightcontrollerpose.bDeviceIsConnected && rightcontrollerpose.bPoseIsValid && rightcontrollerpose.eTrackingResult== vr::ETrackingResult::TrackingResult_Running_OK);
 		//trans->m_isMatrixDirty = true;
 	}
 	if (ovrmodule->getSystem()->IsTrackedDeviceConnected(vr::k_unTrackedDeviceIndex_Hmd))

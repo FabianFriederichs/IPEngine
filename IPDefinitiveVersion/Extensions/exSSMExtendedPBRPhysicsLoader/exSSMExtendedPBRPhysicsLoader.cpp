@@ -97,7 +97,7 @@ void exSSMExtendedPBRPhysicsLoader::execute(std::vector<std::string> argnames, s
 	}
 
 	auto ssm = args[0].cast<ISimpleSceneModule_API*>();
-	auto entid = args[3].cast<int>();
+	auto entid = args[3].cast<ipengine::ipid>();
 	auto type = args[1].cast<std::string>();
 	auto tree = args[2].cast<boost::property_tree::ptree>();
 	auto entity = args[4].cast<SCM::Entity*>();
@@ -105,7 +105,7 @@ void exSSMExtendedPBRPhysicsLoader::execute(std::vector<std::string> argnames, s
 	auto entitymap = args[6].cast<std::unordered_map<int, ipengine::ipid>*>();
 	auto materialmap = args[9].cast<std::unordered_map<int, ipengine::ipid>*>();
 
-	if (type == "physicsCloth")
+	if (type == "ClothComponent")
 	{
 		IPhysicsModule_API::PhysicsContext phcontext;
 		auto context = tree.find("PhysicsContext");
@@ -134,12 +134,8 @@ void exSSMExtendedPBRPhysicsLoader::execute(std::vector<std::string> argnames, s
 		auto width = tree.get<size_t>("width", 10);
 		auto height = tree.get<size_t>("height", 10);
 		auto matid = tree.get<int>("materialid", -1);
-		ipengine::ipid matipid;
-		if (matid == -1)
-		{
-			matipid == IPID_INVALID;
-		}
-		else if(materialmap->find(matid)!=materialmap->end())
+		ipengine::ipid matipid = IPID_INVALID;
+		if(materialmap->find(matid)!=materialmap->end())
 		{
 			//set matipid from matmap
 			matipid = (*materialmap)[matid];
@@ -166,8 +162,11 @@ void exSSMExtendedPBRPhysicsLoader::execute(std::vector<std::string> argnames, s
 		auto lightcolor = parseVectorFromString(tree.get<std::string>("color", "0/1/0"));
 		auto& entities = scm->getEntities();
 		auto name = tree.get<std::string>("StringName", "");
-		entities[name] = new SCM::DirectionalLight(m_core->createID(),entity->m_transformData, entity->m_boundingData, entity->isBoundingBox, false, lightcolor);
+		auto light = new SCM::DirectionalLight(m_core->createID(),entity->m_transformData, entity->m_boundingData, entity->isBoundingBox, false, lightcolor);
+		entities[name] = light;
+		entities[name]->m_name = name;
 		(*entitymap)[entid] = entities[name]->m_entityId;
+		scm->getDirLights().insert_or_assign(entities[name]->m_entityId, light);
 	}
 	else if (type == "pointlight")
 	{
@@ -175,8 +174,11 @@ void exSSMExtendedPBRPhysicsLoader::execute(std::vector<std::string> argnames, s
 		auto range = tree.get<float>("range", 100.f);
 		auto& entities = scm->getEntities();
 		auto name = tree.get<std::string>("StringName", "");
-		entities[name] = new SCM::PointLight(m_core->createID(), entity->m_transformData, entity->m_boundingData, entity->isBoundingBox, false, lightcolor, range);
+		auto light = new SCM::PointLight(m_core->createID(), entity->m_transformData, entity->m_boundingData, entity->isBoundingBox, false, lightcolor, range);
+		entities[name] = light;
+		entities[name]->m_name = name;
 		(*entitymap)[entid] = entities[name]->m_entityId;
+		scm->getPointLights().insert_or_assign(entities[name]->m_entityId, light);
 	}
 	else if (type == "spotlight")
 	{
@@ -186,8 +188,11 @@ void exSSMExtendedPBRPhysicsLoader::execute(std::vector<std::string> argnames, s
 		auto outerCone = tree.get<float>("outerAngle", 1.f);
 		auto& entities = scm->getEntities();
 		auto name = tree.get<std::string>("StringName", "");
-		entities[name] = new SCM::SpotLight(m_core->createID(), entity->m_transformData, entity->m_boundingData, entity->isBoundingBox, false, lightcolor, range, innerCone, outerCone);
+		auto light = new SCM::SpotLight(m_core->createID(), entity->m_transformData, entity->m_boundingData, entity->isBoundingBox, false, lightcolor, range, innerCone, outerCone);
+		entities[name] = light;
+		entities[name]->m_name = name;
 		(*entitymap)[entid] = entities[name]->m_entityId;
+		scm->getSpotLights().insert_or_assign(entities[name]->m_entityId,light);
 	}
 }
 
