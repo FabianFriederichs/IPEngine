@@ -107,6 +107,26 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 
 	auto& shaders = contentmodule->getShaders();
 	auto& textures = contentmodule->getTextures();
+	auto& meshes = contentmodule->getMeshedObjects();
+	std::unordered_map<std::string, ipengine::ipid> shaderduplicatemap;
+	std::unordered_map<std::string, ipengine::ipid> texts;
+
+	std::unordered_map<std::string, ipengine::ipid> meshpathdupl;
+	for (auto &mesh : meshes)
+	{
+		meshpathdupl[mesh.filepath] = mesh.m_meshObjectId;
+	}
+	for (auto &tex : textures)
+	{
+		texts[tex.m_path] = tex.m_textureId;
+	}
+	for (auto &shad : shaders)
+	{
+		for (auto shaderpath : shad.m_shaderFiles)
+		{
+			shaderduplicatemap[shaderpath] = shad.m_shaderId;
+		}
+	}
 	for (auto node : tree.get_child("Scene.Textures"))
 	{
 		std::string path;
@@ -117,6 +137,11 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 			continue; //Skip because scenes meshid is a duplicate.
 		}
 		path = node.second.get<std::string>("TexturePath", "");
+		if (texts.count(path) > 0)
+		{
+			texturetointernid[textureid] = texts[path];
+			continue;
+		}
 		auto id = m_core->createID();
 		textures.push_back(SCM::TextureFile(id, path));
 		texturetointernid[textureid] = id;
@@ -131,7 +156,13 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 			continue; //Skip because scenes meshid is a duplicate.
 		}
 		vsp = node.second.get<std::string>("VSPath", "");
+		
 		fsp = node.second.get<std::string>("FSPath", "");
+		if (shaderduplicatemap.count(vsp) > 0 && shaderduplicatemap.count(fsp)>0)
+		{
+			shadertointernid[shaderid] = shaderduplicatemap[vsp];
+			continue;
+		}
 		auto id = m_core->createID();
 		shaders.push_back(SCM::ShaderData(id, vsp, fsp));
 		shadertointernid[shaderid] = id;
@@ -179,6 +210,10 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 			continue; //Skip because scenes meshid is a duplicate.
 		}
 		meshpath = node.second.get<std::string>("Path", "");
+		//if (meshpathdupl.count(meshpath) > 0)
+		//{
+		//	meshtointernid[meshid] = meshpathdupl[meshpath];
+		//}
 		auto pos = meshpath.find_last_of('.');
 		std::string extension = pos != std::string::npos ? meshpath.substr(pos + 1) : "";
 
@@ -219,10 +254,10 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 			continue; //Entity skipped because faulty input data or duplicate
 		}
 		entityname = node.second.get<std::string>("StringName", "");
-		if (entityname == "" || entitystorage.count(entityname) > 0)
-		{
-			continue; //Entity skipped because faulty input data or duplicate
-		}
+		//if (entityname == "" || entitystorage.count(entityname) > 0)
+		//{
+		//	continue; //Entity skipped because faulty input data or duplicate
+		//}
 
 		meshid = node.second.get<int>("MeshId", -1);
 		transdata.m_location = parseVectorFromString(node.second.get<std::string>("TransformData.Location", "0/0/0"));
@@ -292,20 +327,22 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 			{
 				//auto ntde = new SCM::ThreeDimEntity(m_core->createID(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
 				//ntde->generateBoundingSphere();
-				entitystorage[entityname] = new SCM::ThreeDimEntity(m_core->createID(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
-				entitystorage[entityname]->m_name = entityname;
-				contentmodule->getThreeDimEntities()[entitystorage[entityname]->m_entityId] = static_cast<SCM::ThreeDimEntity*>(entitystorage[entityname]);
-				entitytointernid[entityid] = entitystorage[entityname]->m_entityId;
+				auto newid = m_core->createID();
+				entitystorage[newid] = new SCM::ThreeDimEntity(newid, SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
+				entitystorage[newid]->m_name = entityname;
+				contentmodule->getThreeDimEntities()[newid] = static_cast<SCM::ThreeDimEntity*>(entitystorage[newid]);
+				entitytointernid[entityid] = newid;
 			}
 			else
 			{
-				entitystorage[entityname] = new SCM::Entity();// SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
-				entitystorage[entityname]->m_entityId = m_core->createID();
-				entitystorage[entityname]->m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
-				entitystorage[entityname]->isBoundingBox = boxorsphere;
-				entitystorage[entityname]->m_transformData = SCM::Transform(transdata);
-				entitystorage[entityname]->m_name = entityname;
-				entitytointernid[entityid] = entitystorage[entityname]->m_entityId;
+				auto newid = m_core->createID();
+				entitystorage[newid] = new SCM::Entity();// SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
+				entitystorage[newid]->m_entityId = newid;
+				entitystorage[newid]->m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
+				entitystorage[newid]->isBoundingBox = boxorsphere;
+				entitystorage[newid]->m_transformData = SCM::Transform(transdata);
+				entitystorage[newid]->m_name = entityname;
+				entitytointernid[entityid] = entitystorage[newid]->m_entityId;
 			}
 		}
 		//auto pos = meshpath.find_last_of('.');
@@ -495,12 +532,12 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 		meshnode.add("Path", meshobj.filepath);
 		auto &materialsnode = meshnode.add("Materials", "");
 
-		for (auto mesh : meshobj.m_meshes)
+		for (auto mesh : meshobj.meshtomaterial)
 		{
 			auto &materialnode = materialsnode.add("Material", "");
-			if (materialtointernid.count(mesh->m_material->m_materialId) < 1)
-				materialtointernid[mesh->m_material->m_materialId] = materialidcounter++;
-			materialnode.add("MaterialId", materialtointernid[mesh->m_material->m_materialId]);
+			if (materialtointernid.count(mesh.second) < 1)
+				materialtointernid[mesh.second] = materialidcounter++;
+			materialnode.add("MaterialId", materialtointernid[mesh.second]);
 		}
 	}
 
@@ -794,9 +831,7 @@ bool SimpleSceneModule::_shutdown()
 		{
 			for (auto& ent : scene.second.getEntities())
 			{
-				auto enttodelete = scm->getEntityById(ent);
-				if(enttodelete)
-					entities.erase(scm->getEntityById(ent)->m_name);
+				entities.erase(ent);
 			}
 		}
 	}

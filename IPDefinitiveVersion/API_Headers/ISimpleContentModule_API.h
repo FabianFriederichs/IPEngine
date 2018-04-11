@@ -273,7 +273,6 @@ namespace SCM
 	public:
 		VertexVector m_vertices;
 		std::vector<index> m_indices;
-		MaterialData* m_material;
 		ipengine::ipid m_meshId;
 		bool m_dynamic;
 		bool m_dirty;
@@ -378,6 +377,7 @@ namespace SCM
 		MeshedObject(std::vector<MeshData*>& mdata, ipengine::ipid id, std::string path = "") :m_meshes(mdata), m_meshObjectId(id), filepath(path) {}
 		ipengine::ipid m_meshObjectId;
 		std::vector<MeshData*> m_meshes;
+		std::unordered_map<ipengine::ipid, ipengine::ipid> meshtomaterial;
 		std::string filepath;
 		virtual void swap()
 		{
@@ -874,9 +874,20 @@ namespace SCM
 
 			}
 		}
-		virtual std::unordered_map<std::string, Entity*>& getEntities()
+		virtual std::unordered_map<ipengine::ipid, Entity*>& getEntities()
 		{
 			return entities;
+		}
+
+		virtual std::vector<Entity*> getEntitiesByName(std::string name)
+		{
+			std::vector<Entity*> ents;
+			for (auto& e : entities)
+			{
+				if (e.second->m_name == name)
+					ents.push_back(e.second);
+			}
+			return std::move(ents);
 		}
 
 		virtual std::unordered_map<ipengine::ipid, ThreeDimEntity*>& getThreeDimEntities()
@@ -956,17 +967,10 @@ namespace SCM
 		};
 		virtual Entity* getEntityById(ipengine::ipid id)
 		{ 
-			auto itF = std::find_if(entities.begin(), entities.end(), [id](std::pair<const std::string, Entity*>& a)->bool {return a.second->m_entityId== id; });
-			if (itF != entities.end())
-			{
-				return (itF->second);
-			}
+			if (entities.count(id) > 0)
+				return entities[id];
 			else
 				return nullptr;
-		};
-		virtual Entity* getEntityByName(std::string name) 
-		{ 
-			return entities.count(name) ? entities[name] : nullptr; 
 		};
 		virtual MeshData* getMeshById(ipengine::ipid id)
 		{ 
@@ -1043,7 +1047,7 @@ namespace SCM
 		//Would prefer add/remove/const get functions over returning container refs. All virtual so SCMs can change their implementation more freely
 	private:
 
-		std::unordered_map<std::string, Entity*> entities;
+		std::unordered_map<ipengine::ipid, Entity*> entities;
 		std::unordered_map<ipengine::ipid, ThreeDimEntity*> threedimentities;
 		std::unordered_map<ipengine::ipid, DirectionalLight*> dirLights;
 		std::unordered_map<ipengine::ipid, PointLight*> pointLights;
@@ -1081,7 +1085,7 @@ namespace SCM
 		std::string out="";
 		for (auto ents : content.getEntities())
 		{
-			out += "Id: " + std::to_string(ents.second->m_entityId) + ": " + ents.first + " Active: " + (ents.second->isActive?"True":"False") + "\n";
+			out += "Id: " + std::to_string(ents.second->m_entityId) + ": " + ents.second->m_name + " Active: " + (ents.second->isActive?"True":"False") + "\n";
 			if (withproperties)
 			{
 				if (ents.second->m_parent != nullptr)

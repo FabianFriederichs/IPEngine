@@ -163,10 +163,10 @@ void exSSMExtendedPBRPhysicsLoader::execute(std::vector<std::string> argnames, s
 		auto& entities = scm->getEntities();
 		auto name = tree.get<std::string>("StringName", "");
 		auto light = new SCM::DirectionalLight(m_core->createID(),entity->m_transformData, entity->m_boundingData, entity->isBoundingBox, false, lightcolor);
-		entities[name] = light;
-		entities[name]->m_name = name;
-		(*entitymap)[entid] = entities[name]->m_entityId;
-		scm->getDirLights().insert_or_assign(entities[name]->m_entityId, light);
+		entities[light->m_entityId] = light;
+		entities[light->m_entityId]->m_name = name;
+		(*entitymap)[entid] = light->m_entityId;
+		scm->getDirLights().insert_or_assign(light->m_entityId, light);
 	}
 	else if (type == "pointlight")
 	{
@@ -175,10 +175,10 @@ void exSSMExtendedPBRPhysicsLoader::execute(std::vector<std::string> argnames, s
 		auto& entities = scm->getEntities();
 		auto name = tree.get<std::string>("StringName", "");
 		auto light = new SCM::PointLight(m_core->createID(), entity->m_transformData, entity->m_boundingData, entity->isBoundingBox, false, lightcolor, range);
-		entities[name] = light;
-		entities[name]->m_name = name;
-		(*entitymap)[entid] = entities[name]->m_entityId;
-		scm->getPointLights().insert_or_assign(entities[name]->m_entityId, light);
+		entities[light->m_entityId] = light;
+		entities[light->m_entityId]->m_name = name;
+		(*entitymap)[entid] = light->m_entityId;
+		scm->getPointLights().insert_or_assign(light->m_entityId, light);
 	}
 	else if (type == "spotlight")
 	{
@@ -189,10 +189,10 @@ void exSSMExtendedPBRPhysicsLoader::execute(std::vector<std::string> argnames, s
 		auto& entities = scm->getEntities();
 		auto name = tree.get<std::string>("StringName", "");
 		auto light = new SCM::SpotLight(m_core->createID(), entity->m_transformData, entity->m_boundingData, entity->isBoundingBox, false, lightcolor, range, innerCone, outerCone);
-		entities[name] = light;
-		entities[name]->m_name = name;
-		(*entitymap)[entid] = entities[name]->m_entityId;
-		scm->getSpotLights().insert_or_assign(entities[name]->m_entityId,light);
+		entities[light->m_entityId] = light;
+		entities[light->m_entityId]->m_name = name;
+		(*entitymap)[entid] = light->m_entityId;
+		scm->getSpotLights().insert_or_assign(light->m_entityId,light);
 	}
 }
 

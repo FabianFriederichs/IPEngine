@@ -23,6 +23,52 @@ ipengine::ipid SimpleContentModule::addMeshFromFile(std::string path, std::strin
 {
 	if (format == "obj")
 	{
+		bool objloaded = false;
+		bool identical = false;
+
+		ipengine::ipid mobid = IPID_INVALID;
+		for (auto &mob : getMeshedObjects())
+		{
+			if (mob.filepath == path)
+			{
+				objloaded = true;
+				mobid = mob.m_meshObjectId;
+				if (mats.size() == mob.meshtomaterial.size())
+				{
+					int counter = 0;
+					for (auto meshmat : mob.meshtomaterial)
+					{
+						if (meshmat.second == mats[counter++])
+							identical = true;
+						else
+						{		
+							identical = false;
+							break;
+						}
+					}
+				}
+				if(identical)
+				{
+					return mob.m_meshObjectId;
+				}
+				else
+				{
+					auto id = m_core->createID();
+					getMeshedObjects().push_back(SCM::MeshedObject(mob.m_meshes, id, path));
+					int meshmatindex = 0;
+					for (auto mesh : mob.m_meshes)
+					{
+						if (meshmatindex < mats.size())
+						{
+							getMeshedObjectById(id)->meshtomaterial[mesh->m_meshId] = mats[meshmatindex];
+							meshmatindex++;
+						}
+					}
+					return id;
+				}
+			}
+		}
+
 		auto obj = OBJLoader::loadOBJ(path).objects[0];
 		auto& scmmeshes = getMeshes();
 		std::vector<SCM::MeshData*> meshes;
@@ -41,8 +87,6 @@ ipengine::ipid SimpleContentModule::addMeshFromFile(std::string path, std::strin
 			data->m_meshId = m_core->createID();
 			if (mats.size() <= meshindex)
 			{
-				auto & materials = getMaterials();
-
 				//auto id = SCM::generateNewEntityId();
 				//materials.push_back(SCM::MaterialData(id, -1, getDefaultShaderId()));
 				if (mats.size() > 0)
@@ -53,13 +97,21 @@ ipengine::ipid SimpleContentModule::addMeshFromFile(std::string path, std::strin
 			}
 			auto& maters = getMaterials();
 			//[id](TextureFile& a)->bool {return a.m_textureId == id; }
-			data->m_material = &*std::find_if(maters.begin(), maters.end(), [mats, meshindex](SCM::MaterialData& m)->bool { return m.m_materialId == mats[meshindex]; });
 			meshes.push_back(data);
 			scmmeshes.push_back(*data);
 			meshindex++;
 		}
 		auto id = m_core->createID();
 		getMeshedObjects().push_back(SCM::MeshedObject(meshes,id, path));
+		int meshmatindex = 0;
+		for (auto mesh : meshes)
+		{
+			if (meshmatindex < mats.size())
+			{
+				getMeshedObjectById(id)->meshtomaterial[mesh->m_meshId] = mats[meshmatindex];
+				meshmatindex++;
+			}
+		}
 		return id;
 	}
 	

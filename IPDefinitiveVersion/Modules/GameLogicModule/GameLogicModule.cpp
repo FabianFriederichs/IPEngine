@@ -19,11 +19,29 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 	if (!initialized)
 	{
 		initialized = true;
-		if (contentmodule->getEntityByName("Camera"))
-			graphics->setCameraEntity(contentmodule->getEntityByName("Camera")->m_entityId);
-		if (contentmodule->getEntityByName("MemeEntity2"))
-			contentmodule->getEntityByName("MemeEntity2")->m_transformData.setData()->m_location = { 4,1,0 };
+		
 		osc = std::acos(-1);
+	}
+	if (cameraid == IPID_INVALID)
+	{
+		auto caments = contentmodule->getEntitiesByName("Camera");
+		if (!caments.empty())
+			cameraid = caments.front()->m_entityId;
+	}
+	else if (!contentmodule->getEntityById(cameraid)->isActive)
+	{
+	auto caments = contentmodule->getEntitiesByName("Camera");
+	for (auto e : caments)
+	{
+	if (e->isActive)
+	cameraid = e->m_entityId;
+	}
+	}
+	if (hmdid == IPID_INVALID)
+	{
+		auto caments = contentmodule->getEntitiesByName("OpenVRHMD");
+		if (!caments.empty())
+			hmdid = caments.front()->m_entityId;
 	}
 	modifier = delta.mic() / timing.mic();
 	auto now = std::chrono::high_resolution_clock::now();
@@ -102,7 +120,7 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 
 void GameLogicModule::keyUpdate(IInput::Input &i)
 {
-	auto cam = contentmodule->getEntityByName("Camera");
+	auto cam = contentmodule->getEntityById(cameraid);
 	static bool trythis = true;
 	if (i.data.kd.keycode == IInput::SCANCODE_Q && i.data.kd.state == IInput::ButtonState::BUTTON_UP &&!i.data.kd.isrepeat)
 	{
@@ -140,10 +158,10 @@ void GameLogicModule::keyUpdate(IInput::Input &i)
 	}
 	if (i.data.kd.keycode == IInput::SCANCODE_E && i.data.kd.state == IInput::ButtonState::BUTTON_UP &&!i.data.kd.isrepeat)
 	{
-		auto data = contentmodule->getEntityByName("OpenVRHMD")->m_transformData.getData();
+		auto data = contentmodule->getEntityById(hmdid)->m_transformData.getData();
 		std::cout << data->m_location.x << " | " << data->m_location.y << " | " << data->m_location.z;
 		std::cout << "\n";
-		data = contentmodule->getEntityByName("Camera")->m_transformData.getData();
+		data = contentmodule->getEntityById(cameraid)->m_transformData.getData();
 		std::cout << data->m_location.x << " | " << data->m_location.y << " | " << data->m_location.z;
 		std::cout << "\n";
 		/*std::cout << data->m_localX.x << " | " << data->m_localX.y << " | " << data->m_localX.z;
@@ -409,7 +427,7 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 
 		//auto x = e->m_transformData.getData()->m_localX*(float)camVelocity.x*(float)modifier;
 		//auto y = e->m_transformData.getData()->m_localZ*camVelocity.z*(float)modifier;
-		auto cam = contentmodule->getEntityByName("Camera");
+		auto cam = contentmodule->getEntityById(cameraid);
 		auto camtrans = cam->m_transformData.getData();
 		auto 	x = camtrans->m_localX*(float)(((a ? -1 : 0) + (d ? 1 : 0))*modifier);
 		auto	y = camtrans->m_localZ*(float)(((w ? -1 : 0) + (s ? 1 : 0))*modifier);
@@ -538,8 +556,16 @@ bool GameLogicModule::_startup()
 		inputmodule = m_info.dependencies.getDep<IInput_API>("input");
 	}
 	graphics = m_info.dependencies.getDep<IGraphics_API>("graphics");
-	if (contentmodule->getEntityByName("Camera"))
-		graphics->setCameraEntity(contentmodule->getEntityByName("Camera")->m_entityId);
+	if (cameraid == IPID_INVALID)
+	{
+		auto caments = contentmodule->getEntitiesByName("Camera");
+		if (!caments.empty())
+			cameraid = caments.front()->m_entityId;
+	}
+	if (cameraid != IPID_INVALID)
+	{
+		graphics->setCameraEntity(contentmodule->getEntityById(cameraid)->m_entityId);
+	}
 	lastUpdate = ipengine::Time(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 
 	//messaging test

@@ -18,6 +18,7 @@ public:
 private:
 	ExtensionInformation m_info;
 	std::vector<ipengine::Scheduler::SubHandle> handle;
+	ipengine::ipid cameraid;
 	bool init = false;
 };
 

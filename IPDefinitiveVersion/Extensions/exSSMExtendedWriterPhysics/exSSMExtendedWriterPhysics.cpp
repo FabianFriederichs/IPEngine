@@ -113,14 +113,14 @@ void exSSMExtendedWriterPhysics::execute(std::vector<std::string> argnames, std:
 			}
 			//get 3dentity
 			auto thrde = scm->getThreeDimEntities()[entity->m_entityId];
-			if (thrde->m_mesheObjects->m_meshes.size()>0 && materialmap->count(thrde->m_mesheObjects->m_meshes.front()->m_material->m_materialId) > 0)
+			if (thrde->m_mesheObjects->meshtomaterial.size()>0 && materialmap->count(thrde->m_mesheObjects->meshtomaterial.begin()->second) > 0)
 			{
-				matid = materialmap->at(thrde->m_mesheObjects->m_meshes.front()->m_material->m_materialId);
+				matid = materialmap->at(thrde->m_mesheObjects->meshtomaterial.begin()->second);
 			}
-			else if(thrde->m_mesheObjects->m_meshes.size()>0)
+			else if(thrde->m_mesheObjects->meshtomaterial.size()>0)
 			{
 				matid = ++materialcounter;
-				materialmap->insert_or_assign(thrde->m_mesheObjects->m_meshes.front()->m_material->m_materialId, matid);
+				materialmap->insert_or_assign(thrde->m_mesheObjects->meshtomaterial.begin()->second, matid);
 			}
 			tree->add("materialid", std::to_string(matid));
 

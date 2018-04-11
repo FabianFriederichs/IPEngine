@@ -108,11 +108,13 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		
 		//HMD 
 		auto &ents = scm->getEntities();
-		if (ents.count("OpenVRHMD") == 0)
+		auto entbyname = scm->getEntitiesByName("OpenVRHMD");
+		if (entbyname.empty())
 		{
-			ents["OpenVRHMD"] = new SCM::Entity();
-			auto hmdent = ents["OpenVRHMD"];
+			auto hmdent = new SCM::Entity();
 			hmdent->m_entityId = m_core->createID();
+			hmdid = hmdent->m_entityId;
+			ents[hmdent->m_entityId] = new SCM::Entity();
 			hmdent->m_boundingData = SCM::BoundingData(SCM::BoundingSphere());
 			hmdent->isBoundingBox = false;
 			hmdent->m_transformData = SCM::Transform();
@@ -120,15 +122,16 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			hmdent->m_transformData.setData()->m_location.y = 0;
 			hmdent->m_transformData.setData()->m_location.z = 0;
 			hmdent->m_name = "OpenVRHMD";
-			if (ents.count("Camera") > 0)
-			{
-				//ents["Camera"]->m_parent = ents["OpenVRHMD"];
-			}
+			//if (ents.count("Camera") > 0)
+			//{
+			//	//ents["Camera"]->m_parent = ents["OpenVRHMD"];
+			//}
 			/*if (scm->getEntityByName("Camera") != nullptr)
 				hmdent->m_parent = scm->getEntityByName("Camera");*/
 		}
 		//Do the controller model stuff
-		if (ents.count("OpenVRControllerLeft") == 0)
+		entbyname = scm->getEntitiesByName("OpenVRControllerLeft");
+		if (entbyname.empty())
 		{
 			auto cntrid = m_core->createID();
 			auto cntrtrans = SCM::Transform();
@@ -191,13 +194,13 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			newmesh.m_meshId = m_core->createID();
 			vrrendermodeltoscmmeshobject(controllermodel, &newmesh);
 			//controller material????
-			newmesh.m_material = &mats.back();
+			//newmesh.m_material = &mats.back();
 			std::vector<SCM::MeshData*> meshes;
 			//For every component?
 			meshes.push_back(&newmesh);
 			auto &mobs = scm->getMeshedObjects();
 			mobs.push_back((SCM::MeshedObject(meshes, m_core->createID())));
-
+			mobs.back().meshtomaterial[newmesh.m_meshId] = mats.back().m_materialId;
 			auto &cntrmeshes = scm->getMeshedObjects().back();
 			//cntrtrans.setData()->m_rotation = { 1,0,0,0 };
 			cntrtrans.setData()->m_scale = { 1,1,1 };
@@ -212,15 +215,16 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			rendermodels->FreeRenderModel(controllermodel);
 			auto lctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);
 			//lctde->generateBoundingBox();
-			ents["OpenVRControllerLeft"] = lctde;// new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
+			ents[cntrid] = lctde;// new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
 			/*if(scm->getEntityByName("Camera")!=nullptr)
 				ents["OpenVRControllerLeft"]->m_parent = scm->getEntityByName("Camera");*/
-			auto cntrent = ents["OpenVRControllerLeft"];
-			cntrent->m_name = "OpenVRControllerLeft";
-			scm->getThreeDimEntities()[cntrent->m_entityId] = static_cast<SCM::ThreeDimEntity*>(cntrent);
-			scm->getThreeDimEntities()[cntrent->m_entityId]->generateBoundingSphere();
+			lctde->m_name = "OpenVRControllerLeft";
+			scm->getThreeDimEntities()[cntrid] = static_cast<SCM::ThreeDimEntity*>(lctde);
+			scm->getThreeDimEntities()[cntrid]->generateBoundingSphere();
+			lctrlid = cntrid;
 		}
-		if (ents.count("OpenVRControllerRight") == 0)
+		entbyname = scm->getEntitiesByName("OpenVRControllerRight");
+		if (entbyname.empty())
 		{
 			auto cntrid = m_core->createID();
 			auto cntrtrans = SCM::Transform();
@@ -302,13 +306,13 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			newmesh.m_meshId = m_core->createID();
 			vrrendermodeltoscmmeshobject(controllermodel, &newmesh);
 			//controller material????
-			newmesh.m_material = &mats.back();
+			//newmesh.m_material = &mats.back();
 			std::vector<SCM::MeshData*> meshes;
 			//For every component?
 			meshes.push_back(&newmesh);
 			auto &mobs = scm->getMeshedObjects();
 			mobs.push_back((SCM::MeshedObject(meshes, m_core->createID())));
-
+			mobs.back().meshtomaterial[newmesh.m_meshId] = mats.back().m_materialId;
 			auto &cntrmeshes = scm->getMeshedObjects().back();
 			//cntrtrans.setData()->m_rotation = { 1,0,0,0 };
 			cntrtrans.setData()->m_scale = { 1,1,1 };
@@ -323,12 +327,12 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			rendermodels->FreeRenderModel(controllermodel);
 			auto rctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);
 			//rctde->generateBoundingBox();
-			ents["OpenVRControllerRight"] = rctde;//new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
+			ents[cntrid] = rctde;//new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
 			/*if (scm->getEntityByName("Camera") != nullptr)
 				ents["OpenVRControllerRight"]->m_parent = scm->getEntityByName("Camera");*/
-			auto cntrent = ents["OpenVRControllerRight"];
-			cntrent->m_name = "OpenVRControllerRight";
-			scm->getThreeDimEntities()[cntrent->m_entityId] = static_cast<SCM::ThreeDimEntity*>(cntrent);
+			rctde->m_name = "OpenVRControllerRight";
+			scm->getThreeDimEntities()[cntrid] = static_cast<SCM::ThreeDimEntity*>(rctde);
+			rctrlid = cntrid;
 			//scm->getThreeDimEntities()[cntrent->m_entityId]->generateBoundingSphere();
 		}
 
@@ -345,7 +349,8 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	auto cameraentity = scm->getEntityById(graphicsmodule->getCameraEntity());
 	//datastore->set("cameraid",cameraentity);
 	//cam = scm->getEntityById(cameraentity);
-	graphicsmodule->setCameraEntity(scm->getEntityByName("OpenVRHMD")->m_entityId);
+	if(hmdid!= IPID_INVALID)
+		graphicsmodule->setCameraEntity(hmdid);
 
 	/*if (cam == nullptr)
 	{
@@ -358,13 +363,27 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	ovrmodule->getCompositor()->WaitGetPoses(lastposes, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
 	//TODO update controller/hmd states
-	
+	if (cameraid == IPID_INVALID)
+	{
+		auto caments = scm->getEntitiesByName("Camera");
+		if (!caments.empty())
+			cameraid = caments.front()->m_entityId;
+	}
+	else if (!scm->getEntityById(cameraid)->isActive)
+	{
+		auto caments = scm->getEntitiesByName("Camera");
+		for (auto e : caments)
+		{
+			if (e->isActive)
+				cameraid = e->m_entityId;
+		}
+	}
 	auto lefthandcontrollerindex = ovrmodule->getSystem()->GetTrackedDeviceIndexForControllerRole(vr::ETrackedControllerRole::TrackedControllerRole_LeftHand);
 	auto righthandcontrollerindex = ovrmodule->getSystem()->GetTrackedDeviceIndexForControllerRole(vr::ETrackedControllerRole::TrackedControllerRole_RightHand);
 	if (ovrmodule->getSystem()->IsTrackedDeviceConnected(lefthandcontrollerindex))
 	{
-		auto contr = scm->getEntityByName("OpenVRControllerLeft");
-		cameraentity = scm->getEntityByName("Camera");
+		auto contr = scm->getEntityById(lctrlid);
+		cameraentity = scm->getEntityById(cameraid);
 		auto leftcontrollerpose = lastposes[lefthandcontrollerindex];
 		auto convertedpose = convert(leftcontrollerpose.mDeviceToAbsoluteTracking);
 		auto trans = contr->m_transformData.setData();
@@ -394,8 +413,8 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	}
 	if (ovrmodule->getSystem()->IsTrackedDeviceConnected(righthandcontrollerindex))
 	{
-		auto contr = scm->getEntityByName("OpenVRControllerRight");
-		cameraentity = scm->getEntityByName("Camera");
+		auto contr = scm->getEntityById(rctrlid);
+		cameraentity = scm->getEntityById(cameraid);
 
 		auto rightcontrollerpose = lastposes[righthandcontrollerindex];
 		auto convertedpose = convert(rightcontrollerpose.mDeviceToAbsoluteTracking);
@@ -427,8 +446,8 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	}
 	if (ovrmodule->getSystem()->IsTrackedDeviceConnected(vr::k_unTrackedDeviceIndex_Hmd))
 	{
-		auto hmd = scm->getEntityByName("OpenVRHMD");
-		cameraentity = scm->getEntityByName("Camera");
+		auto hmd = scm->getEntityById(hmdid);
+		cameraentity = scm->getEntityById(cameraid);
 
 		auto hmdpose = lastposes[vr::k_unTrackedDeviceIndex_Hmd];
 		auto convertedpose = convert(hmdpose.mDeviceToAbsoluteTracking);
@@ -466,7 +485,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	//contr->m_transformData.setData()->m_scale = { 1,1,1 };
 	//contr->m_transformData.setData()->m_location = { 0,0,5 };
 	//contr->m_transformData.setData()->m_isMatrixDirty = true;
-	auto hmdentity = scm->getEntityByName("OpenVRHMD");
+	auto hmdentity = scm->getEntityById(hmdid);
 	auto trans = hmdentity->m_transformData.getData()->m_location;
 	auto hmdView = /*scm->getEntityByName("OpenVRHMD")->m_transformData.getData()->m_transformMatrix;*/glm::mat4(convert(lastposes[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking));
 

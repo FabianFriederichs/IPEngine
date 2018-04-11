@@ -974,22 +974,24 @@ ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 	mdata.m_isdoublesided = true;
 	
 	auto mat = contentmodule->getMaterialById(materialid);
+	ipengine::ipid matid = IPID_INVALID;
 	if (mat)
 	{
-		mdata.m_material = mat;
+		matid = mat->m_materialId;
 	}
 	else
 	{
-		mdata.m_material = &contentmodule->getMaterials().front();
+		matid = contentmodule->getMaterials().front().m_materialId;
 	}
 	meshes.push_back(mdata);
 	//mesh vertex positions are always calculated in world space, therefore igore the transform
 	meshedobjects.push_back(SCM::MeshedObject(std::vector<SCM::MeshData*>({ &meshes.back() }), m_core->createID()));
+	meshedobjects.back().meshtomaterial[mdata.m_meshId] = matid;
 	SCM::ThreeDimEntity* dimentity = new SCM::ThreeDimEntity(tcloth.id, SCM::Transform(transform), SCM::BoundingData(), true, false, &meshedobjects.back());
 	dimentity->addComponent(new ClothComponent(1, this->clothComponentType, tcloth.id, this));
 	dimentity->m_name = name;
 	thrde[tcloth.id] = dimentity;
-	entities[name] = dimentity;
+	entities[tcloth.id] = dimentity;
 	clothentities.push_back(tcloth.id);
 	return tcloth.id;
 }

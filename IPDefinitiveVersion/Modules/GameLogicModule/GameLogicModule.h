@@ -69,7 +69,7 @@ private:
 	//Move Entity stuff
 	std::string holder1Name = "OpenVRControllerLeft";
 	std::string holder2Name = "OpenVRControllerRight";
-
+	ipengine::ipid cameraid = IPID_INVALID, hmdid = IPID_INVALID;
 	bool isHoldEntityButton1Pressed[2] = { false };
 	bool isHoldEntityButton2Pressed[2] = { false };
 	bool holder1busy = false;

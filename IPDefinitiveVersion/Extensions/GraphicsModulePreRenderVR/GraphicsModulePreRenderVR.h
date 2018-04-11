@@ -115,6 +115,8 @@ private:
 	ExtensionInformation m_info;
 	std::vector<ipengine::Scheduler::SubHandle> handle;
 	bool init = false;
+
+	ipengine::ipid hmdid = IPID_INVALID, lctrlid = IPID_INVALID, rctrlid = IPID_INVALID, cameraid = IPID_INVALID;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT GraphicsModulePreRenderVR extension;

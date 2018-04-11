@@ -864,11 +864,10 @@ void GraphicsModule::updateData()
 		if (findent != entities.end())
 		{
 			auto mO = findent->second;
-
-			for (auto mesh : mO->m_mesheObjects->m_meshes)
+			for (auto momats : mO->m_mesheObjects->meshtomaterial)
 			{
-				//TODO Check for NULL material
-				for (auto texts : mesh->m_material->m_textures)
+				auto momat = m_scm->getMaterialById(momats.second);
+				for (auto texts : momat->m_textures)
 				{
 					if (m_scmtexturetot2d.count(texts.second.m_texturefileId) < 1)
 					{
@@ -886,6 +885,11 @@ void GraphicsModule::updateData()
 						//load texture into gpu memory?? 
 					}
 				}
+			}
+			for (auto mesh : mO->m_mesheObjects->m_meshes)
+			{
+				//TODO Check for NULL material
+				
 				if (m_scmmeshtovao.count(mesh->m_meshId)<1)
 				{
 					auto vao = (mesh->m_dynamic ? GLUtils::createDynamicVAO(*mesh) : GLUtils::createVAO(*mesh));
@@ -901,9 +905,9 @@ void GraphicsModule::updateData()
 						GLUtils::updateVAO(vao, *mesh);
 					}
 				}
-				if (m_scmshadertoprogram.count(mesh->m_material->m_shaderId) < 1)
+				if (mO->m_mesheObjects->meshtomaterial.size()>0 && m_scmshadertoprogram.count(m_scm->getMaterialById(mO->m_mesheObjects->meshtomaterial[mesh->m_meshId])->m_shaderId) < 1)
 				{
-					auto files = m_scm->getShaderById(mesh->m_material->m_shaderId);
+					auto files = m_scm->getShaderById(m_scm->getMaterialById(mO->m_mesheObjects->meshtomaterial[mesh->m_meshId])->m_shaderId);
 					auto prog = GLUtils::createShaderProgram(files->m_shaderFiles[0], files->m_shaderFiles[1]);
 					m_scmshadertoprogram[files->m_shaderId] = prog;
 				}
@@ -1106,7 +1110,11 @@ void GraphicsModule::drawEntity(SCM::ThreeDimEntity * entity, ShaderProgram* sha
 	{
 		//TODO:: optimization! create batches of meshes with the same material
 		auto ctu = shader->getCurrentTU();
-		setMaterialUniforms(m->m_material, shader);
+		if (entity->m_mesheObjects->meshtomaterial.count(m->m_meshId) > 0)
+		{
+			auto mat = m_scm->getMaterialById(entity->m_mesheObjects->meshtomaterial[m->m_meshId]);
+			setMaterialUniforms(mat, shader);
+		}
 		if (m->m_isdoublesided)
 			glDisable(GL_CULL_FACE);
 		else
