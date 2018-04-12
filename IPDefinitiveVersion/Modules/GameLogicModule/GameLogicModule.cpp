@@ -26,15 +26,25 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 	{
 		auto caments = contentmodule->getEntitiesByName("Camera");
 		if (!caments.empty())
+		{
+			graphics = m_info.dependencies.getDep<IGraphics_API>("graphics");
+
 			cameraid = caments.front()->m_entityId;
+			graphics->setCameraEntity(cameraid);
+		}
 	}
 	else if (!contentmodule->getEntityById(cameraid)->isActive)
 	{
 	auto caments = contentmodule->getEntitiesByName("Camera");
 	for (auto e : caments)
 	{
-	if (e->isActive)
-	cameraid = e->m_entityId;
+		if (e->isActive)
+		{
+			cameraid = e->m_entityId;
+			graphics = m_info.dependencies.getDep<IGraphics_API>("graphics");
+
+			graphics->setCameraEntity(cameraid);
+		}
 	}
 	}
 	if (hmdid == IPID_INVALID)
