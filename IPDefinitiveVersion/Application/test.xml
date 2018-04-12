@@ -10,7 +10,7 @@
 				<Scale>1.000000/1.000000/1.000000</Scale>
 				<LocalY>-0.200098/0.963319/-0.178823</LocalY>
 				<LocalX>-0.274380/0.120116/0.954090</LocalX>
-				<localZ>-0.940573/-0.239977/-0.240280</localZ>
+				<LocalZ>-0.940573/-0.239977/-0.240280</LocalZ>
 			</TransformData>
 			<BoundingData>
 				<Sphere>
@@ -29,7 +29,7 @@
 				<Scale>1.000000/1.000000/1.000000</Scale>
 				<LocalY>-0.272058/0.142638/0.951651</LocalY>
 				<LocalX>0.951883/0.184883/0.244413</LocalX>
-				<localZ>0.141082/-0.972354/0.186073</localZ>
+				<LocalZ>0.141082/-0.972354/0.186073</LocalZ>
 			</TransformData>
 			<BoundingData>
 				<Sphere>
@@ -48,7 +48,7 @@
 				<Scale>1.000000/1.000000/1.000000</Scale>
 				<LocalY>0.014667/0.999788/-0.014455</LocalY>
 				<LocalX>0.999788/-0.014455/0.014667</LocalX>
-				<localZ>-0.014455/0.014667/0.999788</localZ>
+				<LocalZ>-0.014455/0.014667/0.999788</LocalZ>
 			</TransformData>
 			<BoundingData>
 				<Sphere>
@@ -67,7 +67,7 @@
 				<Scale>0.479106/0.479106/0.479106</Scale>
 				<LocalY>-0.070888/-0.996963/-0.032256</LocalY>
 				<LocalX>-0.692118/0.072448/-0.718140</LocalX>
-				<localZ>-0.718274/0.028581/0.695173</localZ>
+				<LocalZ>-0.718274/0.028581/0.695173</LocalZ>
 			</TransformData>
 			<BoundingData>
 				<Sphere>
@@ -86,7 +86,7 @@
 				<Scale>0.500000/0.500000/0.500000</Scale>
 				<LocalY>0.000000/1.000000/0.000000</LocalY>
 				<LocalX>1.000000/0.000000/0.000000</LocalX>
-				<localZ>0.000000/0.000000/1.000000</localZ>
+				<LocalZ>0.000000/0.000000/1.000000</LocalZ>
 			</TransformData>
 			<BoundingData>
 				<Sphere>
@@ -105,7 +105,7 @@
 				<Scale>1.000000/1.000000/1.000000</Scale>
 				<LocalY>0.000000/1.000000/0.000000</LocalY>
 				<LocalX>1.000000/0.000000/0.000000</LocalX>
-				<localZ>0.000000/0.000000/1.000000</localZ>
+				<LocalZ>0.000000/0.000000/1.000000</LocalZ>
 			</TransformData>
 			<BoundingData>
 				<Box>
@@ -157,7 +157,7 @@
 				<Scale>1.000000/1.000000/1.000000</Scale>
 				<LocalY>0.000000/1.000000/0.000000</LocalY>
 				<LocalX>1.000000/0.000000/0.000000</LocalX>
-				<localZ>0.000000/0.000000/1.000000</localZ>
+				<LocalZ>0.000000/0.000000/1.000000</LocalZ>
 			</TransformData>
 			<BoundingData>
 				<Sphere>
@@ -178,7 +178,7 @@
 				<Scale>1.000000/1.000000/1.000000</Scale>
 				<LocalY>0.000000/1.000000/0.000000</LocalY>
 				<LocalX>1.000000/0.000000/0.000000</LocalX>
-				<localZ>0.000000/0.000000/1.000000</localZ>
+				<LocalZ>0.000000/0.000000/1.000000</LocalZ>
 			</TransformData>
 			<BoundingData>
 				<Sphere>
@@ -202,7 +202,7 @@
 				<Scale>5.000000/5.000000/5.000000</Scale>
 				<LocalY>0.000000/1.000000/0.000000</LocalY>
 				<LocalX>1.000000/0.000000/0.000000</LocalX>
-				<localZ>0.000000/0.000000/1.000000</localZ>
+				<LocalZ>0.000000/0.000000/1.000000</LocalZ>
 			</TransformData>
 			<BoundingData>
 				<Sphere>

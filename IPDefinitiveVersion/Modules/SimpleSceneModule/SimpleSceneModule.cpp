@@ -60,13 +60,13 @@ glm::quat parseQuatFromString(std::string s)
 	auto pos = s.find_first_of('/', 0);
 	w = s.substr(0, pos);
 	auto opos = pos+1;
-	pos = s.find_first_of('/', pos);
+	pos = s.find_first_of('/', opos);
 	x = s.substr(opos, pos - opos);
 	opos = pos+1;
-	pos = s.find_first_of('/', pos);
+	pos = s.find_first_of('/', opos);
 	y = s.substr(opos, pos - opos);
 	opos = pos+1;
-	pos = s.find_first_of('/', pos);
+	pos = s.find_first_of('/', opos);
 	z = s.substr(opos, pos - opos);
 	q.w = std::stof(w);
 	q.x = std::stof(x);
@@ -263,8 +263,8 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 		transdata.m_location = parseVectorFromString(node.second.get<std::string>("TransformData.Location", "0/0/0"));
 		transdata.m_rotation = parseQuatFromString(node.second.get<std::string>("TransformData.Rotation", "0/0/0/0"));
 		transdata.m_scale = parseVectorFromString(node.second.get<std::string>("TransformData.Scale", "0/0/0"));
-		transdata.m_localX = parseVectorFromString(node.second.get<std::string>("TransformData.LocalY", "0/0/0"));
-		transdata.m_localY = parseVectorFromString(node.second.get<std::string>("TransformData.LocalX", "0/0/0"));
+		transdata.m_localX = parseVectorFromString(node.second.get<std::string>("TransformData.LocalX", "0/0/0"));
+		transdata.m_localY = parseVectorFromString(node.second.get<std::string>("TransformData.LocalY", "0/0/0"));
 		transdata.m_localZ = parseVectorFromString(node.second.get<std::string>("TransformData.LocalZ", "0/0/0"));
 
 		//Box or Sphere?
@@ -442,7 +442,7 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 		transformnode.add("Scale", Vec3ToString(transform->m_scale));
 		transformnode.add("LocalY", Vec3ToString(transform->m_localY));
 		transformnode.add("LocalX", Vec3ToString(transform->m_localX));
-		transformnode.add("localZ", Vec3ToString(transform->m_localZ));
+		transformnode.add("LocalZ", Vec3ToString(transform->m_localZ));
 
 		//Bounding Data
 		auto bdata = entity->m_boundingData;
