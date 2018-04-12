@@ -114,7 +114,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			auto hmdent = new SCM::Entity();
 			hmdent->m_entityId = m_core->createID();
 			hmdid = hmdent->m_entityId;
-			ents[hmdent->m_entityId] = new SCM::Entity();
+			ents[hmdent->m_entityId] =hmdent;
 			hmdent->m_boundingData = SCM::BoundingData(SCM::BoundingSphere());
 			hmdent->isBoundingBox = false;
 			hmdent->m_transformData = SCM::Transform();

@@ -5,12 +5,12 @@
 			<Id>0</Id>
 			<StringName>Camera</StringName>
 			<TransformData>
-				<Location>3.019715/0.000000/4.377005</Location>
-				<Rotation>1.000000/0.000000/0.000000/0.000000</Rotation>
+				<Location>-5.147762/0.981146/2.236008</Location>
+				<Rotation>-0.601801/-0.025404/0.787080/-0.133023</Rotation>
 				<Scale>1.000000/1.000000/1.000000</Scale>
-				<LocalY>0.000000/1.000000/0.000000</LocalY>
-				<LocalX>1.000000/0.000000/0.000000</LocalX>
-				<localZ>0.000000/0.000000/1.000000</localZ>
+				<LocalY>-0.200098/0.963319/-0.178823</LocalY>
+				<LocalX>-0.274380/0.120116/0.954090</LocalX>
+				<localZ>-0.940573/-0.239977/-0.240280</localZ>
 			</TransformData>
 			<BoundingData>
 				<Sphere>
@@ -24,12 +24,12 @@
 			<StringName>MemeEntity1</StringName>
 			<MeshId>0</MeshId>
 			<TransformData>
-				<Location>-0.576435/0.882268/3.014563</Location>
-				<Rotation>0.999955/-0.006080/-0.006080/-0.006080</Rotation>
+				<Location>-0.495160/1.118219/2.339707</Location>
+				<Rotation>0.755082/0.637019/-0.034212/0.151288</Rotation>
 				<Scale>1.000000/1.000000/1.000000</Scale>
-				<LocalY>0.012233/0.999852/-0.012086</LocalY>
-				<LocalX>0.999852/-0.012086/0.012233</LocalX>
-				<localZ>-0.012086/0.012233/0.999852</localZ>
+				<LocalY>-0.272058/0.142638/0.951651</LocalY>
+				<LocalX>0.951883/0.184883/0.244413</LocalX>
+				<localZ>0.141082/-0.972354/0.186073</localZ>
 			</TransformData>
 			<BoundingData>
 				<Sphere>
@@ -62,12 +62,12 @@
 			<StringName>MemeEntity3</StringName>
 			<MeshId>0</MeshId>
 			<TransformData>
-				<Location>-1.989157/2.186031/-0.048504</Location>
-				<Rotation>0.096715/0.103296/0.103296/0.103296</Rotation>
-				<Scale>0.500000/0.500000/0.500000</Scale>
-				<LocalY>0.001419/0.999069/0.043123</LocalY>
-				<LocalX>0.999069/0.043123/0.001419</LocalX>
-				<localZ>0.043123/0.001419/0.999069</localZ>
+				<Location>-1.782997/2.332662/0.253546</Location>
+				<Rotation>0.038957/-0.390403/-0.000999/0.919807</Rotation>
+				<Scale>0.479106/0.479106/0.479106</Scale>
+				<LocalY>-0.070888/-0.996963/-0.032256</LocalY>
+				<LocalX>-0.692118/0.072448/-0.718140</LocalX>
+				<localZ>-0.718274/0.028581/0.695173</localZ>
 			</TransformData>
 			<BoundingData>
 				<Sphere>
@@ -235,6 +235,27 @@
 			</Materials>
 		</Mesh>
 		<Mesh>
+			<Id>5</Id>
+			<Path>../assets/models/uglypot.obj</Path>
+			<Materials>
+				<Material>
+					<MaterialId>4</MaterialId>
+				</Material>
+				<Material>
+					<MaterialId>5</MaterialId>
+				</Material>
+			</Materials>
+		</Mesh>
+		<Mesh>
+			<Id>6</Id>
+			<Path>../assets/models/sandyground.obj</Path>
+			<Materials>
+				<Material>
+					<MaterialId>6</MaterialId>
+				</Material>
+			</Materials>
+		</Mesh>
+		<Mesh>
 			<Id>0</Id>
 			<Path>../assets/models/uglypot.obj</Path>
 			<Materials>
@@ -242,7 +263,7 @@
 					<MaterialId>0</MaterialId>
 				</Material>
 				<Material>
-					<MaterialId>4</MaterialId>
+					<MaterialId>7</MaterialId>
 				</Material>
 			</Materials>
 		</Mesh>
@@ -251,7 +272,7 @@
 			<Path>../assets/models/sandyground.obj</Path>
 			<Materials>
 				<Material>
-					<MaterialId>5</MaterialId>
+					<MaterialId>8</MaterialId>
 				</Material>
 			</Materials>
 		</Mesh>
@@ -270,7 +291,7 @@
 	</Shaders>
 	<Materials>
 		<Material>
-			<Id>6</Id>
+			<Id>9</Id>
 			<Textures>
 				<Texture>
 					<Name>material.mtex[0]</Name>
@@ -296,7 +317,7 @@
 			<ShaderId>1</ShaderId>
 		</Material>
 		<Material>
-			<Id>7</Id>
+			<Id>10</Id>
 			<Textures>
 				<Texture>
 					<Name>material.mtex[0]</Name>
@@ -388,27 +409,7 @@
 			<ShaderId>1</ShaderId>
 		</Material>
 		<Material>
-			<Id>8</Id>
-			<Textures>
-				<Texture>
-					<Name>albedo</Name>
-					<Id>22</Id>
-				</Texture>
-			</Textures>
-			<ShaderId>0</ShaderId>
-		</Material>
-		<Material>
-			<Id>9</Id>
-			<Textures>
-				<Texture>
-					<Name>albedo</Name>
-					<Id>22</Id>
-				</Texture>
-			</Textures>
-			<ShaderId>0</ShaderId>
-		</Material>
-		<Material>
-			<Id>10</Id>
+			<Id>11</Id>
 			<Textures>
 				<Texture>
 					<Name>material.mtex[0]</Name>
@@ -434,7 +435,7 @@
 			<ShaderId>1</ShaderId>
 		</Material>
 		<Material>
-			<Id>11</Id>
+			<Id>12</Id>
 			<Textures>
 				<Texture>
 					<Name>material.mtex[0]</Name>
@@ -460,7 +461,145 @@
 			<ShaderId>1</ShaderId>
 		</Material>
 		<Material>
+			<Id>5</Id>
+			<Textures>
+				<Texture>
+					<Name>albedo</Name>
+					<Id>10</Id>
+				</Texture>
+				<Texture>
+					<Name>mrar</Name>
+					<Id>11</Id>
+				</Texture>
+				<Texture>
+					<Name>normal</Name>
+					<Id>12</Id>
+				</Texture>
+				<Texture>
+					<Name>emissive</Name>
+					<Id>13</Id>
+				</Texture>
+			</Textures>
+			<ShaderId>1</ShaderId>
+		</Material>
+		<Material>
 			<Id>4</Id>
+			<Textures>
+				<Texture>
+					<Name>albedo</Name>
+					<Id>14</Id>
+				</Texture>
+				<Texture>
+					<Name>mrar</Name>
+					<Id>15</Id>
+				</Texture>
+				<Texture>
+					<Name>normal</Name>
+					<Id>16</Id>
+				</Texture>
+				<Texture>
+					<Name>emissive</Name>
+					<Id>17</Id>
+				</Texture>
+			</Textures>
+			<ShaderId>1</ShaderId>
+		</Material>
+		<Material>
+			<Id>6</Id>
+			<Textures>
+				<Texture>
+					<Name>albedo</Name>
+					<Id>18</Id>
+				</Texture>
+				<Texture>
+					<Name>mrar</Name>
+					<Id>19</Id>
+				</Texture>
+				<Texture>
+					<Name>normal</Name>
+					<Id>20</Id>
+				</Texture>
+				<Texture>
+					<Name>emissive</Name>
+					<Id>21</Id>
+				</Texture>
+			</Textures>
+			<ShaderId>1</ShaderId>
+		</Material>
+		<Material>
+			<Id>13</Id>
+			<Textures>
+				<Texture>
+					<Name>albedo</Name>
+					<Id>22</Id>
+				</Texture>
+			</Textures>
+			<ShaderId>0</ShaderId>
+		</Material>
+		<Material>
+			<Id>14</Id>
+			<Textures>
+				<Texture>
+					<Name>albedo</Name>
+					<Id>22</Id>
+				</Texture>
+			</Textures>
+			<ShaderId>0</ShaderId>
+		</Material>
+		<Material>
+			<Id>15</Id>
+			<Textures>
+				<Texture>
+					<Name>material.mtex[0]</Name>
+					<Id>0</Id>
+				</Texture>
+				<Texture>
+					<Name>material.mtex[1]</Name>
+					<Id>1</Id>
+				</Texture>
+				<Texture>
+					<Name>material.mtex[2]</Name>
+					<Id>2</Id>
+				</Texture>
+				<Texture>
+					<Name>material.mtex[3]</Name>
+					<Id>3</Id>
+				</Texture>
+				<Texture>
+					<Name>material.mtex[4]</Name>
+					<Id>4</Id>
+				</Texture>
+			</Textures>
+			<ShaderId>1</ShaderId>
+		</Material>
+		<Material>
+			<Id>16</Id>
+			<Textures>
+				<Texture>
+					<Name>material.mtex[0]</Name>
+					<Id>5</Id>
+				</Texture>
+				<Texture>
+					<Name>material.mtex[1]</Name>
+					<Id>6</Id>
+				</Texture>
+				<Texture>
+					<Name>material.mtex[2]</Name>
+					<Id>7</Id>
+				</Texture>
+				<Texture>
+					<Name>material.mtex[3]</Name>
+					<Id>8</Id>
+				</Texture>
+				<Texture>
+					<Name>material.mtex[4]</Name>
+					<Id>9</Id>
+				</Texture>
+			</Textures>
+			<ShaderId>1</ShaderId>
+		</Material>
+		<Material>
+			<Id>7</Id>
 			<Textures>
 				<Texture>
 					<Name>albedo</Name>
@@ -504,7 +643,7 @@
 			<ShaderId>1</ShaderId>
 		</Material>
 		<Material>
-			<Id>5</Id>
+			<Id>8</Id>
 			<Textures>
 				<Texture>
 					<Name>albedo</Name>
@@ -526,7 +665,7 @@
 			<ShaderId>1</ShaderId>
 		</Material>
 		<Material>
-			<Id>12</Id>
+			<Id>17</Id>
 			<Textures>
 				<Texture>
 					<Name>albedo</Name>
@@ -536,11 +675,31 @@
 			<ShaderId>1</ShaderId>
 		</Material>
 		<Material>
-			<Id>13</Id>
+			<Id>18</Id>
 			<Textures>
 				<Texture>
 					<Name>albedo</Name>
 					<Id>23</Id>
+				</Texture>
+			</Textures>
+			<ShaderId>1</ShaderId>
+		</Material>
+		<Material>
+			<Id>19</Id>
+			<Textures>
+				<Texture>
+					<Name>albedo</Name>
+					<Id>24</Id>
+				</Texture>
+			</Textures>
+			<ShaderId>1</ShaderId>
+		</Material>
+		<Material>
+			<Id>20</Id>
+			<Textures>
+				<Texture>
+					<Name>albedo</Name>
+					<Id>24</Id>
 				</Texture>
 			</Textures>
 			<ShaderId>1</ShaderId>
@@ -641,6 +800,10 @@
 		</Texture>
 		<Texture>
 			<Id>23</Id>
+			<TexturePath>controllerdiff</TexturePath>
+		</Texture>
+		<Texture>
+			<Id>24</Id>
 			<TexturePath>controllerdiff</TexturePath>
 		</Texture>
 	</Textures>

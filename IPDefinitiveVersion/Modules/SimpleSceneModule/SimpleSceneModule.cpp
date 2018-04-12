@@ -678,7 +678,7 @@ bool SimpleSceneModule::SwitchActiveScene(ipengine::ipid id)
 
 		if (news.size() > 0)
 		{
-			for (auto ide : missing)
+			for (auto ide : news)
 			{
 				scm->getEntityById(ide)->isActive = true;
 			}
