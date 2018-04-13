@@ -60,6 +60,8 @@ ipengine::Time ipengine::Core::tick(bool& shouldstop)
 
 	cmodule_errormanager->handlePendingExceptions();
 
+	cmodule_console->executePendingCommands();
+
 	if (m_isrunning.load(std::memory_order_relaxed))
 	{
 		cmodule_scheduler->schedule();

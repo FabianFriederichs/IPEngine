@@ -182,7 +182,7 @@ public:
 				if (file[pos] == '-')
 				{
 					sign = true;
-					++pos;
+					++curpos;
 					++col;
 				}
 				while (!eof() && (file[curpos] == '.' || std::isdigit(static_cast<unsigned char>(file[curpos]))))

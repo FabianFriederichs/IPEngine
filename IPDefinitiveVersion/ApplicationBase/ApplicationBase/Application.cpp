@@ -49,7 +49,7 @@ private:
 		{
 			app.onConsole();
 			std::getline(std::cin, cmd);
-			getCore().getConsole().in(cmd.c_str());
+			getCore().getConsole().submitCommand(cmd.c_str());
 			std::this_thread::sleep_for(std::chrono::milliseconds(sleepinterval));
 		}
 	}
