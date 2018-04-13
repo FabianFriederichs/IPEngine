@@ -3,27 +3,31 @@
 
 #include <IPCore/core_config.h>
 #include <IPCore/Util/function.h>
+#include <unordered_map>
 #include <iostream>
+#include <IPCore/Util/spinlock.h>
+#include <cctype>
 #include <IPCore/Core/ICoreTypes.h>
+#include <mutex>
+#include <type_traits>
 
-#define MAX_COMMAND_NAME_LENGTH 50
+#define MAX_COMMAND_LENGTH 127
 #define MAX_COMMAND_PARAMS 32
-#define MAX_PARAM_LENGTH 250
-#define MAX_DESC_LENGTH 5000
-#define MAX_COMMAND_BUFFER_ITEMS 16
+#define MAX_DESC_LENGTH 4096
+
+#define MEM_FUNC( fname , instance ) CommandFunc::make_func< std::remove_pointer<instance>::type , &std::remove_pointer<instance>::type##::fname>
 
 namespace ipengine
 {
-	
 	class Console;
 	class CORE_API ConsoleParams
 	{
 	private:
-		friend class CommandBufferItem;
-		friend class Console;
-		class ConsoleParamImpl;	ConsoleParamImpl* cpimpl;
+		iprstr* parambuffer;
+		const ipsize paramcount;
+		//ConsoleParams(const ipchar(*_parambuffer)[MAX_COMMAND_LENGTH + 1], ipsize _paramcount);
 	public:
-		ConsoleParams(ConsoleParamImpl* impl);
+		ConsoleParams(iprstr _params[], ipsize _paramcount);
 		ipcrstr get(ipsize index) const;
 		ipint64 getInt(ipsize index) const;
 		ipdouble getFloat(ipsize index) const;
@@ -49,8 +53,8 @@ namespace ipengine
 		ipcrstr getName();
 	private:
 		CommandFunc comfunc;
-		ipchar name[MAX_COMMAND_NAME_LENGTH + 1];
-		ipchar description[MAX_DESC_LENGTH + 1];
+		ipchar name[MAX_COMMAND_LENGTH + 1];
+		std::string description;
 	};
 
 	class CORE_API Console
@@ -61,18 +65,27 @@ namespace ipengine
 		bool addCommand(ipcrstr name, const CommandFunc& cfunc);
 		bool addCommand(ipcrstr name, const CommandFunc& cfunc, ipcrstr description);
 		bool removeCommand(ipcrstr);
-		bool call(ipcrstr name, ConsoleParams& params);
-		bool executeImmediate(ipcrstr line);
-		bool submitCommand(ipcrstr line);
-		bool executePendingCommands();
+		bool call(ipcrstr name, ConsoleParams params);
+		bool in(ipcrstr line);
 		void print(ipcrstr text);
 		void println(ipcrstr text);
 		void prompt();
 		void listCommands();
 	private:
-		friend class ConsoleParams::ConsoleParamImpl;
-		class ConsoleImpl; ConsoleImpl* m_impl;
+		void printprompt();
+		std::unordered_map<std::string, ConsoleCommand> m_commands;
+		std::ostream& outstream;
+		//direct call buffer
+		iprstr* argbuffer;
+		
+		//TODO: implement recursive spinock
+		std::recursive_mutex m_mtx;
+		using autolock = std::lock_guard<std::recursive_mutex>;
+
+		//Spinlock for prints
+		YieldingSpinLock<4000> m_outmtx;
 	};
 }
 
 #endif // !_CORE_CONSOLE_H_
+

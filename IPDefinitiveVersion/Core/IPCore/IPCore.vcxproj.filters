@@ -52,9 +52,6 @@
     <ClInclude Include="ThreadingServices\ThreadPool.h">
       <Filter>CoreModules\ThreadingServices</Filter>
     </ClInclude>
-    <ClInclude Include="RuntimeControl\Console.h">
-      <Filter>CoreModules\RuntimeControl</Filter>
-    </ClInclude>
     <ClInclude Include="Util\function.h">
       <Filter>Util</Filter>
     </ClInclude>
@@ -146,6 +143,9 @@
     <ClInclude Include="Util\idgen.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="RuntimeControl\Console.h">
+      <Filter>CoreModules\RuntimeControl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThreadingServices\TaskHandle.cpp">
@@ -153,9 +153,6 @@
     </ClCompile>
     <ClCompile Include="ThreadingServices\ThreadPool.cpp">
       <Filter>CoreModules\ThreadingServices</Filter>
-    </ClCompile>
-    <ClCompile Include="RuntimeControl\Console.cpp">
-      <Filter>CoreModules\RuntimeControl</Filter>
     </ClCompile>
     <ClCompile Include="Core\ICore.cpp">
       <Filter>Core</Filter>
@@ -189,6 +186,9 @@
     </ClCompile>
     <ClCompile Include="DebugMonitoring\ErrorManager.cpp">
       <Filter>CoreModules\DebugMonitoring</Filter>
+    </ClCompile>
+    <ClCompile Include="RuntimeControl\Console.cpp">
+      <Filter>CoreModules\RuntimeControl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
