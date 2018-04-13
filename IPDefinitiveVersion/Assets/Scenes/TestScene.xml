@@ -66,7 +66,7 @@
       <MeshId>0</MeshId>
       <ParentId></ParentId>
       <TransformData>
-        <Location>2/1/0</Location>
+        <Location>3/1/-1</Location>
         <!--Vector-->
         <Rotation>1/0/0/0</Rotation>
         <!--Quaternion-->
@@ -101,7 +101,7 @@
       <MeshId>0</MeshId>
       <ParentId></ParentId>
       <TransformData>
-        <Location>-1/1/0</Location>
+        <Location>-1/0.5/0</Location>
         <!--Vector-->
         <Rotation>1/0/0/0</Rotation>
         <!--Quaternion-->
@@ -136,7 +136,7 @@
       <MeshId>0</MeshId>
       <ParentId></ParentId>
       <TransformData>
-        <Location>-2/1/0</Location>
+        <Location>-2/0.5/0</Location>
         <!--Vector-->
         <Rotation>1/0/0/0</Rotation>
         <!--Quaternion-->
@@ -277,7 +277,7 @@
     <Entity>
       <Id>7</Id>
       <StringName>testPointlight</StringName>
-      <ParentId></ParentId>
+      <ParentId>10</ParentId>
       <TransformData>
         <Location>1/-1/0</Location>
         <!--Vector-->
@@ -317,7 +317,7 @@
     <Entity>
       <Id>8</Id>
       <StringName>testSpotlight</StringName>
-      <ParentId></ParentId>
+      <ParentId>10</ParentId>
       <TransformData>
         <Location>1/-1/0</Location>
         <!--Vector-->
@@ -390,6 +390,106 @@
         </Box>
       </BoundingData>
     </Entity>
+    <Entity>
+      <Id>10</Id>
+      <StringName>Dagger1</StringName>
+      <MeshId>3</MeshId>
+      <ParentId></ParentId>
+      <TransformData>
+        <Location>2/1/1</Location>
+        <Rotation>1/0/0/0</Rotation>
+        <Scale>0.05/0.05/0.05</Scale>
+        <LocalY>0/1/0</LocalY>
+        <LocalX>1/0/0</LocalX>
+        <LocalZ>0/0/1</LocalZ>
+      </TransformData>
+      <BoundingData>
+        <Sphere>
+          <Center>0/0/0</Center>
+          <Radius>0.1</Radius>
+        </Sphere>
+      </BoundingData>
+    </Entity>
+    <Entity>
+      <Id>11</Id>
+      <StringName>Lantern1</StringName>
+      <MeshId>2</MeshId>
+      <ParentId></ParentId>
+      <TransformData>
+        <Location>2/1/2</Location>
+        <Rotation>1/0/0/0</Rotation>
+        <Scale>0.075/0.075/0.075</Scale>
+        <LocalY>0/1/0</LocalY>
+        <LocalX>1/0/0</LocalX>
+        <LocalZ>0/0/1</LocalZ>
+      </TransformData>
+      <BoundingData>
+        <Sphere>
+          <Center>0/0/0</Center>
+          <Radius>0.1</Radius>
+        </Sphere>
+      </BoundingData>
+    </Entity>
+    <Entity>
+      <Id>12</Id>
+      <StringName>Drum1</StringName>
+      <MeshId>4</MeshId>
+      <ParentId></ParentId>
+      <TransformData>
+        <Location>2/0/3</Location>
+        <Rotation>1/0/0/0</Rotation>
+        <Scale>0.15/0.15/0.15</Scale>
+        <LocalY>0/1/0</LocalY>
+        <LocalX>1/0/0</LocalX>
+        <LocalZ>0/0/1</LocalZ>
+      </TransformData>
+      <BoundingData>
+        <Sphere>
+          <Center>0/0/0</Center>
+          <Radius>1.1</Radius>
+        </Sphere>
+      </BoundingData>
+    </Entity>
+    <Entity>
+      <Id>13</Id>
+      <StringName>Drum2</StringName>
+      <MeshId>5</MeshId>
+      <ParentId></ParentId>
+      <TransformData>
+        <Location>-1/0/3</Location>
+        <Rotation>1/0/0/0</Rotation>
+        <Scale>0.2/0.2/0.2</Scale>
+        <LocalY>0/1/0</LocalY>
+        <LocalX>1/0/0</LocalX>
+        <LocalZ>0/0/1</LocalZ>
+      </TransformData>
+      <BoundingData>
+        <Sphere>
+          <Center>0/0/0</Center>
+          <Radius>1.1</Radius>
+        </Sphere>
+      </BoundingData>
+    </Entity>
+    <Entity>
+      <Id>14</Id>
+      <StringName>Drum3</StringName>
+      <MeshId>6</MeshId>
+      <ParentId></ParentId>
+      <TransformData>
+        <Location>-1/0/2</Location>
+        <Rotation>1/0/0/0</Rotation>
+        <Scale>0.1/0.1/0.1</Scale>
+        <LocalY>0/1/0</LocalY>
+        <LocalX>1/0/0</LocalX>
+        <LocalZ>0/0/1</LocalZ>
+      </TransformData>
+      <BoundingData>
+        <Sphere>
+          <Center>0/0/0</Center>
+          <Radius>1.</Radius>
+        </Sphere>
+      </BoundingData>
+    </Entity>
   </Entities>
   
   <Meshes> 
@@ -414,6 +514,51 @@
         </Material>
       </Materials>
     </Mesh>
+    <Mesh>
+      <Id>2</Id>
+      <Path>../assets/models/lantern_obj.obj</Path>
+      <Materials>
+        <Material>
+          <MaterialId>5</MaterialId>
+        </Material>
+      </Materials>
+    </Mesh>
+    <Mesh>
+      <Id>3</Id>
+      <Path>../assets/models/dagger.obj</Path>
+      <Materials>
+        <Material>
+          <MaterialId>6</MaterialId>
+        </Material>
+      </Materials>
+    </Mesh>
+      <Mesh>
+        <Id>4</Id>
+        <Path>../assets/models/barrels_obj.obj</Path>
+        <Materials>
+          <Material>
+            <MaterialId>7</MaterialId>
+          </Material>
+        </Materials>
+      </Mesh>
+      <Mesh>
+        <Id>5</Id>
+        <Path>../assets/models/barrels_obj.obj</Path>
+        <Materials>
+          <Material>
+            <MaterialId>8</MaterialId>
+          </Material>
+        </Materials>
+      </Mesh>
+      <Mesh>
+        <Id>6</Id>
+        <Path>../assets/models/barrels_obj.obj</Path>
+        <Materials>
+          <Material>
+            <MaterialId>9</MaterialId>
+          </Material>
+        </Materials>
+      </Mesh>
     <!--<Mesh>
       <Id>1</Id>
       <Path>..assets/models/ground.obj</Path>
@@ -564,6 +709,121 @@
       </Textures>
       <ShaderId>1</ShaderId>
     </Material>
+    <!-- PBR lantern-->
+    <Material>
+      <Id>5</Id>
+      <Textures>
+        <Texture>
+          <Name>albedo</Name>
+          <Id>22</Id>
+        </Texture>
+        <Texture>
+          <Name>mrar</Name>
+          <Id>23</Id>
+        </Texture>
+        <Texture>
+          <Name>normal</Name>
+          <Id>24</Id>
+        </Texture>
+        <Texture>
+          <Name>emissive</Name>
+          <Id>25</Id>
+        </Texture>
+      </Textures>
+      <ShaderId>1</ShaderId>
+    </Material>
+    <!-- PBR dagger-->
+    <Material>
+      <Id>6</Id>
+      <Textures>
+        <Texture>
+          <Name>albedo</Name>
+          <Id>26</Id>
+        </Texture>
+        <Texture>
+          <Name>mrar</Name>
+          <Id>27</Id>
+        </Texture>
+        <Texture>
+          <Name>normal</Name>
+          <Id>28</Id>
+        </Texture>
+        <Texture>
+          <Name>emissive</Name>
+          <Id>29</Id>
+        </Texture>
+      </Textures>
+      <ShaderId>1</ShaderId>
+    </Material>
+    <!-- PBR drum1-->
+    <Material>
+      <Id>7</Id>
+      <Textures>
+        <Texture>
+          <Name>albedo</Name>
+          <Id>30</Id>
+        </Texture>
+        <Texture>
+          <Name>mrar</Name>
+          <Id>31</Id>
+        </Texture>
+        <Texture>
+          <Name>normal</Name>
+          <Id>32</Id>
+        </Texture>
+        <Texture>
+          <Name>emissive</Name>
+          <Id>33</Id>
+        </Texture>
+      </Textures>
+      <ShaderId>1</ShaderId>
+    </Material>
+    <!-- PBR drum2-->
+    <Material>
+      <Id>8</Id>
+      <Textures>
+        <Texture>
+          <Name>albedo</Name>
+          <Id>34</Id>
+        </Texture>
+        <Texture>
+          <Name>mrar</Name>
+          <Id>35</Id>
+        </Texture>
+        <Texture>
+          <Name>normal</Name>
+          <Id>36</Id>
+        </Texture>
+        <Texture>
+          <Name>emissive</Name>
+          <Id>37</Id>
+        </Texture>
+      </Textures>
+      <ShaderId>1</ShaderId>
+    </Material>
+    <!-- PBR drum3-->
+    <Material>
+      <Id>9</Id>
+      <Textures>
+        <Texture>
+          <Name>albedo</Name>
+          <Id>38</Id>
+        </Texture>
+        <Texture>
+          <Name>mrar</Name>
+          <Id>39</Id>
+        </Texture>
+        <Texture>
+          <Name>normal</Name>
+          <Id>40</Id>
+        </Texture>
+        <Texture>
+          <Name>emissive</Name>
+          <Id>41</Id>
+        </Texture>
+      </Textures>
+      <ShaderId>1</ShaderId>
+    </Material>
   </Materials>
 
   <Textures>
@@ -654,6 +914,86 @@
     <Texture>
       <Id>21</Id>
       <TexturePath>../assets/textures/sandypbr/emissive.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>22</Id>
+      <TexturePath>../assets/textures/lantern/lantern_albedo.jpg</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>23</Id>
+      <TexturePath>../assets/textures/lantern/lantern_mrar.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>24</Id>
+      <TexturePath>../assets/textures/lantern/lantern_normal.jpg</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>25</Id>
+      <TexturePath>../assets/textures/lantern/emissive.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>26</Id>
+      <TexturePath>../assets/textures/dagger/dagger_albedo.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>27</Id>
+      <TexturePath>../assets/textures/dagger/dagger_mrar.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>28</Id>
+      <TexturePath>../assets/textures/dagger/dnormal.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>29</Id>
+      <TexturePath>../assets/textures/dagger/emissive.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>30</Id>
+      <TexturePath>../assets/textures/drums/drum1albedo.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>31</Id>
+      <TexturePath>../assets/textures/drums/drum1_mrar.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>32</Id>
+      <TexturePath>../assets/textures/drums/drum1_normal.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>33</Id>
+      <TexturePath>../assets/textures/drums/emissive.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>34</Id>
+      <TexturePath>../assets/textures/drums/drum2albedo.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>35</Id>
+      <TexturePath>../assets/textures/drums/drum2_mrar.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>36</Id>
+      <TexturePath>../assets/textures/drums/drum2_normal.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>37</Id>
+      <TexturePath>../assets/textures/drums/emissive.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>38</Id>
+      <TexturePath>../assets/textures/drums/drum3albedo.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>39</Id>
+      <TexturePath>../assets/textures/drums/drum3_mrar.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>40</Id>
+      <TexturePath>../assets/textures/drums/drum3_normal.png</TexturePath>
+    </Texture>
+    <Texture>
+      <Id>41</Id>
+      <TexturePath>../assets/textures/drums/emissive.png</TexturePath>
     </Texture>
   </Textures>
 </Scene>

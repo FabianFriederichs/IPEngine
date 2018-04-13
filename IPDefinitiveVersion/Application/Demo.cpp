@@ -48,7 +48,7 @@ public:
 		auto scm = boost::dynamic_pointer_cast<SCM::ISimpleContentModule_API>(mods["SimpleContentModule"]);
 		//auto phys = boost::dynamic_pointer_cast<IPhysicsModule_API>(mods["PhysicsModule"]);
 		auto sceneid = ssm->LoadSceneFromFile("../Assets/Scenes/TestScene.xml");
-		sceneid = ssm->LoadSceneFromFile("test.xml");
+		//sceneid = ssm->LoadSceneFromFile("test.xml");
 		ssm->SwitchActiveScene(sceneid);
 		//phys->createcloth();
 		//auto entity = scm->getEntityById(0);
