@@ -169,7 +169,63 @@ int main()
 {
 	std::vector<imdesc> input;
 	std::vector<imdesc> output;
-	std::vector<rule> rules;	
+	std::vector<rule> rules;
+
+	std::cout <<
+		R"#(
+TexPack texture mixing tool
+---------------------------
+
+Commands:
+    in        load an input file
+    out       specify an output file with the desired channel count
+    rule      specify an output rule for one channel of one output file
+    pack      process the rules and write output files
+    clear     clear input, output and rule lists
+    exit      exit
+
+Workflow is as follows:
+    1.    Load one or more input files
+    2.    Specify one or more output files
+    3.    Specify a rule for each channel of the output files
+    4.    Process the rules and write the output files via the "pack" command
+
+Syntax:
+<> => required
+[] => optional
+.. => 0..n times the preceding expression
+(...|...) => choose one of the options
+
+    in "<path>"
+        path                Path to a valid input file.
+                            Supported file formats: .png, .jpg, .tga, .bmp
+
+    out "<path>" <channelcount>
+        path                Path to a valid output file. File ending defines the output format.
+                            Supported output formats: .png, .jpg, .tga, .bmp
+                            If the file ending is not one of {.png, .jpg, .jpeg, .tga, .bmp},
+                            the output format defaults to .png
+        channelcount        Number of desired channels in the output file.
+                            Must be a number in the range [1, 4].
+
+    rule <outindex>:<channel> = ([channelweight *] <inindex>:<channel> | <constval>) [+ ([channelweight *] <inindex>:<channel> | <constval>)]..
+        Each pixel value of an output channel is calculated according to the rule targeting that channel.
+        A rule defines a weighted sum of constant values and/or weighted input channel values.
+        
+        outindex            Zero-based index of the targeted output file. Must be a valid index
+                            from the output file list.
+        channel             Zero-based channel index. Must be a valid index
+                            for the selected file.
+        inindex             Zero-based index of an input file. Must be a valid index
+                            from the input file list.
+        channelweight       Floating point value wich is multiplied with the respective input channel value.
+                            Defaults to 1.0 if this value is omitted.
+        constval            Floating point value wich is handled as a constant for the whole image.
+
+----------------------------
+	
+)#";
+
 	while (!sexit)
 	{
 		std::cout << ">";
