@@ -755,13 +755,45 @@ public:
 		println("List of available console commands:\n--------");
 		for (auto& c : m_commands)
 		{
-			println("Name:");
+			println(c.second.getName());			
+		}
+		println("--------");
+	}
+
+	void listCommandsDetailed()
+	{
+		autolock lock(m_mtx);
+		println("List of available console commands:\n--------");
+		for (auto& c : m_commands)
+		{
 			println(c.second.getName());
-			println("\nDescription:");
+			println("");
 			println(c.second.getDescription());
 			println("--------");
 		}
 	}
+
+	void showCommandDetail(ipcrstr name)
+	{
+		autolock lock(m_mtx);
+		auto& it = m_commands.find(name);
+		if (it != m_commands.end())
+		{
+			println("--------");
+			print("Command ");
+			print(it->second.getName());
+			println(":\n");
+			println(it->second.getDescription());
+			println("--------");
+		}
+		else
+		{
+			print("Unknown command '");
+			print(name);
+			println("'.");
+		}
+	}
+
 	bool executeImmediate(ipcrstr line)
 	{
 		CommandBufferItem item;
@@ -938,4 +970,14 @@ void ipengine::Console::prompt()
 void ipengine::Console::listCommands()
 {
 	m_impl->listCommands();
+}
+
+void ipengine::Console::listCommandsDetailed()
+{
+	m_impl->listCommandsDetailed();
+}
+
+void ipengine::Console::showCommandDetail(ipcrstr name)
+{
+	m_impl->showCommandDetail(name);
 }

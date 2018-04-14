@@ -69,6 +69,8 @@ namespace ipengine
 		void println(ipcrstr text);
 		void prompt();
 		void listCommands();
+		void listCommandsDetailed();
+		void showCommandDetail(ipcrstr name);
 	private:
 		friend class ConsoleParams::ConsoleParamImpl;
 		class ConsoleImpl; ConsoleImpl* m_impl;
