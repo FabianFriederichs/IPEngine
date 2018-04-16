@@ -180,12 +180,26 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 			//generate new SCM texture for diffuse model texture
 			SCM::TextureFile tf{ m_core->createID(), "controllerdiff", false };
+			SCM::TextureFile tf2{ m_core->createID(), "controllernorm", false };
+			SCM::TextureFile tf3{ m_core->createID(), "controllermrar", false };
+			SCM::TextureFile tf4{ m_core->createID(), "controlleremissive", false };
 			auto& texts = scm->getTextures();
 			texts.push_back(tf);
+			texts.push_back(tf2);
+			texts.push_back(tf3);
+			texts.push_back(tf4);
+
 			SCM::TextureData td{ tf.m_textureId };
 			td.m_size = { controllerdiffuse->unWidth, controllerdiffuse->unHeight };
+			SCM::TextureData td2{ tf2.m_textureId };
+			td2.m_size = { 1,1 };
+			SCM::TextureData td3{ tf3.m_textureId };
+			td3.m_size = { 1, 1 };
+			SCM::TextureData td4{ tf4.m_textureId };
+			td4.m_size = { 1, 1 };
+
 			//Generate material with this texture
-			SCM::MaterialData md{ m_core->createID(), scm->getShaders().back().m_shaderId, {{"albedo", td}} };
+			SCM::MaterialData md{ m_core->createID(), scm->getShaders().back().m_shaderId, {{"albedo", td}, {"mrar", td3}, {"normal", td2},{ "emissive", td4 } } };
 			auto& mats = scm->getMaterials();
 			mats.push_back(md);
 			auto &scmmeshes = scm->getMeshes();
@@ -207,10 +221,14 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			cntrtrans.setData()->m_localX = { 1,0,0 };
 			cntrtrans.setData()->m_localY = { 0,1,0 };
 			cntrtrans.setData()->m_localZ = { 0,0,1 };
-
+			uint8_t values[]{ 0 };
+			uint8_t values2[]{ 150 };
 			//Load data into graphicsmodule because texture data is not in a file
 			graphicsmodule->loadTextureFromMemory({controllerdiffuse->unWidth, controllerdiffuse->unHeight, 4, controllerdiffuse->rubTextureMapData
 		}, tf.m_textureId);
+			graphicsmodule->loadTextureFromMemory({ 1, 1, 1, values2}, tf2.m_textureId);
+			graphicsmodule->loadTextureFromMemory({ 1, 1, 1, values }, tf3.m_textureId);
+			graphicsmodule->loadTextureFromMemory({ 1, 1, 1, values }, tf4.m_textureId);
 			rendermodels->FreeTexture(controllerdiffuse);
 			rendermodels->FreeRenderModel(controllermodel);
 			auto lctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);

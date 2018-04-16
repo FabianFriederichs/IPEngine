@@ -1126,7 +1126,8 @@ void GraphicsModule::drawEntity(SCM::ThreeDimEntity * entity, ShaderProgram* sha
 void GraphicsModule::drawEntityShadow(SCM::ThreeDimEntity * entity, ShaderProgram* shader)
 {
 	//set per entity uniforms
-	const glm::mat4& transformMat = entity->m_transformData.getData()->m_transformMatrix;
+	//const glm::mat4& transformMat = entity->m_transformData.getData()->m_transformMatrix;
+	const glm::mat4 transformMat = parentInfluencedTransform(entity->m_entityId);
 	shader->setUniform("u_model_matrix", transformMat, false);
 
 	//draw all meshes
