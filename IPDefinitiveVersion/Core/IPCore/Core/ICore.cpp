@@ -154,7 +154,8 @@ ipengine::ErrorManager & ipengine::Core::getErrorManager()
 void ipengine::Core::setupCoreConsoleCommands()
 {
 	cmodule_console->addCommand("core.shutdown", CommandFunc::make_func<Core, &Core::cmd_shutdown>(this), "Stops scheduling and all workers.");
-	cmodule_console->addCommand("help", CommandFunc::make_func<Core, &Core::cmd_listcommands>(this), "Prints a list of available console commands.");
+	cmodule_console->addCommand("help", CommandFunc::make_func<Core, &Core::cmd_listcommands>(this), "Prints a list of available console commands.\nhelp \"<commandname>\" shows detailed help for that command.");
+	cmodule_console->addCommand("helpdetailed", CommandFunc::make_func<Core, &Core::cmd_listcommandsd>(this), "Prints a detailed list of available console commands.");
 }
 
 void ipengine::Core::cmd_shutdown(const ConsoleParams & params)
@@ -166,5 +167,17 @@ void ipengine::Core::cmd_shutdown(const ConsoleParams & params)
 
 void ipengine::Core::cmd_listcommands(const ConsoleParams & params)
 {
-	cmodule_console->listCommands();
+	if (params.getParamCount() == 1)
+	{
+		cmodule_console->showCommandDetail(params.get(0));
+	}
+	else
+	{
+		cmodule_console->listCommands();
+	}
+}
+
+void ipengine::Core::cmd_listcommandsd(const ConsoleParams & params)
+{
+	cmodule_console->listCommandsDetailed();
 }

@@ -54,6 +54,7 @@ namespace ipengine
 		//command handlers
 		void cmd_shutdown(const ConsoleParams& params);
 		void cmd_listcommands(const ConsoleParams& params);
+		void cmd_listcommandsd(const ConsoleParams& params);
 
 		//Subsystem implementing class-objects
 		//Question: abtract interface for each subsystem? (This way we could simply publish those interfaces and reduce the uglyness of this header.
