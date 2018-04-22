@@ -118,7 +118,7 @@
 			<PhysicsContext>
 				<gravity>0.000000/-30.000000/0.000000</gravity>
 				<particleMass>3.000000</particleMass>
-				<particleDistance>0.800000</particleDistance>
+				<particleDistance>0.100000</particleDistance>
 				<struct_springKs>40.000000</struct_springKs>
 				<struct_springKd>0.120000</struct_springKd>
 				<shear_springKs>40.000000</shear_springKs>
@@ -134,17 +134,17 @@
 				<airfric>0.320000</airfric>
 				<two_pass_integration>1</two_pass_integration>
 			</PhysicsContext>
-			<width>20</width>
-			<height>20</height>
+			<width>40</width>
+			<height>40</height>
 			<materialid>0</materialid>
 			<fixedParticles>
 				<fix>
 					<x>0</x>
-					<y>19</y>
+					<y>39</y>
 				</fix>
 				<fix>
-					<x>19</x>
-					<y>19</y>
+					<x>39</x>
+					<y>39</y>
 				</fix>
 			</fixedParticles>
 		</Entity>

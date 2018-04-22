@@ -101,6 +101,7 @@ private:
 
 	//shadow settings
 	bool m_shadows;
+	bool m_shadowsdirty;
 	//we need multiple rendertargets - one for each directional light
 	std::unordered_map<ipengine::ipid, RenderTargetSet> m_dirLightShadowTargets;
 	std::unordered_map<ipengine::ipid, RenderTargetSet> m_dirLightShadowBlurTargets1;

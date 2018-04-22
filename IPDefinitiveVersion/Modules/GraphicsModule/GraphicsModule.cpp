@@ -208,15 +208,7 @@ void GraphicsModule::render(ipengine::TaskContext & c)
 {
 	updateData();
 
-	if (m_shadows)
-	{
-		//for each dirlight
-		for (auto& dl : m_scm->getDirLights())
-		{
-			if(dl.second->castShadows)
-				renderDirectionalLightShadowMap(*dl.second);
-		}
-	}
+	m_shadowsdirty = true;
 
 	std::vector<ipengine::any> anyvector;
 	anyvector.push_back(static_cast<IGraphics_API*>(this));
@@ -258,6 +250,17 @@ void GraphicsModule::render()
 }
 void GraphicsModule::render(int fbo, int viewportx, int viewporty, bool multisample)
 {
+	if (m_shadows && m_shadowsdirty)
+	{
+		//for each dirlight
+		for (auto& dl : m_scm->getDirLights())
+		{
+			if (dl.second->castShadows)
+				renderDirectionalLightShadowMap(*dl.second);
+		}
+		m_shadowsdirty = false;
+	}
+
 	if (multisample)
 		glEnable(GL_MULTISAMPLE);
 	else
