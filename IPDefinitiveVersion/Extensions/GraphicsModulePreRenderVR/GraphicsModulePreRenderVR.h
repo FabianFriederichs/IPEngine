@@ -109,13 +109,16 @@ private:
 			m.m[0][3], m.m[1][3], m.m[2][3]);
 	}
 
+	void setupControllerMat(boost::shared_ptr<vr::IVRRenderModels> , vr::RenderModel_t *, IGraphics_API*);
+
 	boost::shared_ptr<IBasicOpenVRModule_API> ovrmodule;
 	boost::shared_ptr<IDataStoreModuleh_API> datastore;
 	boost::shared_ptr<ISimpleSceneModule_API> scenemodule;
 	ExtensionInformation m_info;
 	std::vector<ipengine::Scheduler::SubHandle> handle;
 	bool init = false;
-
+	bool iscontrmadsetup = false;
+	ipengine::ipid contrmatid;
 	ipengine::ipid hmdid = IPID_INVALID, lctrlid = IPID_INVALID, rctrlid = IPID_INVALID, cameraid = IPID_INVALID;
 };
 

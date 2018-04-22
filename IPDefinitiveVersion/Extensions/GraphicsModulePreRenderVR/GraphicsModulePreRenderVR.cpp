@@ -163,8 +163,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			rendermodels->GetRenderModelOriginalPath("vr_controller_vive_1_5", origrendermodelpath, origpathsize, &rendermodelerr);
 			vr::RenderModel_t *controllermodel;// = new vr::RenderModel_t();
 			while (rendermodels->LoadRenderModel_Async("vr_controller_vive_1_5", &controllermodel) != vr::EVRRenderModelError::VRRenderModelError_None);
-			vr::RenderModel_TextureMap_t *controllerdiffuse;
-			while (rendermodels->LoadTexture_Async(controllermodel->diffuseTextureId, &controllerdiffuse) != vr::EVRRenderModelError::VRRenderModelError_None);
+			
 			//get rendermodel components
 			int cmpit = 0;
 			int cmpnamel = 0;
@@ -178,30 +177,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 				delete realname;
 			}
 
-			//generate new SCM texture for diffuse model texture
-			SCM::TextureFile tf{ m_core->createID(), "controllerdiff", false };
-			SCM::TextureFile tf2{ m_core->createID(), "controllernorm", false };
-			SCM::TextureFile tf3{ m_core->createID(), "controllermrar", false };
-			SCM::TextureFile tf4{ m_core->createID(), "controlleremissive", false };
-			auto& texts = scm->getTextures();
-			texts.push_back(tf);
-			texts.push_back(tf2);
-			texts.push_back(tf3);
-			texts.push_back(tf4);
-
-			SCM::TextureData td{ tf.m_textureId };
-			td.m_size = { controllerdiffuse->unWidth, controllerdiffuse->unHeight };
-			SCM::TextureData td2{ tf2.m_textureId };
-			td2.m_size = { 1,1 };
-			SCM::TextureData td3{ tf3.m_textureId };
-			td3.m_size = { 1, 1 };
-			SCM::TextureData td4{ tf4.m_textureId };
-			td4.m_size = { 1, 1 };
-
-			//Generate material with this texture
-			SCM::MaterialData md{ m_core->createID(), scm->getShaders().back().m_shaderId, {{"albedo", td}, {"mrar", td3}, {"normal", td2},{ "emissive", td4 } } };
-			auto& mats = scm->getMaterials();
-			mats.push_back(md);
+			
 			auto &scmmeshes = scm->getMeshes();
 			scmmeshes.push_back(SCM::MeshData());
 			auto& newmesh = scmmeshes.back();
@@ -214,26 +190,18 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			meshes.push_back(&newmesh);
 			auto &mobs = scm->getMeshedObjects();
 			mobs.push_back((SCM::MeshedObject(meshes, m_core->createID())));
-			mobs.back().meshtomaterial[newmesh.m_meshId] = mats.back().m_materialId;
+			setupControllerMat(rendermodels, controllermodel, graphicsmodule);
+
+
+			setupControllerMat(rendermodels, controllermodel, graphicsmodule);
+			mobs.back().meshtomaterial[newmesh.m_meshId] = contrmatid;
 			auto &cntrmeshes = scm->getMeshedObjects().back();
 			//cntrtrans.setData()->m_rotation = { 1,0,0,0 };
 			cntrtrans.setData()->m_scale = { 1,1,1 };
 			cntrtrans.setData()->m_localX = { 1,0,0 };
 			cntrtrans.setData()->m_localY = { 0,1,0 };
 			cntrtrans.setData()->m_localZ = { 0,0,1 };
-			uint8_t emissivevalues[]{ 0,1,1,1 };
-			uint8_t mrarvalues[]{ 0, 255*0.45, 255, 10};
-			uint8_t normalvalues[]{ 0, 0, 255 };
-			//Load data into graphicsmodule because texture data is not in a file
-			graphicsmodule->loadTextureFromMemory({controllerdiffuse->unWidth, controllerdiffuse->unHeight, 4, controllerdiffuse->rubTextureMapData}, tf.m_textureId);
-			graphicsmodule->setMaterialTexDefaultParams(tf.m_textureId, true);
-			graphicsmodule->loadTextureFromMemory({ 1, 1, 3, normalvalues }, tf2.m_textureId);
-			graphicsmodule->setMaterialTexDefaultParams(tf2.m_textureId, true);
-			graphicsmodule->loadTextureFromMemory({ 1, 1, 4, mrarvalues }, tf3.m_textureId);
-			graphicsmodule->setMaterialTexDefaultParams(tf3.m_textureId, true);
-			graphicsmodule->loadTextureFromMemory({ 1, 1, 4, emissivevalues }, tf4.m_textureId);
-			graphicsmodule->setMaterialTexDefaultParams(tf4.m_textureId, true);
-			rendermodels->FreeTexture(controllerdiffuse);
+			
 			rendermodels->FreeRenderModel(controllermodel);
 			auto lctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);
 			//lctde->generateBoundingBox();
@@ -279,9 +247,6 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			vr::RenderModel_t *controllermodel = new vr::RenderModel_t();
 			while (rendermodels->LoadRenderModel_Async("vr_controller_vive_1_5", &controllermodel) != vr::EVRRenderModelError::VRRenderModelError_None);
 
-			
-			vr::RenderModel_TextureMap_t *controllerdiffuse;
-			while (rendermodels->LoadTexture_Async(controllermodel->diffuseTextureId, &controllerdiffuse) != vr::EVRRenderModelError::VRRenderModelError_None);
 			//get rendermodel components
 			int cmpit = 0;
 			int cmpnamel = 0;
@@ -296,32 +261,13 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			}
 
 			//generate new SCM texture for diffuse model texture
-			//SCM::TextureFile tf{ m_core->createID(), "controllerdiff", false };
-			auto& texts = scm->getTextures();
-			//texts.push_back(tf);
-			ipengine::ipid tid;
-			for (auto& t : scm->getTextures())
-			{
-				if (t.m_path == "controllerdiff")
-					tid = t.m_textureId;
-			}
-			if (tid != 0)
-			{
-
-			}
-			else
-			{
-				//generate new SCM texture for diffuse model texture
-				SCM::TextureFile tf{ m_core->createID(), "controllerdiff", false };
-				tid = tf.m_textureId;
-				texts.push_back(tf);
-			}
-			SCM::TextureData td{ tid};
-			td.m_size = { controllerdiffuse->unWidth, controllerdiffuse->unHeight };
+			
+			//SCM::TextureData td{ tid};
+			//td.m_size = { controllerdiffuse->unWidth, controllerdiffuse->unHeight };
 			//Generate material with this texture
-			SCM::MaterialData md{ m_core->createID(), scm->getShaders().back().m_shaderId,{ { "albedo", td } } };
+			//SCM::MaterialData md{ m_core->createID(), scm->getShaders().back().m_shaderId,{ { "albedo", td } } };
 			auto& mats = scm->getMaterials();
-			mats.push_back(md);
+			//mats.push_back(md);
 			auto &scmmeshes = scm->getMeshes();
 			scmmeshes.push_back(SCM::MeshData());
 			auto& newmesh = scmmeshes.back();
@@ -334,7 +280,10 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			meshes.push_back(&newmesh);
 			auto &mobs = scm->getMeshedObjects();
 			mobs.push_back((SCM::MeshedObject(meshes, m_core->createID())));
-			mobs.back().meshtomaterial[newmesh.m_meshId] = mats.back().m_materialId;
+			setupControllerMat(rendermodels, controllermodel, graphicsmodule);
+
+			setupControllerMat(rendermodels, controllermodel, graphicsmodule);
+			mobs.back().meshtomaterial[newmesh.m_meshId] = contrmatid;
 			auto &cntrmeshes = scm->getMeshedObjects().back();
 			//cntrtrans.setData()->m_rotation = { 1,0,0,0 };
 			cntrtrans.setData()->m_scale = { 1,1,1 };
@@ -342,11 +291,6 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			cntrtrans.setData()->m_localY = { 0,1,0 };
 			cntrtrans.setData()->m_localZ = { 0,0,1 };
 
-			//Load data into graphicsmodule because texture data is not in a file
-			graphicsmodule->loadTextureFromMemory({ controllerdiffuse->unWidth, controllerdiffuse->unHeight, 4, controllerdiffuse->rubTextureMapData
-			}, tid);
-			graphicsmodule->setMaterialTexDefaultParams(tid, true);
-			rendermodels->FreeTexture(controllerdiffuse);
 			rendermodels->FreeRenderModel(controllermodel);
 			auto rctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);
 			//rctde->generateBoundingBox();
@@ -616,4 +560,54 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 ExtensionInformation * GraphicsModulePreRenderVR::getInfo()
 {
 	return &m_info;
+}
+
+void GraphicsModulePreRenderVR::setupControllerMat(boost::shared_ptr<vr::IVRRenderModels> rendermodels, vr::RenderModel_t * cntrmodel, IGraphics_API* graphicsmodule)
+{
+	if (!iscontrmadsetup)
+	{
+		vr::RenderModel_TextureMap_t *controllerdiffuse;
+		while (rendermodels->LoadTexture_Async(cntrmodel->diffuseTextureId, &controllerdiffuse) != vr::EVRRenderModelError::VRRenderModelError_None);
+		//generate new SCM texture for diffuse model texture
+		SCM::TextureFile tf{ m_core->createID(), "controllerdiff", false };
+		SCM::TextureFile tf2{ m_core->createID(), "controllernorm", false };
+		SCM::TextureFile tf3{ m_core->createID(), "controllermrar", false };
+		SCM::TextureFile tf4{ m_core->createID(), "controlleremissive", false };
+		auto& texts = scm->getTextures();
+		texts.push_back(tf);
+		texts.push_back(tf2);
+		texts.push_back(tf3);
+		texts.push_back(tf4);
+
+		SCM::TextureData td{ tf.m_textureId };
+		td.m_size = { controllerdiffuse->unWidth, controllerdiffuse->unHeight };
+		SCM::TextureData td2{ tf2.m_textureId };
+		td2.m_size = { 1,1 };
+		SCM::TextureData td3{ tf3.m_textureId };
+		td3.m_size = { 1, 1 };
+		SCM::TextureData td4{ tf4.m_textureId };
+		td4.m_size = { 1, 1 };
+
+		//Generate material with this texture
+		SCM::MaterialData md{ m_core->createID(), scm->getShaders().back().m_shaderId,{ { "albedo", td },{ "mrar", td3 },{ "normal", td2 },{ "emissive", td4 } } };
+		auto& mats = scm->getMaterials();
+		mats.push_back(md);
+
+		uint8_t emissivevalues[]{ 0,1,1,1 };
+		uint8_t mrarvalues[]{ 0, 255 * 0.45, 255, 10 };
+		uint8_t normalvalues[]{ 0, 0, 255 };
+		//Load data into graphicsmodule because texture data is not in a file
+		graphicsmodule->loadTextureFromMemory({ controllerdiffuse->unWidth, controllerdiffuse->unHeight, 4, controllerdiffuse->rubTextureMapData }, tf.m_textureId);
+		graphicsmodule->setMaterialTexDefaultParams(tf.m_textureId, true);
+		graphicsmodule->loadTextureFromMemory({ 1, 1, 3, normalvalues }, tf2.m_textureId);
+		graphicsmodule->setMaterialTexDefaultParams(tf2.m_textureId, true);
+		graphicsmodule->loadTextureFromMemory({ 1, 1, 4, mrarvalues }, tf3.m_textureId);
+		graphicsmodule->setMaterialTexDefaultParams(tf3.m_textureId, true);
+		graphicsmodule->loadTextureFromMemory({ 1, 1, 4, emissivevalues }, tf4.m_textureId);
+		graphicsmodule->setMaterialTexDefaultParams(tf4.m_textureId, true);
+		rendermodels->FreeTexture(controllerdiffuse);
+
+		contrmatid = mats.back().m_materialId;
+		iscontrmadsetup = true;
+	}
 }
