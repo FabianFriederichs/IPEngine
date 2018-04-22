@@ -221,15 +221,18 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			cntrtrans.setData()->m_localX = { 1,0,0 };
 			cntrtrans.setData()->m_localY = { 0,1,0 };
 			cntrtrans.setData()->m_localZ = { 0,0,1 };
-			uint8_t emissivevalues[]{ 1,1,1,0 };
-			uint8_t mrarvalues[]{ 255, 255*0.2, 0, 225 };
+			uint8_t emissivevalues[]{ 0,1,1,1 };
+			uint8_t mrarvalues[]{ 0, 255*0.45, 255, 10};
 			uint8_t normalvalues[]{ 0, 0, 255 };
 			//Load data into graphicsmodule because texture data is not in a file
-			graphicsmodule->loadTextureFromMemory({controllerdiffuse->unWidth, controllerdiffuse->unHeight, 4, controllerdiffuse->rubTextureMapData
-		}, tf.m_textureId);
+			graphicsmodule->loadTextureFromMemory({controllerdiffuse->unWidth, controllerdiffuse->unHeight, 4, controllerdiffuse->rubTextureMapData}, tf.m_textureId);
+			graphicsmodule->setMaterialTexDefaultParams(tf.m_textureId, true);
 			graphicsmodule->loadTextureFromMemory({ 1, 1, 3, normalvalues }, tf2.m_textureId);
+			graphicsmodule->setMaterialTexDefaultParams(tf2.m_textureId, true);
 			graphicsmodule->loadTextureFromMemory({ 1, 1, 4, mrarvalues }, tf3.m_textureId);
+			graphicsmodule->setMaterialTexDefaultParams(tf3.m_textureId, true);
 			graphicsmodule->loadTextureFromMemory({ 1, 1, 4, emissivevalues }, tf4.m_textureId);
+			graphicsmodule->setMaterialTexDefaultParams(tf4.m_textureId, true);
 			rendermodels->FreeTexture(controllerdiffuse);
 			rendermodels->FreeRenderModel(controllermodel);
 			auto lctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);
@@ -342,6 +345,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			//Load data into graphicsmodule because texture data is not in a file
 			graphicsmodule->loadTextureFromMemory({ controllerdiffuse->unWidth, controllerdiffuse->unHeight, 4, controllerdiffuse->rubTextureMapData
 			}, tid);
+			graphicsmodule->setMaterialTexDefaultParams(tid, true);
 			rendermodels->FreeTexture(controllerdiffuse);
 			rendermodels->FreeRenderModel(controllermodel);
 			auto rctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);

@@ -28,6 +28,7 @@ public:
 	virtual void getResolution(uint32_t&, uint32_t&) = 0;
 	virtual void getClipRange(float&, float&) = 0;
 	virtual void loadTextureFromMemory(const GrAPI::t2d&, const ipengine::ipid) = 0;
+	virtual void setMaterialTexDefaultParams(ipengine::ipid, bool) = 0;
 	struct renderMatrixes
 	{
 		glm::mat4* proj;

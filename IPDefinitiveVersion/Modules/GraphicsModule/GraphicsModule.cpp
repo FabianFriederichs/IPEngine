@@ -177,6 +177,23 @@ bool GraphicsModule::_shutdown()
 	return true;
 }
 
+void GraphicsModule::setMaterialTexDefaultParams(ipengine::ipid id, bool genmipmaps)
+{
+	auto& it = m_scmtexturetot2d.find(id);
+	if (it == m_scmtexturetot2d.end())
+		return;
+
+	if (genmipmaps)
+	{
+		it->second->genMipMaps();
+		it->second->setTexParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT, m_mtexMaxAnisoLevel);
+	}
+	else
+	{
+		it->second->setTexParams(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT, m_mtexMaxAnisoLevel);
+	}
+}
+
 //public interface implementation ---------------------------------------------------------------------------------------------
 GraphicsModule::GraphicsModule(void)
 {
@@ -1074,8 +1091,8 @@ void GraphicsModule::setMaterialUniforms(SCM::MaterialData * mdata, ShaderProgra
 		auto& t = tp.second;
 		auto& tex = m_scmtexturetot2d[t.m_texturefileId];
 		shader->bindTex(("u_material." + tp.first + ".tex").c_str(), tex.get());
-		shader->setUniform(("u_material." + tp.first + ".scale").c_str(), t.m_size);
-		shader->setUniform(("u_material." + tp.first + ".offset").c_str(), t.m_offset);
+		shader->setUniform(("u_material." + tp.first + ".scale").c_str(), glm::vec2(1.0f));// t.m_size);
+		shader->setUniform(("u_material." + tp.first + ".offset").c_str(), glm::vec2(0.0f));// t.m_offset);
 	}
 }
 void GraphicsModule::drawEntity(SCM::ThreeDimEntity * entity, ShaderProgram* shader)
