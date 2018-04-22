@@ -878,6 +878,13 @@ void Texture2D::setBorderColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Texture2D::genMipMaps()
+{
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 ShaderProgram::ShaderProgram(GLuint program) :
 	prog(program)
 {

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.15
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{770ECB8E-2A31-4041-B686-042C6865CDF9}"
 EndProject
@@ -70,6 +70,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API_Headers", "API_Headers"
 		API_Headers\IPhysicsModule_API.h = API_Headers\IPhysicsModule_API.h
 		API_Headers\ISimpleContentModule_API.h = API_Headers\ISimpleContentModule_API.h
 		API_Headers\ISimpleSceneModule_API.h = API_Headers\ISimpleSceneModule_API.h
+		API_Headers\Transform.h = API_Headers\Transform.h
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}"

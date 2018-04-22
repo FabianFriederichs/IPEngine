@@ -197,6 +197,9 @@ private:
 
 	// Inherited via IGraphics_API
 	virtual bool _shutdown() override;
+
+	// Geerbt über IGraphics_API
+	virtual void setMaterialTexDefaultParams(ipengine::ipid, bool) override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT GraphicsModule module;
