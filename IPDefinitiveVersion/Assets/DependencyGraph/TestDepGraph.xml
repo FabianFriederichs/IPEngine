@@ -31,25 +31,8 @@
       <identifier>BasicOpenVRModule</identifier>
     </Module>
     <Module>
-      <identifier>GraphicsModule</identifier>
-      <dependencies>
-        <dependency>
-          <inject>true</inject>
-          <identifier>SCM</identifier>
-          <moduleID>SimpleContentModule</moduleID>
-        </dependency>
-      </dependencies>
-      <ExtensionPoints>
-        <Point>
-          <identifier>PreRender</identifier>
-          <Extensions>
-            <Extension>
-              <extensionname>GraphicsModulePreRenderVR</extensionname>
-              <priority>0</priority>
-            </Extension>
-          </Extensions>
-        </Point>
-      </ExtensionPoints>
+      <ignore>false</ignore>
+      <identifier>VulkanRenderer</identifier>
     </Module>
     <Module>
       <ignore>false</ignore>
@@ -163,7 +146,7 @@
         <dependency>
           <inject>true</inject>
           <identifier>graphics</identifier>
-          <moduleID>GraphicsModule</moduleID>
+          <moduleID>VulkanRenderer</moduleID>
         </dependency>
       </dependencies>
     </Module>

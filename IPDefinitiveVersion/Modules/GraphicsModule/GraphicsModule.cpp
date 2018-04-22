@@ -130,7 +130,7 @@ void GraphicsModule::loadTextureFromMemory(const GrAPI::t2d & data, const ipengi
 	}
 
 	m_scmtexturetot2d[id] = std::make_shared<Texture2D>(texid);
-
+	setMaterialTexParams(m_scmtexturetot2d[id]->tex);
 	//return std::make_shared<Texture2D>(texid);
 
 }

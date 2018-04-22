@@ -106,6 +106,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "exSSMExtendedPBRPhysicsLoad
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "exSSMExtendedWriterPhysics", "Extensions\exSSMExtendedWriterPhysics\exSSMExtendedWriterPhysics.vcxproj", "{B1969DE1-EA39-45D1-BF10-0CC0D442CA85}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VulkanRenderer", "Modules\VulkanRenderer\VulkanRenderer.vcxproj", "{767B94C9-B0C8-47AC-A7CD-4EBFF6765A8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -266,6 +268,14 @@ Global
 		{B1969DE1-EA39-45D1-BF10-0CC0D442CA85}.Release|x64.Build.0 = Release|x64
 		{B1969DE1-EA39-45D1-BF10-0CC0D442CA85}.Release|x86.ActiveCfg = Release|Win32
 		{B1969DE1-EA39-45D1-BF10-0CC0D442CA85}.Release|x86.Build.0 = Release|Win32
+		{767B94C9-B0C8-47AC-A7CD-4EBFF6765A8B}.Debug|x64.ActiveCfg = Debug|x64
+		{767B94C9-B0C8-47AC-A7CD-4EBFF6765A8B}.Debug|x64.Build.0 = Debug|x64
+		{767B94C9-B0C8-47AC-A7CD-4EBFF6765A8B}.Debug|x86.ActiveCfg = Debug|Win32
+		{767B94C9-B0C8-47AC-A7CD-4EBFF6765A8B}.Debug|x86.Build.0 = Debug|Win32
+		{767B94C9-B0C8-47AC-A7CD-4EBFF6765A8B}.Release|x64.ActiveCfg = Release|x64
+		{767B94C9-B0C8-47AC-A7CD-4EBFF6765A8B}.Release|x64.Build.0 = Release|x64
+		{767B94C9-B0C8-47AC-A7CD-4EBFF6765A8B}.Release|x86.ActiveCfg = Release|Win32
+		{767B94C9-B0C8-47AC-A7CD-4EBFF6765A8B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -288,6 +298,7 @@ Global
 		{56BA1EF9-DDA3-4598-96F2-32F998998A51} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
 		{B59FCB62-D437-4FD4-A1CF-4155BF664A11} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
 		{B1969DE1-EA39-45D1-BF10-0CC0D442CA85} = {1AB7B933-CBEB-41FB-A6F1-7D1EDA06A100}
+		{767B94C9-B0C8-47AC-A7CD-4EBFF6765A8B} = {B1BE8738-7475-42FB-86E6-804456EC531F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8D852F7-90CA-4379-BF8E-6B6E1D793FA0}
