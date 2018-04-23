@@ -183,6 +183,9 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			auto& newmesh = scmmeshes.back();
 			newmesh.m_meshId = m_core->createID();
 			vrrendermodeltoscmmeshobject(controllermodel, &newmesh);
+			newmesh.updateTangents();
+			//newmesh.updateNormals();
+
 			//controller material????
 			//newmesh.m_material = &mats.back();
 			std::vector<SCM::MeshData*> meshes;
@@ -193,7 +196,6 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			setupControllerMat(rendermodels, controllermodel, graphicsmodule);
 
 
-			setupControllerMat(rendermodels, controllermodel, graphicsmodule);
 			mobs.back().meshtomaterial[newmesh.m_meshId] = contrmatid;
 			auto &cntrmeshes = scm->getMeshedObjects().back();
 			//cntrtrans.setData()->m_rotation = { 1,0,0,0 };
@@ -273,6 +275,8 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			auto& newmesh = scmmeshes.back();
 			newmesh.m_meshId = m_core->createID();
 			vrrendermodeltoscmmeshobject(controllermodel, &newmesh);
+			newmesh.updateTangents();
+			//newmesh.updateNormals();
 			//controller material????
 			//newmesh.m_material = &mats.back();
 			std::vector<SCM::MeshData*> meshes;
@@ -280,7 +284,6 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			meshes.push_back(&newmesh);
 			auto &mobs = scm->getMeshedObjects();
 			mobs.push_back((SCM::MeshedObject(meshes, m_core->createID())));
-			setupControllerMat(rendermodels, controllermodel, graphicsmodule);
 
 			setupControllerMat(rendermodels, controllermodel, graphicsmodule);
 			mobs.back().meshtomaterial[newmesh.m_meshId] = contrmatid;
