@@ -307,15 +307,20 @@ namespace SCM
 		//TODO: buffer intermediate data and write to actual mesh data at the end
 		void updateTangents()
 		{
+			static thread_local std::vector<glm::vec3> bitangents;
 			//initialize tangents and bitangents with nullvecs
 			for (size_t i = 0; i < m_vertices.getData().size(); ++i)
 			{
 				m_vertices.setData()[i].m_tangent = glm::vec3(0.0f, 0.0f, 0.0f);
+				bitangents.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 			}
 
 			float det;
 			glm::vec3 tangent;
+			glm::vec3 bitangent;
 			glm::vec3 normal;
+
+			
 
 			//calculate and average tangents and bitangents just as we did when calculating the normals
 			for (size_t i = 0; i < m_indices.size(); i += 3)
@@ -351,11 +356,19 @@ namespace SCM
 					tangent.x = det * (duv2.y * edge1.x - duv1.y * edge2.x);
 					tangent.y = det * (duv2.y * edge1.y - duv1.y * edge2.y);
 					tangent.z = det * (duv2.y * edge1.z - duv1.y * edge2.z);
+
+					bitangent.x = det * (-duv2.x * edge1.x + duv1.x * edge2.x);
+					bitangent.y = det * (-duv2.x * edge1.y + duv1.x * edge2.y);
+					bitangent.z = det * (-duv2.x * edge1.z + duv1.x * edge2.z);
 				}
 
 				m_vertices.setData()[m_indices[i]].m_tangent += tangent;
 				m_vertices.setData()[m_indices[i + 1]].m_tangent += tangent;
 				m_vertices.setData()[m_indices[i + 2]].m_tangent += tangent;
+
+				bitangents[m_indices[i]] += bitangent;
+				bitangents[m_indices[i + 1]] += bitangent;
+				bitangents[m_indices[i + 2]] += bitangent;
 			}
 
 			//orthogonalize and normalize tangents
@@ -367,8 +380,14 @@ namespace SCM
 
 				//gram schmidt reorthogonalize normal-tangent system
 				m_vertices.setData()[i].m_tangent = glm::normalize(m_vertices.getData()[i].m_tangent - (glm::dot(m_vertices.getData()[i].m_normal, m_vertices.getData()[i].m_tangent) * m_vertices.getData()[i].m_normal));
+
+				//correct handedness when needed
+				if (glm::dot(glm::cross(m_vertices.getData()[i].m_normal, m_vertices.setData()[i].m_tangent), glm::normalize(bitangents[i])) < 0.0f)
+					m_vertices.setData()[i].m_tangent *= -1.0f;
 			}
+			bitangents.clear();
 		}
+
 	};
 	
 	class MeshedObject
