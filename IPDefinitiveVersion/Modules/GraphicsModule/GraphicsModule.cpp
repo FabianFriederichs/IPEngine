@@ -1087,15 +1087,15 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 			shader->setUniform("u_ibl_maxspeclod", static_cast<GLfloat>(m_specular_mipmap_levels - 1));
 	}
 }
-void GraphicsModule::setMaterialUniforms(SCM::MaterialData * mdata, ShaderProgram* shader)
+void GraphicsModule::setMaterialUniforms(SCM::MaterialData * mdata, ShaderProgram* shader, const glm::vec2& tcoffset, const glm::vec2& tcscale)
 {
 	for (auto tp : mdata->m_textures)
 	{
 		auto& t = tp.second;
 		auto& tex = m_scmtexturetot2d[t.m_texturefileId];
 		shader->bindTex(("u_material." + tp.first + ".tex").c_str(), tex.get());
-		shader->setUniform(("u_material." + tp.first + ".scale").c_str(), glm::vec2(1.0f));// t.m_size);
-		shader->setUniform(("u_material." + tp.first + ".offset").c_str(), glm::vec2(0.0f));// t.m_offset);
+		shader->setUniform(("u_material." + tp.first + ".scale").c_str(), tcscale);// t.m_size);
+		shader->setUniform(("u_material." + tp.first + ".offset").c_str(), tcoffset);// t.m_offset);
 	}
 }
 void GraphicsModule::drawEntity(SCM::ThreeDimEntity * entity, ShaderProgram* shader)
@@ -1133,7 +1133,7 @@ void GraphicsModule::drawEntity(SCM::ThreeDimEntity * entity, ShaderProgram* sha
 		if (entity->m_mesheObjects->meshtomaterial.count(m->m_meshId) > 0)
 		{
 			auto mat = m_scm->getMaterialById(entity->m_mesheObjects->meshtomaterial[m->m_meshId]);
-			setMaterialUniforms(mat, shader);
+			setMaterialUniforms(mat, shader);//m->m_texCoordOffset, m->m_texCoordScale);
 		}
 		if (m->m_isdoublesided)
 			glDisable(GL_CULL_FACE);

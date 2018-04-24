@@ -178,7 +178,7 @@ private:
 	void drawSceneShadow(ShaderProgram* shader);
 	void setSceneUniforms(ShaderProgram* shader);
 	void setLightUniforms(ShaderProgram* shader);
-	void setMaterialUniforms(SCM::MaterialData* mdata, ShaderProgram* shader);
+	void setMaterialUniforms(SCM::MaterialData* mdata, ShaderProgram* shader, const glm::vec2& tcoffset = glm::vec2(0.0f), const glm::vec2& tcscale = glm::vec2(1.0f));
 	//TODO:fallback to mesh normal if no tangents are available
 	void drawEntity(SCM::ThreeDimEntity* entity, ShaderProgram* shader);
 	void drawEntityShadow(SCM::ThreeDimEntity* entity, ShaderProgram* shader);

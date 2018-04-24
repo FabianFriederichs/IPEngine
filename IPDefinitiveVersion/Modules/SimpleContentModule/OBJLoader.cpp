@@ -454,14 +454,17 @@ void OBJLoader::recalculateTangents(OBJMesh & mesh)
 	{
 		if (mesh.hasUVs)
 		{
+			static thread_local std::vector<glm::vec3> bitangents;
 			//initialize tangents and bitangents with nullvecs
 			for (size_t i = 0; i < mesh.vertices.size(); i++)
 			{
 				mesh.vertices[i].tangent = glm::vec3(0.0f, 0.0f, 0.0f);
+				bitangents.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 			}
 
 			float det;
 			glm::vec3 tangent;
+			glm::vec3 bitangent;
 			glm::vec3 normal;
 
 			//calculate and average tangents and bitangents just as we did when calculating the normals
@@ -490,6 +493,7 @@ void OBJLoader::recalculateTangents(OBJMesh & mesh)
 				if (fabs(det) < 1e-6f)		//if delta stuff is close to nothing ignore it
 				{
 					tangent = glm::vec3(1.0f, 0.0f, 0.0f);
+					bitangent = glm::vec3(0.0f, 1.0f, 0.0f);
 				}
 				else
 				{
@@ -498,22 +502,34 @@ void OBJLoader::recalculateTangents(OBJMesh & mesh)
 					tangent.x = det * (duv2.y * edge1.x - duv1.y * edge2.x);
 					tangent.y = det * (duv2.y * edge1.y - duv1.y * edge2.y);
 					tangent.z = det * (duv2.y * edge1.z - duv1.y * edge2.z);
+
+					bitangent.x = det * (-duv2.x * edge1.x + duv1.x * edge2.x);
+					bitangent.y = det * (-duv2.x * edge1.y + duv1.x * edge2.y);
+					bitangent.z = det * (-duv2.x * edge1.z + duv1.x * edge2.z);
 				}
 
 				mesh.vertices[mesh.indices[i]].tangent += tangent;
 				mesh.vertices[mesh.indices[i + 1]].tangent += tangent;
 				mesh.vertices[mesh.indices[i + 2]].tangent += tangent;
+
+				bitangents[mesh.indices[i]] += bitangent;
+				bitangents[mesh.indices[i + 1]] += bitangent;
+				bitangents[mesh.indices[i + 2]] += bitangent;
 			}
 
 			//orthogonalize and normalize tangents
 			for (size_t i = 0; i < mesh.vertices.size(); i++)
 			{
 				//normalize the stuff from before
-				mesh.vertices[i].normal = glm::normalize(mesh.vertices[i].normal);
-				mesh.vertices[i].tangent = glm::normalize(mesh.vertices[i].tangent);
+				//mesh.vertices[i].normal = glm::normalize(mesh.vertices[i].normal);
+				//mesh.vertices[i].tangent = glm::normalize(mesh.vertices[i].tangent);
 
 				//gram schmidt reorthogonalize normal-tangent system
 				mesh.vertices[i].tangent = glm::normalize(mesh.vertices[i].tangent - (glm::dot(mesh.vertices[i].normal, mesh.vertices[i].tangent) * mesh.vertices[i].normal));
+
+				//correct handedness where necessary
+				if (glm::dot(glm::cross(mesh.vertices[i].normal, mesh.vertices[i].tangent), bitangents[i]) < 0.0f)
+					mesh.vertices[i].tangent *= -1.0f;
 			}
 			mesh.hasTangents = true;
 		}

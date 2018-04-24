@@ -91,7 +91,8 @@ uniform float u_ibl_maxspeclod;
 vec3 normalFromNormalMap(vec3 texData, mat3 TBN)
 {
     vec3 n = texData * 2.0f - 1.0f;
-    return normalize(TBN * n);
+    n = mix(vertexdat.normal, normalize(TBN * n), float(length(texData) > 1.e-6f));
+    return n;
 }
 
 float lstep(float _min, float _max, float v)
@@ -112,8 +113,6 @@ float calcShadowFactor(int i)
     fragDepth = fragDepth * 0.5 + 0.5;
     vec4 ssamp = texture(u_directionalLights[i].shadowMap, fragDepth.xy);
     float lightDepth1M1 = ssamp.r;
-    // if(isinf(lightDepth1M1))
-    //     return 1.0f;
     float lightDepth1M2 = ssamp.g;
     float lightDepth2M1 = ssamp.b;
     float lightDepth2M2 = ssamp.a;

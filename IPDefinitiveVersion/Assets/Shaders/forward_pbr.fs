@@ -78,7 +78,8 @@ uniform float u_toneMappingExposure;
 vec3 normalFromNormalMap(vec3 texData, mat3 TBN)
 {
     vec3 n = texData * 2.0f - 1.0f;
-    return normalize(TBN * n);
+    n = mix(vertexdat.normal, normalize(TBN * n), float(length(texData) > 1.e-6f));
+    return n;
 }
 
 //light radiance calculation

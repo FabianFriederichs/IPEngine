@@ -318,6 +318,26 @@
 				</Box>
 			</BoundingData>
 		</Entity>
+		<Entity>
+			<Id>16</Id>
+			<StringName>Rmod</StringName>
+			<MeshId>8</MeshId>
+			<TransformData>
+				<Location>-5.000000/0.000000/2.000000</Location>
+				<Rotation>1.000000/0.000000/0.000000/0.000000</Rotation>
+				<Scale>1.00000/1.00000/1.00000</Scale>
+				<LocalY>0.000000/1.000000/0.000000</LocalY>
+				<LocalX>1.000000/0.000000/0.000000</LocalX>
+				<LocalZ>0.000000/0.000000/1.000000</LocalZ>
+			</TransformData>
+			<BoundingData>
+				<Box>
+					<Center>0/0/0</Center>
+					<Size>0.3/0.4/0.3</Size>
+					<Rotation>1.000000/0.000000/0.000000/0.000000</Rotation>
+				</Box>
+			</BoundingData>
+		</Entity>
 	</Entities>
 	<Meshes>
 		<Mesh>
@@ -398,6 +418,15 @@
 			<Materials>
 				<Material>
 					<MaterialId>7</MaterialId>
+				</Material>
+			</Materials>
+		</Mesh>
+		<Mesh>
+			<Id>8</Id>
+			<Path>../assets/models/rmod.obj</Path>
+			<Materials>
+				<Material>
+					<MaterialId>12</MaterialId>
 				</Material>
 			</Materials>
 		</Mesh>
@@ -663,6 +692,28 @@
 			</Textures>
 			<ShaderId>1</ShaderId>
 		</Material>
+		<Material>
+			<Id>12</Id>
+			<Textures>
+				<Texture>
+					<Name>albedo</Name>
+					<Id>43</Id>
+				</Texture>
+				<Texture>
+					<Name>mrar</Name>
+					<Id>44</Id>
+				</Texture>
+				<Texture>
+					<Name>normal</Name>
+					<Id>45</Id>
+				</Texture>
+				<Texture>
+					<Name>emissive</Name>
+					<Id>46</Id>
+				</Texture>
+			</Textures>
+			<ShaderId>1</ShaderId>
+		</Material>
 	</Materials>
 	<Textures>
 		<Texture>
@@ -836,6 +887,22 @@
 		<Texture>
 			<Id>42</Id>
 			<TexturePath>controllerdiff</TexturePath>
+		</Texture>
+		<Texture>
+			<Id>43</Id>
+			<TexturePath>../assets/textures/RenderModel/rmod_albedo.png</TexturePath>
+		</Texture>
+		<Texture>
+			<Id>44</Id>
+			<TexturePath>../assets/textures/RenderModel/rmod_mrar.png</TexturePath>
+		</Texture>
+		<Texture>
+			<Id>45</Id>
+			<TexturePath>../assets/textures/RenderModel/rmod_normal.png</TexturePath>
+		</Texture>
+		<Texture>
+			<Id>46</Id>
+			<TexturePath>../assets/textures/RenderModel/rmod_emissive.png</TexturePath>
 		</Texture>
 	</Textures>
 </Scene>

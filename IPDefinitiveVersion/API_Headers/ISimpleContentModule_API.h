@@ -277,6 +277,8 @@ namespace SCM
 		bool m_dynamic;
 		bool m_dirty;
 		bool m_isdoublesided;
+		glm::vec2 m_texCoordOffset = glm::vec2(0.0f);
+		glm::vec2 m_texCoordScale = glm::vec2(1.0f);
 		//TODO: buffer intermediate data and write to actual mesh data at the end
 		void updateNormals()
 		{
@@ -348,6 +350,7 @@ namespace SCM
 				if (fabs(det) < 1e-6f)		//if delta stuff is close to nothing ignore it
 				{
 					tangent = glm::vec3(1.0f, 0.0f, 0.0f);
+					bitangent = glm::vec3(0.0f, 1.0f, 0.0f);
 				}
 				else
 				{
@@ -375,13 +378,13 @@ namespace SCM
 			for (size_t i = 0; i < m_vertices.getData().size(); i++)
 			{
 				//normalize the stuff from before
-				m_vertices.setData()[i].m_normal = glm::normalize(m_vertices.getData()[i].m_normal);
-				m_vertices.setData()[i].m_tangent = glm::normalize(m_vertices.getData()[i].m_tangent);
+				//m_vertices.setData()[i].m_normal = glm::normalize(m_vertices.getData()[i].m_normal);
+				//m_vertices.setData()[i].m_tangent = m_vertices.getData()[i].m_tangent;
 
 				//gram schmidt reorthogonalize normal-tangent system
 				m_vertices.setData()[i].m_tangent = glm::normalize(m_vertices.getData()[i].m_tangent - (glm::dot(m_vertices.getData()[i].m_normal, m_vertices.getData()[i].m_tangent) * m_vertices.getData()[i].m_normal));
 
-				//correct handedness when needed
+				//correct handedness where necessary
 				if (glm::dot(glm::cross(m_vertices.getData()[i].m_normal, m_vertices.setData()[i].m_tangent), glm::normalize(bitangents[i])) < 0.0f)
 					m_vertices.setData()[i].m_tangent *= -1.0f;
 			}

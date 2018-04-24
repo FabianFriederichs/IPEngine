@@ -598,7 +598,7 @@ void GraphicsModulePreRenderVR::setupControllerMat(boost::shared_ptr<vr::IVRRend
 
 		uint8_t emissivevalues[]{ 0,0,0,1 };
 		uint8_t mrarvalues[]{ 0, 255 * 0.65, 255, 10 };
-		uint8_t normalvalues[]{ 0, 0, 255 };
+		uint8_t normalvalues[]{ 0, 0, 0 };
 		//Load data into graphicsmodule because texture data is not in a file
 		graphicsmodule->loadTextureFromMemory({ controllerdiffuse->unWidth, controllerdiffuse->unHeight, 4, controllerdiffuse->rubTextureMapData }, tf.m_textureId);
 		graphicsmodule->setMaterialTexDefaultParams(tf.m_textureId, true);

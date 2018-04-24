@@ -83,6 +83,7 @@ ipengine::ipid SimpleContentModule::addMeshFromFile(std::string path, std::strin
 			{
 				data->m_vertices.setData().push_back(SCM::VertexData(v.position, v.uv, v.normal, v.tangent));
 			}
+			//data->updateTangents();
 			//data->m_vertices.swap(); //Does this make sense?
 			data->m_meshId = m_core->createID();
 			if (mats.size() <= meshindex)
