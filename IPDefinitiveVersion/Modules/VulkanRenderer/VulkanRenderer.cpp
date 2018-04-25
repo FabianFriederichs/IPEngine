@@ -9,6 +9,7 @@
 // Tell SDL not to mess with main()
 #define SDL_MAIN_HANDLED
 #include "VulkanRenderer.h"
+#include <stb_image.h>
 #ifdef USE_GLTF
 std::string GLTF_VERSION;
 std::string GLTF_NAME;
@@ -40,28 +41,7 @@ void VulkanRenderer::updateData()
 		if (findent != entities.end())
 		{
 			auto mO = findent->second;
-			for (auto momats : mO->m_mesheObjects->meshtomaterial)
-			{
-				auto momat = m_scm->getMaterialById(momats.second);
-				for (auto texts : momat->m_textures)
-				{
-					if (m_scmtexturetot2d.count(texts.second.m_texturefileId) < 1)
-					{
-						for (auto fexfiles : textures)
-						{
-							if (fexfiles.m_textureId == texts.second.m_texturefileId)
-							{
-								rj::ImageWrapper imgwrap;
-								rj::loadTexture2D(&imgwrap, m_renderer->getManager(), fexfiles.m_path);
-								m_scmtexturetot2d[texts.second.m_texturefileId] = imgwrap;
-							}
-						}
-						//GLUtils::loadGLTexture(textures[])
-						//TODO
-						//load texture into gpu memory?? 
-					}
-				}
-			}
+			
 			for (auto mesh : mO->m_mesheObjects->m_meshes)
 			{
 				//TODO Check for NULL material
@@ -83,6 +63,82 @@ void VulkanRenderer::updateData()
 					scene->meshes.insert({ mesh->m_meshId, m_renderer->getManager() });
 					scene->meshes[mesh->m_meshId].load(verts, mesh->m_indices, minp, maxp);
 				}
+				for (auto momats : mO->m_mesheObjects->meshtomaterial)
+				{
+					auto momat = m_scm->getMaterialById(momats.second);
+					for (auto texts : momat->m_textures)
+					{
+						if (m_scmtexturetot2d.count(texts.second.m_texturefileId) < 1)
+						{
+							for (auto fexfiles : textures)
+							{
+								if (texts.first == "mrar")
+								{
+									//split mrar texture into 3 channels
+									rj::ImageWrapper imgwrap, imgwrapmet, imgwrapro, imgwrapao;
+									int width;
+									int height;
+									int channels;
+									//stbi__vertically_flip_on_load = true;
+									unsigned char* image = stbi_load(fexfiles.m_path.c_str(), &width, &height, &channels, 0);
+									std::vector<uint8_t> metmap(width*height*channels);
+									std::vector<uint8_t> roughmap(width*height*channels);
+									std::vector<uint8_t> aomap(width*height*channels);
+									for (size_t index = 0; index < width*height*channels; index += channels)
+									{
+										for (int ix2 = 0; ix2 < channels; ++ix2)
+										{
+											metmap.push_back(image[index]);
+											roughmap.push_back(image[index + 1]);
+											aomap.push_back(image[index + 2]);
+										}
+									}
+									stbi_image_free(image);
+									rj::loadTexture2DFromBinaryData(&imgwrapmet, m_renderer->getManager(), metmap.data(), width, height, gli::FORMAT_RGBA8_UNORM_PACK8);
+									rj::loadTexture2DFromBinaryData(&imgwrapro, m_renderer->getManager(), roughmap.data(), width, height, gli::FORMAT_RGBA8_UNORM_PACK8);
+									rj::loadTexture2DFromBinaryData(&imgwrapao, m_renderer->getManager(), aomap.data(), width, height, gli::FORMAT_RGBA8_UNORM_PACK8);
+									m_scmtextomrart2d[texts.second.m_texturefileId]["metalness"] = imgwrapmet;
+									m_scmtextomrart2d[texts.second.m_texturefileId]["roughness"] = imgwrapmet;
+									m_scmtextomrart2d[texts.second.m_texturefileId]["ao"] = imgwrapmet;
+									rj::loadTexture2D(&imgwrap, m_renderer->getManager(), fexfiles.m_path);
+									m_scmtexturetot2d[texts.second.m_texturefileId] = imgwrap;
+								}
+								else if (fexfiles.m_textureId == texts.second.m_texturefileId)
+								{
+									rj::ImageWrapper imgwrap;
+									rj::loadTexture2D(&imgwrap, m_renderer->getManager(), fexfiles.m_path);
+									m_scmtexturetot2d[texts.second.m_texturefileId] = imgwrap;
+								}
+							}
+							//GLUtils::loadGLTexture(textures[])
+							//TODO
+							//load texture into gpu memory?? 
+						}
+					}
+					if (scene->meshes.count(momats.first)>0)
+					{
+						auto mesh = scene->meshes[momats.first];//m_scmtexturetot2d[mat.]
+
+						if (mesh.albedoMap.imageViews.size() == 0 && momat->m_textures.count("albedo")>0 && m_scmtexturetot2d.count(momat->m_textures["albedo"].m_texturefileId)>0)
+						{
+							mesh.albedoMap = m_scmtexturetot2d[momat->m_textures["albedo"].m_texturefileId];
+						}
+						if (mesh.emissiveMap.imageViews.size() == 0 && momat->m_textures.count("emissive")>0 && m_scmtexturetot2d.count(momat->m_textures["emissive"].m_texturefileId)>0)
+						{
+							mesh.albedoMap = m_scmtexturetot2d[momat->m_textures["emissive"].m_texturefileId];
+						}
+						if (mesh.normalMap.imageViews.size() == 0 && momat->m_textures.count("normal")>0 && m_scmtexturetot2d.count(momat->m_textures["normal"].m_texturefileId)>0)
+						{
+							mesh.albedoMap = m_scmtexturetot2d[momat->m_textures["normal"].m_texturefileId];
+						}
+						if (mesh.metalnessMap.imageViews.size() == 0 && momat->m_textures.count("mrar")>0 && m_scmtexturetot2d.count(momat->m_textures["mrar"].m_texturefileId)>0)
+						{
+							mesh.roughnessMap = m_scmtextomrart2d[momat->m_textures["mrar"].m_texturefileId]["roughness"];
+							mesh.metalnessMap = m_scmtextomrart2d[momat->m_textures["mrar"].m_texturefileId]["metalness"];
+							mesh.aoMap = m_scmtextomrart2d[momat->m_textures["mrar"].m_texturefileId]["ao"];
+						}
+					}
+				}
 				//else if (mesh->m_dynamic && mesh->m_dirty)//update dynamic meshes
 				//{
 				//	if (m_scmmeshtovao.count(mesh->m_meshId) > 0)
@@ -93,6 +149,7 @@ void VulkanRenderer::updateData()
 				//		GLUtils::updateVAO(vao, *mesh);
 				//	}
 				//}
+				
 				/*if (mO->m_mesheObjects->meshtomaterial.size()>0 && m_scmshadertoprogram.count(m_scm->getMaterialById(mO->m_mesheObjects->meshtomaterial[mesh->m_meshId])->m_shaderId) < 1)
 				{
 					auto files = m_scm->getShaderById(m_scm->getMaterialById(mO->m_mesheObjects->meshtomaterial[mesh->m_meshId])->m_shaderId);
@@ -100,7 +157,6 @@ void VulkanRenderer::updateData()
 					m_scmshadertoprogram[files->m_shaderId] = prog;
 				}*/
 			}
-
 			/*if (mO->m_transformData.getData()->m_isMatrixDirty)
 			{
 			mO->m_transformData.setData()->updateTransform();

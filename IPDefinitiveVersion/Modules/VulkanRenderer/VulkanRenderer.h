@@ -7,6 +7,7 @@
 #include <IGraphics_API.h>
 #include "deferred_renderer.h"
 #include <ISimpleContentModule_API.h>
+
 class VulkanRenderer : public IGraphics_API {
 public:
 	VulkanRenderer();
@@ -24,6 +25,7 @@ private:
 	//std::unordered_map<ipengine::ipid, std::shared_ptr<VAO>> m_scmmeshtovao;
 	//std::unordered_map<ipengine::ipid, std::shared_ptr<ShaderProgram>> m_scmshadertoprogram;
 	std::unordered_map <ipengine::ipid, rj::ImageWrapper> m_scmtexturetot2d;
+	std::unordered_map <ipengine::ipid, std::unordered_map<std::string, rj::ImageWrapper>> m_scmtextomrart2d;
 	//SCM entity that represents the rendering camera
 	ipengine::ipid m_entrepcam;
 	//Update vulkan resources from SCM resources

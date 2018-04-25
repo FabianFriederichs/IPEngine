@@ -74,7 +74,7 @@ void DeferredRenderer::updateUniformHostData()
 	// update per model information
 	for (auto &model : m_scene.meshes)
 	{
-		model.updateHostUniformBuffer();
+		model.second.updateHostUniformBuffer();
 	}
 
 	// shadow light information
@@ -552,9 +552,9 @@ void DeferredRenderer::loadAndPrepareAssets()
 
 	// Models
 #ifdef USE_GLTF
-	VMesh::loadFromGLTF(m_scene.meshes, &m_vulkanManager, GLTF_NAME, GLTF_VERSION);
+	//VMesh::loadFromGLTF(m_scene.meshes, &m_vulkanManager, GLTF_NAME, GLTF_VERSION);
 #else
-	std::vector<std::string> modelNames = MODEL_NAMES;
+	/*std::vector<std::string> modelNames = MODEL_NAMES;
 	m_scene.meshes.resize(modelNames.size(), { &m_vulkanManager });
 
 	for (size_t i = 0; i < m_scene.meshes.size(); ++i)
@@ -579,7 +579,7 @@ void DeferredRenderer::loadAndPrepareAssets()
 
 		m_scene.meshes[i].load(modelFileName, albedoMapName, normalMapName, roughnessMapName, metalnessMapName, aoMapName, emissiveMapName);
 		m_scene.meshes[i].setRotation(glm::quat(glm::vec3(0.f, glm::pi<float>(), 0.f)));
-	}
+	}*/
 #endif
 
 	// Lights
@@ -608,7 +608,7 @@ void DeferredRenderer::createUniformBuffers()
 
 		for (auto &model : m_scene.meshes)
 		{
-			model.uPerModelInfo = reinterpret_cast<PerModelUniformBuffer *>(m_perFrameUniformHostData.alloc(sizeof(PerModelUniformBuffer)));
+			model.second.uPerModelInfo = reinterpret_cast<PerModelUniformBuffer *>(m_perFrameUniformHostData.alloc(sizeof(PerModelUniformBuffer)));
 		}
 	}
 
@@ -707,14 +707,20 @@ void DeferredRenderer::createDescriptorSets()
 			m_perFrameDescriptorSets[imgIdx].m_shadowDescriptorSets1[i] = sets[idx++];
 		}
 		m_perFrameDescriptorSets[imgIdx].m_shadowDescriptorSets2.resize(m_scene.meshes.size());
-		for (uint32_t i = 0; i < m_scene.meshes.size(); ++i)
+		uint32_t i = 0;
+		for (auto &mesh : m_scene.meshes)
 		{
 			m_perFrameDescriptorSets[imgIdx].m_shadowDescriptorSets2[i] = sets[idx++];
+			mesh.second.shadowDescrSetIndex = i;
+			++i;
 		}
 		m_perFrameDescriptorSets[imgIdx].m_geomDescriptorSets.resize(m_scene.meshes.size());
-		for (uint32_t i = 0; i < m_scene.meshes.size(); ++i)
+		i = 0;
+		for (auto &mesh : m_scene.meshes)
 		{
 			m_perFrameDescriptorSets[imgIdx].m_geomDescriptorSets[i] = sets[idx++];
+			mesh.second.geomDescrSetIndex = i;
+			++i;
 		}
 		m_perFrameDescriptorSets[imgIdx].m_bloomDescriptorSets.resize(3);
 		for (uint32_t i = 0; i < 3; ++i)
@@ -1627,45 +1633,45 @@ void DeferredRenderer::createStaticMeshDescriptorSet()
 	const uint32_t swapChainImageCount = m_vulkanManager.getSwapChainSize();
 	for (uint32_t imgIdx = 0; imgIdx < swapChainImageCount; ++imgIdx)
 	{
-		for (uint32_t i = 0; i < m_scene.meshes.size(); ++i)
+		for (auto &mesh : m_scene.meshes)
 		{
 			std::vector<rj::DescriptorSetUpdateBufferInfo> bufferInfos(1);
 			std::vector<rj::DescriptorSetUpdateImageInfo> imageInfos(1);
 
-			m_vulkanManager.beginUpdateDescriptorSet(m_perFrameDescriptorSets[imgIdx].m_geomDescriptorSets[i]);
+			m_vulkanManager.beginUpdateDescriptorSet(m_perFrameDescriptorSets[imgIdx].m_geomDescriptorSets[mesh.second.geomDescrSetIndex]);
 
 			bufferInfos[0].bufferName = m_perFrameUniformDeviceData[imgIdx].buffer;
 			bufferInfos[0].offset = m_perFrameUniformHostData.offsetOf(reinterpret_cast<const char *>(m_uCameraVP));
 			bufferInfos[0].sizeInBytes = sizeof(TransMatsUniformBuffer);
 			m_vulkanManager.descriptorSetAddBufferDescriptor(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, bufferInfos);
 
-			bufferInfos[0].offset = m_perFrameUniformHostData.offsetOf(reinterpret_cast<const char *>(m_scene.meshes[i].uPerModelInfo));
+			bufferInfos[0].offset = m_perFrameUniformHostData.offsetOf(reinterpret_cast<const char *>(mesh.second.uPerModelInfo));
 			bufferInfos[0].sizeInBytes = sizeof(PerModelUniformBuffer);
 			m_vulkanManager.descriptorSetAddBufferDescriptor(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, bufferInfos);
 
 			imageInfos[0].layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfos[0].imageViewName = m_scene.meshes[i].albedoMap.imageViews[0];
-			imageInfos[0].samplerName = m_scene.meshes[i].albedoMap.samplers[0];
+			imageInfos[0].imageViewName = mesh.second.albedoMap.imageViews[0];
+			imageInfos[0].samplerName = mesh.second.albedoMap.samplers[0];
 			m_vulkanManager.descriptorSetAddImageDescriptor(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, imageInfos);
 
-			imageInfos[0].imageViewName = m_scene.meshes[i].normalMap.imageViews[0];
-			imageInfos[0].samplerName = m_scene.meshes[i].normalMap.samplers[0];
+			imageInfos[0].imageViewName = mesh.second.normalMap.imageViews[0];
+			imageInfos[0].samplerName = mesh.second.normalMap.samplers[0];
 			m_vulkanManager.descriptorSetAddImageDescriptor(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, imageInfos);
 
-			imageInfos[0].imageViewName = m_scene.meshes[i].roughnessMap.imageViews[0];
-			imageInfos[0].samplerName = m_scene.meshes[i].roughnessMap.samplers[0];
+			imageInfos[0].imageViewName = mesh.second.roughnessMap.imageViews[0];
+			imageInfos[0].samplerName = mesh.second.roughnessMap.samplers[0];
 			m_vulkanManager.descriptorSetAddImageDescriptor(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, imageInfos);
 
-			imageInfos[0].imageViewName = m_scene.meshes[i].metalnessMap.imageViews[0];
-			imageInfos[0].samplerName = m_scene.meshes[i].metalnessMap.samplers[0];
+			imageInfos[0].imageViewName = mesh.second.metalnessMap.imageViews[0];
+			imageInfos[0].samplerName = mesh.second.metalnessMap.samplers[0];
 			m_vulkanManager.descriptorSetAddImageDescriptor(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, imageInfos);
 
-			imageInfos[0].imageViewName = m_scene.meshes[i].aoMap.image == std::numeric_limits<uint32_t>::max() ? m_scene.meshes[i].albedoMap.imageViews[0] : m_scene.meshes[i].aoMap.imageViews[0];
-			imageInfos[0].samplerName = m_scene.meshes[i].aoMap.image == std::numeric_limits<uint32_t>::max() ? m_scene.meshes[i].albedoMap.samplers[0] : m_scene.meshes[i].aoMap.samplers[0];
+			imageInfos[0].imageViewName = mesh.second.aoMap.image == std::numeric_limits<uint32_t>::max() ? mesh.second.albedoMap.imageViews[0] : mesh.second.aoMap.imageViews[0];
+			imageInfos[0].samplerName = mesh.second.aoMap.image == std::numeric_limits<uint32_t>::max() ? mesh.second.albedoMap.samplers[0] : mesh.second.aoMap.samplers[0];
 			m_vulkanManager.descriptorSetAddImageDescriptor(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, imageInfos);
 
-			imageInfos[0].imageViewName = m_scene.meshes[i].emissiveMap.image == std::numeric_limits<uint32_t>::max() ? m_scene.meshes[i].albedoMap.imageViews[0] : m_scene.meshes[i].emissiveMap.imageViews[0];
-			imageInfos[0].samplerName = m_scene.meshes[i].emissiveMap.image == std::numeric_limits<uint32_t>::max() ? m_scene.meshes[i].albedoMap.samplers[0] : m_scene.meshes[i].emissiveMap.samplers[0];
+			imageInfos[0].imageViewName = mesh.second.emissiveMap.image == std::numeric_limits<uint32_t>::max() ? mesh.second.albedoMap.imageViews[0] : mesh.second.emissiveMap.imageViews[0];
+			imageInfos[0].samplerName = mesh.second.emissiveMap.image == std::numeric_limits<uint32_t>::max() ? mesh.second.albedoMap.samplers[0] : mesh.second.emissiveMap.samplers[0];
 			m_vulkanManager.descriptorSetAddImageDescriptor(7, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, imageInfos);
 
 			m_vulkanManager.endUpdateDescriptorSet();
@@ -1692,14 +1698,14 @@ void DeferredRenderer::createShadowPassDescriptorSets()
 			m_vulkanManager.endUpdateDescriptorSet();
 		}
 
-		for (uint32_t i = 0; i < m_scene.meshes.size(); ++i)
+		for (auto& mesh : m_scene.meshes)
 		{
 			std::vector<rj::DescriptorSetUpdateBufferInfo> bufferInfos(1);
 
-			m_vulkanManager.beginUpdateDescriptorSet(m_perFrameDescriptorSets[imgIdx].m_shadowDescriptorSets2[i]);
+			m_vulkanManager.beginUpdateDescriptorSet(m_perFrameDescriptorSets[imgIdx].m_shadowDescriptorSets2[mesh.second.shadowDescrSetIndex]);
 
 			bufferInfos[0].bufferName = m_perFrameUniformDeviceData[imgIdx].buffer;
-			bufferInfos[0].offset = m_perFrameUniformHostData.offsetOf(reinterpret_cast<const char *>(m_scene.meshes[i].uPerModelInfo));
+			bufferInfos[0].offset = m_perFrameUniformHostData.offsetOf(reinterpret_cast<const char *>(mesh.second.uPerModelInfo));
 			bufferInfos[0].sizeInBytes = sizeof(PerModelUniformBuffer);
 			m_vulkanManager.descriptorSetAddBufferDescriptor(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, bufferInfos);
 
@@ -1921,13 +1927,13 @@ void DeferredRenderer::createGeomShadowLightingCommandBuffers()
 		m_vulkanManager.cmdBindPipeline(cb, VK_PIPELINE_BIND_POINT_GRAPHICS, m_geomPipeline);
 
 		const uint32_t numModels = static_cast<uint32_t>(m_scene.meshes.size());
-		for (uint32_t j = 0; j < numModels; ++j)
+		for (auto &mesh : m_scene.meshes)
 		{
-			m_vulkanManager.cmdBindVertexBuffers(cb, { m_scene.meshes[j].vertexBuffer.buffer }, { 0 });
-			m_vulkanManager.cmdBindIndexBuffer(cb, m_scene.meshes[j].indexBuffer.buffer, VK_INDEX_TYPE_UINT32);
+			m_vulkanManager.cmdBindVertexBuffers(cb, { mesh.second.vertexBuffer.buffer }, { 0 });
+			m_vulkanManager.cmdBindIndexBuffer(cb, mesh.second.indexBuffer.buffer, VK_INDEX_TYPE_UINT32);
 
 			m_vulkanManager.cmdBindDescriptorSets(cb, VK_PIPELINE_BIND_POINT_GRAPHICS,
-				m_geomPipelineLayout, { m_perFrameDescriptorSets[imgIdx].m_geomDescriptorSets[j] });
+				m_geomPipelineLayout, { m_perFrameDescriptorSets[imgIdx].m_geomDescriptorSets[mesh.second.geomDescrSetIndex] });
 
 			struct
 			{
@@ -1935,13 +1941,13 @@ void DeferredRenderer::createGeomShadowLightingCommandBuffers()
 				uint32_t hasAoMap;
 				uint32_t hasEmissiveMap;
 			} pushConst;
-			pushConst.materialId = m_scene.meshes[j].materialType;
-			pushConst.hasAoMap = m_scene.meshes[j].aoMap.image != std::numeric_limits<uint32_t>::max();
-			pushConst.hasEmissiveMap = m_scene.meshes[j].emissiveMap.image != std::numeric_limits<uint32_t>::max();
+			pushConst.materialId = mesh.second.materialType;
+			pushConst.hasAoMap = mesh.second.aoMap.image != std::numeric_limits<uint32_t>::max();
+			pushConst.hasEmissiveMap = mesh.second.emissiveMap.image != std::numeric_limits<uint32_t>::max();
 
 			m_vulkanManager.cmdPushConstants(cb, m_geomPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushConst), &pushConst);
 
-			const uint32_t numIndices = static_cast<uint32_t>(m_scene.meshes[j].indexBuffer.size / sizeof(uint32_t));
+			const uint32_t numIndices = static_cast<uint32_t>(mesh.second.indexBuffer.size / sizeof(uint32_t));
 			m_vulkanManager.cmdDrawIndexed(cb, numIndices);
 		}
 
@@ -1962,15 +1968,15 @@ void DeferredRenderer::createGeomShadowLightingCommandBuffers()
 
 			m_vulkanManager.cmdBindPipeline(cb, VK_PIPELINE_BIND_POINT_GRAPHICS, m_shadowPipelines[i]);
 
-			for (uint32_t j = 0; j < numModels; ++j)
+			for (auto& mesh : m_scene.meshes)
 			{
-				m_vulkanManager.cmdBindVertexBuffers(cb, { m_scene.meshes[j].vertexBuffer.buffer }, { 0 });
-				m_vulkanManager.cmdBindIndexBuffer(cb, m_scene.meshes[j].indexBuffer.buffer, VK_INDEX_TYPE_UINT32);
+				m_vulkanManager.cmdBindVertexBuffers(cb, { mesh.second.vertexBuffer.buffer }, { 0 });
+				m_vulkanManager.cmdBindIndexBuffer(cb, mesh.second.indexBuffer.buffer, VK_INDEX_TYPE_UINT32);
 
 				m_vulkanManager.cmdBindDescriptorSets(cb, VK_PIPELINE_BIND_POINT_GRAPHICS, m_shadowPipelineLayout,
-					{ m_perFrameDescriptorSets[imgIdx].m_shadowDescriptorSets1[i], m_perFrameDescriptorSets[imgIdx].m_shadowDescriptorSets2[j] });
+					{ m_perFrameDescriptorSets[imgIdx].m_shadowDescriptorSets1[i], m_perFrameDescriptorSets[imgIdx].m_shadowDescriptorSets2[mesh.second.shadowDescrSetIndex] });
 
-				const uint32_t numIndices = static_cast<uint32_t>(m_scene.meshes[j].indexBuffer.size / sizeof(uint32_t));
+				const uint32_t numIndices = static_cast<uint32_t>(mesh.second.indexBuffer.size / sizeof(uint32_t));
 				m_vulkanManager.cmdDrawIndexed(cb, numIndices);
 			}
 		}
