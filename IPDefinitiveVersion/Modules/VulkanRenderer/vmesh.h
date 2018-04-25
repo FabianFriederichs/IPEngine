@@ -505,6 +505,31 @@ public:
 		pVulkanManager->transferHostDataToBuffer(indexBuffer.buffer, indexBuffer.size, hostIndices.data());
 	}
 
+	void load(
+		std::vector<Vertex> verts, std::vector<uint32_t> indices, glm::vec3 minPos, glm::vec3 maxPos)
+	{
+		using namespace rj::helper_functions;
+
+		bounds.min = minPos;
+		bounds.max = maxPos;
+
+		// create vertex buffer
+		vertexBuffer = {};
+		vertexBuffer.size = sizeof(verts[0]) * verts.size();
+		vertexBuffer.buffer = pVulkanManager->createBuffer(vertexBuffer.size,
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+		pVulkanManager->transferHostDataToBuffer(vertexBuffer.buffer, vertexBuffer.size, verts.data());
+
+		// create index buffer
+		indexBuffer = {};
+		indexBuffer.size = sizeof(indices[0]) * indices.size();
+		indexBuffer.buffer = pVulkanManager->createBuffer(indexBuffer.size,
+			VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+		pVulkanManager->transferHostDataToBuffer(indexBuffer.buffer, indexBuffer.size, indices.data());
+	}
+
 	virtual void updateHostUniformBuffer()
 	{
 		assert(uPerModelInfo);

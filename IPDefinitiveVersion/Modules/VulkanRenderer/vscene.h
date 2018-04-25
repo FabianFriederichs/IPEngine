@@ -2,14 +2,14 @@
 #define VSCENE_H
 #include "vmesh.h"
 #include "directional_light.h"
-
+#include <IPCore\Core\ICore.h>
 
 class VScene
 {
 public:
 	Skybox skybox;
 	DirectionalLight shadowLight;
-	std::vector<VMesh> meshes;
+	std::unordered_map<ipengine::ipid, VMesh> meshes;
 
 	BBox aabbWorldSpace;
 

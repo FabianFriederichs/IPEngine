@@ -139,6 +139,7 @@ public:
 	void initialize();
 	void shutdown();
 	void render();
+	VScene *getScene() { return &m_scene; }
 protected:
 	uint32_t m_specEnvPrefilterRenderPass;
 	uint32_t m_shadowRenderPass;

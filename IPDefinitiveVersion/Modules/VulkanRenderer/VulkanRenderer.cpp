@@ -24,6 +24,91 @@ VulkanRenderer::VulkanRenderer()
 	return;
 }
 
+void VulkanRenderer::updateData()
+{
+	setCameraEntity(m_entrepcam);
+
+	auto& activeentitynames = getActiveEntityNames(*m_scm);
+	auto& entities = m_scm->getThreeDimEntities();
+	auto& shaders = m_scm->getShaders();
+	auto& textures = m_scm->getTextures();
+	std::vector<ipengine::ipid> parents;
+	auto scene = m_renderer->getScene();
+	for (auto eid : activeentitynames)
+	{
+		auto findent = entities.find(eid);
+		if (findent != entities.end())
+		{
+			auto mO = findent->second;
+			for (auto momats : mO->m_mesheObjects->meshtomaterial)
+			{
+				auto momat = m_scm->getMaterialById(momats.second);
+				for (auto texts : momat->m_textures)
+				{
+					if (m_scmtexturetot2d.count(texts.second.m_texturefileId) < 1)
+					{
+						for (auto fexfiles : textures)
+						{
+							if (fexfiles.m_textureId == texts.second.m_texturefileId)
+							{
+								rj::ImageWrapper imgwrap;
+								rj::loadTexture2D(&imgwrap, m_renderer->getManager(), fexfiles.m_path);
+								m_scmtexturetot2d[texts.second.m_texturefileId] = imgwrap;
+							}
+						}
+						//GLUtils::loadGLTexture(textures[])
+						//TODO
+						//load texture into gpu memory?? 
+					}
+				}
+			}
+			for (auto mesh : mO->m_mesheObjects->m_meshes)
+			{
+				//TODO Check for NULL material
+
+				if (scene->meshes.count(mesh->m_meshId)<1)
+				{
+					//Dynamic VAO's vulkan TODO IMPORTANT!!!
+					//auto vao = (mesh->m_dynamic ? GLUtils::createDynamicVAO(*mesh) : GLUtils::createVAO(*mesh));
+					//m_scmmeshtovao[mesh->m_meshId] = vao;
+					auto verts = scmVertsToVVertex(mesh->m_vertices);
+					glm::vec3 minp, maxp;
+					minp = glm::vec3(std::numeric_limits<float>::max());
+					maxp = glm::vec3(-std::numeric_limits<float>::max());
+					for (auto v : verts)
+					{
+						minp = glm::min(minp, v.pos);
+						maxp = glm::max(maxp, v.pos);
+					}
+					scene->meshes.insert({ mesh->m_meshId, m_renderer->getManager() });
+					scene->meshes[mesh->m_meshId].load(verts, mesh->m_indices, minp, maxp);
+				}
+				//else if (mesh->m_dynamic && mesh->m_dirty)//update dynamic meshes
+				//{
+				//	if (m_scmmeshtovao.count(mesh->m_meshId) > 0)
+				//	{
+				//		auto& vao = m_scmmeshtovao[mesh->m_meshId];
+				//		mesh->updateNormals();
+				//		mesh->updateTangents();
+				//		GLUtils::updateVAO(vao, *mesh);
+				//	}
+				//}
+				/*if (mO->m_mesheObjects->meshtomaterial.size()>0 && m_scmshadertoprogram.count(m_scm->getMaterialById(mO->m_mesheObjects->meshtomaterial[mesh->m_meshId])->m_shaderId) < 1)
+				{
+					auto files = m_scm->getShaderById(m_scm->getMaterialById(mO->m_mesheObjects->meshtomaterial[mesh->m_meshId])->m_shaderId);
+					auto prog = GLUtils::createShaderProgram(files->m_shaderFiles[0], files->m_shaderFiles[1]);
+					m_scmshadertoprogram[files->m_shaderId] = prog;
+				}*/
+			}
+
+			/*if (mO->m_transformData.getData()->m_isMatrixDirty)
+			{
+			mO->m_transformData.setData()->updateTransform();
+			}*/
+		}
+	}
+}
+
 bool VulkanRenderer::_startup()
 {
 #ifdef USE_GLTF
@@ -32,6 +117,8 @@ bool VulkanRenderer::_startup()
 #endif
 	m_renderer = new DeferredRenderer();
 	m_renderer->initialize();
+
+	m_scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(m_scmID);
 
 	ipengine::Scheduler& sched = m_core->getScheduler();
 	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<VulkanRenderer, &VulkanRenderer::render>(this),
@@ -58,6 +145,7 @@ bool VulkanRenderer::_shutdown()
 
 void VulkanRenderer::render()
 {
+	updateData();
 	m_renderer->render();
 }
 
@@ -68,40 +156,91 @@ void VulkanRenderer::render(int fbo, int viewportx, int viewporty, bool multisam
 	m_renderer->render();
 }
 
-void VulkanRenderer::setCameraEntity(ipengine::ipid)
+void VulkanRenderer::setCameraEntity(ipengine::ipid id)
 {
+	if (id != IPID_INVALID)
+	{
+		auto ent = m_scm->getEntityById(id);
+		if (ent)
+		{
+			glm::vec3 lookat{ 0,0,0 };
+			//calc lookat from entity
+			//ent->m_transformData.getData()->updateTransform();
+			lookat = ent->m_transformData.getData()->m_location + ent->m_transformData.getData()->m_localZ;
+			m_renderer->m_camera = Camera{ ent->m_transformData.getData()->m_location, lookat, m_renderer->m_camera.getFovy(), m_renderer->m_camera.getAspectRatio(), m_renderer->m_camera.getZNear(), m_renderer->m_camera.getZFar(), m_renderer->m_camera.getSegmentCount() };
+			m_entrepcam = id;
+		}
+	}
 }
 
-void VulkanRenderer::setFOV(uint32_t)
+void VulkanRenderer::setFOV(uint32_t fov)
 {
+	m_renderer->m_camera = Camera{ m_renderer->m_camera.getPosition(), m_renderer->m_camera.getLookAt(), (float)fov, m_renderer->m_camera.getAspectRatio(), m_renderer->m_camera.getZNear(), m_renderer->m_camera.getZFar(), m_renderer->m_camera.getSegmentCount() };
 }
 
-void VulkanRenderer::setResolution(uint32_t, uint32_t)
+void VulkanRenderer::setResolution(uint32_t x, uint32_t y)
 {
+	m_renderer->m_height = y;
+	m_renderer->m_width = x;
 }
 
-void VulkanRenderer::setClipRange(float, float)
+void VulkanRenderer::setClipRange(float znear, float zfar)
 {
+	m_renderer->m_camera = Camera{ m_renderer->m_camera.getPosition(), m_renderer->m_camera.getLookAt(), m_renderer->m_camera.getFovy(), m_renderer->m_camera.getAspectRatio(), znear, zfar, m_renderer->m_camera.getSegmentCount() };
 }
 
 ipengine::ipid VulkanRenderer::getCameraEntity()
 {
-	return ipengine::ipid();
+	return m_entrepcam;
 }
 
 uint32_t VulkanRenderer::getFOV()
 {
-	return uint32_t();
+	//add FOV to camera
+	return m_renderer->m_camera.getFovy();
 }
 
-void VulkanRenderer::getResolution(uint32_t &, uint32_t &)
+void VulkanRenderer::getResolution(uint32_t &width, uint32_t &height)
 {
+	width = m_renderer->m_width;
+	height = m_renderer->m_height;
 }
 
-void VulkanRenderer::getClipRange(float &, float &)
+void VulkanRenderer::getClipRange(float &znear, float &zfar)
 {
+	znear = m_renderer->m_camera.getZNear();
+	zfar = m_renderer->m_camera.getZFar();
 }
 
 void VulkanRenderer::loadTextureFromMemory(const GrAPI::t2d &, const ipengine::ipid)
 {
+	//rj::helper_functions::loadTexture2DFromBinaryData();
+	//map ipid to vk resource id
+}
+
+std::vector<ipengine::ipid> VulkanRenderer::getActiveEntityNames(SCM::ISimpleContentModule_API & scm)
+{
+	auto& entities = m_scm->getEntities();
+	std::vector<ipengine::ipid> ids;
+	for (auto e : entities)
+	{
+		if (e.second->isActive)
+		{
+			ids.push_back(e.second->m_entityId);
+		}
+	}
+	return ids;
+}
+
+std::vector<Vertex> VulkanRenderer::scmVertsToVVertex(SCM::VertexVector& verts)
+{
+	auto data = verts.getData();
+	std::vector<Vertex> newverts(data.size());
+	for (size_t ix = 0; ix < newverts.size(); ++ix)
+	{
+		newverts[ix].pos = data[ix].m_position;
+		newverts[ix].normal = data[ix].m_normal;
+		newverts[ix].texCoord = data[ix].m_uv;
+	}
+	return newverts;
 }

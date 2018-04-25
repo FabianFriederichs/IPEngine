@@ -43,6 +43,7 @@ public:
 		glm::vec3(0.326926917f, 0.0790613592f, -0.198676541f),
 		glm::radians(45.f), float(m_width) / m_height, 1.f, 30.f };
 
+	rj::VManager* getManager() { return &m_vulkanManager; }
 
 	//static void onWindowResized(GLFWwindow* window, int width, int height)
 	//{

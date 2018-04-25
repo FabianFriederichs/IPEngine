@@ -17,10 +17,30 @@ public:
 		float zNear, float zFar,
 		uint32_t segCount = 3);
 
+	Camera& operator=(const Camera& other)
+	{
+		if (this != &other)
+		{
+			fovy = other.fovy;
+			aspectRatio = other.aspectRatio;
+			zNear = other.zNear;
+			zFar = other.zFar;
+			position = other.position;
+			lookAtPos = other.lookAtPos;
+			phiTheta = other.phiTheta;
+			segmentCount = other.segmentCount;
+
+		}
+		return *this;
+	}
+
 	void getViewProjMatrix(glm::mat4 &V, glm::mat4 &P) const;
 	
+	float getFovy() const { return fovy; }
 	float getZNear() const { return zNear; }
 	float getZFar() const { return zFar; }
+	glm::vec3 getLookAt() const { return lookAtPos; }
+	float getAspectRatio() const { return aspectRatio; }
 	const glm::vec3 &getPosition() const { return position; }
 	uint32_t getSegmentCount() const { return segmentCount; }
 	float getNormFarPlaneZ(uint32_t segIdx) const { return normFarPlaneZs[segIdx]; }
