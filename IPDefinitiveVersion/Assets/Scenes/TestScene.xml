@@ -122,7 +122,7 @@
 			<PhysicsContext>
 				<gravity>0.000000/-30.000000/0.000000</gravity>
 				<particleMass>3.000000</particleMass>
-				<particleDistance>0.800000</particleDistance>
+				<particleDistance>0.200000</particleDistance>
 				<struct_springKs>40.000000</struct_springKs>
 				<struct_springKd>0.120000</struct_springKd>
 				<shear_springKs>40.000000</shear_springKs>
@@ -140,7 +140,7 @@
 			</PhysicsContext>
 			<width>20</width>
 			<height>20</height>
-			<materialid>0</materialid>
+			<materialid>13</materialid>
 			<fixedParticles>
 				<fix>
 					<x>0</x>
@@ -714,6 +714,28 @@
 			</Textures>
 			<ShaderId>1</ShaderId>
 		</Material>
+		<Material>
+			<Id>13</Id>
+			<Textures>
+				<Texture>
+					<Name>albedo</Name>
+					<Id>47</Id>
+				</Texture>
+				<Texture>
+					<Name>mrar</Name>
+					<Id>48</Id>
+				</Texture>
+				<Texture>
+					<Name>normal</Name>
+					<Id>49</Id>
+				</Texture>
+				<Texture>
+					<Name>emissive</Name>
+					<Id>50</Id>
+				</Texture>
+			</Textures>
+			<ShaderId>1</ShaderId>
+		</Material>
 	</Materials>
 	<Textures>
 		<Texture>
@@ -903,6 +925,22 @@
 		<Texture>
 			<Id>46</Id>
 			<TexturePath>../assets/textures/RenderModel/rmod_emissive.png</TexturePath>
+		</Texture>
+		<Texture>
+			<Id>47</Id>
+			<TexturePath>../assets/textures/wornfabric/albedo.png</TexturePath>
+		</Texture>
+		<Texture>
+			<Id>48</Id>
+			<TexturePath>../assets/textures/wornfabric/mrar.png</TexturePath>
+		</Texture>
+		<Texture>
+			<Id>49</Id>
+			<TexturePath>../assets/textures/wornfabric/normal.png</TexturePath>
+		</Texture>
+		<Texture>
+			<Id>50</Id>
+			<TexturePath>../assets/textures/wornfabric/emissive.png</TexturePath>
 		</Texture>
 	</Textures>
 </Scene>
