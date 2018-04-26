@@ -192,3 +192,5 @@ An OpenGL error occured at file: "d:\sourcetree\ipengine\ipdefinitiveversion\mod
 invalid operation
 An OpenGL error occured at file: "d:\sourcetree\ipengine\ipdefinitiveversion\modules\graphicsmodule\utils.cpp", line: 853:
 invalid operation
+An OpenGL error occured at file: "Utils.cpp", line: 895:
+invalid operation

@@ -410,7 +410,7 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 	
 
 
-	if (e->m_transformData.setData()->m_isMatrixDirty || e->m_parent)
+	if (e->m_transformData.setData()->m_isMatrixDirty || e->m_parent || (e->shouldCollide() && e->boundingDataDirty))
 	{
 		glm::vec3 oldpos = glm::vec3(e->m_transformData.getData()->m_transformMatrix[3]);
 		auto transdata = e->m_transformData.getData();
@@ -423,7 +423,7 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 		data->m_localZ = glm::normalize(glm::vec3(tmat[2][0], tmat[2][1], tmat[2][2]));
 		//e->swap();
 		e->m_transformData.setData()->m_isMatrixDirty = false;
-		updateBoundingData(e, oldpos, e->m_transformData.getData()->m_location, static_cast<float>(delta.sec()));
+		e->updateBoundingData(oldpos, e->m_transformData.getData()->m_location, static_cast<float>(delta.sec()));
 	}
 }
 
@@ -503,7 +503,7 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 		}
 	}
 
-	if (e->m_transformData.setData()->m_isMatrixDirty || e->m_parent)
+	if (e->m_transformData.setData()->m_isMatrixDirty || e->m_parent || (e->shouldCollide() && e->boundingDataDirty))
 	{
 		glm::vec3 oldpos = glm::vec3(e->m_transformData.getData()->m_transformMatrix[3]);
 		//auto transdata = e->m_transformData.getData();
@@ -518,7 +518,7 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 		////e->swap();
 		//e->m_transformData.setData()->m_isMatrixDirty = false;
 		//
-		updateBoundingData(e, oldpos, e->m_transformData.getData()->m_location, static_cast<float>(delta.sec()));
+		e->updateBoundingData(oldpos, e->m_transformData.getData()->m_location, static_cast<float>(delta.sec()));
 	}
 }
 

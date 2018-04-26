@@ -227,13 +227,14 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			
 			rendermodels->FreeRenderModel(controllermodel);
 			auto lctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);
-			//lctde->generateBoundingBox();
+			lctde->generateBoundingBox();
+			lctde->boundingDataDirty = true;
 			ents[cntrid] = lctde;// new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
 			/*if(scm->getEntityByName("Camera")!=nullptr)
 				ents["OpenVRControllerLeft"]->m_parent = scm->getEntityByName("Camera");*/
 			lctde->m_name = "OpenVRControllerLeft";
 			scm->getThreeDimEntities()[cntrid] = static_cast<SCM::ThreeDimEntity*>(lctde);
-			scm->getThreeDimEntities()[cntrid]->generateBoundingSphere();
+			//scm->getThreeDimEntities()[cntrid]->generateBoundingSphere();
 			lctrlid = cntrid;
 		}
 		entbyname = scm->getEntitiesByName("OpenVRControllerRight");
@@ -325,7 +326,8 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 			rendermodels->FreeRenderModel(controllermodel);
 			auto rctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);
-			//rctde->generateBoundingBox();
+			rctde->generateBoundingBox();
+			rctde->boundingDataDirty = true;
 			ents[cntrid] = rctde;//new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
 			/*if (scm->getEntityByName("Camera") != nullptr)
 				ents["OpenVRControllerRight"]->m_parent = scm->getEntityByName("Camera");*/
@@ -408,6 +410,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		}*/
 		//trans->m_isMatrixDirty = true;
 		trans->updateTransform();
+		contr->boundingDataDirty = true;
 		contr->isActive = (leftcontrollerpose.bDeviceIsConnected && leftcontrollerpose.bPoseIsValid && leftcontrollerpose.eTrackingResult == vr::ETrackingResult::TrackingResult_Running_OK);
 	}
 	if (ovrmodule->getSystem()->IsTrackedDeviceConnected(righthandcontrollerindex))
@@ -440,6 +443,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			contr->m_parent->m_transformData.setData()->m_isMatrixDirty = true;
 		}*/
 		trans->updateTransform();
+		contr->boundingDataDirty = true;
 		contr->isActive = (rightcontrollerpose.bDeviceIsConnected && rightcontrollerpose.bPoseIsValid && rightcontrollerpose.eTrackingResult== vr::ETrackingResult::TrackingResult_Running_OK);
 		//trans->m_isMatrixDirty = true;
 	}
@@ -476,7 +480,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		}
 		trans->m_isMatrixDirty = true;
 		trans->updateTransform();
-
+		hmd->boundingDataDirty = true;
 	}
 	//Check if controller is active
 

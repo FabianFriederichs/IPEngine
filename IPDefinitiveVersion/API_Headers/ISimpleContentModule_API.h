@@ -501,6 +501,7 @@ namespace SCM
 		ipengine::ipid m_entityId;
 		std::string m_name;
 		BoundingData m_boundingData;
+		bool boundingDataDirty;
 		bool isBoundingBox; //True for Box, False for Sphere in Union BoundingData
 		bool isActive;
 		std::vector<std::unique_ptr<Component>> m_components;
@@ -520,6 +521,26 @@ namespace SCM
 					return true;
 			}
 			return false;
+		}
+
+		void updateBoundingData(const glm::vec3& oldpos, const glm::vec3& newpos, float deltasecs)
+		{
+			if (shouldCollide())
+			{
+				if (isBoundingBox)
+				{
+					glm::mat4 bbtoentity = glm::translate(m_boundingData.box.m_center) * glm::mat4(m_boundingData.box.m_rotation) * glm::scale(m_boundingData.box.m_size * 0.5f);
+					m_boundingData.box.bdtoworld = (m_parent ? m_parent->m_transformData.getData()->m_transformMatrix : glm::mat4(1.0f)) * m_transformData.getData()->m_transformMatrix * bbtoentity;
+					m_boundingData.box.m_velocity = (newpos - oldpos) / deltasecs;
+				}
+				else
+				{
+					glm::mat4 bstoentity = glm::translate(m_boundingData.sphere.m_center) * glm::scale(glm::vec3(m_boundingData.sphere.m_radius));
+					m_boundingData.sphere.bdtoworld = (m_parent ? m_parent->m_transformData.getData()->m_transformMatrix : glm::mat4(1.0f)) * m_transformData.getData()->m_transformMatrix * bstoentity;
+					m_boundingData.sphere.m_velocity = (newpos - oldpos) / deltasecs;
+				}
+				boundingDataDirty = false;
+			}
 		}
 
 		bool addComponent(Component* component)
