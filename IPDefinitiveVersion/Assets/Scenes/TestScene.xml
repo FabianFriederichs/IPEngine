@@ -121,7 +121,7 @@
 			<ExtendedType>ClothComponent</ExtendedType>
 			<PhysicsContext>
 				<gravity>0.000000/-15.000000/0.000000</gravity>
-				<particleMass>2.000000</particleMass>
+				<particleMass>1.000000</particleMass>
 				<particleDistance>0.200000</particleDistance>
 				<struct_springKs>40.000000</struct_springKs>
 				<struct_springKd>0.120000</struct_springKd>

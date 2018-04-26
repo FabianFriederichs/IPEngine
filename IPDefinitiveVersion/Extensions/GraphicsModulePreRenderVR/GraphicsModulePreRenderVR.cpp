@@ -326,7 +326,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 			rendermodels->FreeRenderModel(controllermodel);
 			auto rctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);
-			rctde->generateBoundingBox();
+			rctde->generateBoundingSphere();
 			rctde->boundingDataDirty = true;
 			ents[cntrid] = rctde;//new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, true, &cntrmeshes);
 			/*if (scm->getEntityByName("Camera") != nullptr)
