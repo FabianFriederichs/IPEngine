@@ -13,11 +13,13 @@ void main()
 
     float dx = dFdx(depth);
 	float dy = dFdy(depth);
+
+    float depth2 = (depth * depth) + 0.25*(dx*dx+dy*dy);
     
     float w1depth = exp(u_shadowWarpFactor * depth);
-    float w1depth2 = w1depth * w1depth;// + 0.25*(dx*dx+dy*dy);    
+    float w1depth2 = w1depth * w1depth;//exp(u_shadowWarpFactor * depth2);//w1depth * w1depth;// + 0.25*(dx*dx+dy*dy);    
     float w2depth = -exp(-u_shadowWarpFactor * depth);
-    float w2depth2 = w2depth * w2depth;// + 0.25*(dx*dx+dy*dy);    
+    float w2depth2 = w2depth * w2depth;//-exp(-u_shadowWarpFactor * depth2);//w2depth * w2depth;// + 0.25*(dx*dx+dy*dy);    
 	
-	shadowMap = vec4(w1depth, w1depth2, w2depth, w2depth2);   
+	shadowMap = vec4(w1depth, w1depth2, w2depth, w2depth2);
 }

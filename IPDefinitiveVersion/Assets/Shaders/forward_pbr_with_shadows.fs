@@ -115,14 +115,14 @@ float calcShadowFactor(int i)
     
     float u = lightDepth1M1;
     float o2 = lightDepth1M2 - (lightDepth1M1 * lightDepth1M1);//, 0.001);
-    o2 = max(o2, u_directionalLights[i].shadowVarianceBias);
+    o2 = max(o2, u_directionalLights[i].shadowVarianceBias * u_directionalLights[i].shadowWarpFactor * t1);
     
 
     float res1 = o2 / (o2 + (t1 - u) * (t1 - u));
 
     u = lightDepth2M1;
     o2 = lightDepth2M2 - (lightDepth2M1 * lightDepth2M1);//, 0.001);
-    o2 = max(o2, u_directionalLights[i].shadowVarianceBias);
+    o2 = max(o2, u_directionalLights[i].shadowVarianceBias * u_directionalLights[i].shadowWarpFactor * t2);
 
     float res2 = o2 / (o2 + (t2 - u) * (t2 - u));
 

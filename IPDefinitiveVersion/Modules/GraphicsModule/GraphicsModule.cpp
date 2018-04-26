@@ -34,11 +34,11 @@ bool GraphicsModule::_startup()
 		1024,
 		1024,
 		1,
-		1.e-6,
-		0.3,
+		0.001,
+		0.1,
 		65.0f,
-		glm::vec3(-5, -5, 40.0f),
-		glm::vec3(5, 5, 0.1f)
+		glm::vec3(-8, -8, 40.0f),
+		glm::vec3(8, 8, 0.1f)
 	);
 
 	/*lid = m_core->createID();
@@ -1204,10 +1204,12 @@ void GraphicsModule::renderDirectionalLightShadowMap(SCM::DirectionalLight& dirL
 	//render scene into shadow map
 	m_fb_shadow->bind(GL_FRAMEBUFFER);
 	m_fb_shadow->attachRenderTargetSet(m_dirLightShadowTargets[dirLight.m_entityId]);
-	glClearColor(std::numeric_limits<GLfloat>::infinity(),
+	glClearColor(
+		std::numeric_limits<GLfloat>::infinity(),
 		std::numeric_limits<GLfloat>::infinity(),
 		0.0f,
-		0.0f);
+		0.0f
+	);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, dirLight.shadowResX, dirLight.shadowResY);
 	m_s_shadow->use();
