@@ -2,7 +2,7 @@
 #define VSCENE_H
 #include "vmesh.h"
 #include "directional_light.h"
-#include <IPCore\Core\ICore.h>
+#include <IPCore\Core\ICoreTypes.h>
 
 class VScene
 {

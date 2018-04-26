@@ -15,7 +15,7 @@
 #include <tiny_gltf_loader.h>
 #include "gltf_loader.h"
 
-#include <IPCore/Core/ICoreTypes.h>
+//#include <IPCore/Core/ICore.h>
 
 #define DIFF_IRRADIANCE_MAP_SIZE 32
 #define SPEC_IRRADIANCE_MAP_SIZE 512
@@ -449,7 +449,7 @@ public:
 
 
 	VMesh(rj::VManager *pManager);
-
+	VMesh() { pVulkanManager = nullptr; };
 	void load(
 		const std::string &modelFileName,
 		const std::string &albedoMapName = "",

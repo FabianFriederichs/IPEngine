@@ -1,5 +1,5 @@
 #include "vmesh.h"
-
+#include <stb_image.h>
 
 namespace rj
 {
@@ -121,6 +121,7 @@ namespace rj
 			if (format != VK_FORMAT_R8G8B8A8_UNORM)
 			{
 				textureSrc = gli::convert(textureSrc, gli::FORMAT_RGBA8_UNORM_PACK8);
+				
 				format = VK_FORMAT_R8G8B8A8_UNORM;
 			}
 

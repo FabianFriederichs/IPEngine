@@ -140,6 +140,7 @@ public:
 	void shutdown();
 	void render();
 	VScene *getScene() { return &m_scene; }
+	rj::helper_functions::UniformBlob<PER_FRAME_UNIFORM_BLOB_SIZE>& getUniformBlob() { return m_perFrameUniformHostData; }
 protected:
 	uint32_t m_specEnvPrefilterRenderPass;
 	uint32_t m_shadowRenderPass;
