@@ -38,6 +38,8 @@ public:
 	virtual void getClipRange(float &, float&) override;
 	
 private:
+
+
 	//module system data	
 	ModuleInformation m_info;
 	std::string DataDepName;
@@ -99,6 +101,9 @@ private:
 	int m_specular_brdf_resy;
 	int m_brdfsamples;
 
+	//debug settings
+	bool m_debug_bvs;
+
 	//shadow settings
 	bool m_shadows;
 	bool m_shadowsdirty;
@@ -123,6 +128,9 @@ private:
 	std::shared_ptr<ShaderProgram> m_s_iblspec;
 	std::shared_ptr<ShaderProgram> m_s_iblbrdf;
 	std::shared_ptr<ShaderProgram> m_s_envconv;
+
+	//debug shaders
+	std::shared_ptr<ShaderProgram> m_s_bvdebug;
 
 	//framebuffers
 	std::shared_ptr<FrameBuffer> m_fb_shadow;
@@ -179,12 +187,13 @@ private:
 	void setSceneUniforms(ShaderProgram* shader);
 	void setLightUniforms(ShaderProgram* shader);
 	void setMaterialUniforms(SCM::MaterialData* mdata, ShaderProgram* shader, const glm::vec2& tcoffset = glm::vec2(0.0f), const glm::vec2& tcscale = glm::vec2(1.0f));
-	//TODO:fallback to mesh normal if no tangents are available
 	void drawEntity(SCM::ThreeDimEntity* entity, ShaderProgram* shader);
 	void drawEntityShadow(SCM::ThreeDimEntity* entity, ShaderProgram* shader);
 	void renderDirectionalLightShadowMap(SCM::DirectionalLight& dirLight);
 	void renderEnvMap();
 	void lightMatDirectionalLight(glm::mat4& view, glm::mat4& proj, SCM::DirectionalLight& dirLight);
+	void renderBoundingVolumes();
+	void drawEntityBV(SCM::ThreeDimEntity* entity, ShaderProgram* shader);
 	
 	//helpers ------------------------------------------------------------------------------------------------
 	std::vector<ipengine::ipid> getActiveEntityNames(SCM::ISimpleContentModule_API & scm);

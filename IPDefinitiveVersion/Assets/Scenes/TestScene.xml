@@ -15,7 +15,7 @@
 			<BoundingData>
 				<Sphere>
 					<Center>0.000000/0.000000/0.000000</Center>
-					<Radius>1.000000</Radius>
+					<Radius>0.000000</Radius>
 				</Sphere>
 			</BoundingData>
 		</Entity>
@@ -104,7 +104,7 @@
 			<StringName>TestCloth</StringName>
 			<MeshId>1</MeshId>
 			<TransformData>
-				<Location>1.000000/-1.000000/5.000000</Location>
+				<Location>1.000000/2.000000/5.000000</Location>
 				<Rotation>1.000000/0.000000/0.000000/0.000000</Rotation>
 				<Scale>1.000000/1.000000/1.000000</Scale>
 				<LocalY>0.000000/1.000000/0.000000</LocalY>
@@ -120,22 +120,22 @@
 			</BoundingData>
 			<ExtendedType>ClothComponent</ExtendedType>
 			<PhysicsContext>
-				<gravity>0.000000/-30.000000/0.000000</gravity>
-				<particleMass>3.000000</particleMass>
+				<gravity>0.000000/-15.000000/0.000000</gravity>
+				<particleMass>2.000000</particleMass>
 				<particleDistance>0.200000</particleDistance>
 				<struct_springKs>40.000000</struct_springKs>
 				<struct_springKd>0.120000</struct_springKd>
 				<shear_springKs>40.000000</shear_springKs>
-				<shear_springKd>0.120000</shear_springKd>
+				<shear_springKd>0.30000</shear_springKd>
 				<bend_springKs>30.000000</bend_springKs>
-				<bend_springKd>0.120000</bend_springKd>
+				<bend_springKd>0.60000</bend_springKd>
 				<struct_springs>1</struct_springs>
 				<shear_springs>1</shear_springs>
 				<bend_springs>1</bend_springs>
 				<use_constraints>1</use_constraints>
 				<max_stretch>0.010000</max_stretch>
-				<constraint_iterations>5</constraint_iterations>
-				<airfric>0.320000</airfric>
+				<constraint_iterations>2</constraint_iterations>
+				<airfric>0.35</airfric>
 				<two_pass_integration>1</two_pass_integration>
 			</PhysicsContext>
 			<width>20</width>

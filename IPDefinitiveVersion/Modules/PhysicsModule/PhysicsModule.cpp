@@ -636,7 +636,9 @@ glm::vec3 PhysicsModule::externalForces(Cloth * cloth, Particle & particle)
 	glm::vec3 forceaccum = particle.m_mass * cloth->m_pctx.gravity;
 
 	//air friction
-	forceaccum += -particle.m_velocity * cloth->m_pctx.airfric;
+	//forceaccum += -particle.m_velocity * cloth->m_pctx.airfric;
+
+	forceaccum += -0.5f * (cloth->m_pctx.airfric * 1.2f * ((particle.m_velocity) * (particle.m_velocity)) * (glm::pi<float>() * particle.m_radius * particle.m_radius));
 
 	return forceaccum;
 }
@@ -987,7 +989,7 @@ ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 	//mesh vertex positions are always calculated in world space, therefore igore the transform
 	meshedobjects.push_back(SCM::MeshedObject(std::vector<SCM::MeshData*>({ &meshes.back() }), m_core->createID()));
 	meshedobjects.back().meshtomaterial[mdata.m_meshId] = matid;
-	SCM::ThreeDimEntity* dimentity = new SCM::ThreeDimEntity(tcloth.id, SCM::Transform(transform), SCM::BoundingData(), true, false, &meshedobjects.back());
+	SCM::ThreeDimEntity* dimentity = new SCM::ThreeDimEntity(tcloth.id, SCM::Transform(/*transform*/), SCM::BoundingData(), true, false, &meshedobjects.back());
 	dimentity->addComponent(new ClothComponent(1, this->clothComponentType, tcloth.id, this));
 	dimentity->m_name = name;
 	thrde[tcloth.id] = dimentity;

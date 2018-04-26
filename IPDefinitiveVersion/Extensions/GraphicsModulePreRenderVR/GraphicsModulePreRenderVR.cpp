@@ -115,7 +115,20 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			hmdent->m_entityId = m_core->createID();
 			hmdid = hmdent->m_entityId;
 			ents[hmdent->m_entityId] =hmdent;
-			hmdent->m_boundingData = SCM::BoundingData(SCM::BoundingSphere());
+			hmdent->m_boundingData = (m_core->getConfigManager().getBool("physics.colliders.vr.enable_hmd_collider") ? 
+				SCM::BoundingData(SCM::BoundingSphere{
+					glm::vec3(0.0f),
+					0.6f,
+					glm::mat4(),
+					glm::vec3(0.0f)
+				}) : 
+				SCM::BoundingData(SCM::BoundingSphere{
+					glm::vec3(0.0f),
+					0.0f,
+					glm::mat4(),
+					glm::vec3(0.0f)
+				})
+			);
 			hmdent->isBoundingBox = false;
 			hmdent->m_transformData = SCM::Transform();
 			hmdent->m_transformData.setData()->m_location.x = 0;
@@ -138,7 +151,15 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			SCM::BoundingSphere sph;
 			sph.m_center = { 0.f,0.f,0.f };
 			sph.m_radius = controllersphereradius;
-			auto cntrbounding = SCM::BoundingData(sph);
+			auto cntrbounding = m_core->getConfigManager().getBool("physics.colliders.vr.enable_controller_collider") ? 
+				SCM::BoundingData(sph) : 
+				SCM::BoundingData(SCM::BoundingSphere{
+						glm::vec3(0.0f),
+						0.0f,
+						glm::mat4(),
+						glm::vec3(0.0f)
+					}
+			);
 
 			//Create mesh from VR render model
 			auto rendermodels = ovrmodule->getRenderModels();
@@ -223,7 +244,15 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			SCM::BoundingSphere sph;
 			sph.m_center = { 0.f,0.f,0.f };
 			sph.m_radius = controllersphereradius;
-			auto cntrbounding = SCM::BoundingData(sph);
+			auto cntrbounding = m_core->getConfigManager().getBool("physics.colliders.vr.enable_controller_collider") ?
+				SCM::BoundingData(sph) :
+				SCM::BoundingData(SCM::BoundingSphere{
+					glm::vec3(0.0f),
+					0.0f,
+					glm::mat4(),
+					glm::vec3(0.0f)
+				}
+			);
 			
 			//Create mesh from VR render model
 			auto rendermodels = ovrmodule->getRenderModels();

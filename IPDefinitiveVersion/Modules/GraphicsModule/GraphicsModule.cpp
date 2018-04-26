@@ -277,6 +277,11 @@ void GraphicsModule::render(int fbo, int viewportx, int viewporty, bool multisam
 	setSceneUniforms(shader);
 	//render opaque geometry
 	drawScene(shader);
+
+	if (m_debug_bvs)
+	{
+		renderBoundingVolumes();
+	}
 }
 void GraphicsModule::setCameraEntity(ipengine::ipid v)
 {
@@ -398,6 +403,13 @@ void GraphicsModule::loadShaders()
 		vspath = m_core->getConfigManager().getString("graphics.shaders.skybox.vertex");
 		fspath = m_core->getConfigManager().getString("graphics.shaders.skybox.fragment");
 		m_s_skybox = GLUtils::createShaderProgram(vspath, fspath);
+	}
+
+	if (m_debug_bvs)
+	{
+		vspath = m_core->getConfigManager().getString("graphics.shaders.bv_debug.vertex");
+		fspath = m_core->getConfigManager().getString("graphics.shaders.bv_debug.fragment");
+		m_s_bvdebug = GLUtils::createShaderProgram(vspath, fspath);
 	}
 }
 void GraphicsModule::setupFrameBuffers()
@@ -685,6 +697,9 @@ void GraphicsModule::readSettings()
 		m_envmap_hdr = m_core->getConfigManager().getBool("graphics.envmap.texCube.hdr");
 	else
 		m_envmap_hdr = m_core->getConfigManager().getBool("graphics.envmap.texEr.hdr");
+
+	//debug settings
+	m_debug_bvs = m_core->getConfigManager().getBool("graphics.debug.draw_bounding_volumes");
 }
 void GraphicsModule::prepareAssets()
 {
@@ -1388,6 +1403,60 @@ void GraphicsModule::lightMatDirectionalLight(glm::mat4& view, glm::mat4& proj, 
 	dirLight.m_transformData.setData()->updateTransform();
 	proj = glm::ortho(dirLight.shadowMapVolumeMin.x, dirLight.shadowMapVolumeMax.x, dirLight.shadowMapVolumeMin.y, dirLight.shadowMapVolumeMax.y, dirLight.shadowMapVolumeMax.z, dirLight.shadowMapVolumeMin.z);// dirLight.shadowMapVolumeMax.z, dirLight.shadowMapVolumeMin.z);
 	view = ViewFromTransData(dirLight.m_transformData.getData());
+}
+void GraphicsModule::renderBoundingVolumes()
+{
+	m_s_bvdebug->use();
+
+	if (cameraentity != IPID_INVALID)
+	{
+		auto cent = m_scm->getEntityById(cameraentity);
+		if (cent != nullptr)
+		{
+			auto transmatrix = parentInfluencedTransform(cameraentity);//cent->m_transformData.getData();
+			SCM::TransformData transdata;
+
+
+			transdata.m_rotation = glm::quat_cast(transmatrix);
+			transdata.m_location = glm::vec3(transmatrix[3][0], transmatrix[3][1], transmatrix[3][2]);
+			transdata.m_isMatrixDirty = true;
+			transdata.updateTransform();
+			viewmat = ViewFromTransData(&transdata);//glm::inverse(transdata->m_transformMatrix);//glm::toMat4(transdata->m_rotation) * translate(glm::mat4(1.0f), -transdata->m_location);
+		}
+	}
+	m_s_bvdebug->setUniform("u_view_matrix", viewmat, false);
+	m_s_bvdebug->setUniform("u_projection_matrix", projmat, false);
+
+	auto& drawableEntities = m_scm->getThreeDimEntities();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDisable(GL_CULL_FACE);
+	for (auto ep : drawableEntities)
+	{
+		auto entity = ep.second;
+		if (!entity->isActive)
+			continue;
+		drawEntityBV(entity, m_s_bvdebug.get());
+	}
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_CULL_FACE);
+}
+void GraphicsModule::drawEntityBV(SCM::ThreeDimEntity * entity, ShaderProgram * shader)
+{
+	//set per entity uniforms
+	//const glm::mat4& transformMat = entity->m_transformData.getData()->m_transformMatrix;
+	if (!entity->shouldCollide())
+		return;	
+	
+	if (entity->isBoundingBox)
+	{
+		shader->setUniform("u_model_matrix", entity->m_boundingData.box.bdtoworld, false);
+		Primitives::drawNDCCube();
+	}
+	else
+	{
+		shader->setUniform("u_model_matrix", entity->m_boundingData.sphere.bdtoworld, false);
+		Primitives::drawNDCSphere();
+	}
 }
 //helpers ---------------------------------------------------------------------------------------------------------------------
 std::vector<ipengine::ipid> GraphicsModule::getActiveEntityNames(SCM::ISimpleContentModule_API & scm)
