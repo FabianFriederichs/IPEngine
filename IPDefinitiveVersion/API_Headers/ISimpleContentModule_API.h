@@ -15,140 +15,808 @@ namespace SCM
 	
 	class TransformData
 	{
-	public:
-		//TransformData() { m_isMatrixDirty = true; };
-		//TransformData(const TransformData& d) :m_location(d.m_location), m_rotation(d.m_rotation), m_scale(d.m_scale), m_localX(d.m_localX), m_localY(d.m_localY), m_localZ(d.m_localZ) { m_isMatrixDirty = true; };
-		TransformData():
-			m_location(0.0f),
-			m_rotation(),
-			m_scale(1.0f),
-			m_localX(1.0f, 0.0f, 0.0f),
-			m_localY(0.0f, 1.0f, 0.0f),
-			m_localZ(0.0f, 0.0f, 1.0f),
-			m_transformMatrix(),
-			m_isMatrixDirty(true)
+		friend class Transform;
+	private:
+		TransformData() :
+			m_local_position(0.0f, 0.0f, 0.0f),
+			m_local_rotation(),
+			m_local_scale(1.0f, 1.0f, 1.0f),
+			m_ltp_dirty(true)
 		{}
 
-		TransformData(
-			const glm::vec3& location,
-			const glm::quat& rotation,
-			const glm::vec3& scale):
-				m_location(location),
-				m_rotation(rotation),
-				m_scale(scale),
-				m_isMatrixDirty(true)
+		TransformData(const glm::vec3 & position, const glm::quat & rotation, const glm::vec3 & scale) :
+			m_local_position(position),
+			m_local_rotation(rotation),
+			m_local_scale(scale),
+			m_ltp_dirty(true)
 		{
-			updateTransform();
-		}
-
-		TransformData(
-			const glm::mat4& transformMatrix) :
-			m_location(transformMatrix[3][0], transformMatrix[3][1], transformMatrix[3][2]),
-			m_rotation(glm::toQuat(glm::mat3(glm::normalize(transformMatrix[0]),
-											 glm::normalize(transformMatrix[1]),
-											 glm::normalize(transformMatrix[2])))),
-			m_scale(glm::length(transformMatrix[0]),
-					glm::length(transformMatrix[1]),
-					glm::length(transformMatrix[2])),
-			m_transformMatrix(transformMatrix),
-			m_isMatrixDirty(false)
-		{
-			calcLocalAxes();
 		}
 
 		TransformData(const TransformData& other) = default;
 		TransformData(TransformData&& other) = default;
-
 		TransformData& operator=(const TransformData& other) = default;
 		TransformData& operator=(TransformData&& other) = default;
 
-		~TransformData() {};
-		glm::vec3 m_location;
-		glm::quat m_rotation;
-		glm::vec3 m_scale;
-		glm::vec3 m_localY;
-		glm::vec3 m_localX;
-		glm::vec3 m_localZ;
-		glm::mat4 m_transformMatrix;
-		bool m_isMatrixDirty;
+		// private data ------------------------------------------------------------------
+		// transformation data with respect to parent coordinate system
+		glm::vec3 m_local_position;
+		glm::quat m_local_rotation;
+		glm::vec3 m_local_scale;
 
-		void calcTransformMatrix()
-		{
-			glm::mat4 T = glm::translate(m_location);
-			glm::mat4 R = glm::toMat4(m_rotation);
-			glm::mat4 S = glm::scale(m_scale);
-			
-			m_transformMatrix = T * R * S;
-		}
+		glm::vec3 m_local_xaxis;
+		glm::vec3 m_local_yaxis;
+		glm::vec3 m_local_zaxis;
 
-		void calcLocalAxes()
-		{
-			m_localX = glm::normalize(glm::vec3(m_transformMatrix[0][0], m_transformMatrix[0][1], m_transformMatrix[0][2]));
-			m_localY = glm::normalize(glm::vec3(m_transformMatrix[1][0], m_transformMatrix[1][1], m_transformMatrix[1][2]));
-			m_localZ = glm::normalize(glm::vec3(m_transformMatrix[2][0], m_transformMatrix[2][1], m_transformMatrix[2][2]));			
-		}
+		// transformation data with respect to world coordinate system
+		glm::vec3 m_world_position;
+		glm::quat m_world_rotation;
+		glm::vec3 m_world_scale;
 
-		void updateTransform()
-		{
-			calcTransformMatrix();
-			calcLocalAxes();
-			m_isMatrixDirty = false;
-		}
+		glm::vec3 m_world_xaxis;
+		glm::vec3 m_world_yaxis;
+		glm::vec3 m_world_zaxis;
 
-		void setTransformMatrix(const glm::mat4& tmat)
-		{
-			m_transformMatrix = tmat;
-			calcLocalAxes();
-			m_location = glm::vec3(m_transformMatrix[3]);
-			m_scale = glm::vec3(
-				glm::length(glm::vec3(m_transformMatrix[0])),
-				glm::length(glm::vec3(m_transformMatrix[1])),
-				glm::length(glm::vec3(m_transformMatrix[2]))
-			);
-			m_rotation = glm::toQuat(glm::mat3(
-				m_localX,
-				m_localY,
-				m_localZ
-			));
-			m_isMatrixDirty = false;
-		}
+		// matrices
+		glm::mat4 m_local_to_parent;
+		glm::mat4 m_local_to_world;
 
-		glm::mat4 getInverseTransform() const
-		{
-			return glm::inverse(m_transformMatrix);
-		}
+		glm::mat4 m_world_to_local;
+		glm::mat4 m_parent_to_local;
+
+		bool m_ltp_dirty;
+		bool m_ltw_dirty;
+		bool m_ptl_dirty;
+		bool m_wtl_dirty;
 	};
 
 	class Transform
 	{
+	private:
+		Transform* m_parent;
+		TransformData* m_back;
+		TransformData* m_front;
+
+		//check if i can make that thing a const function
+		TransformData& rtd()// const
+		{
+			//for now, only work with the backbuffer as swapping is not realy possible at the moment and not necessary for the demo, apparently.
+			//assert(m_front && "Transform front buffer is nullptr.");
+			//return *m_front;
+			assert(m_back && "Transform back buffer is nullptr.");
+			return *m_back;
+		}
+
+		TransformData& wtd()
+		{
+			assert(m_back && "Transform back buffer is nullptr.");
+			return *m_back;
+		}
+
 	public:
-		Transform() {
-			m_front = new TransformData(); m_back = new TransformData();
+		void swap()
+		{
+			//do nothing for now
 		}
-		Transform(const Transform& other) : m_front(new TransformData(*other.m_front)), m_back(new TransformData(*other.m_back)) 
+
+		// public interface --------------------------------------------------------------
+		Transform() :
+			m_back(new TransformData()),
+			m_front(new TransformData()),
+			m_parent(nullptr)
+		{}
+
+		Transform(const glm::mat4 & transformMatrix) :
+			m_parent(nullptr)
+		{
+			setTransformMatrix(transformMatrix);
+		}
+
+		Transform(const glm::vec3 & position, const glm::quat & rotation, const glm::vec3 & scale) :
+			m_parent(nullptr),
+			m_back(new TransformData(position, rotation, scale)),
+			m_front(new TransformData(position, rotation, scale))
 		{
 		}
-		Transform(const TransformData& data): m_front(new TransformData(data)) {
-			m_back = new TransformData(data);
+
+		Transform(const Transform& other) :
+			m_back(new TransformData(*other.m_back)),
+			m_front(new TransformData(*other.m_front)),
+			m_parent(other.m_parent)
+		{			
 		}
-		Transform& operator=(Transform other)
+
+		Transform(Transform&& other) :
+			m_back(other.m_back),
+			m_front(other.m_front),
+			m_parent(other.m_parent)
+
 		{
-			m_front = new TransformData(*other.m_front);
-			m_back = new TransformData(*other.m_back);
+			other.m_back = nullptr;
+			other.m_front = nullptr;
+			other.m_parent = nullptr;
+		}
+
+
+		Transform& operator=(const Transform& other)
+		{
+			if (this == &other)
+				return *this;
+
+			if (m_back)
+				*m_back = *other.m_back;
+			else
+				m_back = new TransformData(*other.m_back);
+
+			if (m_front)
+				*m_front = *other.m_front;
+			else
+				m_front = new TransformData(*other.m_front);
+
+			m_parent = other.m_parent;
+			
 			return *this;
 		}
 
-		~Transform() {
-			delete m_front; delete m_back;
+		Transform& operator=(Transform&& other)
+		{
+			if (this == &other)
+				return *this;
+
+			if (m_back)
+				delete m_back;
+
+			if (m_front)
+				delete m_front;
+
+			m_back = other.m_back;
+			m_front = other.m_front;
+			other.m_back = nullptr;
+			other.m_front = nullptr;
+
+			m_parent = other.m_parent;
+			other.m_parent = nullptr;
+
+			return *this;
 		}
-		const TransformData* getData() { return m_back; }
-		TransformData* setData() { return m_back; }
-		void swap() {
-			//std::swap(m_back, m_front);
+
+		~Transform()
+		{
+			if (m_back)
+				delete m_back;
+			if (m_front)
+				delete m_front;
 		}
+
+		// convenience constructors
+
+		// getters/setters
+		//get position with respect to parent coordinate system
+		const glm::vec3& getLocalPosition()
+		{
+			return rtd().m_local_position;
+		}
+
+		//get position with respect to world coordinate system
+		const glm::vec3& getWorldPosition()
+		{
+			updateLTW();
+			return rtd().m_world_position;
+		}
+
+		//get rotation in repsect to parent coordinate system
+		const glm::quat& getLocalRotation()
+		{
+			return rtd().m_local_rotation;
+		}
+
+		//get rotation with respect to world coordinate system
+		const glm::quat& getWorldRotation()
+		{
+			updateLTW();
+			return rtd().m_world_rotation;
+		}
+
+		//get scale with respect to parent coordinate system
+		const glm::vec3& getLocalScale()
+		{
+			return rtd().m_local_scale;
+		}
+
+		//get scale with respect to world coordinate system
+		const glm::vec3& getWorldScale()
+		{
+			updateLTW();
+			return rtd().m_world_scale;
+		}
+
+		//get matrix wich transforms from local to parent coordinate system
+		const glm::mat4& getLocalToParentMatrix()
+		{
+			updateLTP();
+			return rtd().m_local_to_parent;
+		}
+
+		//get matrix wich transforms from local to world coordinate system
+		const glm::mat4& getLocalToWorldMatrix()
+		{
+			updateLTW();
+			return rtd().m_local_to_world;
+		}
+
+		//get matrix wich transforms from parent to local coordinate system
+		const glm::mat4& getParentToLocalMatrix()
+		{
+			updatePTL();
+			return rtd().m_parent_to_local;
+		}
+
+		//get matrix wich transforms from world to local coordinate system
+		const glm::mat4& getWorldToLocalMatrix()
+		{
+			updateWTL();
+			return rtd().m_world_to_local;
+		}
+
+		//get x axis with respect to parent coordinate system
+		const glm::vec3& getLocalXAxis()
+		{
+			updateLTP();
+			return rtd().m_local_xaxis;
+		}
+
+		//get y axis with respect to parent coordinate system
+		const glm::vec3& getLocalYAxis()
+		{
+			updateLTP();
+			return rtd().m_local_yaxis;
+		}
+
+		//get z axis with respect to parent coordinate system
+		const glm::vec3& getLocalZAxis()
+		{
+			updateLTP();
+			return rtd().m_local_zaxis;
+		}
+
+		//get x axis with respect to world coordinate system
+		const glm::vec3& getWorldXAxis()
+		{
+			updateLTW();
+			return rtd().m_world_xaxis;
+		}
+
+		//get y axis with respect to world coordinate system
+		const glm::vec3& getWorldYAxis()
+		{
+			updateLTW();
+			return rtd().m_world_yaxis;
+		}
+
+		//get z axis with respect to world coordinate system
+		const glm::vec3& getWorldZAxis()
+		{
+			updateLTW();
+			return rtd().m_world_zaxis;
+		}
+
+		//setters 
+		//set position with respect to parent coordinate system
+		void setLocalPosition(const glm::vec3& position)
+		{
+			wtd().m_local_position = position;
+			wtd().m_ltp_dirty = true;
+		}
+
+		//set position with respect to world coordinate system
+		void setWorldPosition(const glm::vec3& position)
+		{
+			translateWorld(position - getWorldPosition());
+			wtd().m_world_position = position;
+		}
+
+		//set rotation with respect to parent coordinate system
+		void setLocalRotation(const glm::quat& rotation)
+		{
+			wtd().m_local_rotation = rotation;
+			wtd().m_ltp_dirty = true;
+		}
+
+		//set rotation with respect to parent coordinate systen, given euler angles
+		void setLocalRotationXYZ(const glm::vec3& rotation)
+		{
+			wtd().m_local_rotation = glm::quat(rotation);
+			wtd().m_ltp_dirty = true;
+		}
+
+		//set rotation with respect to world coordinate system
+		void setWorldRotation(const glm::quat& rotation)
+		{
+			if (m_parent)
+			{
+				wtd().m_local_rotation = glm::inverse(m_parent->getWorldRotation()) * rotation;
+			}
+			else
+			{
+				wtd().m_local_rotation = rotation;
+			}
+			wtd().m_ltp_dirty = true;
+		}
+
+		//set rotation with respect to world coordinate system, given euler angles
+		void setWorldRotationXYZ(const glm::vec3& rotation)
+		{
+			if (m_parent)
+			{
+				wtd().m_local_rotation = glm::inverse(m_parent->getWorldRotation()) * glm::quat(rotation);
+			}
+			else
+			{
+				wtd().m_local_rotation = glm::quat(rotation);
+			}
+			wtd().m_ltp_dirty = true;
+		}
+
+		//set scale with respect to parent coordinate system
+		void setLocalScale(const glm::vec3& scale)
+		{
+			wtd().m_local_scale = scale;
+			wtd().m_ltp_dirty = true;
+		}
+
+		//set scale with respect to world coordinate system
+		//void setWorldScale(const glm::vec3& scale)
+		//{
+		//	glm::vec3 wsc = getWorldScale();
+		//	wsc = 1.0f / wsc;
+		//	m_local_scale = wsc * scale;
+		//	m_ltp_dirty = true;
+		//}
+
+		//setters rvalues
+		//set position with respect to parent coordinate system
+		void setLocalPosition(glm::vec3&& position)
+		{
+			wtd().m_local_position = position;
+			wtd().m_ltp_dirty = true;
+		}
+
+		//set position with respect to world coordinate system
+		void setWorldPosition(glm::vec3&& position)
+		{
+			translateWorld(position - getWorldPosition());
+			wtd().m_ltp_dirty = true;
+		}
+
+		//set rotation with respect to parent coordinate system
+		void setLocalRotation(glm::quat&& rotation)
+		{
+			wtd().m_local_rotation = rotation;
+			wtd().m_ltp_dirty = true;
+		}
+
+		//set rotation with respect to parent coordinate system, given euler angles
+		void setLocalRotationXYZ(glm::vec3&& rotation)
+		{
+			wtd().m_local_rotation = glm::quat(rotation);
+			wtd().m_ltp_dirty = true;
+		}
+
+		//set rotation with respect to world coordinate system
+		void setWorldRotation(glm::quat&& rotation)
+		{
+			if (m_parent)
+			{
+				wtd().m_local_rotation = glm::inverse(m_parent->getWorldRotation()) * rotation;
+			}
+			else
+			{
+				wtd().m_local_rotation = rotation;
+			}
+			wtd().m_ltp_dirty = true;
+		}
+
+		//set rotation with respect to world coordinate system, given euler angles
+		void setWorldRotationXYZ(glm::vec3&& rotation)
+		{
+			if (m_parent)
+			{
+				wtd().m_local_rotation = glm::inverse(m_parent->getWorldRotation()) * glm::quat(rotation);
+			}
+			else
+			{
+				wtd().m_local_rotation = glm::quat(rotation);
+			}
+			wtd().m_ltp_dirty = true;
+		}
+
+		//set scale with respect to parent coordinate system
+		void setLocalScale(glm::vec3&& scale)
+		{
+			wtd().m_local_scale = scale;
+			wtd().m_ltp_dirty = true;
+		}
+
+		//set scale with respect to world coordinate system
+		//void setWorldScale(glm::vec3&& scale)
+		//{
+		//	glm::vec3 wsc = getWorldScale();
+		//	wsc = 1.0f / wsc;
+		//	m_local_scale = wsc * scale;
+		//	m_ltp_dirty = true;
+		//}
+
+		// manipulators
+		//translate with respect to local coordinate system
+		void translateLocal(const glm::vec3& offset)
+		{
+			wtd().m_local_position += getLocalXAxis() * offset.x + getLocalYAxis() * offset.y + getLocalZAxis() * offset.z;
+			wtd().m_ltp_dirty = true;
+		}
+
+		//translate with respect to parent coordinate system
+		void translate(const glm::vec3& offset)
+		{
+			wtd().m_local_position += offset;
+			wtd().m_ltp_dirty = true;
+		}
+
+		//translate with respect to world coordinate system
+		void translateWorld(const glm::vec3& offset)
+		{
+			if (m_parent)
+			{
+				auto& s = m_parent->getWorldScale();
+				auto& rx = m_parent->getWorldXAxis();
+				auto& ry = m_parent->getWorldYAxis();
+				auto& rz = m_parent->getWorldZAxis();
+
+				wtd().m_local_position += glm::vec3(
+					1.0f / s.x * (glm::dot(rx, offset)),
+					1.0f / s.y * (glm::dot(ry, offset)),
+					1.0f / s.z * (glm::dot(rz, offset))
+				);
+			}
+			else
+			{
+				wtd().m_local_position += offset;
+			}
+
+			wtd().m_ltp_dirty = true;
+		}
+
+		//rotate with respect to local coordinate system
+		void rotateLocal(const glm::quat& rotation)
+		{
+			wtd().m_local_rotation = glm::normalize(getLocalRotation() * rotation);
+			wtd().m_ltp_dirty = true;
+		}
+
+		//rotate with respect to parent coordinate system
+		void rotate(const glm::quat& rotation)
+		{
+			wtd().m_local_rotation = glm::normalize(rotation * getLocalRotation());
+			wtd().m_ltp_dirty = true;
+		}
+
+		//rotate with respect to world coordinate system
+		void rotateWorld(const glm::quat& rotation)
+		{
+			if (m_parent)
+			{
+				wtd().m_local_rotation = glm::normalize(glm::inverse(m_parent->getWorldRotation()) * rotation * m_parent->getWorldRotation()) * getLocalRotation();
+			}
+			else
+			{
+				wtd().m_local_rotation = glm::normalize(rotation * getLocalRotation());
+			}
+			wtd().m_ltp_dirty = true;
+		}
+
+		//rotate with respect to local coordinate system
+		void rotateLocalAroundPoint(const glm::quat& rotation, const glm::vec3& point)
+		{
+			wtd().m_local_rotation = glm::normalize(getLocalRotation() * rotation);
+			glm::vec3 wpo = point - getWorldPosition();
+			glm::mat3 invrotmat = glm::transpose(glm::toMat3(rotation));
+			translateWorld(glm::vec3(
+				glm::dot(invrotmat[0], -wpo) + wpo.x,
+				glm::dot(invrotmat[1], -wpo) + wpo.y,
+				glm::dot(invrotmat[2], -wpo) + wpo.z
+			));
+			wtd().m_ltp_dirty = true;
+		}
+
+		//rotate with respect to parent coordinate system
+		void rotateAroundPoint(const glm::quat& rotation, const glm::vec3& point)
+		{
+			wtd().m_local_rotation = glm::normalize(rotation * getLocalRotation());
+			glm::vec3 wpo = point - getWorldPosition();
+			glm::mat3 invrotmat = glm::transpose(glm::toMat3(rotation));
+			translateWorld(glm::vec3(
+				glm::dot(invrotmat[0], -wpo) + wpo.x,
+				glm::dot(invrotmat[1], -wpo) + wpo.y,
+				glm::dot(invrotmat[2], -wpo) + wpo.z
+			));
+			wtd().m_ltp_dirty = true;
+		}
+
+		//rotate with respect to world coordinate system
+		void rotateWorldAroundPoint(const glm::quat& rotation, const glm::vec3& point)
+		{
+			if (m_parent)
+			{
+				wtd().m_local_rotation = glm::normalize(glm::inverse(m_parent->getWorldRotation()) * rotation * m_parent->getWorldRotation()) * getLocalRotation();
+			}
+			else
+			{
+				wtd().m_local_rotation = glm::normalize(rotation * getLocalRotation());
+			}
+			glm::vec3 wpo = point - getWorldPosition();
+			glm::mat3 invrotmat = glm::transpose(glm::toMat3(rotation));
+			translateWorld(glm::vec3(
+				glm::dot(invrotmat[0], -wpo) + wpo.x,
+				glm::dot(invrotmat[1], -wpo) + wpo.y,
+				glm::dot(invrotmat[2], -wpo) + wpo.z
+			));
+			wtd().m_ltp_dirty = true;
+		}
+
+		//scale with respect to local coordinate system
+		void scaleLocal(const glm::vec3& scale)
+		{
+			wtd().m_local_scale *= scale;
+			wtd().m_ltp_dirty = true;
+		}
+
+		//scale with respect to parent coordinate system
+		//this doesn't work at the moment. Need to figure out whats wrong with non uniform scale.
+		//void scale(const glm::vec3& scale)
+		//{
+		//	glm::mat4 mat = glm::translate(getLocalPosition()) * glm::scale(scale) * glm::toMat4(getLocalRotation()) * glm::scale(getLocalScale());
+		//	setTransformMatrix(mat);
+		//}
+		//
+		////scale with respect to world coordinate system
+		//void scaleWorld(const glm::vec3& scale)
+		//{
+		//	glm::mat4 mat = glm::inverse(glm::scale(getWorldScale())) * glm::toMat4(glm::inverse(getWorldRotation())) * glm::scale(scale) * glm::toMat4(getWorldRotation()) * glm::scale(getWorldScale());
+		//	rightApplyTransformMatrix(mat);
+		//}
+		//
+		////scale with respect to local coordinate system
+		//void scaleLocalAroundPoint(const glm::vec3& scale, const glm::vec3& point)
+		//{}
+		//
+		////scale with respect to parent coordinate system
+		//void scaleAroundPoint(const glm::vec3& scale, const glm::vec3& point)
+		//{}
+		//
+		////scale with respect to world coordinate system
+		//void scaleWorldAroundPoint(const glm::vec3& scale, const glm::vec3& point)
+		//{}
+
+		//manipulations via matrices (ltp only)
+
+		void setTransformMatrix(const glm::mat4& matrix)
+		{
+			wtd().m_local_to_parent = matrix;
+			updateLocalComponents(matrix);
+			wtd().m_ltp_dirty = false;
+			wtd().m_ltw_dirty = true;
+			wtd().m_ptl_dirty = true;
+			wtd().m_wtl_dirty = true;
+		}
+
+		void rightApplyTransformMatrix(const glm::mat4& matrix)
+		{
+			wtd().m_local_to_parent = getLocalToParentMatrix() * matrix;
+			updateLocalComponents(wtd().m_local_to_parent);
+			wtd().m_ltp_dirty = false;
+			wtd().m_ltw_dirty = true;
+			wtd().m_ptl_dirty = true;
+			wtd().m_wtl_dirty = true;
+		}
+
+		void leftApplyTransformMatrix(const glm::mat4& matrix)
+		{
+			wtd().m_local_to_parent = matrix * getLocalToParentMatrix();
+			updateLocalComponents(wtd().m_local_to_parent);
+			wtd().m_ltp_dirty = false;
+			wtd().m_ltw_dirty = true;
+			wtd().m_ptl_dirty = true;
+			wtd().m_wtl_dirty = true;
+		}
+
+		void reset()
+		{
+			wtd().m_local_to_parent = glm::mat4(1.0f);
+			updateLocalComponents(wtd().m_local_to_parent);
+			wtd().m_ltp_dirty = false;
+			wtd().m_ltw_dirty = true;
+			wtd().m_ptl_dirty = true;
+			wtd().m_wtl_dirty = true;
+		}
+
+		//parent child stuff
+		Transform* getParent()
+		{
+			return m_parent;
+		}
+
+		void setParent(Transform* parent)
+		{
+			if (parent)
+			{
+				m_parent = parent;
+				leftApplyTransformMatrix(parent->getWorldToLocalMatrix());
+			}
+			else
+			{
+				orphane();
+			}
+		}
+
+		void orphane()
+		{
+			if (m_parent)
+			{
+				leftApplyTransformMatrix(m_parent->getLocalToWorldMatrix());
+				m_parent = nullptr;
+			}
+		}
+
+		//const std::vector<Transform*>& getChilds()
+		//{
+		//	return m_childs;
+		//}
+
+		//void addChild(Transform* child)
+		//{
+		//
+		//}
+		//
+		//void removeChild(Transform* child)
+		//{
+		//
+		//}
+		//
+		//void clearChilds()
+		//{
+		//
+		//}
+
+		glm::vec3 getDirection()
+		{
+			return -getWorldZAxis();
+		}
+
+		void lookinto(const glm::vec3 & direction)
+		{
+			glm::vec3 ndir(glm::normalize(-direction));
+			glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), ndir));
+			glm::vec3 up = glm::normalize(glm::cross(ndir, right));
+
+			//construct a 3x3 rotation matrix from direction and global up vector
+			glm::mat3 rot(right, up, ndir);
+
+			setWorldRotation(glm::quat_cast(rot));
+		}
+
+		// operators
 	private:
-		TransformData* m_front;
-		TransformData* m_back;
+		// private member functions -------------------------------------------------------
+		//extracts local components from matrix
+		void updateLocalComponents(const glm::mat4& matrix)
+		{
+			auto ax = glm::vec3(matrix * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
+			auto ay = glm::vec3(matrix * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
+			auto az = glm::vec3(matrix * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
+			auto pos = glm::vec3(matrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+			float xl = glm::length(ax);
+			float yl = glm::length(ay);
+			float zl = glm::length(az);
+
+			wtd().m_local_xaxis = ax / xl;
+			wtd().m_local_yaxis = ay / yl;
+			wtd().m_local_zaxis = az / zl;
+
+			wtd().m_local_position = pos;
+			wtd().m_local_rotation = glm::toQuat(glm::mat3(
+				wtd().m_local_xaxis,
+				wtd().m_local_yaxis,
+				wtd().m_local_zaxis
+			));
+			wtd().m_local_scale = glm::vec3(xl, yl, zl);
+		}
+
+		bool isLTPDirty()
+		{
+			return rtd().m_ltp_dirty;
+		}
+
+		bool isLTWDirty()
+		{
+			return rtd().m_ltw_dirty || isLTPDirty() || m_parent;//(m_parent ? m_parent->isLTWDirty() : false);
+		}
+
+		bool isPTLDirty()
+		{
+			return rtd().m_ptl_dirty || isLTPDirty();
+		}
+
+		bool isWTLDirty()
+		{
+			return rtd().m_wtl_dirty || isLTWDirty();
+		}
+
+		void updateLTP()
+		{
+			if (isLTPDirty())
+			{
+				wtd().m_local_to_parent = glm::translate(rtd().m_local_position) * glm::toMat4(rtd().m_local_rotation) * glm::scale(rtd().m_local_scale);
+				wtd().m_local_xaxis = glm::normalize(glm::vec3(rtd().m_local_to_parent[0]));
+				wtd().m_local_yaxis = glm::normalize(glm::vec3(rtd().m_local_to_parent[1]));
+				wtd().m_local_zaxis = glm::normalize(glm::vec3(rtd().m_local_to_parent[2]));
+				wtd().m_ltp_dirty = false;
+			}
+		}
+
+		void updateLTW()
+		{
+			if (isLTWDirty())
+			{
+				if (m_parent)
+				{
+					wtd().m_local_to_world = m_parent->getLocalToWorldMatrix() * getLocalToParentMatrix();
+				}
+				else
+				{
+					wtd().m_local_to_world = getLocalToParentMatrix();
+				}
+
+				auto ax = glm::vec3(wtd().m_local_to_world * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
+				auto ay = glm::vec3(wtd().m_local_to_world * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
+				auto az = glm::vec3(wtd().m_local_to_world * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
+				auto pos = glm::vec3(wtd().m_local_to_world * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+				float xl = glm::length(ax);
+				float yl = glm::length(ay);
+				float zl = glm::length(az);
+
+				wtd().m_world_xaxis = ax / xl;
+				wtd().m_world_yaxis = ay / yl;
+				wtd().m_world_zaxis = az / zl;
+
+				wtd().m_world_position = pos;
+				wtd().m_world_rotation = glm::toQuat(glm::mat3(
+					wtd().m_world_xaxis,
+					wtd().m_world_yaxis,
+					wtd().m_world_zaxis
+				));
+				wtd().m_world_scale = glm::vec3(xl, yl, zl);
+				wtd().m_ltw_dirty = false;
+			}
+		}
+
+		void updateWTL()
+		{
+			if (isWTLDirty())
+			{
+				wtd().m_world_to_local = glm::inverse(getLocalToWorldMatrix());
+				wtd().m_wtl_dirty = false;
+			}
+		}
+
+		void updatePTL()
+		{
+			if (isPTLDirty())
+			{
+				wtd().m_parent_to_local = glm::inverse(getLocalToParentMatrix());
+				wtd().m_ptl_dirty = false;
+			}
+		}
+
 	};
 
 	class BoundingBox
@@ -508,6 +1176,17 @@ namespace SCM
 		//std::map<std::string, boost::any> m_decorators;
 		virtual void swap() { m_transformData.swap(); }
 
+		//handle transform parent/child stuff
+		void setParent(Entity* parent)
+		{
+			m_transformData.setParent(&parent->m_transformData);
+		}
+
+		void orphane()
+		{
+			m_transformData.orphane();
+		}
+
 		bool shouldCollide()
 		{
 			if (isBoundingBox)
@@ -530,13 +1209,13 @@ namespace SCM
 				if (isBoundingBox)
 				{
 					glm::mat4 bbtoentity = glm::translate(m_boundingData.box.m_center) * glm::mat4(m_boundingData.box.m_rotation) * glm::scale(m_boundingData.box.m_size * 0.5f);
-					m_boundingData.box.bdtoworld = (m_parent ? m_parent->m_transformData.getData()->m_transformMatrix : glm::mat4(1.0f)) * m_transformData.getData()->m_transformMatrix * bbtoentity;
+					m_boundingData.box.bdtoworld = m_transformData.getLocalToWorldMatrix() * bbtoentity;
 					m_boundingData.box.m_velocity = (newpos - oldpos) / deltasecs;
 				}
 				else
 				{
 					glm::mat4 bstoentity = glm::translate(m_boundingData.sphere.m_center) * glm::scale(glm::vec3(m_boundingData.sphere.m_radius));
-					m_boundingData.sphere.bdtoworld = (m_parent ? m_parent->m_transformData.getData()->m_transformMatrix : glm::mat4(1.0f)) * m_transformData.getData()->m_transformMatrix * bstoentity;
+					m_boundingData.sphere.bdtoworld = m_transformData.getLocalToWorldMatrix() * bstoentity;
 					m_boundingData.sphere.m_velocity = (newpos - oldpos) / deltasecs;
 				}
 				boundingDataDirty = false;
@@ -739,22 +1418,22 @@ namespace SCM
 
 		glm::vec3 getVSDirection(const glm::mat4& viewmat)
 		{
-			return glm::mat3(viewmat) * (-m_transformData.getData()->m_localZ);
+			return glm::mat3(viewmat) * (m_transformData.getDirection());
 		}
 
 		glm::vec3 getDirection()
 		{
-			return -m_transformData.getData()->m_localZ;
+			return m_transformData.getDirection();
 		}
 
 		glm::vec3 getVSPosition(const glm::mat4& viewmat)
 		{
-			return glm::vec3(viewmat * glm::vec4(m_transformData.getData()->m_location, 1.0f));
+			return glm::vec3(viewmat * glm::vec4(m_transformData.getWorldPosition(), 1.0f));
 		}
 
 		glm::vec3 getPosition()
 		{
-			return m_transformData.getData()->m_location;
+			return m_transformData.getWorldPosition();
 		}
 
 		glm::vec3 m_color;
@@ -789,12 +1468,12 @@ namespace SCM
 
 		glm::vec3 getVSPosition(const glm::mat4& viewmat)
 		{
-			return glm::vec3(viewmat * glm::vec4(m_transformData.getData()->m_location, 1.0f));
+			return glm::vec3(viewmat * glm::vec4(m_transformData.getWorldPosition(), 1.0f));
 		}
 
 		glm::vec3 getPosition()
 		{
-			return m_transformData.getData()->m_location;
+			return m_transformData.getWorldPosition();
 		}
 
 		glm::vec3 m_color;
@@ -825,22 +1504,22 @@ namespace SCM
 
 		glm::vec3 getVSDirection(const glm::mat4& viewmat)
 		{
-			return glm::mat3(viewmat) * (-m_transformData.getData()->m_localZ);
+			return glm::mat3(viewmat) * (m_transformData.getDirection());
 		}
 
 		glm::vec3 getDirection()
 		{
-			return -m_transformData.getData()->m_localZ;
-		}
-
-		glm::vec3 getPosition()
-		{
-			return m_transformData.getData()->m_location;
+			return m_transformData.getDirection();
 		}
 
 		glm::vec3 getVSPosition(const glm::mat4& viewmat)
 		{
-			return glm::vec3(viewmat * glm::vec4(m_transformData.getData()->m_location, 1.0f));
+			return glm::vec3(viewmat * glm::vec4(m_transformData.getWorldPosition(), 1.0f));
+		}
+
+		glm::vec3 getPosition()
+		{
+			return m_transformData.getWorldPosition();
 		}
 
 		glm::vec3 m_color;
@@ -1137,16 +1816,16 @@ namespace SCM
 				}
 				else
 					out += "\t Parent: -\n";
-				auto vd = ents.second->m_transformData.getData();
+				auto& vd = ents.second->m_transformData;
 				out += "\t Transform: \n";
-				out += "\t\t Location: " + glmvec3tostring(vd->m_location) + "\n";
-				out += "\t\t Scale: " + glmvec3tostring(vd->m_scale) + "\n";
-				out += "\t\t Rotation: " + glmquattostring(vd->m_rotation) + "\n";
-				out += "\t\t Local X: " + glmvec3tostring(vd->m_localX) + "\n";
-				out += "\t\t Local Y: " + glmvec3tostring(vd->m_localY) + "\n";
-				out += "\t\t Local Z: " + glmvec3tostring(vd->m_localZ) + "\n";
+				out += "\t\t Location: " + glmvec3tostring(vd.getLocalPosition()) + "\n";
+				out += "\t\t Scale: " + glmvec3tostring(vd.getLocalScale()) + "\n";
+				out += "\t\t Rotation: " + glmquattostring(vd.getLocalRotation()) + "\n";
+				out += "\t\t Local X: " + glmvec3tostring(vd.getLocalXAxis()) + "\n";
+				out += "\t\t Local Y: " + glmvec3tostring(vd.getLocalYAxis()) + "\n";
+				out += "\t\t Local Z: " + glmvec3tostring(vd.getLocalZAxis()) + "\n";
 
-				auto bd = ents.second->m_boundingData;
+				auto& bd = ents.second->m_boundingData;
 				if (ents.second->isBoundingBox)
 				{
 					out += "\t Bounding Box: \n";
