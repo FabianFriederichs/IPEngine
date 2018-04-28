@@ -235,7 +235,7 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 		std::string entityname;
 		ipengine::ipid entityid;
 		int meshid;
-		SCM::TransformData transdata;
+		SCM::Transform transdata;
 		SCM::BoundingBox boxdata;
 		boxdata.m_center = glm::vec3(0, 0, 0);
 		boxdata.m_size = glm::vec3(0, 0, 0);
@@ -260,12 +260,12 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 		//}
 
 		meshid = node.second.get<int>("MeshId", -1);
-		transdata.m_location = parseVectorFromString(node.second.get<std::string>("TransformData.Location", "0/0/0"));
-		transdata.m_rotation = parseQuatFromString(node.second.get<std::string>("TransformData.Rotation", "0/0/0/0"));
-		transdata.m_scale = parseVectorFromString(node.second.get<std::string>("TransformData.Scale", "0/0/0"));
-		transdata.m_localX = parseVectorFromString(node.second.get<std::string>("TransformData.LocalX", "0/0/0"));
+		transdata.setLocalPosition(parseVectorFromString(node.second.get<std::string>("TransformData.Location", "0/0/0")));
+		transdata.setLocalRotation(parseQuatFromString(node.second.get<std::string>("TransformData.Rotation", "0/0/0/0")));
+		transdata.setLocalScale(parseVectorFromString(node.second.get<std::string>("TransformData.Scale", "0/0/0")));
+		/*transdata.m_localX = parseVectorFromString(node.second.get<std::string>("TransformData.LocalX", "0/0/0"));
 		transdata.m_localY = parseVectorFromString(node.second.get<std::string>("TransformData.LocalY", "0/0/0"));
-		transdata.m_localZ = parseVectorFromString(node.second.get<std::string>("TransformData.LocalZ", "0/0/0"));
+		transdata.m_localZ = parseVectorFromString(node.second.get<std::string>("TransformData.LocalZ", "0/0/0"));*/
 
 		//Box or Sphere?
 		auto boundingdata = node.second.find("BoundingData");
@@ -308,7 +308,7 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 			SCM::Entity tempent;// SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), boxorsphere, false);
 			tempent.m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
 			tempent.isBoundingBox = boxorsphere;
-			tempent.m_transformData = SCM::Transform(transdata);
+			tempent.m_transformData = transdata;
 			tempent.m_name = entityname;
 			anyvector.push_back(entityid);
 			anyvector.push_back(&tempent);
@@ -328,7 +328,7 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 				//auto ntde = new SCM::ThreeDimEntity(m_core->createID(), SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
 				//ntde->generateBoundingSphere();
 				auto newid = m_core->createID();
-				entitystorage[newid] = new SCM::ThreeDimEntity(newid, SCM::Transform(transdata), boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
+				entitystorage[newid] = new SCM::ThreeDimEntity(newid, transdata, boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata), bool(boxorsphere), false, contentmodule->getMeshedObjectById(meshtointernid[meshid]));
 				entitystorage[newid]->m_name = entityname;
 				contentmodule->getThreeDimEntities()[newid] = static_cast<SCM::ThreeDimEntity*>(entitystorage[newid]);
 				entitytointernid[entityid] = newid;
@@ -340,7 +340,7 @@ ipengine::ipid SimpleSceneModule::LoadSceneFromFile(std::string filepath)
 				entitystorage[newid]->m_entityId = newid;
 				entitystorage[newid]->m_boundingData = boxorsphere ? SCM::BoundingData(boxdata) : SCM::BoundingData(spheredata);
 				entitystorage[newid]->isBoundingBox = boxorsphere;
-				entitystorage[newid]->m_transformData = SCM::Transform(transdata);
+				entitystorage[newid]->m_transformData = transdata;
 				entitystorage[newid]->m_name = entityname;
 				entitytointernid[entityid] = entitystorage[newid]->m_entityId;
 			}
@@ -435,14 +435,14 @@ void SimpleSceneModule::WriteSceneToFile(std::string filepath, ipengine::ipid sc
 		}
 
 		//Transform Data
-		auto transform = entity->m_transformData.getData();
+		auto& transform = entity->m_transformData;
 		auto &transformnode = entitynode.add("TransformData", "");
-		transformnode.add("Location", Vec3ToString(transform->m_location));
-		transformnode.add("Rotation", QuatToString(transform->m_rotation));
-		transformnode.add("Scale", Vec3ToString(transform->m_scale));
-		transformnode.add("LocalY", Vec3ToString(transform->m_localY));
+		transformnode.add("Location", Vec3ToString(transform.getLocalPosition()));
+		transformnode.add("Rotation", QuatToString(transform.getLocalRotation()));
+		transformnode.add("Scale", Vec3ToString(transform.getLocalScale()));
+		/*transformnode.add("LocalY", Vec3ToString(transform->m_localY));
 		transformnode.add("LocalX", Vec3ToString(transform->m_localX));
-		transformnode.add("LocalZ", Vec3ToString(transform->m_localZ));
+		transformnode.add("LocalZ", Vec3ToString(transform->m_localZ));*/
 
 		//Bounding Data
 		auto bdata = entity->m_boundingData;

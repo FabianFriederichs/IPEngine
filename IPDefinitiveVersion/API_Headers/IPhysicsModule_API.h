@@ -56,7 +56,7 @@ public:
 		{}
 		size_t width;
 		size_t height;
-		SCM::TransformData transform;
+		SCM::Transform* transform;
 		PhysicsContext pcontext;
 		std::vector<ParticleCoord> fixedParticles;
 	};
@@ -91,7 +91,7 @@ public:
 
 	virtual ipengine::ipid createCloth(const std::string& name, size_t width,
 					 size_t height,
-					 const SCM::TransformData& transform,
+					 SCM::Transform& transform,
 					 const PhysicsContext& physicsContext, const ipengine::ipid materialid) = 0;
 	virtual void destroyCloth(const ipengine::ipid) = 0;
 	virtual void fixParticle(const ipengine::ipid id, size_t x, size_t y, bool fixed) = 0;

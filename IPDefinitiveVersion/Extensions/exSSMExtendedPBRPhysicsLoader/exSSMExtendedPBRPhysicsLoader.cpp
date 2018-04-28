@@ -142,8 +142,7 @@ void exSSMExtendedPBRPhysicsLoader::execute(std::vector<std::string> argnames, s
 		}
 		
 
-		auto transform = SCM::TransformData(*entity->m_transformData.getData());
-		transform.updateTransform();
+		auto transform = SCM::Transform(entity->m_transformData);
 		auto realid = physics->createCloth(name, width, height, transform, phcontext, matipid);
 		
 		for (auto node : tree.get_child("fixedParticles"))

@@ -26,7 +26,7 @@ bool GraphicsModule::_startup()
 	
 	m_scm->getDirLights()[lid] = new SCM::DirectionalLight(
 		lid,
-		SCM::Transform(SCM::TransformData(glm::vec3(5, 5, 5), SCM::ISimpleContentModule_API::dirToQuat(glm::vec3(-1, -1, -1)), glm::vec3(1, 1, 1))),
+		SCM::Transform(glm::vec3(5, 5, 5), SCM::ISimpleContentModule_API::dirToQuat(glm::vec3(-1, -1, -1)), glm::vec3(1, 1, 1)),
 		SCM::BoundingData(SCM::BoundingSphere()),
 		false,
 		true,
@@ -987,15 +987,15 @@ void GraphicsModule::setSceneUniforms(ShaderProgram* shader)
 		auto cent = m_scm->getEntityById(cameraentity);
 		if (cent != nullptr)
 		{
-			auto transmatrix = parentInfluencedTransform(cameraentity);//cent->m_transformData.getData();
-			SCM::TransformData transdata;
-			
-			
-			transdata.m_rotation = glm::quat_cast(transmatrix);
-			transdata.m_location = glm::vec3(transmatrix[3][0], transmatrix[3][1], transmatrix[3][2]);
-			transdata.m_isMatrixDirty = true;
-			transdata.updateTransform();
-			viewmat = ViewFromTransData(&transdata);//glm::inverse(transdata->m_transformMatrix);//glm::toMat4(transdata->m_rotation) * translate(glm::mat4(1.0f), -transdata->m_location);
+			//auto transmatrix = parentInfluencedTransform(cameraentity);//cent->m_transformData.getData();
+			//SCM::TransformData transdata;
+			//
+			//
+			//transdata.m_rotation = glm::quat_cast(transmatrix);
+			//transdata.m_location = glm::vec3(transmatrix[3][0], transmatrix[3][1], transmatrix[3][2]);
+			//transdata.m_isMatrixDirty = true;
+			//transdata.updateTransform();
+			viewmat = ViewFromTransData(cent->m_transformData);//glm::inverse(transdata->m_transformMatrix);//glm::toMat4(transdata->m_rotation) * translate(glm::mat4(1.0f), -transdata->m_location);
 		}
 	}
 	shader->setUniform("u_view_matrix", viewmat, false);
@@ -1116,7 +1116,7 @@ void GraphicsModule::setMaterialUniforms(SCM::MaterialData * mdata, ShaderProgra
 void GraphicsModule::drawEntity(SCM::ThreeDimEntity * entity, ShaderProgram* shader)
 {
 	//set per entity uniforms
-	glm::mat4 transformMat = parentInfluencedTransform(entity->m_entityId);// = entity->m_transformData.getData()->m_transformMatrix;
+	const glm::mat4& transformMat = entity->m_transformData.getLocalToWorldMatrix();//parentInfluencedTransform(entity->m_entityId);// = entity->m_transformData.getData()->m_transformMatrix;
 
 	////add parent transforms
 	//std::stack<SCM::Entity*> parentents;
@@ -1162,7 +1162,7 @@ void GraphicsModule::drawEntityShadow(SCM::ThreeDimEntity * entity, ShaderProgra
 {
 	//set per entity uniforms
 	//const glm::mat4& transformMat = entity->m_transformData.getData()->m_transformMatrix;
-	const glm::mat4 transformMat = parentInfluencedTransform(entity->m_entityId);
+	const glm::mat4& transformMat = entity->m_transformData.getLocalToWorldMatrix();//parentInfluencedTransform(entity->m_entityId);
 	shader->setUniform("u_model_matrix", transformMat, false);
 
 	//draw all meshes
@@ -1361,7 +1361,7 @@ void GraphicsModule::drawSCMMesh(ipengine::ipid meshid)
 		glBindVertexArray(0);GLERR
 	}
 }
-glm::mat4 GraphicsModule::ViewFromTransData(const SCM::TransformData *transform)
+glm::mat4 GraphicsModule::ViewFromTransData(SCM::Transform &transform)
 {
 
 	/*	x y z					negative translation	x	y	z
@@ -1370,19 +1370,14 @@ glm::mat4 GraphicsModule::ViewFromTransData(const SCM::TransformData *transform)
 	|z.x	z.y		z.z		-cp.z| camera z achse   0	0	1
 	|0		0		0		1    | */
 	//transform.GetTransformMat();
-
-	glm::mat4 viewRot = glm::mat4(
-		glm::vec4(transform->m_localX.x, transform->m_localY.x, transform->m_localZ.x, 0.0f),
-		glm::vec4(transform->m_localX.y, transform->m_localY.y, transform->m_localZ.y, 0.0f),
-		glm::vec4(transform->m_localX.z, transform->m_localY.z, transform->m_localZ.z, 0.0f),
-		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-
+	glm::vec3 pos = transform.getWorldPosition();
+	glm::mat4 viewRot = glm::mat4_cast(glm::inverse(transform.getWorldRotation()));
+		
 	glm::mat4 viewTr = glm::mat4(
 		glm::vec4(1, 0, 0, 0),
 		glm::vec4(0, 1, 0, 0),
 		glm::vec4(0, 0, 1, 0),
-		glm::vec4(-transform->m_location.x, -transform->m_location.y, -transform->m_location.z, 1));
+		glm::vec4(-pos.x, -pos.y, -pos.z, 1));
 
 	viewmat = viewRot * viewTr;
 	//vdirty = false;
@@ -1400,9 +1395,9 @@ void GraphicsModule::recalcProj()
 void GraphicsModule::lightMatDirectionalLight(glm::mat4& view, glm::mat4& proj, SCM::DirectionalLight& dirLight)
 {
 	//hmm rework later
-	dirLight.m_transformData.setData()->updateTransform();
+	//dirLight.m_transformData.setData()->updateTransform();
 	proj = glm::ortho(dirLight.shadowMapVolumeMin.x, dirLight.shadowMapVolumeMax.x, dirLight.shadowMapVolumeMin.y, dirLight.shadowMapVolumeMax.y, dirLight.shadowMapVolumeMax.z, dirLight.shadowMapVolumeMin.z);// dirLight.shadowMapVolumeMax.z, dirLight.shadowMapVolumeMin.z);
-	view = ViewFromTransData(dirLight.m_transformData.getData());
+	view = ViewFromTransData(dirLight.m_transformData);
 }
 void GraphicsModule::renderBoundingVolumes()
 {
@@ -1413,15 +1408,15 @@ void GraphicsModule::renderBoundingVolumes()
 		auto cent = m_scm->getEntityById(cameraentity);
 		if (cent != nullptr)
 		{
-			auto transmatrix = parentInfluencedTransform(cameraentity);//cent->m_transformData.getData();
-			SCM::TransformData transdata;
+			//auto transmatrix = parentInfluencedTransform(cameraentity);//cent->m_transformData.getData();
+			//SCM::TransformData transdata;
 
 
-			transdata.m_rotation = glm::quat_cast(transmatrix);
-			transdata.m_location = glm::vec3(transmatrix[3][0], transmatrix[3][1], transmatrix[3][2]);
-			transdata.m_isMatrixDirty = true;
-			transdata.updateTransform();
-			viewmat = ViewFromTransData(&transdata);//glm::inverse(transdata->m_transformMatrix);//glm::toMat4(transdata->m_rotation) * translate(glm::mat4(1.0f), -transdata->m_location);
+			//transdata.m_rotation = glm::quat_cast(transmatrix);
+			//transdata.m_location = glm::vec3(transmatrix[3][0], transmatrix[3][1], transmatrix[3][2]);
+			//transdata.m_isMatrixDirty = true;
+			//transdata.updateTransform();
+			viewmat = ViewFromTransData(cent->m_transformData);//glm::inverse(transdata->m_transformMatrix);//glm::toMat4(transdata->m_rotation) * translate(glm::mat4(1.0f), -transdata->m_location);
 		}
 	}
 	m_s_bvdebug->setUniform("u_view_matrix", viewmat, false);
@@ -1473,63 +1468,63 @@ std::vector<ipengine::ipid> GraphicsModule::getActiveEntityNames(SCM::ISimpleCon
 	return ids;
 }
 
-glm::mat4 GraphicsModule::parentInfluencedTransform(ipengine::ipid childid)
-{
-	SCM::Entity * entity = m_scm->getEntityById(childid);
-	//set per entity uniforms
-	glm::mat4 transformMat;// = entity->m_transformData.getData()->m_transformMatrix;
+//glm::mat4 GraphicsModule::parentInfluencedTransform(ipengine::ipid childid)
+//{
+//	SCM::Entity * entity = m_scm->getEntityById(childid);
+//	//set per entity uniforms
+//	glm::mat4 transformMat;// = entity->m_transformData.getData()->m_transformMatrix;
+//
+//						   //add parent transforms
+//	std::stack<SCM::Entity*> parentents;
+//	parentents.push(entity);
+//	SCM::Entity* parentent;
+//	while (parentents.top() && parentents.top()->m_parent)
+//	{
+//		parentents.push(parentents.top()->m_parent);
+//		//transformMat = parentent->m_transformData.getData()->m_transformMatrix* transformMat;
+//		//parentent = parentent->m_parent;
+//	}
+//	if (parentents.top()->m_transformData.getData()->m_isMatrixDirty)
+//		parentents.top()->m_transformData.setData()->calcTransformMatrix();
+//	transformMat = parentents.top()->m_transformData.getData()->m_transformMatrix;
+//	parentents.pop();
+//	while (!parentents.empty())
+//	{
+//		if (parentents.top()->m_transformData.getData()->m_isMatrixDirty)
+//			parentents.top()->m_transformData.setData()->calcTransformMatrix();
+//		transformMat = transformMat * parentents.top()->m_transformData.getData()->m_transformMatrix;
+//		parentents.pop();
+//	}
+//	/*if (entity->m_parent)
+//		return  entity->m_parent->m_transformData.getData()->m_transformMatrix*entity->m_transformData.getData()->m_transformMatrix;*/
+//	return transformMat;
+//}
 
-						   //add parent transforms
-	std::stack<SCM::Entity*> parentents;
-	parentents.push(entity);
-	SCM::Entity* parentent;
-	while (parentents.top() && parentents.top()->m_parent)
-	{
-		parentents.push(parentents.top()->m_parent);
-		//transformMat = parentent->m_transformData.getData()->m_transformMatrix* transformMat;
-		//parentent = parentent->m_parent;
-	}
-	if (parentents.top()->m_transformData.getData()->m_isMatrixDirty)
-		parentents.top()->m_transformData.setData()->calcTransformMatrix();
-	transformMat = parentents.top()->m_transformData.getData()->m_transformMatrix;
-	parentents.pop();
-	while (!parentents.empty())
-	{
-		if (parentents.top()->m_transformData.getData()->m_isMatrixDirty)
-			parentents.top()->m_transformData.setData()->calcTransformMatrix();
-		transformMat = transformMat * parentents.top()->m_transformData.getData()->m_transformMatrix;
-		parentents.pop();
-	}
-	/*if (entity->m_parent)
-		return  entity->m_parent->m_transformData.getData()->m_transformMatrix*entity->m_transformData.getData()->m_transformMatrix;*/
-	return transformMat;
-}
-
-glm::mat4 GraphicsModule::parentInfluencedView(ipengine::ipid childid)
-{
-	SCM::Entity * entity = m_scm->getEntityById(childid);
-	//set per entity uniforms
-	glm::mat4 transformMat;// = entity->m_transformData.getData()->m_transformMatrix;
-
-						   //add parent transforms
-	std::stack<SCM::Entity*> parentents;
-	parentents.push(entity);
-	SCM::Entity* parentent;
-	while (parentents.top() && parentents.top()->m_parent)
-	{
-		parentents.push(parentents.top()->m_parent);
-		//transformMat = parentent->m_transformData.getData()->m_transformMatrix* transformMat;
-		//parentent = parentent->m_parent;
-	}
-	transformMat = ViewFromTransData(parentents.top()->m_transformData.getData());// ->m_transformMatrix;
-	parentents.pop();
-	while (!parentents.empty())
-	{
-		transformMat = transformMat * ViewFromTransData(parentents.top()->m_transformData.getData());// ->m_transformMatrix;
-		parentents.pop();
-	}
-	return transformMat;
-}
+//glm::mat4 GraphicsModule::parentInfluencedView(ipengine::ipid childid)
+//{
+//	SCM::Entity * entity = m_scm->getEntityById(childid);
+//	//set per entity uniforms
+//	glm::mat4 transformMat;// = entity->m_transformData.getData()->m_transformMatrix;
+//
+//						   //add parent transforms
+//	std::stack<SCM::Entity*> parentents;
+//	parentents.push(entity);
+//	SCM::Entity* parentent;
+//	while (parentents.top() && parentents.top()->m_parent)
+//	{
+//		parentents.push(parentents.top()->m_parent);
+//		//transformMat = parentent->m_transformData.getData()->m_transformMatrix* transformMat;
+//		//parentent = parentent->m_parent;
+//	}
+//	transformMat = ViewFromTransData(parentents.top()->m_transformData.getData());// ->m_transformMatrix;
+//	parentents.pop();
+//	while (!parentents.empty())
+//	{
+//		transformMat = transformMat * ViewFromTransData(parentents.top()->m_transformData.getData());// ->m_transformMatrix;
+//		parentents.pop();
+//	}
+//	return transformMat;
+//}
 
 
 

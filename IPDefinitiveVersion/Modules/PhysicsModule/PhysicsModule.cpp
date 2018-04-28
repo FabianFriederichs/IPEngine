@@ -578,7 +578,7 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 	else
 	{
 		auto scolcenter = glm::vec3(entity->m_boundingData.sphere.bdtoworld[3]);
-		auto scolrad = entity->m_boundingData.sphere.m_radius * glm::max(entity->m_transformData.getData()->m_scale.x, glm::max(entity->m_transformData.getData()->m_scale.y, entity->m_transformData.getData()->m_scale.z));
+		auto scolrad = entity->m_boundingData.sphere.m_radius * glm::max(entity->m_transformData.getWorldScale().x, glm::max(entity->m_transformData.getWorldScale().y, entity->m_transformData.getWorldScale().z));
 		glm::vec3 psvec = previewpos - scolcenter;
 		float pslth = glm::length(psvec);
 
@@ -697,7 +697,7 @@ void PhysicsModule::updateMesh(Cloth* cloth)
 
 ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 								size_t height,
-								const SCM::TransformData& transform,
+								SCM::Transform& transform,
 								const PhysicsContext & physicsContext, const ipengine::ipid materialid)
 {
 	Cloth cloth;
@@ -713,7 +713,7 @@ ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 	cloth.m_particles_buf2 = ipengine::alloc_aligned_array<Particle, TS_CACHE_LINE_SIZE>(width * height);
 	cloth.m_springs = ipengine::alloc_aligned_array<Spring, TS_CACHE_LINE_SIZE>(width * height * MAX_SPRINGS_PER_PARTICLE);
 
-	auto transm = transform.m_transformMatrix;
+	auto transm = transform.getLocalToWorldMatrix();
 
 	//cloth.m_vertices.reserve(width * height);
 	cloth.m_csidx.reserve(width * height);
@@ -1067,7 +1067,7 @@ IPhysicsModule_API::ClothData PhysicsModule::getClothData(ipengine::ipid entityi
 	{
 		cdata.width = c->m_width;
 		cdata.height = c->m_height;
-		cdata.transform = c->m_initialTransform;
+		cdata.transform = &c->m_initialTransform;
 		cdata.pcontext = c->m_pctx;
 		for (size_t i = 0; i < c->particleCount(); ++i)
 		{

@@ -58,9 +58,7 @@ void ExtensionTest::changeCamera(ipengine::TaskContext &c)
 {
 	auto scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
 	auto ent = scm->getEntityById(cameraid);
-	std::cout << -ent->m_transformData.setData()->m_location.z;
-	ent->m_transformData.setData()->m_location = ent->m_transformData.getData()->m_location + ent->m_transformData.getData()->m_localZ * 1.0f;
-	ent->m_transformData.setData()->m_isMatrixDirty = true;
+	ent->m_transformData.translateWorld(glm::vec3(0.0f, 0.0f, -1.0f));
 	
 	/*
 	Rotation:

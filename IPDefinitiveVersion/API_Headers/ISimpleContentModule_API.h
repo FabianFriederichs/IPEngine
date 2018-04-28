@@ -33,9 +33,14 @@ namespace SCM
 		}
 
 		TransformData(const TransformData& other) = default;
-		TransformData(TransformData&& other) = default;
+		//{
+		//	//TODO: fix this
+		//}
 		TransformData& operator=(const TransformData& other) = default;
-		TransformData& operator=(TransformData&& other) = default;
+		//{
+		//	//TODO: and that
+		//}
+		
 
 		// private data ------------------------------------------------------------------
 		// transformation data with respect to parent coordinate system
@@ -732,22 +737,22 @@ namespace SCM
 
 		bool isLTPDirty()
 		{
-			return rtd().m_ltp_dirty;
+			return true;//rtd().m_ltp_dirty;
 		}
 
 		bool isLTWDirty()
 		{
-			return rtd().m_ltw_dirty || isLTPDirty() || m_parent;//(m_parent ? m_parent->isLTWDirty() : false);
+			return true;//rtd().m_ltw_dirty || isLTPDirty() || m_parent;//(m_parent ? m_parent->isLTWDirty() : false);
 		}
 
 		bool isPTLDirty()
 		{
-			return rtd().m_ptl_dirty || isLTPDirty();
+			return true;//rtd().m_ptl_dirty || isLTPDirty();
 		}
 
 		bool isWTLDirty()
 		{
-			return rtd().m_wtl_dirty || isLTWDirty();
+			return true;//rtd().m_wtl_dirty || isLTWDirty();
 		}
 
 		void updateLTP()

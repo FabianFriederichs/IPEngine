@@ -77,7 +77,7 @@ private:
 	ipengine::ipid heldEntity[2] = { IPID_INVALID,IPID_INVALID };
 	ipengine::ipid holder[2] = { IPID_INVALID, IPID_INVALID };
 	ipengine::ipid getAncestor(ipengine::ipid child);
-	bool inProximity(ipengine::ipid source, ipengine::ipid target, float maxDistance);
+	//bool inProximity(ipengine::ipid source, ipengine::ipid target, float maxDistance);
 	void onHoldStart(ipengine::ipid source, ipengine::ipid target);
 	void onHoldStop(ipengine::ipid source, ipengine::ipid target);
 };

@@ -180,7 +180,7 @@ private:
 	//rendering ----------------------------------------------------------------------------------------------
 	void setMaterialTexParams(GLuint tex);
 	void drawSCMMesh(ipengine::ipid);
-	glm::mat4 ViewFromTransData(const SCM::TransformData*);
+	glm::mat4 ViewFromTransData(SCM::Transform&);
 	void recalcProj();
 	void drawScene(ShaderProgram* shader);
 	void drawSceneShadow(ShaderProgram* shader);
@@ -197,8 +197,8 @@ private:
 	
 	//helpers ------------------------------------------------------------------------------------------------
 	std::vector<ipengine::ipid> getActiveEntityNames(SCM::ISimpleContentModule_API & scm);
-	glm::mat4 parentInfluencedTransform(ipengine::ipid childid);
-	glm::mat4 parentInfluencedView(ipengine::ipid childid);
+	//glm::mat4 parentInfluencedTransform(ipengine::ipid childid);
+	//glm::mat4 parentInfluencedView(ipengine::ipid childid);
 	// Inherited via IGraphics_API
 	virtual bool _startup() override;
 

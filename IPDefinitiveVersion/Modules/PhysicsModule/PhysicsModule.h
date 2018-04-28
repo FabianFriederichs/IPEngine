@@ -32,14 +32,13 @@ public:
 	
 	void createcloth()
 	{
-		contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
+		/*contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
 		scenemodule = m_info.dependencies.getDep<ISimpleSceneModule_API>("SSM");
-		auto clothtr = SCM::TransformData(
+		auto clothtr = SCM::Transform(
 			glm::vec3(0.0f, 0.0f, -3.0f),
 			glm::quat(),
 			glm::vec3(1.0f, 1.0f, 1.0f)
 		);
-		clothtr.updateTransform();
 		auto id = createCloth(
 			"testcloth",
 			50,
@@ -70,7 +69,7 @@ public:
 		fixParticle(id, 0, 49, true);
 		fixParticle(id, 49, 49, true);
 		scenemodule->AddEntity(id);
-		contentmodule->getEntityById(id)->isActive = true;
+		contentmodule->getEntityById(id)->isActive = true;*/
 
 	}
 private:
@@ -136,7 +135,7 @@ private:
 		char m_current_old; //either 1 or 2
 
 		ipengine::ipid id;
-		SCM::TransformData m_initialTransform;
+		SCM::Transform m_initialTransform;
 
 		std::vector<size_t> m_csidx;
 		moodycamel::ConcurrentQueue<ipengine::ipid> m_collisionqueue;
@@ -214,7 +213,7 @@ public:
 	//creation
 	ipengine::ipid createCloth(const std::string& name, size_t width,
 					 size_t height,
-					 const  SCM::TransformData& transform,
+					 SCM::Transform& transform,
 					 const PhysicsContext& physicsContext, const ipengine::ipid materialid) override;
 	void destroyCloth(const ipengine::ipid id) override;
 	void fixParticle(const ipengine::ipid id, size_t x, size_t y, bool fixed) override;

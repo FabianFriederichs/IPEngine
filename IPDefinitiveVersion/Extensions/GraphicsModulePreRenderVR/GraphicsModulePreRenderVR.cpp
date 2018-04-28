@@ -131,9 +131,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			);
 			hmdent->isBoundingBox = false;
 			hmdent->m_transformData = SCM::Transform();
-			hmdent->m_transformData.setData()->m_location.x = 0;
-			hmdent->m_transformData.setData()->m_location.y = 0;
-			hmdent->m_transformData.setData()->m_location.z = 0;
+			hmdent->m_transformData.setWorldPosition(glm::vec3(0.f));
 			hmdent->m_name = "OpenVRHMD";
 			//if (ents.count("Camera") > 0)
 			//{
@@ -220,10 +218,10 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			mobs.back().meshtomaterial[newmesh.m_meshId] = contrmatid;
 			auto &cntrmeshes = scm->getMeshedObjects().back();
 			//cntrtrans.setData()->m_rotation = { 1,0,0,0 };
-			cntrtrans.setData()->m_scale = { 1,1,1 };
-			cntrtrans.setData()->m_localX = { 1,0,0 };
+			cntrtrans.setLocalScale(glm::vec3(1.0f));
+			/*cntrtrans.setData()->m_localX = { 1,0,0 };
 			cntrtrans.setData()->m_localY = { 0,1,0 };
-			cntrtrans.setData()->m_localZ = { 0,0,1 };
+			cntrtrans.setData()->m_localZ = { 0,0,1 };*/
 			
 			rendermodels->FreeRenderModel(controllermodel);
 			auto lctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);
@@ -319,10 +317,10 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 			mobs.back().meshtomaterial[newmesh.m_meshId] = contrmatid;
 			auto &cntrmeshes = scm->getMeshedObjects().back();
 			//cntrtrans.setData()->m_rotation = { 1,0,0,0 };
-			cntrtrans.setData()->m_scale = { 1,1,1 };
-			cntrtrans.setData()->m_localX = { 1,0,0 };
+			cntrtrans.setLocalScale(glm::vec3(1.0f));
+			/*cntrtrans.setData()->m_localX = { 1,0,0 };
 			cntrtrans.setData()->m_localY = { 0,1,0 };
-			cntrtrans.setData()->m_localZ = { 0,0,1 };
+			cntrtrans.setData()->m_localZ = { 0,0,1 };*/
 
 			rendermodels->FreeRenderModel(controllermodel);
 			auto rctde = new SCM::ThreeDimEntity(cntrid, cntrtrans, cntrbounding, false, false, &cntrmeshes);
@@ -387,29 +385,32 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		cameraentity = scm->getEntityById(cameraid);
 		auto leftcontrollerpose = lastposes[lefthandcontrollerindex];
 		auto convertedpose = convert(leftcontrollerpose.mDeviceToAbsoluteTracking);
-		auto trans = contr->m_transformData.setData();
-		trans->m_location.x = convertedpose[3][0];
+		auto& trans = contr->m_transformData;
+		trans.setWorldPosition(glm::vec3{
+			convertedpose[3][0],
+			convertedpose[3][1],
+			convertedpose[3][2]
+		});
+		/*trans->m_location.x = convertedpose[3][0];
 		trans->m_location.y = convertedpose[3][1];
-		trans->m_location.z = convertedpose[3][2];
+		trans->m_location.z = convertedpose[3][2];*/
 		if (cameraentity)//contr->m_parent != nullptr)
 		{
-			auto parenttrans = cameraentity->m_transformData.getData();//contr->m_parent->m_transformData.getData();
+			auto& parenttrans = cameraentity->m_transformData;//contr->m_parent->m_transformData.getData();
 			//trans->m_location += parenttrans->m_location;
-			trans->m_location.x += parenttrans->m_location.x;
-			trans->m_location.y += parenttrans->m_location.y;
-			trans->m_location.z += parenttrans->m_location.z;
+			trans.translateWorld(parenttrans.getWorldPosition());
 		}
 
 
 		//Extract orientation quat
-		trans->m_rotation = glm::quat_cast(glm::mat4(convertedpose));
+		trans.setWorldRotation(glm::quat_cast(glm::mat4(convertedpose)));
 		/*if (contr->m_parent != nullptr)
 		{
 			contr->m_parent->m_transformData.setData()->m_rotation = trans->m_rotation;
 			contr->m_parent->m_transformData.setData()->m_isMatrixDirty = true;
 		}*/
 		//trans->m_isMatrixDirty = true;
-		trans->updateTransform();
+		//trans->updateTransform();
 		contr->boundingDataDirty = true;
 		contr->isActive = (leftcontrollerpose.bDeviceIsConnected && leftcontrollerpose.bPoseIsValid && leftcontrollerpose.eTrackingResult == vr::ETrackingResult::TrackingResult_Running_OK);
 	}
@@ -420,29 +421,31 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 		auto rightcontrollerpose = lastposes[righthandcontrollerindex];
 		auto convertedpose = convert(rightcontrollerpose.mDeviceToAbsoluteTracking);
-		auto trans = contr->m_transformData.setData();
-		trans->m_location.x = convertedpose[3][0];
+		auto& trans = contr->m_transformData;
+		trans.setWorldPosition(glm::vec3{
+			convertedpose[3][0],
+			convertedpose[3][1],
+			convertedpose[3][2]
+		});
+		/*trans->m_location.x = convertedpose[3][0];
 		trans->m_location.y = convertedpose[3][1];
-		trans->m_location.z = convertedpose[3][2];
+		trans->m_location.z = convertedpose[3][2];*/
 		if (cameraentity)//contr->m_parent != nullptr)
 		{
-			auto parenttrans = cameraentity->m_transformData.getData();//contr->m_parent->m_transformData.getData();
+			auto& parenttrans = cameraentity->m_transformData;//contr->m_parent->m_transformData.getData();
 			//trans->m_location += parenttrans->m_location;
-
-			trans->m_location.x += parenttrans->m_location.x;
-			trans->m_location.y += parenttrans->m_location.y;
-			trans->m_location.z += parenttrans->m_location.z;
+			trans.translateWorld(parenttrans.getWorldPosition());
 		}
 
 
 		//Extract orientation quat
-		trans->m_rotation = glm::quat_cast(glm::mat4(convertedpose));
+		trans.setWorldRotation(glm::quat_cast(glm::mat4(convertedpose)));
 		/*if (contr->m_parent != nullptr)
 		{
 			contr->m_parent->m_transformData.setData()->m_rotation = trans->m_rotation;
 			contr->m_parent->m_transformData.setData()->m_isMatrixDirty = true;
 		}*/
-		trans->updateTransform();
+		//trans->updateTransform();
 		contr->boundingDataDirty = true;
 		contr->isActive = (rightcontrollerpose.bDeviceIsConnected && rightcontrollerpose.bPoseIsValid && rightcontrollerpose.eTrackingResult== vr::ETrackingResult::TrackingResult_Running_OK);
 		//trans->m_isMatrixDirty = true;
@@ -454,32 +457,35 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 
 		auto hmdpose = lastposes[vr::k_unTrackedDeviceIndex_Hmd];
 		auto convertedpose = convert(hmdpose.mDeviceToAbsoluteTracking);
-		auto trans = hmd->m_transformData.setData();
-		trans->m_location.x = convertedpose[3][0];
+		auto& trans = hmd->m_transformData;
+		trans.setWorldPosition(glm::vec3{
+			convertedpose[3][0],
+			convertedpose[3][1],
+			convertedpose[3][2]
+		});
+		/*trans->m_location.x = convertedpose[3][0];
 		trans->m_location.y = convertedpose[3][1];
-		trans->m_location.z = convertedpose[3][2];
+		trans->m_location.z = convertedpose[3][2];*/
 		if (cameraentity)
 		{
-			auto parenttrans = cameraentity->m_transformData.getData();
+			auto& parenttrans = cameraentity->m_transformData;
 			//trans->m_location += parenttrans->m_location;
 
-			trans->m_location.x += parenttrans->m_location.x;
-			trans->m_location.y += parenttrans->m_location.y;
-			trans->m_location.z += parenttrans->m_location.z;
+			trans.translateWorld(parenttrans.getWorldPosition());
 		}
 
 
 		//Extract orientation quat
-		trans->m_rotation = glm::quat_cast(glm::mat4(convertedpose));
+		trans.setWorldRotation(glm::quat_cast(glm::mat4(convertedpose)));
 		if (cameraentity)
 		{
-			cameraentity->m_transformData.setData()->m_rotation = glm::normalize(trans->m_rotation);
+			cameraentity->m_transformData.setWorldRotation(glm::normalize(trans.getWorldRotation()));
 			//cameraentity->m_transformData.setData()->m_location = trans->m_location;
-			cameraentity->m_transformData.setData()->m_isMatrixDirty = true;
-			cameraentity->m_transformData.setData()->updateTransform();
+			/*cameraentity->m_transformData.setData()->m_isMatrixDirty = true;
+			cameraentity->m_transformData.setData()->updateTransform();*/
 		}
-		trans->m_isMatrixDirty = true;
-		trans->updateTransform();
+		/*trans->m_isMatrixDirty = true;
+		trans->updateTransform();*/
 		hmd->boundingDataDirty = true;
 	}
 	//Check if controller is active
@@ -489,7 +495,7 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	//contr->m_transformData.setData()->m_location = { 0,0,5 };
 	//contr->m_transformData.setData()->m_isMatrixDirty = true;
 	auto hmdentity = scm->getEntityById(hmdid);
-	auto trans = hmdentity->m_transformData.getData()->m_location;
+	auto trans = hmdentity->m_transformData.getWorldPosition();
 	auto hmdView = /*scm->getEntityByName("OpenVRHMD")->m_transformData.getData()->m_transformMatrix;*/glm::mat4(convert(lastposes[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking));
 
 	hmdView[3][0] = trans.x;
