@@ -737,22 +737,22 @@ namespace SCM
 
 		bool isLTPDirty()
 		{
-			return true;//rtd().m_ltp_dirty;
+			return rtd().m_ltp_dirty;
 		}
 
 		bool isLTWDirty()
 		{
-			return true;//rtd().m_ltw_dirty || isLTPDirty() || m_parent;//(m_parent ? m_parent->isLTWDirty() : false);
+			return rtd().m_ltw_dirty || isLTPDirty() || m_parent;//(m_parent ? m_parent->isLTWDirty() : false);
 		}
 
 		bool isPTLDirty()
 		{
-			return true;//rtd().m_ptl_dirty || isLTPDirty();
+			return rtd().m_ptl_dirty || isLTPDirty();
 		}
 
 		bool isWTLDirty()
 		{
-			return true;//rtd().m_wtl_dirty || isLTWDirty();
+			return rtd().m_wtl_dirty || isLTWDirty();
 		}
 
 		void updateLTP()
@@ -764,6 +764,9 @@ namespace SCM
 				wtd().m_local_yaxis = glm::normalize(glm::vec3(rtd().m_local_to_parent[1]));
 				wtd().m_local_zaxis = glm::normalize(glm::vec3(rtd().m_local_to_parent[2]));
 				wtd().m_ltp_dirty = false;
+				wtd().m_ltw_dirty = true;
+				wtd().m_ptl_dirty = true;
+				wtd().m_wtl_dirty = true;
 			}
 		}
 
@@ -801,6 +804,7 @@ namespace SCM
 				));
 				wtd().m_world_scale = glm::vec3(xl, yl, zl);
 				wtd().m_ltw_dirty = false;
+				wtd().m_wtl_dirty = true;
 			}
 		}
 
@@ -1207,20 +1211,24 @@ namespace SCM
 			return false;
 		}
 
-		void updateBoundingData(const glm::vec3& oldpos, const glm::vec3& newpos, float deltasecs)
+		void updateBoundingData(float deltasecs)
 		{
 			if (shouldCollide())
 			{
 				if (isBoundingBox)
 				{
-					glm::mat4 bbtoentity = glm::translate(m_boundingData.box.m_center) * glm::mat4(m_boundingData.box.m_rotation) * glm::scale(m_boundingData.box.m_size * 0.5f);
+					glm::vec3 oldpos{ glm::vec3(m_boundingData.box.bdtoworld[3]) };
+					glm::mat4 bbtoentity = glm::translate(m_boundingData.box.m_center) * glm::mat4(m_boundingData.box.m_rotation) * glm::scale(m_boundingData.box.m_size * 0.5f);					
 					m_boundingData.box.bdtoworld = m_transformData.getLocalToWorldMatrix() * bbtoentity;
+					glm::vec3 newpos{ glm::vec3(m_boundingData.box.bdtoworld[3]) };
 					m_boundingData.box.m_velocity = (newpos - oldpos) / deltasecs;
 				}
 				else
 				{
+					glm::vec3 oldpos{ glm::vec3(m_boundingData.sphere.bdtoworld[3]) };
 					glm::mat4 bstoentity = glm::translate(m_boundingData.sphere.m_center) * glm::scale(glm::vec3(m_boundingData.sphere.m_radius));
 					m_boundingData.sphere.bdtoworld = m_transformData.getLocalToWorldMatrix() * bstoentity;
+					glm::vec3 newpos{ glm::vec3(m_boundingData.sphere.bdtoworld[3]) };
 					m_boundingData.sphere.m_velocity = (newpos - oldpos) / deltasecs;
 				}
 				boundingDataDirty = false;

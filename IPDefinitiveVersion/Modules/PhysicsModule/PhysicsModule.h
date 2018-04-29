@@ -233,6 +233,13 @@ private:
 
 	// Inherited via IPhysicsModule_API
 	virtual bool _shutdown() override;
+
+	virtual bool tryIntersectSphereSphere(const glm::vec3 & s1pos, float s1rad, const glm::vec3 & s2pos, float s2rad, glm::vec4 & collisionout) override;
+
+	virtual bool tryIntersectSphereBox(const glm::vec3 & spos, float srad, const glm::vec3 & bpos, const glm::quat & brot, const glm::vec3 & bscale, glm::vec4 & collisionout) override;
+
+	virtual bool tryIntersectBoxBox(const glm::vec3 & b1pos, const glm::quat & b1rot, const glm::vec3 & b1scale, const glm::vec3 & b2pos, const glm::quat & b2rot, const glm::vec3 & b2scale, glm::vec4 & collisionout) override;
+
 };
 
 

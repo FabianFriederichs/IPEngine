@@ -386,6 +386,7 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 		/*auto newrot = glm::normalize(yawquat * e->m_transformData.getData()->m_rotation * pitchquat);
 		e->m_transformData.setData()->m_rotation = newrot;
 		e->m_transformData.setData()->m_isMatrixDirty = true;*/
+		e->boundingDataDirty = true;
 	}
 	
 
@@ -410,6 +411,7 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 			if (e->m_transformData.getWorldPosition().y < minimum_y)
 				e->m_transformData.translateWorld(glm::vec3(0.0f, minimum_y - e->m_transformData.getWorldPosition().y, 0.0f));
 			//e->m_transformData.setData()->m_isMatrixDirty = true;
+			e->boundingDataDirty = true;
 		}
 	}
 
@@ -441,6 +443,7 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 		{
 			e->m_transformData.translateWorld(x * 0.1f + y * 0.1f+ z * 0.1f);
 			/*e->m_transformData.setData()->m_isMatrixDirty = true;*/
+			e->boundingDataDirty = true;
 		}
 	}
 
@@ -456,6 +459,7 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 		{
 			e->m_transformData.translateWorld(y * 0.1f);// +y * 0.1f;
 			//e->m_transformData.setData()->m_isMatrixDirty = true;
+			e->boundingDataDirty = true;
 		}
 	}
 
@@ -513,27 +517,28 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 		//e->m_transformData.setData()->m_isMatrixDirty = false;
 		//
 		//e->updateBoundingData(oldpos, e->m_transformData.getData()->m_location, static_cast<float>(delta.sec()));
+		e->updateBoundingData(static_cast<float>(delta.sec()));
 	}
 }
 
-void GameLogicModule::updateBoundingData(SCM::Entity * entity, const glm::vec3& oldpos, const glm::vec3& newpos, float deltasecs)
-{
-	if (entity->shouldCollide())
-	{
-		if (entity->isBoundingBox)
-		{
-			glm::mat4 bbtoentity = glm::translate(entity->m_boundingData.box.m_center) * glm::mat4(entity->m_boundingData.box.m_rotation) * glm::scale(entity->m_boundingData.box.m_size * 0.5f);
-			entity->m_boundingData.box.bdtoworld = entity->m_transformData.getLocalToWorldMatrix() * bbtoentity;
-			entity->m_boundingData.box.m_velocity = (newpos - oldpos) / deltasecs;
-		}
-		else
-		{
-			glm::mat4 bstoentity = glm::translate(entity->m_boundingData.sphere.m_center);
-			entity->m_boundingData.sphere.bdtoworld = entity->m_transformData.getLocalToWorldMatrix() * bstoentity;
-			entity->m_boundingData.sphere.m_velocity = (newpos - oldpos) / deltasecs;
-		}
-	}
-}
+//void GameLogicModule::updateBoundingData(SCM::Entity * entity, const glm::vec3& oldpos, const glm::vec3& newpos, float deltasecs)
+//{
+//	if (entity->shouldCollide())
+//	{
+//		if (entity->isBoundingBox)
+//		{
+//			glm::mat4 bbtoentity = glm::translate(entity->m_boundingData.box.m_center) * glm::mat4(entity->m_boundingData.box.m_rotation) * glm::scale(entity->m_boundingData.box.m_size * 0.5f);
+//			entity->m_boundingData.box.bdtoworld = entity->m_transformData.getLocalToWorldMatrix() * bbtoentity;
+//			entity->m_boundingData.box.m_velocity = (newpos - oldpos) / deltasecs;
+//		}
+//		else
+//		{
+//			glm::mat4 bstoentity = glm::translate(entity->m_boundingData.sphere.m_center);
+//			entity->m_boundingData.sphere.bdtoworld = entity->m_transformData.getLocalToWorldMatrix() * bstoentity;
+//			entity->m_boundingData.sphere.m_velocity = (newpos - oldpos) / deltasecs;
+//		}
+//	}
+//}
 
 void GameLogicModule::messageCallback(ipengine::Message & msg)
 {

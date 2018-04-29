@@ -579,22 +579,17 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 	{
 		auto scolcenter = glm::vec3(entity->m_boundingData.sphere.bdtoworld[3]);
 		auto scolrad = entity->m_boundingData.sphere.m_radius * glm::max(entity->m_transformData.getWorldScale().x, glm::max(entity->m_transformData.getWorldScale().y, entity->m_transformData.getWorldScale().z));
-		glm::vec3 psvec = previewpos - scolcenter;
-		float pslth = glm::length(psvec);
 
-		if (pslth <= (particle.m_radius + scolrad))
+		glm::vec4 coldata{ 0.0f };
+		if (tryIntersectSphereSphere(scolcenter, scolrad, previewpos, particle.m_radius, coldata))
 		{
-			glm::vec3 collisionNormal = psvec / pslth;
-			float penetrationDepth = (particle.m_radius + scolrad) - pslth;
+			glm::vec3 collisionNormal = glm::vec3(coldata);
+			float penetrationDepth = coldata.w;
 			glm::vec3 cvel(0.0f);
-			//calculate a velocity that puishes the particle penetrationDepth in collisionNormal direction. add friction later (just scale the part orthogonal to the collision response)
-			//particle.m_position += (collisionNormal * penetrationDepth);
-			//constraint velocity:
 			cvel += (collisionNormal * penetrationDepth * m_pencm) / dt;
 
 			if (m_doVelocityCollisionResponse)
 			{
-				//velocity based collision response ?????
 				glm::vec3 relvel = particle.m_velocity - entity->m_boundingData.sphere.m_velocity;
 				float j = glm::max(-glm::dot(relvel, collisionNormal), 0.0f);
 				glm::vec3 vn = j * collisionNormal;
@@ -1118,6 +1113,45 @@ bool PhysicsModule::_shutdown()
 	clear();
 	return true;
 }
+
+bool PhysicsModule::tryIntersectSphereSphere(const glm::vec3 & s1pos, float s1rad, const glm::vec3 & s2pos, float s2rad, glm::vec4 & collisionout)
+{
+	glm::vec3 dvec = s2pos - s1pos;
+	float radsum = s1rad + s2rad;
+
+	if (glm::dot(dvec, dvec) < radsum * radsum)
+	{
+		float dvl = glm::length(dvec);
+		float pendepth = radsum - dvl;
+		glm::vec3 colnorm = dvec / dvl;
+
+		collisionout.x = colnorm.x;
+		collisionout.y = colnorm.y;
+		collisionout.z = colnorm.z;
+		collisionout.w = pendepth;
+
+		return true;
+	}
+	return false;
+}
+
+bool PhysicsModule::tryIntersectSphereBox(const glm::vec3 & spos, float srad, const glm::vec3 & bpos, const glm::quat & brot, const glm::vec3 & bscale, glm::vec4 & collisionout)
+{
+	//step 1: find nearest point on box. => find planes
+	glm::vec3 boxplanes[6 * 4]; //px, nx, py, ny, pz, nz planes, consisting of [ov, n, t, b]
+	//get rotation matrix of the box
+	glm::mat3 rmat = glm::mat3_cast(brot);
+
+	
+
+	return false;
+}
+
+bool PhysicsModule::tryIntersectBoxBox(const glm::vec3 & b1pos, const glm::quat & b1rot, const glm::vec3 & b1scale, const glm::vec3 & b2pos, const glm::quat & b2rot, const glm::vec3 & b2scale, glm::vec4 & collisionout)
+{
+	return false;
+}
+
 
 //
 //bool PhysicsModule::_startup()
