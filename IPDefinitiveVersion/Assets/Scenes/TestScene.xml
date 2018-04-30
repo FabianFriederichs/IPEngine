@@ -121,8 +121,8 @@
 			<ExtendedType>ClothComponent</ExtendedType>
 			<PhysicsContext>
 				<gravity>0.000000/-15.000000/0.000000</gravity>
-				<particleMass>1.000000</particleMass>
-				<particleDistance>0.200000</particleDistance>
+				<particleMass>0.200000</particleMass>
+				<particleDistance>0.10000</particleDistance>
 				<struct_springKs>40.000000</struct_springKs>
 				<struct_springKd>0.120000</struct_springKd>
 				<shear_springKs>40.000000</shear_springKs>
@@ -133,22 +133,22 @@
 				<shear_springs>1</shear_springs>
 				<bend_springs>1</bend_springs>
 				<use_constraints>1</use_constraints>
-				<max_stretch>0.010000</max_stretch>
-				<constraint_iterations>2</constraint_iterations>
+				<max_stretch>0.03000</max_stretch>
+				<constraint_iterations>5</constraint_iterations>
 				<airfric>0.35</airfric>
 				<two_pass_integration>1</two_pass_integration>
 			</PhysicsContext>
-			<width>20</width>
-			<height>20</height>
+			<width>50</width>
+			<height>50</height>
 			<materialid>13</materialid>
 			<fixedParticles>
 				<fix>
 					<x>0</x>
-					<y>19</y>
+					<y>49</y>
 				</fix>
 				<fix>
-					<x>19</x>
-					<y>19</y>
+					<x>49</x>
+					<y>49</y>
 				</fix>
 			</fixedParticles>
 		</Entity>

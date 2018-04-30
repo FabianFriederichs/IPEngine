@@ -545,21 +545,17 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 
 		//minproj = glm::min(minprojbox, minprojparticle);
 		//maxproj = glm::max(maxprojbox, maxprojparticle);
-		auto& bb = entity->m_boundingData.box;
-		glm::vec3 bpos(bb.bdtoworld[3]);
-		glm::quat brot(glm::quat_cast(bb.bdtoworld));
-		glm::vec3 bscale{
-			glm::length(bb.bdtoworld[0]),
-			glm::length(bb.bdtoworld[1]),
-			glm::length(bb.bdtoworld[2])
-		};
-
 		glm::vec4 colout{ 0.0f };
-		if (tryIntersectSphereBox(previewpos, particle.m_radius, bpos, brot, bscale, colout))
+		if (tryIntersectSphereBox(previewpos, particle.m_radius, entity->getBVWorldPos(), entity->getBVWorldRot(), entity->getBVWorldScale(), colout))
 		{
 			//collision!
 			//calculate penetration depth
 			//wrong if particle is completely inside box
+			if (colout.w < 1.e-6f)
+			{
+				collided = false;
+				return glm::vec3(0.0f);
+			}				
 
 			float penetrationDepth = colout.w;//glm::length((previewpos + (sataxis * particle.m_radius)) - nearestPointOnBox);
 
@@ -571,16 +567,16 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 
 			cvel += (penetrationDepth * pcdir * m_pencm) / dt;
 
-			//if (m_doVelocityCollisionResponse)
-			//{
-			//	//velocity collision response. Introduces a lot of jitter
-			//	glm::vec3 relvel = particle.m_velocity - entity->m_boundingData.sphere.m_velocity;
-			//	float j = glm::max(-glm::dot(relvel, pcdir), 0.0f);
-			//	glm::vec3 vn = j * pcdir;
-			//	cvel += vn;
-			//	glm::vec3 opart = relvel - (glm::dot(relvel, pcdir) * pcdir);
-			//	cvel -= opart * m_collisionfric;
-			//}
+			if (m_doVelocityCollisionResponse)
+			{
+				//velocity collision response. Introduces a lot of jitter
+				glm::vec3 relvel = particle.m_velocity - entity->m_boundingData.sphere.m_velocity;
+				float j = glm::max(-glm::dot(relvel, pcdir), 0.0f);
+				glm::vec3 vn = j * pcdir;
+				cvel += vn;
+				glm::vec3 opart = relvel - (glm::dot(relvel, pcdir) * pcdir);
+				cvel -= opart * m_collisionfric;
+			}
 
 			return cvel;//planes[minpidx].n) / dt;
 		}
@@ -589,11 +585,8 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 	}
 	else
 	{
-		auto scolcenter = glm::vec3(entity->m_boundingData.sphere.bdtoworld[3]);
-		auto scolrad = entity->m_boundingData.sphere.m_radius * glm::max(entity->m_transformData.getWorldScale().x, glm::max(entity->m_transformData.getWorldScale().y, entity->m_transformData.getWorldScale().z));
-
 		glm::vec4 coldata{ 0.0f };
-		if (tryIntersectSphereSphere(scolcenter, scolrad, previewpos, particle.m_radius, coldata))
+		if (tryIntersectSphereSphere(entity->getBVWorldPos(), entity->getBVRadius(), previewpos, particle.m_radius, coldata))
 		{
 			glm::vec3 collisionNormal = glm::vec3(coldata);
 			float penetrationDepth = coldata.w;
@@ -1149,37 +1142,51 @@ bool PhysicsModule::tryIntersectSphereSphere(const glm::vec3 & s1pos, float s1ra
 
 bool PhysicsModule::tryIntersectSphereBox(const glm::vec3 & spos, float srad, const glm::vec3 & bpos, const glm::quat & brot, const glm::vec3 & bscale, glm::vec4 & collisionout)
 {
-	//do optimistic test
+	//fast sphere intersection test
+	glm::vec3 dist = spos - bpos;
+	float aprxrad = srad + glm::max(bscale.x, glm::max(bscale.y, bscale.z)) * 2.0f;
+	if (glm::dot(dist, dist) >= (aprxrad * aprxrad))
+		return false;
 
-	//get rotation matrix of the box
-	glm::mat3 rmat = glm::mat3_cast(brot);
+	//inverse rotation of box
+	glm::mat3 boxrot{ glm::mat3_cast(glm::normalize(brot))};
 
-	glm::vec3 bx{rmat[0]};
-	glm::vec3 by{rmat[1]};
-	glm::vec3 bz{rmat[2]};
-
-	glm::vec3 pob{
-		glm::clamp(glm::dot(spos - bpos, bx), -bscale.x, bscale.x),
-		glm::clamp(glm::dot(spos - bpos, by), -bscale.y, bscale.y),
-		glm::clamp(glm::dot(spos - bpos, bz), -bscale.z, bscale.z)
+	//transform spos into box space
+	glm::vec3 spos_bs{
+		glm::dot(spos - bpos, boxrot[0]),
+		glm::dot(spos - bpos, boxrot[1]),
+		glm::dot(spos - bpos, boxrot[2])
 	};
 
-	pob += bpos;
+	//clamp components to box bounds
+	glm::vec3 npob{
+		glm::clamp(spos_bs.x, -bscale.x, bscale.x),
+		glm::clamp(spos_bs.y, -bscale.y, bscale.y),
+		glm::clamp(spos_bs.z, -bscale.z, bscale.z)
+	};
 
-	//TODO: Handle case when sphere center is inside box
-	
-	glm::vec3 dvec = pob - spos;
-	if (glm::dot(dvec, dvec) < srad * srad)
+	//handle case when sphere center is inside the box
+	if (glm::abs(npob.x) < bscale.x && glm::abs(npob.y) < bscale.y && glm::abs(npob.z) < bscale.z)
 	{
-		float dvl = glm::length(dvec);
-		float pendepth = srad - dvl;
-		glm::vec3 colnorm = dvec / dvl;
+		collisionout = glm::vec4(0.0f);
+		return true;
+	}
 
-		collisionout.x = colnorm.x;
-		collisionout.y = colnorm.y;
-		collisionout.z = colnorm.z;
-		collisionout.w = pendepth;
+	//rotate back into world space
+	npob = npob.x * boxrot[0] + npob.y * boxrot[1] + npob.z * boxrot[2];
 
+	//translate back to box center
+	npob += bpos;
+
+	glm::vec3 dvec = npob - spos;
+	
+	if (glm::dot(dvec, dvec) < (srad * srad))
+	{
+		float dl = glm::length(dvec);
+		float pendepth = srad - dl;
+		glm::vec3 coldir = dvec / dl;
+		
+		collisionout = glm::vec4(coldir, pendepth);
 		return true;
 	}
 	return false;
@@ -1187,6 +1194,12 @@ bool PhysicsModule::tryIntersectSphereBox(const glm::vec3 & spos, float srad, co
 
 bool PhysicsModule::tryIntersectBoxBox(const glm::vec3 & b1pos, const glm::quat & b1rot, const glm::vec3 & b1scale, const glm::vec3 & b2pos, const glm::quat & b2rot, const glm::vec3 & b2scale, glm::vec4 & collisionout)
 {
+	glm::vec3 dist = b1pos - b2pos;
+	float aprxrad = glm::max(b1scale.x, glm::max(b1scale.y, b1scale.z)) * 2.0f + glm::max(b2scale.x, glm::max(b2scale.y, b2scale.z)) * 2.0f;
+	if (glm::dot(dist, dist) >= (aprxrad * aprxrad))
+		return false;
+
+
 	return false;
 }
 

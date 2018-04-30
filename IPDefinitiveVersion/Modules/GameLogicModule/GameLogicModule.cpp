@@ -479,29 +479,105 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 		{
 			if (isHoldEntityButton1Pressed[1])
 			{
-				/*if (inProximity(e->m_entityId, holder[0], 0.1f))
+				auto* holderent = contentmodule->getEntityById(holder[0]);
+				glm::vec4 tmp;
+				bool col = false;
+				if (e->isBoundingBox)
+				{
+					if (holderent->isBoundingBox)
+					{
+						if (physicsmodule->tryIntersectBoxBox(e->getBVWorldPos(), e->getBVWorldRot(), e->getBVWorldScale(), holderent->getBVWorldPos(), holderent->getBVWorldRot(), holderent->getBVWorldScale(), tmp))
+						{
+							col = true;
+						}
+					}
+					else
+					{
+						if (physicsmodule->tryIntersectSphereBox(holderent->getBVWorldPos(), holderent->getBVRadius(), e->getBVWorldPos(), e->getBVWorldRot(), e->getBVWorldScale(), tmp))
+						{
+							col = true;
+						}
+					}
+				}
+				else
+				{
+					if (holderent->isBoundingBox)
+					{
+						if (physicsmodule->tryIntersectSphereBox(e->getBVWorldPos(), e->getBVRadius(), holderent->getBVWorldPos(), holderent->getBVWorldRot(), holderent->getBVWorldScale(), tmp))
+						{
+							col = true;
+						}
+					}
+					else
+					{
+						if (physicsmodule->tryIntersectSphereSphere(e->getBVWorldPos(), e->getBVRadius(), holderent->getBVWorldPos(), holderent->getBVRadius(), tmp))
+						{
+							col = true;
+						}
+					}
+				}
+
+				if (col)
 				{
 					holder1busy = true;
 					heldEntity[0] = e->m_entityId;
 					onHoldStart(holder[0], e->m_entityId);
-				}*/
+				}
 			}
 		}
 		if (isHoldEntityButton2Pressed[0] != isHoldEntityButton2Pressed[1] && !holder2busy)
 		{
 			if (isHoldEntityButton2Pressed[1])
 			{
-				/*if (inProximity(e->m_entityId, holder[1], 0.1f))
+				auto* holderent = contentmodule->getEntityById(holder[1]);
+				glm::vec4 tmp;
+				bool col = false;
+				if (e->isBoundingBox)
+				{
+					if (holderent->isBoundingBox)
+					{
+						if (physicsmodule->tryIntersectBoxBox(e->getBVWorldPos(), e->getBVWorldRot(), e->getBVWorldScale(), holderent->getBVWorldPos(), holderent->getBVWorldRot(), holderent->getBVWorldScale(), tmp))
+						{
+							col = true;
+						}
+					}
+					else
+					{
+						if (physicsmodule->tryIntersectSphereBox(holderent->getBVWorldPos(), holderent->getBVRadius(), e->getBVWorldPos(), e->getBVWorldRot(), e->getBVWorldScale(), tmp))
+						{
+							col = true;
+						}
+					}
+				}
+				else
+				{
+					if (holderent->isBoundingBox)
+					{
+						if (physicsmodule->tryIntersectSphereBox(e->getBVWorldPos(), e->getBVRadius(), holderent->getBVWorldPos(), holderent->getBVWorldRot(), holderent->getBVWorldScale(), tmp))
+						{
+							col = true;
+						}
+					}
+					else
+					{
+						if (physicsmodule->tryIntersectSphereSphere(e->getBVWorldPos(), e->getBVRadius(), holderent->getBVWorldPos(), holderent->getBVRadius(), tmp))
+						{
+							col = true;
+						}
+					}
+				}
+
+				if (col)
 				{
 					holder2busy = true;
 					heldEntity[1] = e->m_entityId;
 					onHoldStart(holder[1], e->m_entityId);
-				}*/
+				}
 			}
 		}
 	}
 
-	if (e->shouldCollide() && e->boundingDataDirty)
+	if (e->shouldCollide() )//&& e->boundingDataDirty)
 	{
 		//glm::vec3 oldpos = glm::vec3(e->m_transformData.getData()->m_transformMatrix[3]);
 		//auto transdata = e->m_transformData.getData();
@@ -560,6 +636,7 @@ bool GameLogicModule::_startup()
 	ipengine::Scheduler& sched = m_core->getScheduler();
 	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<GameLogicModule, &GameLogicModule::update>(this), timing.nano(), ipengine::Scheduler::SubType::Interval, 1, &m_core->getThreadPool(), true));
 	contentmodule = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>("SCM");
+	physicsmodule = m_info.dependencies.getDep<IPhysicsModule_API>("physics");
 	if (m_info.dependencies.exists("input"))
 	{
 		inputmodule = m_info.dependencies.getDep<IInput_API>("input");

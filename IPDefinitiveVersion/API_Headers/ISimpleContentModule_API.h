@@ -1188,11 +1188,20 @@ namespace SCM
 		//handle transform parent/child stuff
 		void setParent(Entity* parent)
 		{
-			m_transformData.setParent(&parent->m_transformData);
+			if (parent)
+			{
+				m_parent = parent;
+				m_transformData.setParent(&parent->m_transformData);
+			}
+			else
+			{
+				orphane();
+			}
 		}
 
 		void orphane()
 		{
+			m_parent = nullptr;
 			m_transformData.orphane();
 		}
 
@@ -1273,6 +1282,58 @@ namespace SCM
 					return cp;
 			}
 			return nullptr;
+		}
+
+		glm::vec3 getBVWorldPos()
+		{
+			if (isBoundingBox)
+			{
+				return glm::vec3(m_boundingData.box.bdtoworld[3]);
+			}
+			else
+			{
+				return glm::vec3(m_boundingData.sphere.bdtoworld[3]);
+			}
+		}
+
+		glm::quat getBVWorldRot()
+		{
+			if (isBoundingBox)
+			{
+				return glm::normalize(glm::quat_cast(m_boundingData.box.bdtoworld));
+			}
+			else
+			{
+				return glm::quat();
+			}
+		}
+
+		glm::vec3 getBVWorldScale()
+		{
+			if (isBoundingBox)
+			{
+				return glm::vec3(
+					glm::length(m_boundingData.box.bdtoworld[0]),
+					glm::length(m_boundingData.box.bdtoworld[1]),
+					glm::length(m_boundingData.box.bdtoworld[2])
+				);
+			}
+			else
+			{
+				return glm::vec3(0.0f);
+			}
+		}
+
+		float getBVRadius()
+		{
+			if (isBoundingBox)
+			{
+				return 0.0f;
+			}
+			else
+			{
+				return m_boundingData.sphere.m_radius * glm::max(glm::length(m_boundingData.sphere.bdtoworld[0]), glm::max(glm::length(m_boundingData.sphere.bdtoworld[1]), glm::length(m_boundingData.sphere.bdtoworld[2])));
+			}
 		}
 	};
 
