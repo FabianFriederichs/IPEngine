@@ -461,114 +461,126 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 		}*/
 
 		//calculate boundingbox transformation matrix
+		//auto& bb = entity->m_boundingData.box;
+		//glm::mat4& bbtoworld = entity->m_boundingData.box.bdtoworld;
+
+		//glm::vec3 localx(
+		//	glm::normalize(bbtoworld[0])
+		//);
+
+		//glm::vec3 localy(
+		//	glm::normalize(bbtoworld[1])
+		//);
+
+		//glm::vec3 localz(
+		//	glm::normalize(bbtoworld[2])
+		//);
+
+		//glm::vec3 center = glm::vec3(bbtoworld[3]);
+
+		//glm::vec3 size = glm::vec3(glm::length(glm::vec3(bbtoworld[0])), glm::length(glm::vec3(bbtoworld[1])), glm::length(glm::vec3(bbtoworld[2]))) * 2.0f;
+
+		////Calculate box points
+		//glm::vec3 boxpoints[8];
+
+		//glm::vec3 xoff = localx * (size.x * 0.5f);
+		//glm::vec3 yoff = localy * (size.y * 0.5f);
+		//glm::vec3 zoff = localz * (size.z * 0.5f);
+
+		//boxpoints[0] = center + zoff - xoff - yoff;
+		//boxpoints[1] = center + zoff + xoff - yoff;
+		//boxpoints[2] = center + zoff - xoff + yoff;
+		//boxpoints[3] = center + zoff + xoff + yoff;
+		//boxpoints[4] = center - zoff - xoff - yoff;
+		//boxpoints[5] = center - zoff + xoff - yoff;
+		//boxpoints[6] = center - zoff - xoff + yoff;
+		//boxpoints[7] = center - zoff + xoff + yoff;
+
+
+		////use sat to detect collision
+		////calculate nearest point on box surface to sphere center, use spherecenter - closest point as seperating axis
+
+		////project particle position on every axis and clamp them to box bounds
+		//glm::vec3 projectedPosition(
+		//	glm::dot(previewpos - center, localx),
+		//	glm::dot(previewpos - center, localy),
+		//	glm::dot(previewpos - center, localz)
+		//);
+
+		////something goes wrong here
+		//projectedPosition.x = glm::clamp(projectedPosition.x, -size.x * 0.5f, size.x * 0.5f);
+		//projectedPosition.y = glm::clamp(projectedPosition.y, -size.y * 0.5f, size.y * 0.5f);
+		//projectedPosition.z = glm::clamp(projectedPosition.z, -size.z * 0.5f, size.z * 0.5f);
+
+		//glm::vec3 nearestPointOnBox(
+		//	localx * projectedPosition.x +
+		//	localy * projectedPosition.y +
+		//	localz * projectedPosition.z
+		//);
+
+		//nearestPointOnBox += center;
+
+		//float mindistance = glm::length(nearestPointOnBox - previewpos);
+
+		//glm::vec3 sataxis = (nearestPointOnBox - previewpos) / glm::abs(mindistance);
+
+		//float minprojbox = std::numeric_limits<float>::max();
+		//float maxprojbox = std::numeric_limits<float>::lowest();
+
+		//float minprojparticle;
+		//float maxprojparticle;
+
+		//float maxproj;
+		//float minproj;
+
+		//for (size_t i = 0; i < 8; i++)
+		//{
+		//	float proj = glm::dot(boxpoints[i], sataxis);
+		//	minprojbox = glm::min(minprojbox, proj);
+		//	maxprojbox = glm::max(maxprojbox, proj);
+		//}
+
+		//minprojparticle = glm::min(glm::dot(previewpos + particle.m_radius * sataxis, sataxis), glm::dot(previewpos - particle.m_radius * sataxis, sataxis));
+		//maxprojparticle = glm::max(glm::dot(previewpos + particle.m_radius * sataxis, sataxis), glm::dot(previewpos - particle.m_radius * sataxis, sataxis));
+
+		//minproj = glm::min(minprojbox, minprojparticle);
+		//maxproj = glm::max(maxprojbox, maxprojparticle);
 		auto& bb = entity->m_boundingData.box;
-		glm::mat4& bbtoworld = entity->m_boundingData.box.bdtoworld;
+		glm::vec3 bpos(bb.bdtoworld[3]);
+		glm::quat brot(glm::quat_cast(bb.bdtoworld));
+		glm::vec3 bscale{
+			glm::length(bb.bdtoworld[0]),
+			glm::length(bb.bdtoworld[1]),
+			glm::length(bb.bdtoworld[2])
+		};
 
-		glm::vec3 localx(
-			glm::normalize(bbtoworld[0])
-		);
-
-		glm::vec3 localy(
-			glm::normalize(bbtoworld[1])
-		);
-
-		glm::vec3 localz(
-			glm::normalize(bbtoworld[2])
-		);
-
-		glm::vec3 center = glm::vec3(bbtoworld[3]);
-
-		glm::vec3 size = glm::vec3(glm::length(glm::vec3(bbtoworld[0])), glm::length(glm::vec3(bbtoworld[1])), glm::length(glm::vec3(bbtoworld[2]))) * 2.0f;
-
-		//Calculate box points
-		glm::vec3 boxpoints[8];
-
-		glm::vec3 xoff = localx * (size.x * 0.5f);
-		glm::vec3 yoff = localy * (size.y * 0.5f);
-		glm::vec3 zoff = localz * (size.z * 0.5f);
-
-		boxpoints[0] = center + zoff - xoff - yoff;
-		boxpoints[1] = center + zoff + xoff - yoff;
-		boxpoints[2] = center + zoff - xoff + yoff;
-		boxpoints[3] = center + zoff + xoff + yoff;
-		boxpoints[4] = center - zoff - xoff - yoff;
-		boxpoints[5] = center - zoff + xoff - yoff;
-		boxpoints[6] = center - zoff - xoff + yoff;
-		boxpoints[7] = center - zoff + xoff + yoff;
-
-
-		//use sat to detect collision
-		//calculate nearest point on box surface to sphere center, use spherecenter - closest point as seperating axis
-
-		//project particle position on every axis and clamp them to box bounds
-		glm::vec3 projectedPosition(
-			glm::dot(previewpos - center, localx),
-			glm::dot(previewpos - center, localy),
-			glm::dot(previewpos - center, localz)
-		);
-
-		//something goes wrong here
-		projectedPosition.x = glm::clamp(projectedPosition.x, -size.x * 0.5f, size.x * 0.5f);
-		projectedPosition.y = glm::clamp(projectedPosition.y, -size.y * 0.5f, size.y * 0.5f);
-		projectedPosition.z = glm::clamp(projectedPosition.z, -size.z * 0.5f, size.z * 0.5f);
-
-		glm::vec3 nearestPointOnBox(
-			localx * projectedPosition.x +
-			localy * projectedPosition.y +
-			localz * projectedPosition.z
-		);
-
-		nearestPointOnBox += center;
-
-		float mindistance = glm::length(nearestPointOnBox - previewpos);
-
-		glm::vec3 sataxis = (nearestPointOnBox - previewpos) / glm::abs(mindistance);
-
-		float minprojbox = std::numeric_limits<float>::max();
-		float maxprojbox = std::numeric_limits<float>::lowest();
-
-		float minprojparticle;
-		float maxprojparticle;
-
-		float maxproj;
-		float minproj;
-
-		for (size_t i = 0; i < 8; i++)
-		{
-			float proj = glm::dot(boxpoints[i], sataxis);
-			minprojbox = glm::min(minprojbox, proj);
-			maxprojbox = glm::max(maxprojbox, proj);
-		}
-
-		minprojparticle = glm::min(glm::dot(previewpos + particle.m_radius * sataxis, sataxis), glm::dot(previewpos - particle.m_radius * sataxis, sataxis));
-		maxprojparticle = glm::max(glm::dot(previewpos + particle.m_radius * sataxis, sataxis), glm::dot(previewpos - particle.m_radius * sataxis, sataxis));
-
-		minproj = glm::min(minprojbox, minprojparticle);
-		maxproj = glm::max(maxprojbox, maxprojparticle);
-
-		if ((maxprojbox - minprojbox) + (maxprojparticle - minprojparticle) > maxproj - minproj)
+		glm::vec4 colout{ 0.0f };
+		if (tryIntersectSphereBox(previewpos, particle.m_radius, bpos, brot, bscale, colout))
 		{
 			//collision!
 			//calculate penetration depth
 			//wrong if particle is completely inside box
 
-			float penetrationDepth = ((maxprojbox - minprojbox) + (maxprojparticle - minprojparticle)) - (maxproj - minproj);//glm::length((previewpos + (sataxis * particle.m_radius)) - nearestPointOnBox);
+			float penetrationDepth = colout.w;//glm::length((previewpos + (sataxis * particle.m_radius)) - nearestPointOnBox);
 
 			collided = true;
 			glm::vec3 cvel(0.0f);//std::cout << penetrationDepth << "\n";
 								 //contstraint velocity
-			cvel += (penetrationDepth * -sataxis * m_pencm) / dt;
 
-			if (m_doVelocityCollisionResponse)
-			{
-				//velocity collision response. Introduces a lot of jitter
-				glm::vec3 relvel = particle.m_velocity - entity->m_boundingData.sphere.m_velocity;
-				float j = glm::max(-glm::dot(relvel, -sataxis), 0.0f);
-				glm::vec3 vn = j * -sataxis;
-				cvel += vn;
-				glm::vec3 opart = relvel - (glm::dot(relvel, -sataxis) * -sataxis);
-				cvel -= opart * m_collisionfric;
-			}
+			glm::vec3 pcdir = -glm::vec3(colout);
+
+			cvel += (penetrationDepth * pcdir * m_pencm) / dt;
+
+			//if (m_doVelocityCollisionResponse)
+			//{
+			//	//velocity collision response. Introduces a lot of jitter
+			//	glm::vec3 relvel = particle.m_velocity - entity->m_boundingData.sphere.m_velocity;
+			//	float j = glm::max(-glm::dot(relvel, pcdir), 0.0f);
+			//	glm::vec3 vn = j * pcdir;
+			//	cvel += vn;
+			//	glm::vec3 opart = relvel - (glm::dot(relvel, pcdir) * pcdir);
+			//	cvel -= opart * m_collisionfric;
+			//}
 
 			return cvel;//planes[minpidx].n) / dt;
 		}
@@ -1137,13 +1149,39 @@ bool PhysicsModule::tryIntersectSphereSphere(const glm::vec3 & s1pos, float s1ra
 
 bool PhysicsModule::tryIntersectSphereBox(const glm::vec3 & spos, float srad, const glm::vec3 & bpos, const glm::quat & brot, const glm::vec3 & bscale, glm::vec4 & collisionout)
 {
-	//step 1: find nearest point on box. => find planes
-	glm::vec3 boxplanes[6 * 4]; //px, nx, py, ny, pz, nz planes, consisting of [ov, n, t, b]
+	//do optimistic test
+
 	//get rotation matrix of the box
 	glm::mat3 rmat = glm::mat3_cast(brot);
 
-	
+	glm::vec3 bx{rmat[0]};
+	glm::vec3 by{rmat[1]};
+	glm::vec3 bz{rmat[2]};
 
+	glm::vec3 pob{
+		glm::clamp(glm::dot(spos - bpos, bx), -bscale.x, bscale.x),
+		glm::clamp(glm::dot(spos - bpos, by), -bscale.y, bscale.y),
+		glm::clamp(glm::dot(spos - bpos, bz), -bscale.z, bscale.z)
+	};
+
+	pob += bpos;
+
+	//TODO: Handle case when sphere center is inside box
+	
+	glm::vec3 dvec = pob - spos;
+	if (glm::dot(dvec, dvec) < srad * srad)
+	{
+		float dvl = glm::length(dvec);
+		float pendepth = srad - dvl;
+		glm::vec3 colnorm = dvec / dvl;
+
+		collisionout.x = colnorm.x;
+		collisionout.y = colnorm.y;
+		collisionout.z = colnorm.z;
+		collisionout.w = pendepth;
+
+		return true;
+	}
 	return false;
 }
 
