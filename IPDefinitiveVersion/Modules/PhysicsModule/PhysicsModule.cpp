@@ -1199,8 +1199,99 @@ bool PhysicsModule::tryIntersectBoxBox(const glm::vec3 & b1pos, const glm::quat 
 	if (glm::dot(dist, dist) >= (aprxrad * aprxrad))
 		return false;
 
+	glm::mat3 boxrot1{ glm::mat3_cast(glm::normalize(b1rot)) };
+	glm::mat3 boxrot2{ glm::mat3_cast(glm::normalize(b2rot)) };
 
-	return false;
+	thread_local std::vector<glm::vec3> satdata[2]; //box | axes to test //thread_local removes the need for dynamic allocations for every call of this function
+
+	//calculate all axes to be tested
+	//box1 faces
+	satdata[1].push_back(boxrot1[0]);
+	satdata[1].push_back(boxrot1[1]);
+	satdata[1].push_back(boxrot1[2]);
+
+	//box2 faces
+	satdata[1].push_back(boxrot2[0]);
+	satdata[1].push_back(boxrot2[1]);
+	satdata[1].push_back(boxrot2[2]);
+
+	//box1xbox2 edge combinations
+	satdata[1].push_back(glm::normalize(glm::cross(boxrot1[0], boxrot2[0])));
+	satdata[1].push_back(glm::normalize(glm::cross(boxrot1[0], boxrot2[1])));
+	satdata[1].push_back(glm::normalize(glm::cross(boxrot1[0], boxrot2[2])));
+	satdata[1].push_back(glm::normalize(glm::cross(boxrot1[1], boxrot2[0])));
+	satdata[1].push_back(glm::normalize(glm::cross(boxrot1[1], boxrot2[1])));
+	satdata[1].push_back(glm::normalize(glm::cross(boxrot1[1], boxrot2[2])));
+	satdata[1].push_back(glm::normalize(glm::cross(boxrot1[2], boxrot2[0])));
+	satdata[1].push_back(glm::normalize(glm::cross(boxrot1[2], boxrot2[1])));
+	satdata[1].push_back(glm::normalize(glm::cross(boxrot1[2], boxrot2[2])));
+
+	//generate box vertices
+	//box 1 vertices
+	satdata[0].push_back(b1pos - b1scale.x * boxrot1[0] - b1scale.y * boxrot1[1] - b1scale.z * boxrot1[2]);
+	satdata[0].push_back(b1pos - b1scale.x * boxrot1[0] - b1scale.y * boxrot1[1] + b1scale.z * boxrot1[2]);
+	satdata[0].push_back(b1pos - b1scale.x * boxrot1[0] + b1scale.y * boxrot1[1] - b1scale.z * boxrot1[2]);
+	satdata[0].push_back(b1pos - b1scale.x * boxrot1[0] + b1scale.y * boxrot1[1] + b1scale.z * boxrot1[2]);
+	satdata[0].push_back(b1pos + b1scale.x * boxrot1[0] - b1scale.y * boxrot1[1] - b1scale.z * boxrot1[2]);
+	satdata[0].push_back(b1pos + b1scale.x * boxrot1[0] - b1scale.y * boxrot1[1] + b1scale.z * boxrot1[2]);
+	satdata[0].push_back(b1pos + b1scale.x * boxrot1[0] + b1scale.y * boxrot1[1] - b1scale.z * boxrot1[2]);
+	satdata[0].push_back(b1pos + b1scale.x * boxrot1[0] + b1scale.y * boxrot1[1] + b1scale.z * boxrot1[2]);
+
+	//box 2 vertices
+	satdata[0].push_back(b2pos - b2scale.x * boxrot2[0] - b2scale.y * boxrot2[1] - b2scale.z * boxrot2[2]);
+	satdata[0].push_back(b2pos - b2scale.x * boxrot2[0] - b2scale.y * boxrot2[1] + b2scale.z * boxrot2[2]);
+	satdata[0].push_back(b2pos - b2scale.x * boxrot2[0] + b2scale.y * boxrot2[1] - b2scale.z * boxrot2[2]);
+	satdata[0].push_back(b2pos - b2scale.x * boxrot2[0] + b2scale.y * boxrot2[1] + b2scale.z * boxrot2[2]);
+	satdata[0].push_back(b2pos + b2scale.x * boxrot2[0] - b2scale.y * boxrot2[1] - b2scale.z * boxrot2[2]);
+	satdata[0].push_back(b2pos + b2scale.x * boxrot2[0] - b2scale.y * boxrot2[1] + b2scale.z * boxrot2[2]);
+	satdata[0].push_back(b2pos + b2scale.x * boxrot2[0] + b2scale.y * boxrot2[1] - b2scale.z * boxrot2[2]);
+	satdata[0].push_back(b2pos + b2scale.x * boxrot2[0] + b2scale.y * boxrot2[1] + b2scale.z * boxrot2[2]);
+
+	float mindepth = std::numeric_limits<float>::max();
+	size_t minpdidx = 0;
+
+	for (size_t ai = 0; ai < satdata[1].size(); ++ai)
+	{
+		float box1proj = projectOntoAxis(satdata[0], 0, 8, satdata[1][ai]);
+		float box2proj = projectOntoAxis(satdata[0], 8, 8, satdata[1][ai]);
+		float totalproj = projectOntoAxis(satdata[0], 0, 16, satdata[1][ai]);
+
+		float overlap = (box1proj + box2proj) - totalproj;
+		if (overlap <= 0.0f)
+		{
+			//we've found an axis with no overlap => the boxes are separated!
+			satdata[0].clear();
+			satdata[1].clear();
+			return false;
+		}
+
+		if (overlap < mindepth) //save the axis with minimal penetration distance
+		{
+			mindepth = overlap;
+			minpdidx = ai;
+		}
+	}
+
+	//projection overlaps on all axes => collision. return true and output the minimal penetration depth + corresponding axis
+	collisionout = glm::vec4(satdata[1][minpdidx], mindepth);
+	satdata[0].clear();
+	satdata[1].clear();
+	return true;
+}
+/// axis parameter must be normalized
+float PhysicsModule::projectOntoAxis(const std::vector<glm::vec3>& points, size_t start, size_t n, const glm::vec3 & axis)
+{
+	float max = std::numeric_limits<float>::lowest();
+	float min = std::numeric_limits<float>::max();
+
+	for (size_t i = start; i < start + n; ++i)
+	{
+		float projection = glm::dot(points[i], axis);
+		max = glm::max(max, projection);
+		min = glm::min(min, projection);
+	}
+
+	return max - min;
 }
 
 

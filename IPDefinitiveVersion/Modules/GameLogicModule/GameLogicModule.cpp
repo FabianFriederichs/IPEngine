@@ -489,6 +489,7 @@ void GameLogicModule::entity3dUpdate(SCM::ThreeDimEntity *e)
 						if (physicsmodule->tryIntersectBoxBox(e->getBVWorldPos(), e->getBVWorldRot(), e->getBVWorldScale(), holderent->getBVWorldPos(), holderent->getBVWorldRot(), holderent->getBVWorldScale(), tmp))
 						{
 							col = true;
+							
 						}
 					}
 					else

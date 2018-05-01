@@ -1386,6 +1386,34 @@ namespace SCM
 			this->m_boundingData.box = bb;
 		}
 
+		void generateBoundingBoxPCA()
+		{
+			//TODO: implement PCA
+			glm::vec3 min(std::numeric_limits<float>::max());
+			glm::vec3 max(std::numeric_limits<float>::lowest());
+
+			for (auto& m : m_mesheObjects->m_meshes)
+			{
+				for (auto& v : m->m_vertices.getData())
+				{
+					min.x = glm::min(min.x, v.m_position.x);
+					min.y = glm::min(min.y, v.m_position.y);
+					min.z = glm::min(min.z, v.m_position.z);
+
+					max.x = glm::max(max.x, v.m_position.x);
+					max.y = glm::max(max.y, v.m_position.y);
+					max.z = glm::max(max.z, v.m_position.z);
+				}
+			}
+
+			SCM::BoundingBox bb;
+			bb.m_center = min + (max - min) * 0.5f;
+			bb.m_rotation = glm::quat();
+			bb.m_size = glm::vec3(max.x - min.x, max.y - min.y, max.z - min.z);
+			this->isBoundingBox = true;
+			this->m_boundingData.box = bb;
+		}
+
 		void generateBoundingSphere()
 		{
 			if (m_mesheObjects->m_meshes.size() == 0)

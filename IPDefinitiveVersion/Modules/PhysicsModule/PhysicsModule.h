@@ -240,6 +240,7 @@ private:
 
 	virtual bool tryIntersectBoxBox(const glm::vec3 & b1pos, const glm::quat & b1rot, const glm::vec3 & b1scale, const glm::vec3 & b2pos, const glm::quat & b2rot, const glm::vec3 & b2scale, glm::vec4 & collisionout) override;
 
+	float projectOntoAxis(const std::vector<glm::vec3>& points, size_t start, size_t n, const glm::vec3& axis);
 };
 
 
