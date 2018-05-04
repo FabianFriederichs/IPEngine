@@ -1,6 +1,0 @@
-An OpenGL error occured at file: "Utils.cpp", line: 895:
-invalid operation
-An OpenGL error occured at file: "Utils.cpp", line: 895:
-invalid operation
-An OpenGL error occured at file: "Utils.cpp", line: 895:
-invalid operation

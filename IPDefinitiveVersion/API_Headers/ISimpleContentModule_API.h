@@ -2018,7 +2018,7 @@ namespace SCM
 			auto ent2 = getEntityById(parent);
 			if (ent != nullptr && ent2 != nullptr)
 			{
-				ent->m_parent = ent2;
+				ent->setParent(ent2);
 				return true;
 			}
 			return false;

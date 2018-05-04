@@ -154,16 +154,16 @@
 		</Entity>
 		<Entity>
 			<Id>6</Id>
-			<ParentId>7</ParentId>
+			<ParentId>12</ParentId>
 			<StringName>testPointlight</StringName>
-			<TransformData>
-				<Location>1.000000/-1.000000/0.000000</Location>
-				<Rotation>1.000000/0.000000/0.000000/0.000000</Rotation>
-				<Scale>1.000000/1.000000/1.000000</Scale>
-				<LocalY>0.000000/1.000000/0.000000</LocalY>
-				<LocalX>1.000000/0.000000/0.000000</LocalX>
-				<LocalZ>0.000000/0.000000/1.000000</LocalZ>
-			</TransformData>
+      <TransformData>
+        <Location>1.683567/1.199155/2.452527</Location>
+        <Rotation>-0.412225/-0.010287/0.910832/0.018695</Rotation>
+        <Scale>0.045000/0.045000/0.045000</Scale>
+        <LocalY>-0.003326/0.999089/0.042537</LocalY>
+        <LocalX>-0.659929/-0.034152/0.750552</LocalX>
+        <LocalZ>-0.751321/0.025575/-0.659441</LocalZ>
+      </TransformData>
 			<BoundingData>
 				<Sphere>
 					<Center>0.000000/0.000000/0.000000</Center>
@@ -171,7 +171,7 @@
 				</Sphere>
 			</BoundingData>
 			<ExtendedType>pointlight</ExtendedType>
-			<color>0.000000/1.000000/0.000000</color>
+			<color>5.000000/2.300000/0.000000</color>
 			<range>100.000000</range>
 		</Entity>
 		<Entity>
