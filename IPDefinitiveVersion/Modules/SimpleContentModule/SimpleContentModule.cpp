@@ -173,6 +173,7 @@ bool SimpleContentModule::_startup()
 	generateDefaultTexture();
 
 	m_core->getConsole().addCommand("scm.showcomponents", ipengine::CommandFunc::make_func<SimpleContentModule, &SimpleContentModule::cmd_showcomponents>(this), "Lists currently registered component types.");
+	m_core->getConsole().addCommand("scm.recalculateBoundingVolumes", ipengine::CommandFunc::make_func<SimpleContentModule, &SimpleContentModule::cmd_recalculateBoundingVolumes>(this), "Recalculates all bounding volumes.\n\nSyntax:\nscm.recalculateBoundingVolumes <oob> <coarseSteps> <fineSteps>\noob: bool. When true, oriented bounding boxes are generated for entities with box bvs. Slow.\ncoarseSteps, fineSteps: positive integer, defines how accurate the bounding box rotation is calculated");
 
 	return true;
 }
@@ -184,6 +185,66 @@ void SimpleContentModule::cmd_showcomponents(const ipengine::ConsoleParams& para
 	{
 		std::string line = std::to_string(e.second) + "\t" + e.first;
 		m_core->getConsole().println(line.c_str());
+	}
+}
+
+void SimpleContentModule::cmd_recalculateBoundingVolumes(const ipengine::ConsoleParams & params)
+{
+	if (params.getParamCount() == 1)
+	{
+		bool oob = params.getBool(0);
+		for (auto& e : getThreeDimEntities())
+		{
+			if (e.second->shouldCollide())
+			{
+				if (e.second->isBoundingBox)
+				{
+					if (oob)
+					{
+						e.second->generateBoundingBoxOriented(36, 16);
+					}
+					else
+					{
+						e.second->generateBoundingBox();
+					}
+				}
+				else
+				{
+					e.second->generateBoundingSphere();
+				}
+			}
+		}
+	}
+	else if (params.getParamCount() == 3)
+	{
+		bool oob = params.getBool(0);
+		unsigned int cs = static_cast<unsigned int>(params.getInt(1));
+		unsigned int fs = static_cast<unsigned int>(params.getInt(2));
+		for (auto& e : getThreeDimEntities())
+		{
+			if (e.second->shouldCollide())
+			{
+				if (e.second->isBoundingBox)
+				{
+					if (oob)
+					{
+						e.second->generateBoundingBoxOriented(cs, fs);
+					}
+					else
+					{
+						e.second->generateBoundingBox();
+					}
+				}
+				else
+				{
+					e.second->generateBoundingSphere();
+				}
+			}
+		}
+	}
+	else
+	{
+		m_core->getConsole().println("Invalid parameters. See helpdetailed \"scm.recalculateBoundingVolumes\" for details");
 	}
 }
 

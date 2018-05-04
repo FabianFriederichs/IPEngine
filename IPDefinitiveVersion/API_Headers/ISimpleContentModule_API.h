@@ -1386,16 +1386,174 @@ namespace SCM
 			this->m_boundingData.box = bb;
 		}
 
-		void generateBoundingBoxPCA()
+		void generateBoundingBoxOriented(unsigned int coarseSteps, unsigned int fineSteps)
 		{
+			//coarse and fine angle delta
+			float cad = glm::pi<float>() / static_cast<float>(coarseSteps);
+			float fad =  (2.0f * cad) / static_cast<float>(fineSteps);
+
+			//first find a standard aab
+			glm::vec3 min;
+			glm::vec3 max;
+			glm::vec3 center;
+
+			//initial bb axes
+			glm::vec3 ax{ 1.0f, 0.0f, 0.0f };
+			glm::vec3 ay{ 0.0f, 1.0f, 0.0f };
+			glm::vec3 az{ 0.0f, 0.0f, 1.0f };
+
+			//final bb axes
+			glm::vec3 min_vol_ax{ 1.0f, 0.0f, 0.0f };
+			glm::vec3 min_vol_ay{ 0.0f, 1.0f, 0.0f };
+			glm::vec3 min_vol_az{ 0.0f, 0.0f, 1.0f };
+
+			calcBoundingBox(ax, ay, az, min, max, center);
+
+			//volume to minimize
+			float vol = calcBBVolume(calcBBScale(min, max));
+
+			//minimize volume via x-axis rotation ----------------------------------------------
+			//we only have to search in range [0, PI]
 			
+			//coarse search
+			for (unsigned int s = 0; s <= coarseSteps; ++s)
+			{
+				calcBoundingBox(ax, ay, az, min, max, center);
+				float nvol = calcBBVolume(calcBBScale(min, max));
+				if (calcBBVolume(calcBBScale(min, max)) < vol)
+				{
+					vol = nvol;
+					min_vol_ax = ax;
+					min_vol_ay = ay;
+					min_vol_az = az;
+				}
+				rotateBBAxes(ax, ay, az, ax, cad);
+			}
 
-		}
+			ax = min_vol_ax;
+			ay = min_vol_ay;
+			az = min_vol_az;
 
-		glm::vec3 projectOntoPlane(const glm::vec3& p, const glm::vec3& a, const glm::vec3& n)
-		{
-			return a + (p - a) - (glm::dot(p - a, n) * n);
-		}
+			//search in -cad + cad interval for fine search : start at min rot - cad
+			rotateBBAxes(ax, ay, az, ax, -cad);
+
+			//fine search
+			for (unsigned int s = 0; s <= fineSteps; ++s)
+			{
+				calcBoundingBox(ax, ay, az, min, max, center);
+				float nvol = calcBBVolume(calcBBScale(min, max));
+				if (calcBBVolume(calcBBScale(min, max)) < vol)
+				{
+					vol = nvol;
+					min_vol_ax = ax;
+					min_vol_ay = ay;
+					min_vol_az = az;
+				}
+				rotateBBAxes(ax, ay, az, ax, fad);
+			}
+
+			//minimize volume via y-axis rotation -----------------------------------------------------
+			//we only have to search in range [0, PI]
+
+			ax = min_vol_ax;
+			ay = min_vol_ay;
+			az = min_vol_az;
+
+			//coarse search
+			for (unsigned int s = 0; s <= coarseSteps; ++s)
+			{
+				calcBoundingBox(ax, ay, az, min, max, center);
+				float nvol = calcBBVolume(calcBBScale(min, max));
+				if (calcBBVolume(calcBBScale(min, max)) < vol)
+				{
+					vol = nvol;
+					min_vol_ax = ax;
+					min_vol_ay = ay;
+					min_vol_az = az;
+				}
+				rotateBBAxes(ax, ay, az, ay, cad);
+			}
+
+			ax = min_vol_ax;
+			ay = min_vol_ay;
+			az = min_vol_az;
+
+			//search in -cad + cad interval for fine search : start at min rot - cad
+			rotateBBAxes(ax, ay, az, ay, -cad);
+
+			//fine search
+			for (unsigned int s = 0; s <= fineSteps; ++s)
+			{
+				calcBoundingBox(ax, ay, az, min, max, center);
+				float nvol = calcBBVolume(calcBBScale(min, max));
+				if (calcBBVolume(calcBBScale(min, max)) < vol)
+				{
+					vol = nvol;
+					min_vol_ax = ax;
+					min_vol_ay = ay;
+					min_vol_az = az;
+				}
+				rotateBBAxes(ax, ay, az, ay, fad);
+			}
+
+			//minimize volume via z-axis rotation -----------------------------------------------------
+			//we only have to search in range [0, PI]
+
+			ax = min_vol_ax;
+			ay = min_vol_ay;
+			az = min_vol_az;
+
+			//coarse search
+			for (unsigned int s = 0; s <= coarseSteps; ++s)
+			{
+				calcBoundingBox(ax, ay, az, min, max, center);
+				float nvol = calcBBVolume(calcBBScale(min, max));
+				if (calcBBVolume(calcBBScale(min, max)) < vol)
+				{
+					vol = nvol;
+					min_vol_ax = ax;
+					min_vol_ay = ay;
+					min_vol_az = az;
+				}
+				rotateBBAxes(ax, ay, az, az, cad);
+			}
+
+			ax = min_vol_ax;
+			ay = min_vol_ay;
+			az = min_vol_az;
+
+			//search in -cad + cad interval for fine search : start at min rot - cad
+			rotateBBAxes(ax, ay, az, az, -cad);
+
+			//fine search
+			for (unsigned int s = 0; s <= fineSteps; ++s)
+			{
+				calcBoundingBox(ax, ay, az, min, max, center);
+				float nvol = calcBBVolume(calcBBScale(min, max));
+				if (calcBBVolume(calcBBScale(min, max)) < vol)
+				{
+					vol = nvol;
+					min_vol_ax = ax;
+					min_vol_ay = ay;
+					min_vol_az = az;
+				}
+				rotateBBAxes(ax, ay, az, az, fad);
+			}
+
+			//now ew have (approximately) the orthogonal basis that minimizes the volume for our bounding box.
+			//=> calculate the final bounding box with respect to min_vol_ax, min_vol_ay, min_vol_az
+			//and translate that to our bounding box format
+
+			calcBoundingBox(min_vol_ax, min_vol_ay, min_vol_az, min, max, center);
+
+			BoundingBox bb;			
+			bb.m_rotation = glm::quat_cast(glm::mat3(glm::normalize(min_vol_ax), glm::normalize(min_vol_ay), glm::normalize(min_vol_az)));
+			bb.m_center = bb.m_rotation * center;
+			bb.m_size = calcBBScale(min, max) * 2.0f;
+			boundingDataDirty = true;
+
+			m_boundingData = BoundingData(bb);
+		}	
 
 		void generateBoundingSphere()
 		{
@@ -1445,6 +1603,57 @@ namespace SCM
 
 			this->isBoundingBox = false;
 			this->m_boundingData.sphere = bs;
+		}
+
+	private:
+		void rotateBBAxes(glm::vec3& ax, glm::vec3& ay, glm::vec3& az, const glm::vec3& rotaxis, float angle)
+		{
+			glm::quat rot { glm::angleAxis(angle, rotaxis) };
+
+			ax = rot * ax;
+			ay = rot * ay;
+			az = rot * az;
+		}
+
+		float calcBBVolume(const glm::vec3& bbscale)
+		{
+			return bbscale.x * bbscale.y * bbscale.z * 8.0f;
+		}
+
+		glm::vec3 calcBBScale(const glm::vec3& min, const glm::vec3& max)
+		{
+			return 0.5f * (max - min);
+		}
+
+		void calcBoundingBox(const glm::vec3& ax, const glm::vec3& ay, const glm::vec3& az, glm::vec3& outmin, glm::vec3& outmax, glm::vec3& outcenter)
+		{
+			outmin = glm::vec3(std::numeric_limits<float>::max());
+			outmax = glm::vec3(std::numeric_limits<float>::lowest());
+			for (auto& m : m_mesheObjects->m_meshes)
+			{
+				for (auto& v : m->m_vertices.getData())
+				{
+					glm::vec3 pv{
+						glm::dot(v.m_position, ax),
+						glm::dot(v.m_position, ay),
+						glm::dot(v.m_position, az)
+					};
+
+					outmin.x = glm::min(outmin.x, pv.x);
+					outmin.y = glm::min(outmin.y, pv.y);
+					outmin.z = glm::min(outmin.z, pv.z);
+
+					outmax.x = glm::max(outmax.x, pv.x);
+					outmax.y = glm::max(outmax.y, pv.y);
+					outmax.z = glm::max(outmax.z, pv.z);
+				}
+			}
+			outcenter = outmin + (outmax - outmin) * 0.5f;
+		}
+
+		glm::vec3 projectOntoPlane(const glm::vec3& p, const glm::vec3& a, const glm::vec3& n)
+		{
+			return a + (p - a) - (glm::dot(p - a, n) * n);
 		}
 	};
 
