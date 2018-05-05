@@ -1386,11 +1386,12 @@ namespace SCM
 			this->m_boundingData.box = bb;
 		}
 
+		/// generates minimum volume bounding boxes
 		void generateBoundingBoxOriented(unsigned int coarseSteps, unsigned int fineSteps)
 		{
 			//coarse and fine angle delta
 			float cad = glm::pi<float>() / static_cast<float>(coarseSteps);
-			float fad =  (2.0f * cad) / static_cast<float>(fineSteps);
+			float fad = (2.0f * cad) / static_cast<float>(fineSteps);
 
 			//first find a standard aab
 			glm::vec3 min;
@@ -1414,7 +1415,7 @@ namespace SCM
 
 			//minimize volume via x-axis rotation ----------------------------------------------
 			//we only have to search in range [0, PI]
-			
+
 			//coarse search
 			for (unsigned int s = 0; s <= coarseSteps; ++s)
 			{
@@ -1546,14 +1547,17 @@ namespace SCM
 
 			calcBoundingBox(min_vol_ax, min_vol_ay, min_vol_az, min, max, center);
 
-			BoundingBox bb;			
+			BoundingBox bb;
 			bb.m_rotation = glm::quat_cast(glm::mat3(glm::normalize(min_vol_ax), glm::normalize(min_vol_ay), glm::normalize(min_vol_az)));
-			bb.m_center = bb.m_rotation * center;
+			bb.m_center = bb.m_rotation * center; //center is currently defined in the coordinate system formed from the previously found volume-minimizing axes, so a transformation into world space is necessary.
 			bb.m_size = calcBBScale(min, max) * 2.0f;
 			boundingDataDirty = true;
 
 			m_boundingData = BoundingData(bb);
-		}	
+		}
+
+		//TODO: second version of that thing above to better align the box to the mesh. Minimizing perimeter or edge lengths could be a good option.
+		//Needs to be tested
 
 		void generateBoundingSphere()
 		{
