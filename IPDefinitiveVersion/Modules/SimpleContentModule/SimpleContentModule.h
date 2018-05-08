@@ -32,6 +32,7 @@ private:
 	// Inherited via ISimpleContentModule_API
 	virtual bool _startup() override;
 	void cmd_showcomponents(const ipengine::ConsoleParams& params);
+	void cmd_recalculateBoundingVolumes(const ipengine::ConsoleParams& params);
 
 	// Inherited via ISimpleContentModule_API
 	virtual bool _shutdown() override;

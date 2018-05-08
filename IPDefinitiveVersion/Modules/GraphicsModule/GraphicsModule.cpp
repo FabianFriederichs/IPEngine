@@ -1056,6 +1056,14 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 	if(m_shadows)
 		shader->setUniform("u_num_light_matrices", lc);
 
+	if (lc < m_max_dirlights && m_shadows)
+	{
+		for (int i = lc; i < m_max_dirlights; ++i)
+		{
+			shader->occupyTex(("u_directionalLights[" + std::to_string(lc) + "].shadowMap").c_str());
+		}
+	}
+
 	lc = 0;
 	for (auto pl : pointlights)
 	{
