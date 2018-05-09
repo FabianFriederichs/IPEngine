@@ -43,6 +43,7 @@ public:
 	// Geerbt über Application
 	virtual void initialize() override
 	{
+		
 		auto mods = getInjector().getLoadedModules();
 		auto ssm = boost::dynamic_pointer_cast<ISimpleSceneModule_API>(mods["SimpleSceneModule"]);
 		auto scm = boost::dynamic_pointer_cast<SCM::ISimpleContentModule_API>(mods["SimpleContentModule"]);
@@ -87,9 +88,22 @@ public:
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	MyApp app;
-	app.init(CONFIG_PATH);
-	app.run();
+	try
+	{
+		MyApp app;
+		app.init(CONFIG_PATH);
+		app.run();
+	}
+	catch (std::exception& e)
+	{
+		std::cerr << e.what() << "\n";
+		getchar();
+	}
+	catch (...)
+	{
+		std::cerr << "Unknown exception" << "\n";
+		getchar();
+	}
 
 //#ifdef _DEBUG
 //	Injector inj("../Assets/Dependencygraph/TestDepGraph.xml", "../Output/Debug");

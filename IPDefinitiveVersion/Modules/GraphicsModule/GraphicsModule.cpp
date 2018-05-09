@@ -30,13 +30,13 @@ bool GraphicsModule::_startup()
 		SCM::BoundingData(SCM::BoundingSphere()),
 		false,
 		true,
-		glm::vec3(1, 1, 1),
-		1024,
-		1024,
+		glm::vec3(2, 2, 2),
+		4096,
+		4096,
 		1,
 		0.001,
 		0.1,
-		65.0f,
+		70.0f,
 		glm::vec3(-8, -8, 40.0f),
 		glm::vec3(8, 8, 0.1f)
 	);
