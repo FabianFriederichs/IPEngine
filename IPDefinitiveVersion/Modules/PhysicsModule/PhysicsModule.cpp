@@ -323,7 +323,7 @@ void PhysicsModule::satisfyConstraintBatch(ipengine::TaskContext& context) //fix
 			glm::vec3 dvec = previewpos2 - previewpos1;
 			float distance = glm::length(dvec);
 			float error = distance - spring.m_restlength;
-			if (glm::abs(error) < ub.m_cloth->m_pctx.max_stretch)
+			if ((glm::abs(error) / spring.m_restlength) < ub.m_cloth->m_pctx.max_stretch)
 				continue;
 
 			//scale error down to match the given tolerance value
@@ -361,7 +361,9 @@ void PhysicsModule::satisfyConstraintBatch(ipengine::TaskContext& context) //fix
 			for (size_t s = 0; s < p1.m_springCount; s++)
 				correctiveVelocity += glm::vec3(cvels[s]) * (cvels[s].w / totalVM);
 
-		wp1.m_velocity = p1.m_velocity + correctiveVelocity * (1.0f - ub.m_cloth->m_pctx.airfric);
+		//maybe find the new error and scale "correctiveVelocity" based on that? jitter is a big problem
+
+		wp1.m_velocity = p1.m_velocity + correctiveVelocity * 0.85f;
 		wp1.m_position = p1.m_position;
 		wp1.m_acceleration = p1.m_acceleration;
 	}
@@ -1148,7 +1150,7 @@ bool PhysicsModule::tryIntersectSphereBox(const glm::vec3 & spos, float srad, co
 	if (glm::dot(dist, dist) >= (aprxrad * aprxrad))
 		return false;
 
-	//inverse rotation of box
+	//rotation of box
 	glm::mat3 boxrot{ glm::mat3_cast(glm::normalize(brot))};
 
 	//transform spos into box space
@@ -1179,10 +1181,9 @@ bool PhysicsModule::tryIntersectSphereBox(const glm::vec3 & spos, float srad, co
 	npob += bpos;
 
 	glm::vec3 dvec = npob - spos;
-	
-	if (glm::dot(dvec, dvec) < (srad * srad))
+	float dl = glm::length(dvec);
+	if (dl < srad)
 	{
-		float dl = glm::length(dvec);
 		float pendepth = srad - dl;
 		glm::vec3 coldir = dvec / dl;
 		
@@ -1278,6 +1279,8 @@ bool PhysicsModule::tryIntersectBoxBox(const glm::vec3 & b1pos, const glm::quat 
 	satdata[1].clear();
 	return true;
 }
+
+
 /// axis parameter must be normalized
 float PhysicsModule::projectOntoAxis(const std::vector<glm::vec3>& points, size_t start, size_t n, const glm::vec3 & axis)
 {

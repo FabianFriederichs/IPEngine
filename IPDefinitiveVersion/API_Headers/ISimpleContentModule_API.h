@@ -1300,7 +1300,11 @@ namespace SCM
 		{
 			if (isBoundingBox)
 			{
-				return glm::normalize(glm::quat_cast(m_boundingData.box.bdtoworld));
+				return glm::normalize(glm::quat_cast(glm::mat3(
+					glm::normalize(m_boundingData.box.bdtoworld[0]),
+					glm::normalize(m_boundingData.box.bdtoworld[1]),
+					glm::normalize(m_boundingData.box.bdtoworld[2])
+				)));
 			}
 			else
 			{
@@ -1332,7 +1336,7 @@ namespace SCM
 			}
 			else
 			{
-				return m_boundingData.sphere.m_radius * glm::max(glm::length(m_boundingData.sphere.bdtoworld[0]), glm::max(glm::length(m_boundingData.sphere.bdtoworld[1]), glm::length(m_boundingData.sphere.bdtoworld[2])));
+				return/* m_boundingData.sphere.m_radius **/ glm::max(glm::length(m_boundingData.sphere.bdtoworld[0]), glm::max(glm::length(m_boundingData.sphere.bdtoworld[1]), glm::length(m_boundingData.sphere.bdtoworld[2])));
 			}
 		}
 	};
@@ -1381,7 +1385,7 @@ namespace SCM
 			SCM::BoundingBox bb;
 			bb.m_center = min + (max - min) * 0.5f;
 			bb.m_rotation = glm::quat();
-			bb.m_size = glm::vec3(max.x - min.x, max.y - min.y, max.z - min.z);
+			bb.m_size = glm::vec3(glm::max(max.x - min.x, 1.e-6f), glm::max(max.y - min.y, 1.e-6f), glm::max(max.z - min.z, 1.e-6f));
 			this->isBoundingBox = true;
 			this->m_boundingData.box = bb;
 		}
@@ -1551,6 +1555,9 @@ namespace SCM
 			bb.m_rotation = glm::quat_cast(glm::mat3(glm::normalize(min_vol_ax), glm::normalize(min_vol_ay), glm::normalize(min_vol_az)));
 			bb.m_center = bb.m_rotation * center; //center is currently defined in the coordinate system formed from the previously found volume-minimizing axes, so a transformation into world space is necessary.
 			bb.m_size = calcBBScale(min, max) * 2.0f;
+			bb.m_size.x = glm::max(bb.m_size.x, 1.e-6f);
+			bb.m_size.y = glm::max(bb.m_size.y, 1.e-6f);
+			bb.m_size.z = glm::max(bb.m_size.z, 1.e-6f);
 			boundingDataDirty = true;
 
 			m_boundingData = BoundingData(bb);
