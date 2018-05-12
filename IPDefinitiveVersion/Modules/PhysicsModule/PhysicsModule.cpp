@@ -572,7 +572,7 @@ glm::vec3 PhysicsModule::tryCollide(Cloth * cloth, Particle & particle, SCM::Ent
 			if (m_doVelocityCollisionResponse)
 			{
 				//velocity collision response. Introduces a lot of jitter
-				glm::vec3 relvel = particle.m_velocity - entity->m_boundingData.sphere.m_velocity;
+				glm::vec3 relvel = particle.m_velocity - entity->m_boundingData.box.m_velocity;
 				float j = glm::max(-glm::dot(relvel, pcdir), 0.0f);
 				glm::vec3 vn = j * pcdir;
 				cvel += vn;
@@ -1170,7 +1170,25 @@ bool PhysicsModule::tryIntersectSphereBox(const glm::vec3 & spos, float srad, co
 	//handle case when sphere center is inside the box
 	if (glm::abs(npob.x) < bscale.x && glm::abs(npob.y) < bscale.y && glm::abs(npob.z) < bscale.z)
 	{
+	/*	size_t min = 0;
+		float minval = std::numeric_limits<float>::max();
+		for (size_t i = 0; i < 3; ++i)
+		{
+			if (bscale[i] - glm::abs(npob[i]) < minval)
+			{
+				minval = bscale[i] - glm::abs(npob[i]);
+				min = i;
+			}
+		}
+
+		float as = glm::sign(glm::dot(spos_bs, boxrot[min]));
+		float pendepth = (bscale[min] - glm::abs(npob[min])) + srad;
+
+		if (as)
+			collisionout = glm::vec4(boxrot[min] * as, pendepth);
+		else*/
 		collisionout = glm::vec4(0.0f);
+		//collisionout = glm::vec4(0.0f);
 		return true;
 	}
 
