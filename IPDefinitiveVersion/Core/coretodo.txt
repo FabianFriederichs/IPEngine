@@ -1,7 +1,73 @@
-1	async/general thread management
-5	finish memory management concept
-4	refactor console
-2	add debug/monitoring stuff
-3	implement PAL
-7	put all that stuff together in a consistent manner
-6	implement basic containers
+final core todo list.
+
+PAL
+    design interface for the platform abstraction layer
+        file io
+        filesystem interface
+        sockets
+        canvas management ?
+        os messaging ?
+        shared library loading
+    interface for using that functionality via ICore
+
+Memory Management
+    Low level memory manager, which supports the following strategies
+        frame/linear
+        stack
+        free list
+        base for the whole system: paging system?
+        standard new/delete fallback
+    should be aware of alignment requirements
+    High level allocator concept for use with containers
+        std-like but less ugly, policy based
+
+Basic Containers
+    design a basic set of containers. Two categories: threadsafe and non threadsafe
+    use memory managemant facilities from above.
+
+    standard containers:
+        map
+        set
+        vector
+        bitmap (index invariant, sparse vector)
+        queue (bounded and unbounded versions)
+        stack (bounded and unbounded versions)
+        tree
+        list
+        fixed size array
+        largebuffer (already implemented, combine with new allocation stuff)
+    
+    specialized containers:
+        some sort of double buffering scheme, appicable to arbitrary container types (which must implement certain functions)
+         + change queuing
+        Idea: Reading from the current front buffer is always safe,
+        writes to backbuffer must either be synchronized manually
+        or automatically through using change queuing.
+        At interval boundary, all the queued changes are applied to the backbuffer
+        and then back and frontbuffer are swapped.
+    
+Basic data types
+    string
+    standard primitive types
+
+Proper handling of streams
+    io streams in general
+
+Threading
+    Async stuff, Futures
+    Creating/destroying "real" threads
+    Something that handles blocking operations more conveniently
+
+Scheduler
+    => Graph based for more control (maybe implies some changes to the thread pool (task recycling!))
+    fixed interval improvement
+
+Debug/Monitoring
+    Tool for gathering debug data, logging and stuff
+
+Redesign core interface
+    problem: we cannot afford the cost of frequent virtual function calls
+    but the whole core interface has to get cleaner.
+    Idea: Pimpl those "core modules" and provide some sort of shortcut
+    for calling core functionality
+    Pimpl idiom would also reduce compile time dependencies a lot.
