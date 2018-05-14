@@ -35,6 +35,8 @@ void VulkanRenderer::updateData()
 	auto& textures = m_scm->getTextures();
 	std::vector<ipengine::ipid> parents;
 	auto scene = m_renderer->getScene();
+
+	int modelsadded = 0;
 	for (auto eid : activeentitynames)
 	{
 		auto findent = entities.find(eid);
@@ -63,6 +65,7 @@ void VulkanRenderer::updateData()
 					scene->meshes.insert({ mesh->m_meshId, m_renderer->getManager() });
 					scene->meshes[mesh->m_meshId].load(verts, mesh->m_indices, minp, maxp);
 					scene->meshes[mesh->m_meshId].uPerModelInfo = reinterpret_cast<PerModelUniformBuffer *>(m_renderer->getUniformBlob().alloc(sizeof(PerModelUniformBuffer)));
+					modelsadded++;
 				}
 				for (auto momats : mO->m_mesheObjects->meshtomaterial)
 				{
@@ -73,51 +76,51 @@ void VulkanRenderer::updateData()
 						{
 							auto texfile = m_scm->getTextureById(texts.second.m_texturefileId);
 
-								if (texts.first == "mrar")
+							if (texts.first == "mrar")
+							{
+								//split mrar texture into 3 channels
+								rj::ImageWrapper imgwrap, imgwrapmet, imgwrapro, imgwrapao;
+								int width;
+								int height;
+								int channels;
+								//stbi__vertically_flip_on_load = true;
+								unsigned char* image = stbi_load(texfile->m_path.c_str(), &width, &height, &channels, 4);
+								std::vector<uint8_t> metmap(width*height*channels);
+								std::vector<uint8_t> roughmap(width*height*channels);
+								std::vector<uint8_t> aomap(width*height*channels);
+								/*for (size_t index = 0; index < width*height*4; index += 4)
 								{
-									//split mrar texture into 3 channels
-									rj::ImageWrapper imgwrap, imgwrapmet, imgwrapro, imgwrapao;
-									int width;
-									int height;
-									int channels;
-									//stbi__vertically_flip_on_load = true;
-									unsigned char* image = stbi_load(texfile->m_path.c_str(), &width, &height, &channels, 4);
-									std::vector<uint8_t> metmap(width*height*channels);
-									std::vector<uint8_t> roughmap(width*height*channels);
-									std::vector<uint8_t> aomap(width*height*channels);
-									for (size_t index = 0; index < width*height*4; index += 4)
+									for (int ix2 = 0; ix2 < 4; ++ix2)
 									{
-										for (int ix2 = 0; ix2 < 4; ++ix2)
-										{
-											metmap.push_back(image[index]);
-											roughmap.push_back(image[index + 1]);
-											aomap.push_back(image[index + 2]);
-										}
-									} 
-									channels = 4;
-									auto format = channels == 4 ? gli::FORMAT_RGBA8_UNORM_PACK8 : gli::FORMAT_RGB8_UNORM_PACK8;
-									rj::loadTexture2DFromBinaryData(&imgwrapmet, m_renderer->getManager(), metmap.data(), width, height, format);
-									rj::loadTexture2DFromBinaryData(&imgwrapro, m_renderer->getManager(), roughmap.data(), width, height, format);
-									rj::loadTexture2DFromBinaryData(&imgwrapao, m_renderer->getManager(), aomap.data(), width, height, format);
-									m_scmtextomrart2d[texts.second.m_texturefileId]["metalness"] = imgwrapmet;
-									m_scmtextomrart2d[texts.second.m_texturefileId]["roughness"] = imgwrapmet;
-									m_scmtextomrart2d[texts.second.m_texturefileId]["ao"] = imgwrapmet;
-									rj::loadTexture2DFromBinaryData(&imgwrap, m_renderer->getManager(), image, width, height, format);
+										metmap.push_back(image[index]);
+										roughmap.push_back(image[index + 1]);
+										aomap.push_back(image[index + 2]);
+									}
+								} */
+								channels = 4;
+								auto format = channels == 4 ? gli::FORMAT_RGBA8_UNORM_PACK8 : gli::FORMAT_RGB8_UNORM_PACK8;
+								rj::loadTexture2DFromBinaryData(&imgwrapmet, m_renderer->getManager(), metmap.data(), width, height, format);
+								rj::loadTexture2DFromBinaryData(&imgwrapro, m_renderer->getManager(), roughmap.data(), width, height, format);
+								rj::loadTexture2DFromBinaryData(&imgwrapao, m_renderer->getManager(), aomap.data(), width, height, format);
+								m_scmtextomrart2d[texts.second.m_texturefileId]["metalness"] = imgwrapmet;
+								m_scmtextomrart2d[texts.second.m_texturefileId]["roughness"] = imgwrapmet;
+								m_scmtextomrart2d[texts.second.m_texturefileId]["ao"] = imgwrapmet;
+								rj::loadTexture2DFromBinaryData(&imgwrap, m_renderer->getManager(), image, width, height, format);
 
-									m_scmtexturetot2d[texts.second.m_texturefileId] = imgwrap;
-								}
-								else
-								{
-									rj::ImageWrapper imgwrap;
-									int width;
-									int height;
-									int channels;
-									//stbi__vertically_flip_on_load = true;
-									unsigned char* image = stbi_load(texfile->m_path.c_str(), &width, &height, &channels, 4);
-									rj::loadTexture2DFromBinaryData(&imgwrap, m_renderer->getManager(), image, width, height, gli::FORMAT_RGBA8_UNORM_PACK8);
-									stbi_image_free(image);
-									m_scmtexturetot2d[texts.second.m_texturefileId] = imgwrap;
-								}
+								m_scmtexturetot2d[texts.second.m_texturefileId] = imgwrap;
+							}
+							else
+							{
+								rj::ImageWrapper imgwrap;
+								int width;
+								int height;
+								int channels;
+								//stbi__vertically_flip_on_load = true;
+								unsigned char* image = stbi_load(texfile->m_path.c_str(), &width, &height, &channels, 4);
+								rj::loadTexture2DFromBinaryData(&imgwrap, m_renderer->getManager(), image, width, height, gli::FORMAT_RGBA8_UNORM_PACK8);
+								stbi_image_free(image);
+								m_scmtexturetot2d[texts.second.m_texturefileId] = imgwrap;
+							}
 							
 							//GLUtils::loadGLTexture(textures[])
 							//TODO
@@ -134,11 +137,11 @@ void VulkanRenderer::updateData()
 						}
 						if (mesh.emissiveMap.imageViews.size() == 0 && momat->m_textures.count("emissive")>0 && m_scmtexturetot2d.count(momat->m_textures["emissive"].m_texturefileId)>0)
 						{
-							mesh.albedoMap = m_scmtexturetot2d[momat->m_textures["emissive"].m_texturefileId];
+							mesh.emissiveMap = m_scmtexturetot2d[momat->m_textures["emissive"].m_texturefileId];
 						}
 						if (mesh.normalMap.imageViews.size() == 0 && momat->m_textures.count("normal")>0 && m_scmtexturetot2d.count(momat->m_textures["normal"].m_texturefileId)>0)
 						{
-							mesh.albedoMap = m_scmtexturetot2d[momat->m_textures["normal"].m_texturefileId];
+							mesh.normalMap = m_scmtexturetot2d[momat->m_textures["normal"].m_texturefileId];
 						}
 						if (mesh.metalnessMap.imageViews.size() == 0 && momat->m_textures.count("mrar")>0 && m_scmtexturetot2d.count(momat->m_textures["mrar"].m_texturefileId)>0)
 						{
@@ -171,6 +174,10 @@ void VulkanRenderer::updateData()
 			mO->m_transformData.setData()->updateTransform();
 			}*/
 		}
+	}
+	if (modelsadded > 0)
+	{
+		m_renderer->recreateSwapChain();
 	}
 }
 

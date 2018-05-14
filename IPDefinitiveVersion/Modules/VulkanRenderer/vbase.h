@@ -126,6 +126,7 @@ public:
 	//}
 
 	virtual void run();
+	virtual void recreateSwapChain();
 
 protected:
 	VkPhysicalDeviceFeatures m_physicalDeviceFeatures;
@@ -151,7 +152,6 @@ protected:
 	virtual void initVulkan();
 	virtual void mainLoop();
 
-	virtual void recreateSwapChain();
 
 	// Let the app pick the queue families they need
 	virtual const std::string &getWindowTitle();

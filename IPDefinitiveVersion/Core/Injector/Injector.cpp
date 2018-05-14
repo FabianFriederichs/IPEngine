@@ -20,6 +20,8 @@ bool Injector::recursiveInject(DGStuff::Module* mod, bool doextension)
 	ExtensionInformation* pexinf;
 	boost::shared_ptr<IModule_API> p;
 	ModuleInformation* pinf;
+	if (mod->ignore)
+		return true;
 	if (mod->isExtension)
 	{
 		//!TODO Make sure the extension exists so no nullptr is used 
@@ -113,6 +115,7 @@ bool Injector::recursiveInject(DGStuff::Module* mod, bool doextension)
 			//check inject status, check ignore/inject meme then inject, and startup stuff
 		}
 
+		
 		return p->startUp();
 	}
 	
