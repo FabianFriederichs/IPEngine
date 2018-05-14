@@ -62,6 +62,12 @@ bool Injector::recursiveInject(DGStuff::Module* mod, bool doextension)
 		//!TODO Make sure the extension exists so no nullptr is used 
 
 		p = loadedModules[mod->identifier];
+		if (!p)
+		{
+			//Moddule doesn't exist
+			m_core->getConsole().println(std::string("Couldn't load module " + mod->identifier + ". Shared Library wasn't loaded.").c_str());
+			return false;
+		}
 		pinf = p->getModuleInfo();
 		
 		if (p->isStartUp)

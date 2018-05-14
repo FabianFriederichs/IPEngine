@@ -60,7 +60,7 @@
 #define MAX_SHADOW_LIGHT_COUNT			2
 #define SHADOW_MAP_SIZE					1024
 #define SAMPLE_COUNT					VK_SAMPLE_COUNT_4_BIT
-
+//#define ENABLE_BLOOM_PASS				
 #define BRDF_BASE_DIR					"../Assets/happyrenderer/textures/BRDF_LUTs/"
 #define BRDF_NAME						"FSchlick_DGGX_GSmith.dds"
 

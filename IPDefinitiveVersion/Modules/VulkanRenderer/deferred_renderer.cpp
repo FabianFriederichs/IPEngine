@@ -128,11 +128,11 @@ void DeferredRenderer::updateText(uint32_t imageIdx)
 	ss = std::stringstream();
 	ss << std::fixed << std::setprecision(2) << "Lighting Pass Time : " << m_lightingPassTimeCalculator.getAverageTimeMS() << " ms";
 	m_textOverlay.addText(ss.str(), 5.f, 85.f, VTextOverlay::alignLeft);
-
+#ifdef ENABLE_BLOOM_PASS
 	ss = std::stringstream();
 	ss << std::fixed << std::setprecision(2) << "Bloom Pass Time : " << m_bloomPassTimeCalculator.getAverageTimeMS() << " ms";
 	m_textOverlay.addText(ss.str(), 5.f, 105.f, VTextOverlay::alignLeft);
-
+#endif
 	ss = std::stringstream();
 	ss << std::fixed << std::setprecision(2) << "Final Ouput Pass Time : " << m_finalOutputPassTimeCalculator.getAverageTimeMS() << " ms";
 	m_textOverlay.addText(ss.str(), 5.f, 125.f, VTextOverlay::alignLeft);
@@ -183,10 +183,10 @@ void DeferredRenderer::drawFrame()
 
 		elapsedTime = static_cast<double>(timestampsNS[TQI_LIGHTING_END] - timestampsNS[TQI_LIGHTING_START]) * 1e-6;
 		m_lightingPassTimeCalculator.addFrameTime(elapsedTime);
-
+#ifdef ENABLE_BLOOM_PASS
 		elapsedTime = static_cast<double>(timestampsNS[TQI_BLOOM_END] - timestampsNS[TQI_BLOOM_START]) * 1e-6;
 		m_bloomPassTimeCalculator.addFrameTime(elapsedTime);
-
+#endif
 		elapsedTime = static_cast<double>(timestampsNS[TQI_FINAL_OUTPUT_END] - timestampsNS[TQI_FINAL_OUTPUT_START]) * 1e-6;
 		m_finalOutputPassTimeCalculator.addFrameTime(elapsedTime);
 	}
@@ -195,12 +195,14 @@ void DeferredRenderer::drawFrame()
 
 	m_vulkanManager.queueSubmitNewSubmit({ m_perFrameCommandBuffers[imageIndex].m_geomShadowLightingCommandBuffer },
 		{}, {}, { m_geomAndLightingCompleteSemaphore });
-
+	auto nextSemaphore = m_geomAndLightingCompleteSemaphore;
+#ifdef ENABLE_BLOOM_PASS
 	m_vulkanManager.queueSubmitNewSubmit({ m_perFrameCommandBuffers[imageIndex].m_postEffectCommandBuffer },
-		{ m_geomAndLightingCompleteSemaphore }, { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT }, { m_postEffectSemaphore });
-
+		{ nextSemaphore }, { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT }, { m_postEffectSemaphore });
+	nextSemaphore = m_postEffectSemaphore;
+#endif
 	m_vulkanManager.queueSubmitNewSubmit({ m_perFrameCommandBuffers[imageIndex].m_presentCommandBuffer },
-		{ m_postEffectSemaphore, m_imageAvailableSemaphore },
+		{ nextSemaphore, m_imageAvailableSemaphore },
 		{ VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT }, { m_finalOutputFinishedSemaphore });
 
 	m_vulkanManager.endQueueSubmit(m_renderFinishedFence, false);
@@ -245,7 +247,9 @@ void DeferredRenderer::createRenderPasses()
 	createGeometryRenderPass();
 	createShadowRenderPass();
 	createLightingRenderPass();
+#ifdef ENABLE_BLOOM_PASS
 	createBloomRenderPasses();
+#endif
 	createFinalOutputRenderPass();
 }
 
@@ -256,7 +260,9 @@ void DeferredRenderer::createDescriptorSetLayouts()
 	createGeomPassDescriptorSetLayout();
 	createShadowPassDescriptorSetLayout();
 	createLightingPassDescriptorSetLayout();
+#ifdef ENABLE_BLOOM_PASS
 	createBloomDescriptorSetLayout();
+#endif
 	createFinalOutputDescriptorSetLayout();
 }
 
@@ -271,7 +277,9 @@ void DeferredRenderer::createGraphicsPipelines()
 	createGeomPassPipeline();
 	createShadowPassPipeline();
 	createLightingPassPipeline();
+#ifdef ENABLE_BLOOM_PASS
 	createBloomPipelines();
+#endif
 	createFinalOutputPassPipeline();
 }
 
@@ -734,7 +742,9 @@ void DeferredRenderer::createDescriptorSets()
 	createGeomPassDescriptorSets();
 	createShadowPassDescriptorSets();
 	createLightingPassDescriptorSets();
+#ifdef ENABLE_BLOOM_PASS
 	createBloomDescriptorSets();
+#endif
 	createFinalOutputPassDescriptorSets();
 }
 
@@ -795,7 +805,10 @@ void DeferredRenderer::createFramebuffers()
 
 	m_lightingFramebuffer = m_vulkanManager.createFramebuffer(m_lightingRenderPass, { m_lightingResultImage.imageViews[0] });
 
-	// Bloom
+#ifdef ENABLE_BLOOM_PASS
+
+
+	 //Bloom
 	if (m_initialized)
 	{
 		for (auto name : m_postEffectFramebuffers)
@@ -809,6 +822,8 @@ void DeferredRenderer::createFramebuffers()
 	m_postEffectFramebuffers[0] = m_vulkanManager.createFramebuffer(m_bloomRenderPasses[0], { m_postEffectImages[0].imageViews[0] });
 	m_postEffectFramebuffers[1] = m_vulkanManager.createFramebuffer(m_bloomRenderPasses[0], { m_postEffectImages[1].imageViews[0] });
 	m_postEffectFramebuffers[2] = m_vulkanManager.createFramebuffer(m_bloomRenderPasses[1], { m_lightingResultImage.imageViews[0] });
+#endif // ENABLE_BLOOM_PASS
+
 }
 
 void DeferredRenderer::createCommandBuffers()
@@ -834,7 +849,10 @@ void DeferredRenderer::createCommandBuffers()
 	// Create command buffers for different purposes
 	createEnvPrefilterCommandBuffer();
 	createGeomShadowLightingCommandBuffers();
-	createPostEffectCommandBuffers();
+#ifdef ENABLE_BLOOM_PASS
+	createPostEffectCommandBuffers()
+#endif // #ifdef ENABLE_BLOOM_PASS
+	;
 	createPresentCommandBuffers();
 
 	// compute command buffers
@@ -850,7 +868,9 @@ void DeferredRenderer::createSynchronizationObjects()
 {
 	m_imageAvailableSemaphore = m_vulkanManager.createSemaphore();
 	m_geomAndLightingCompleteSemaphore = m_vulkanManager.createSemaphore();
+#ifdef ENABLE_BLOOM_PASS
 	m_postEffectSemaphore = m_vulkanManager.createSemaphore();
+#endif
 	m_finalOutputFinishedSemaphore = m_vulkanManager.createSemaphore();
 	m_renderFinishedSemaphore = m_vulkanManager.createSemaphore();
 
@@ -1351,7 +1371,7 @@ void DeferredRenderer::createStaticMeshPipeline()
 
 #ifdef USE_GLTF
 	// temporary hack
-	m_vulkanManager.graphicsPipelineConfigureRasterizer(VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE);
+	//m_vulkanManager.graphicsPipelineConfigureRasterizer(VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE);
 #endif
 
 	m_vulkanManager.graphicsPipelineConfigureMultisampleState(SAMPLE_COUNT, VK_TRUE, 0.25f);
@@ -1401,9 +1421,9 @@ void DeferredRenderer::createShadowPassPipeline()
 			static_cast<float>(swapChainExtent.width), static_cast<float>(swapChainExtent.height));
 
 #ifdef USE_GLTF
-		m_vulkanManager.graphicsPipelineConfigureRasterizer(VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE,
-			1.f, VK_TRUE, 1.f, 1.f);
-#else
+		//m_vulkanManager.graphicsPipelineConfigureRasterizer(VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE,
+			//1.f, VK_TRUE, 1.f, 1.f);
+//#else
 		m_vulkanManager.graphicsPipelineConfigureRasterizer(VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_CLOCKWISE,
 			1.f, VK_TRUE, 1.f, 1.f);
 #endif
