@@ -691,10 +691,12 @@ void DeferredRenderer::createDescriptorSets()
 		{
 			layouts.push_back(m_geomDescriptorSetLayout);
 		}
+#ifdef ENABLE_BLOOM_PASS
 		for (uint32_t i = 0; i < 3; ++i)
 		{
 			layouts.push_back(m_bloomDescriptorSetLayout);
 		}
+#endif
 	}
 
 	std::vector<uint32_t> sets = m_vulkanManager.allocateDescriptorSets(m_descriptorPool, layouts);
@@ -730,11 +732,13 @@ void DeferredRenderer::createDescriptorSets()
 			mesh.second.geomDescrSetIndex = i;
 			++i;
 		}
+#ifdef ENABLE_BLOOM_PASS
 		m_perFrameDescriptorSets[imgIdx].m_bloomDescriptorSets.resize(3);
 		for (uint32_t i = 0; i < 3; ++i)
 		{
 			m_perFrameDescriptorSets[imgIdx].m_bloomDescriptorSets[i] = sets[idx++];
 		}
+#endif
 	}
 
 	createBrdfLutDescriptorSet();

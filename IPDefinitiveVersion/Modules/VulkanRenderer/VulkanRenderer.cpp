@@ -88,7 +88,7 @@ void VulkanRenderer::updateData()
 								std::vector<uint8_t> metmap(width*height*channels);
 								std::vector<uint8_t> roughmap(width*height*channels);
 								std::vector<uint8_t> aomap(width*height*channels);
-								for (size_t index = 0; index < width*height*4; index += 4)
+								/*for (size_t index = 0; index < width*height*4; index += 4)
 								{
 									for (int ix2 = 0; ix2 < 4; ++ix2)
 									{
@@ -96,7 +96,7 @@ void VulkanRenderer::updateData()
 										roughmap.push_back(image[index + 1]);
 										aomap.push_back(image[index + 2]);
 									}
-								} 
+								} */
 								channels = 4;
 								auto format = channels == 4 ? gli::FORMAT_RGBA8_UNORM_PACK8 : gli::FORMAT_RGB8_UNORM_PACK8;
 								rj::loadTexture2DFromBinaryData(&imgwrapmet, m_renderer->getManager(), metmap.data(), width, height, format);
