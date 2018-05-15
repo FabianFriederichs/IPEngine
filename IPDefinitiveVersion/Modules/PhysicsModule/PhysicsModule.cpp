@@ -711,9 +711,9 @@ ipengine::ipid PhysicsModule::createCloth(const std::string &name,size_t width,
 	cloth.m_initialTransform = transform;
 
 	//setup buffers
-	cloth.m_particles_buf1 = ipengine::alloc_aligned_array<Particle, TS_CACHE_LINE_SIZE>(width * height);
-	cloth.m_particles_buf2 = ipengine::alloc_aligned_array<Particle, TS_CACHE_LINE_SIZE>(width * height);
-	cloth.m_springs = ipengine::alloc_aligned_array<Spring, TS_CACHE_LINE_SIZE>(width * height * MAX_SPRINGS_PER_PARTICLE);
+	cloth.m_particles_buf1 = ipengine::alloc_aligned_array<Particle, IP_CACHE_LINE_SIZE>(width * height);
+	cloth.m_particles_buf2 = ipengine::alloc_aligned_array<Particle, IP_CACHE_LINE_SIZE>(width * height);
+	cloth.m_springs = ipengine::alloc_aligned_array<Spring, IP_CACHE_LINE_SIZE>(width * height * MAX_SPRINGS_PER_PARTICLE);
 
 	auto transm = transform.getLocalToWorldMatrix();
 

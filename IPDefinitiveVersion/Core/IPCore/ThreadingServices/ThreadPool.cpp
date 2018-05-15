@@ -253,7 +253,7 @@ ipengine::ThreadPool::ThreadPool(size_t nworkers) :
 {
 	for (size_t i = 0; i < nworkers; i++)
 	{
-		m_workers.push_back(alloc_aligned<ThreadPool::Worker, TS_CACHE_LINE_SIZE>(this, i));
+		m_workers.push_back(alloc_aligned<ThreadPool::Worker, IP_CACHE_LINE_SIZE>(this, i));
 	}
 	m_isrunning.store(false, std::memory_order_release);
 }

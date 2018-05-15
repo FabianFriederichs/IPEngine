@@ -1,8 +1,10 @@
-#pragma once
+#ifndef _LFDS_H_
+#define _LFDS_H_
 #include <atomic>
 #include <IPCore/Util/spinlock.h>
 #include <cstdint>
 #include <IPCore/ThreadingServices/Task.h>
+#include <cassert>
 //#include "hazard_pointer.h"
 #define ACQUIRE std::memory_order_acquire
 #define RELEASE std::memory_order_release
@@ -82,28 +84,16 @@ namespace ipengine {
 	template<typename T>
 	inline T & RingBuffer<T>::operator[](typename RingBuffer<T>::SIndex idx)
 	{
-		if (m_array != nullptr)
-		{
-			return m_array[static_cast<typename RingBuffer<T>::Index>(idx) & (static_cast<typename RingBuffer<T>::Index>(capacity()) - static_cast<typename RingBuffer<T>::Index>(1))];
-		}
-		else
-		{
-			throw std::out_of_range("Internal array was nullptr.");
-		}
+		assert(m_array);		
+		return m_array[static_cast<typename RingBuffer<T>::Index>(idx) & (static_cast<typename RingBuffer<T>::Index>(capacity()) - static_cast<typename RingBuffer<T>::Index>(1))];
+		
 	}
 
 	template<typename T>
 	inline const T & RingBuffer<T>::operator[](typename RingBuffer<T>::SIndex idx) const
 	{
-		// TODO: hier Rückgabeanweisung eingeben
-		if (m_array != nullptr)
-		{
-			return m_array[static_cast<typename RingBuffer<T>::Index>(idx) & (static_cast<typename RingBuffer<T>::Index>(capacity()) - static_cast<typename RingBuffer<T>::Index>(1))];
-		}
-		else
-		{
-			throw std::out_of_range("Internal array was nullptr.");
-		}
+		assert(m_array);		
+		return m_array[static_cast<typename RingBuffer<T>::Index>(idx) & (static_cast<typename RingBuffer<T>::Index>(capacity()) - static_cast<typename RingBuffer<T>::Index>(1))];
 	}
 
 	template<typename T>
@@ -135,9 +125,6 @@ namespace ipengine {
 
 		size_t size();
 		size_t capacity();
-
-
-	private:
 
 	private:
 		T* m_arr;
@@ -497,3 +484,4 @@ namespace ipengine {
 
 
 }
+#endif

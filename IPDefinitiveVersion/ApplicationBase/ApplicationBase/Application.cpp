@@ -2,6 +2,7 @@
 
 #include <Injector/Injector.h>
 #include <IPCore/Core/ICore.h>
+#include <IPCore/Core/ICoreTypes.h>
 #include <iostream>
 //implementation
 class ipengine::Application::ApplicationImpl

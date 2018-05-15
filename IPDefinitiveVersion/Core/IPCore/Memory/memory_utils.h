@@ -8,7 +8,7 @@ namespace ipengine
 
 	constexpr size_t getCacheAlignedSize(size_t size)
 	{
-		return size + ((TS_CACHE_LINE_SIZE - (size & (TS_CACHE_LINE_SIZE - 1))) & (TS_CACHE_LINE_SIZE - 1));
+		return size + ((IP_CACHE_LINE_SIZE - (size & (IP_CACHE_LINE_SIZE - 1))) & (IP_CACHE_LINE_SIZE - 1));
 	}
 
 	constexpr size_t getAlignedSize(size_t size, size_t alignment)

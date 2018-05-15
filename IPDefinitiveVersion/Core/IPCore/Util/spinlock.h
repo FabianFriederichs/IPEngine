@@ -5,12 +5,13 @@
 #include <algorithm>
 #include <IPCore/core_config.h>
 
+//TODO: rework this toward a policy based design
 namespace ipengine {
 
-	class alignas(TS_CACHE_LINE_SIZE)BasicSpinLock
+	class alignas(IP_CACHE_LINE_SIZE)BasicSpinLock
 	{
 	private:
-		alignas(TS_CACHE_LINE_SIZE)std::atomic_flag lck = ATOMIC_FLAG_INIT;
+		alignas(IP_CACHE_LINE_SIZE)std::atomic_flag lck = ATOMIC_FLAG_INIT;
 
 	public:
 		//ctors/dtors
@@ -42,10 +43,10 @@ namespace ipengine {
 	};
 
 	template <size_t MAX_SPINS = 4000>
-	class alignas(TS_CACHE_LINE_SIZE)YieldingSpinLock
+	class alignas(IP_CACHE_LINE_SIZE)YieldingSpinLock
 	{
 	private:
-		alignas(TS_CACHE_LINE_SIZE)std::atomic_flag lck = ATOMIC_FLAG_INIT;
+		alignas(IP_CACHE_LINE_SIZE)std::atomic_flag lck = ATOMIC_FLAG_INIT;
 
 	public:
 		//ctors/dtors
@@ -89,10 +90,10 @@ namespace ipengine {
 	};
 
 	template <size_t MAX_SPINS = 4000, size_t MAX_BACKOFF = 4000>
-	class alignas(TS_CACHE_LINE_SIZE)TTASSpinLock
+	class alignas(IP_CACHE_LINE_SIZE)TTASSpinLock
 	{
 	private:
-		alignas(TS_CACHE_LINE_SIZE)std::atomic<bool> lck;
+		alignas(IP_CACHE_LINE_SIZE)std::atomic<bool> lck;
 
 	public:
 		//ctors/dtors

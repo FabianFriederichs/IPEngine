@@ -29,9 +29,10 @@ namespace ipengine
 	using ipcrstr = const char*;
 	using ipchar = char;
 
-	//export string from here
+	//export string from here	
+	/*CORE_API_TEMPLATE template CORE_API class std::basic_string<ipchar, std::char_traits<ipchar>, std::allocator<ipchar>>;*/
 	using ipstring = std::basic_string<ipchar, std::char_traits<ipchar>, std::allocator<ipchar>>;
-	//class CORE_API ipstring;
+	
 }
 
 #endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _TASK_CONTEXT_H_
+#define _TASK_CONTEXT_H_
 #include <exception>
 #include <IPCore/Util/any.h>
 #include <memory>
@@ -128,4 +129,4 @@ namespace ipengine
 	};
 
 }
-
+#endif

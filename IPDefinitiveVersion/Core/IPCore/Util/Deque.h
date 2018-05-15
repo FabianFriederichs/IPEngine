@@ -1,5 +1,5 @@
-#ifndef _WS_QUEUE_H_
-#define _WS_QUEUE_H_
+#ifndef _DEQUEUE_H_
+#define _DEQUEUE_H_
 #include <atomic>
 #include <mutex>
 #include <condition_variable>

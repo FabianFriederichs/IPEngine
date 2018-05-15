@@ -1,8 +1,10 @@
-#pragma once
+#ifndef _HAZARD_POINTER_H_
+#define _HAZARD_POINTER_H_
 #include <atomic>
 #include <thread>
 #include <stdexcept>
 
+//this implementation of the hazard pointer scheme is from - Anthony Williams. C++ Concurrency in action: Practical Multithreading. Manning Publications, 2012. -
 
 //----------- README -----------
 // Acquire a hazard pointer in your code as follows:
@@ -19,7 +21,7 @@
 //		oldhead = head.load();
 //	} while (oldhead != tmp);
 //	//from this point, no thread can delete the node
-//	
+//	//clear hazptr if node isn't in use anymore (store nullptr)
 
 //the hazard pointer type that is intended for use in code
 #define MAX_HAZARD_POINTERS 100
@@ -94,3 +96,4 @@ namespace ipengine {
 	}
 
 }
+#endif

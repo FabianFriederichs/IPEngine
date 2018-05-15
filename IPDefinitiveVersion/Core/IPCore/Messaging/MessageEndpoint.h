@@ -26,7 +26,7 @@ namespace ipengine
 		friend class EndpointRegistry;
 
 	private:
-		using MessageAlloc = ipengine::ThreadSafeFreeList<TS_CACHE_LINE_SIZE, sizeof(Message), 4096>;
+		using MessageAlloc = ipengine::ThreadSafeFreeList<IP_CACHE_LINE_SIZE, sizeof(Message), 4096>;
 		static const size_t MSIZE = sizeof(Message);
 
 	public:

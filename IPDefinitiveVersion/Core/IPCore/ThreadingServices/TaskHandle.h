@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _TASK_HANDLE_H_
+#define _TASK_HANDLE_H_
 #include <memory>
 #include <atomic>
 #include <IPCore/core_config.h>
@@ -40,3 +41,4 @@ namespace ipengine {
 	};
 
 }
+#endif

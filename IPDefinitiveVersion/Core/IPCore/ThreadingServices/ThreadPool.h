@@ -1,10 +1,5 @@
-#pragma once
-
-//TODO: implement continuation passing!
-//TODO: fork this thingy and create version without slow main thread helper path.
-//instead "busy" wait with the main thread and yield. This should increase throughput and remove a huge amount of
-//complexity and some contention problems from the system.
-//All of that under the assumption that the OS and runtime liraries implement a meaningful "yield" operation
+#ifndef _THREAD_POOL_H_
+#define _THREAD_POOL_H_
 
 #include <IPCore/Util/Deque.h>
 #include <random>
@@ -33,7 +28,7 @@ namespace ipengine
 		friend class TaskHandle;
 		//Worker class
 	private:
-		class alignas(TS_CACHE_LINE_SIZE)CORE_API Worker
+		class alignas(IP_CACHE_LINE_SIZE)CORE_API Worker
 		{
 		public:
 			Worker(ThreadPool* pool, size_t id);
@@ -111,7 +106,7 @@ namespace ipengine
 		ipengine::Deque<Task*> m_helperqueue; //this thing bottlenecks helperthreads if there are many of them
 		std::vector<aligned_ptr<Worker>> m_workers;
 		std::atomic<bool> m_isrunning;
-		using TaskAlloc = ThreadSafeFreeList<TS_CACHE_LINE_SIZE, sizeof(Task), 4096>;
+		using TaskAlloc = ThreadSafeFreeList<IP_CACHE_LINE_SIZE, sizeof(Task), 4096>;
 		const size_t TSIZE = sizeof(Task);
 
 		std::random_device rd;
@@ -129,3 +124,4 @@ namespace ipengine
 
 }
 
+#endif
