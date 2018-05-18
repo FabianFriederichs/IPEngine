@@ -146,6 +146,12 @@
     <ClInclude Include="RuntimeControl\Console.h">
       <Filter>CoreModules\RuntimeControl</Filter>
     </ClInclude>
+    <ClInclude Include="CoreModuleContainerTemplate.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreHost.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThreadingServices\TaskHandle.cpp">
@@ -189,6 +195,9 @@
     </ClCompile>
     <ClCompile Include="RuntimeControl\Console.cpp">
       <Filter>CoreModules\RuntimeControl</Filter>
+    </ClCompile>
+    <ClCompile Include="CoreModuleContainerTemplate.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

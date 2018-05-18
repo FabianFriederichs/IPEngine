@@ -141,6 +141,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Config\ConfigManager.h" />
+    <ClInclude Include="CoreHost.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CoreModuleContainerTemplate.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Core\ICore.h" />
     <ClInclude Include="Core\ICoreTypes.h" />
     <ClInclude Include="core_config.h" />
@@ -180,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Config\ConfigManager.cpp" />
+    <ClCompile Include="CoreModuleContainerTemplate.cpp" />
     <ClCompile Include="Core\ICore.cpp" />
     <ClCompile Include="DebugMonitoring\DebugMonitor.cpp" />
     <ClCompile Include="DebugMonitoring\Error.cpp" />
