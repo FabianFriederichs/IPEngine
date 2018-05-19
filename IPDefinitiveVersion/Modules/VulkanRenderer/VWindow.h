@@ -160,7 +160,7 @@ namespace rj
 			}
 			//glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // not to create OpenGL context
 			m_window = SDL_CreateWindow(m_windowTitle.c_str(), SDL_WINDOWPOS_CENTERED,
-				SDL_WINDOWPOS_CENTERED, static_cast<int>(m_width), static_cast<int>(m_height), SDL_WINDOW_OPENGL);
+				SDL_WINDOWPOS_CENTERED, static_cast<int>(m_width), static_cast<int>(m_height), SDL_WINDOW_VULKAN);
 			auto err = SDL_GetError();
 			std::string error(err);
 			if (m_window == NULL)

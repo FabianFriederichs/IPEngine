@@ -2085,7 +2085,8 @@ namespace rj
 
 		void deviceWaitIdle()
 		{
-			if (vkDeviceWaitIdle(m_device) != VK_SUCCESS)
+			auto res = vkDeviceWaitIdle(m_device);
+			if (res != VK_SUCCESS)
 			{
 				throw std::runtime_error("failed to wait for device idle");
 			}

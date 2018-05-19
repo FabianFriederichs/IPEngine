@@ -11,7 +11,7 @@ void VScene::computeAABBWorldSpace()
 	aabbWorldSpace = BBox();
 	for (const auto &mesh : meshes)
 	{
-		auto meshAABB = mesh.second.getAABBWorldSpace();
+		auto meshAABB = mesh.second->getAABBWorldSpace();
 		aabbWorldSpace.min = glm::min(aabbWorldSpace.min, meshAABB.min);
 		aabbWorldSpace.max = glm::max(aabbWorldSpace.max, meshAABB.max);
 	}

@@ -9,7 +9,7 @@ class VScene
 public:
 	Skybox skybox;
 	DirectionalLight shadowLight;
-	std::unordered_map<ipengine::ipid, VMesh> meshes;
+	std::unordered_map<ipengine::ipid, std::shared_ptr<VMesh>> meshes;
 
 	BBox aabbWorldSpace;
 

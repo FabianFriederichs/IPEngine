@@ -89,6 +89,8 @@ const VkPhysicalDeviceFeatures &VBaseGraphics::getEnabledPhysicalDeviceFeatures(
 	m_physicalDeviceFeatures = {};
 	m_physicalDeviceFeatures.shaderStorageImageExtendedFormats = VK_TRUE;
 	m_physicalDeviceFeatures.geometryShader = VK_TRUE;
-
+	m_physicalDeviceFeatures.samplerAnisotropy = VK_TRUE;
+	m_physicalDeviceFeatures.depthClamp = VK_TRUE;
+	m_physicalDeviceFeatures.sampleRateShading = VK_TRUE;
 	return m_physicalDeviceFeatures;
 }

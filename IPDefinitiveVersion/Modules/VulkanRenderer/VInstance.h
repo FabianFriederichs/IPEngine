@@ -107,10 +107,12 @@ namespace rj
 
 			VkDebugReportCallbackCreateInfoEXT createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+			createInfo.pNext = nullptr;
 			createInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
-			createInfo.pfnCallback = debugCallback;
-
-			if (createDebugReportCallbackEXT(m_instance, &createInfo, nullptr, m_debugReportCB.replace()) != VK_SUCCESS)
+			createInfo.pfnCallback = &debugCallback;
+			createInfo.pUserData = nullptr;
+			auto res = createDebugReportCallbackEXT(m_instance, &createInfo, nullptr, m_debugReportCB.replace());
+			if (res != VK_SUCCESS)
 			{
 				throw std::runtime_error("failed to set up debug callback!");
 			}

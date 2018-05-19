@@ -1,20 +1,20 @@
 // Plugin2.cpp : Defines the exported functions for the DLL application.
 //
 #define USE_GLTF
+
 #define TINYGLTF_LOADER_IMPLEMENTATION
-//#define STB_IMAGE_IMPLEMENTATION
 #define VK_USE_PLATFORM_WIN32_KHR
 #define NOMINMAX
 
 // Tell SDL not to mess with main()
 #define SDL_MAIN_HANDLED
 #include "VulkanRenderer.h"
-#include <stb_image.h>
 #ifdef USE_GLTF
 std::string GLTF_VERSION;
 std::string GLTF_NAME;
 #endif
-
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 // This is the constructor of a class that has been exported.
 // see Plugin2.h for the class definition
 VulkanRenderer::VulkanRenderer()
@@ -27,7 +27,19 @@ VulkanRenderer::VulkanRenderer()
 
 void VulkanRenderer::updateData()
 {
-	setCameraEntity(m_entrepcam);
+	//setCameraEntity(m_entrepcam);
+
+	//update camera
+	{
+		auto cament = m_scm->getEntityById(m_entrepcam);
+		if (cament)
+		{
+			cament->m_transformData.setData()->updateTransform();
+			m_renderer->m_camera.forceViewMat(ViewFromTransData(cament->m_transformData.getData()));
+			m_renderer->m_camera.setPosition(cament->m_transformData.getData()->m_location);
+			m_renderer->m_camera.setLookAt(cament->m_transformData.getData()->m_location + cament->m_transformData.getData()->m_localZ);
+		}
+	}
 
 	auto& activeentitynames = getActiveEntityNames(*m_scm);
 	auto& entities = m_scm->getThreeDimEntities();
@@ -36,7 +48,7 @@ void VulkanRenderer::updateData()
 	std::vector<ipengine::ipid> parents;
 	auto scene = m_renderer->getScene();
 
-	int modelsadded = 0;
+	//load resources currently active 
 	for (auto eid : activeentitynames)
 	{
 		auto findent = entities.find(eid);
@@ -48,24 +60,32 @@ void VulkanRenderer::updateData()
 			{
 				//TODO Check for NULL material
 
-				if (scene->meshes.count(mesh->m_meshId)<1)
+				if (m_allmeshes.count(mesh->m_meshId)<1)
 				{
 					//Dynamic VAO's vulkan TODO IMPORTANT!!!
 					//auto vao = (mesh->m_dynamic ? GLUtils::createDynamicVAO(*mesh) : GLUtils::createVAO(*mesh));
 					//m_scmmeshtovao[mesh->m_meshId] = vao;
-					auto verts = scmVertsToVVertex(mesh->m_vertices);
-					glm::vec3 minp, maxp;
-					minp = glm::vec3(std::numeric_limits<float>::max());
-					maxp = glm::vec3(-std::numeric_limits<float>::max());
-					for (auto v : verts)
+					int res = -1;
+					res = loadMesh(mesh);
+					//Update position
+					updateVMeshData(mesh->m_meshId, findent->second->m_transformData.getData());
+					if (!mesh->m_dynamic)
 					{
-						minp = glm::min(minp, v.pos);
-						maxp = glm::max(maxp, v.pos);
+						
 					}
-					scene->meshes.insert({ mesh->m_meshId, m_renderer->getManager() });
-					scene->meshes[mesh->m_meshId].load(verts, mesh->m_indices, minp, maxp);
-					scene->meshes[mesh->m_meshId].uPerModelInfo = reinterpret_cast<PerModelUniformBuffer *>(m_renderer->getUniformBlob().alloc(sizeof(PerModelUniformBuffer)));
-					modelsadded++;
+					else
+					{
+						//Do dyncamic mesh thing
+					}
+					if (res < 0)
+					{
+						//Error loading mesh
+					}
+				}
+				else
+				{
+					//Update position
+					updateVMeshData(mesh->m_meshId, findent->second->m_transformData.getData());
 				}
 				for (auto momats : mO->m_mesheObjects->meshtomaterial)
 				{
@@ -79,7 +99,7 @@ void VulkanRenderer::updateData()
 							if (texts.first == "mrar")
 							{
 								//split mrar texture into 3 channels
-								rj::ImageWrapper imgwrap, imgwrapmet, imgwrapro, imgwrapao;
+								rj::ImageWrapper imgwrap;
 								int width;
 								int height;
 								int channels;
@@ -88,38 +108,19 @@ void VulkanRenderer::updateData()
 								std::vector<uint8_t> metmap(width*height*channels);
 								std::vector<uint8_t> roughmap(width*height*channels);
 								std::vector<uint8_t> aomap(width*height*channels);
-								/*for (size_t index = 0; index < width*height*4; index += 4)
-								{
-									for (int ix2 = 0; ix2 < 4; ++ix2)
-									{
-										metmap.push_back(image[index]);
-										roughmap.push_back(image[index + 1]);
-										aomap.push_back(image[index + 2]);
-									}
-								} */
-								channels = 4;
-								auto format = channels == 4 ? gli::FORMAT_RGBA8_UNORM_PACK8 : gli::FORMAT_RGB8_UNORM_PACK8;
-								rj::loadTexture2DFromBinaryData(&imgwrapmet, m_renderer->getManager(), metmap.data(), width, height, format);
-								rj::loadTexture2DFromBinaryData(&imgwrapro, m_renderer->getManager(), roughmap.data(), width, height, format);
-								rj::loadTexture2DFromBinaryData(&imgwrapao, m_renderer->getManager(), aomap.data(), width, height, format);
-								m_scmtextomrart2d[texts.second.m_texturefileId]["metalness"] = imgwrapmet;
-								m_scmtextomrart2d[texts.second.m_texturefileId]["roughness"] = imgwrapmet;
-								m_scmtextomrart2d[texts.second.m_texturefileId]["ao"] = imgwrapmet;
-								rj::loadTexture2DFromBinaryData(&imgwrap, m_renderer->getManager(), image, width, height, format);
+#ifdef NDEBUG
+								splitChannels(image, width, height, channels, 3, std::vector<std::vector<uint8_t>*>({ &metmap, &roughmap, &aomap }));
+#endif
+								m_scmtextomrart2d[texts.second.m_texturefileId]["metalness"] = loadTextureBinary(metmap.data(), width, height, channels);
+								m_scmtextomrart2d[texts.second.m_texturefileId]["roughness"] = loadTextureBinary(roughmap.data(), width, height, channels);
+								m_scmtextomrart2d[texts.second.m_texturefileId]["ao"] = loadTextureBinary(aomap.data(), width, height, channels);
+								//rj::loadTexture2DFromBinaryData(&imgwrap, m_renderer->getManager(), image, width, height, format);
 
 								m_scmtexturetot2d[texts.second.m_texturefileId] = imgwrap;
 							}
 							else
 							{
-								rj::ImageWrapper imgwrap;
-								int width;
-								int height;
-								int channels;
-								//stbi__vertically_flip_on_load = true;
-								unsigned char* image = stbi_load(texfile->m_path.c_str(), &width, &height, &channels, 4);
-								rj::loadTexture2DFromBinaryData(&imgwrap, m_renderer->getManager(), image, width, height, gli::FORMAT_RGBA8_UNORM_PACK8);
-								stbi_image_free(image);
-								m_scmtexturetot2d[texts.second.m_texturefileId] = imgwrap;
+								m_scmtexturetot2d[texts.second.m_texturefileId] = loadTexture(texfile->m_path);
 							}
 							
 							//GLUtils::loadGLTexture(textures[])
@@ -127,27 +128,27 @@ void VulkanRenderer::updateData()
 							//load texture into gpu memory?? 
 						}
 					}
-					if (scene->meshes.count(momats.first)>0)
+					if (m_allmeshes.count(momats.first)>0)
 					{
-						auto& mesh = scene->meshes[momats.first];//m_scmtexturetot2d[mat.]
+						auto& mesh = m_allmeshes[momats.first];//m_scmtexturetot2d[mat.]
 
-						if (mesh.albedoMap.imageViews.size() == 0 && momat->m_textures.count("albedo")>0 && m_scmtexturetot2d.count(momat->m_textures["albedo"].m_texturefileId)>0)
+						if (mesh->albedoMap.imageViews.size() == 0 && momat->m_textures.count("albedo")>0 && m_scmtexturetot2d.count(momat->m_textures["albedo"].m_texturefileId)>0)
 						{
-							mesh.albedoMap = m_scmtexturetot2d[momat->m_textures["albedo"].m_texturefileId];
+							mesh->albedoMap = m_scmtexturetot2d[momat->m_textures["albedo"].m_texturefileId];
 						}
-						if (mesh.emissiveMap.imageViews.size() == 0 && momat->m_textures.count("emissive")>0 && m_scmtexturetot2d.count(momat->m_textures["emissive"].m_texturefileId)>0)
+						if (mesh->emissiveMap.imageViews.size() == 0 && momat->m_textures.count("emissive")>0 && m_scmtexturetot2d.count(momat->m_textures["emissive"].m_texturefileId)>0)
 						{
-							mesh.emissiveMap = m_scmtexturetot2d[momat->m_textures["emissive"].m_texturefileId];
+							mesh->emissiveMap = m_scmtexturetot2d[momat->m_textures["emissive"].m_texturefileId];
 						}
-						if (mesh.normalMap.imageViews.size() == 0 && momat->m_textures.count("normal")>0 && m_scmtexturetot2d.count(momat->m_textures["normal"].m_texturefileId)>0)
+						if (mesh->normalMap.imageViews.size() == 0 && momat->m_textures.count("normal")>0 && m_scmtexturetot2d.count(momat->m_textures["normal"].m_texturefileId)>0)
 						{
-							mesh.normalMap = m_scmtexturetot2d[momat->m_textures["normal"].m_texturefileId];
+							mesh->normalMap = m_scmtexturetot2d[momat->m_textures["normal"].m_texturefileId];
 						}
-						if (mesh.metalnessMap.imageViews.size() == 0 && momat->m_textures.count("mrar")>0 && m_scmtexturetot2d.count(momat->m_textures["mrar"].m_texturefileId)>0)
+						if (mesh->metalnessMap.imageViews.size() == 0 && momat->m_textures.count("mrar")>0 && m_scmtexturetot2d.count(momat->m_textures["mrar"].m_texturefileId)>0)
 						{
-							mesh.roughnessMap = m_scmtextomrart2d[momat->m_textures["mrar"].m_texturefileId]["roughness"];
-							mesh.metalnessMap = m_scmtextomrart2d[momat->m_textures["mrar"].m_texturefileId]["metalness"];
-							mesh.aoMap = m_scmtextomrart2d[momat->m_textures["mrar"].m_texturefileId]["ao"];
+							mesh->roughnessMap = m_scmtextomrart2d[momat->m_textures["mrar"].m_texturefileId]["roughness"];
+							mesh->metalnessMap = m_scmtextomrart2d[momat->m_textures["mrar"].m_texturefileId]["metalness"];
+							mesh->aoMap = m_scmtextomrart2d[momat->m_textures["mrar"].m_texturefileId]["ao"];
 						}
 					}
 				}
@@ -175,10 +176,36 @@ void VulkanRenderer::updateData()
 			}*/
 		}
 	}
-	if (modelsadded > 0)
+
+	//Create differences of entity sets to figure out whether command buffers need to be recreated
+
+	auto &setscene = lastactiveentitites;
+	auto &setactive = activeentitynames;
+
+	if (differenceInActiveEntities(setactive, setscene))
 	{
-		m_renderer->recreateSwapChain();
+		lastactiveentitites.clear();
+		scene->meshes.clear();
+		for (auto id : setactive)
+		{
+			if (entities.count(id) > 0)
+			{
+				int mcount = 0;
+				for (auto mo : entities[id]->m_mesheObjects->m_meshes)
+				{
+					if (m_allmeshes.count(mo->m_meshId) > 0)
+					{
+						scene->meshes[mo->m_meshId] = m_allmeshes[mo->m_meshId];
+						mcount++;
+					}
+				}
+				if (mcount > 0)
+					lastactiveentitites.push_back(id);
+			}
+		}
+		updateDrawableRenderStates();
 	}
+	
 }
 
 bool VulkanRenderer::_startup()
@@ -247,7 +274,8 @@ void VulkanRenderer::setCameraEntity(ipengine::ipid id)
 
 void VulkanRenderer::setFOV(uint32_t fov)
 {
-	m_renderer->m_camera = Camera{ m_renderer->m_camera.getPosition(), m_renderer->m_camera.getLookAt(), (float)fov, m_renderer->m_camera.getAspectRatio(), m_renderer->m_camera.getZNear(), m_renderer->m_camera.getZFar(), m_renderer->m_camera.getSegmentCount() };
+	//m_renderer->m_camera = Camera{ m_renderer->m_camera.getPosition(), m_renderer->m_camera.getLookAt(), (float)fov, m_renderer->m_camera.getAspectRatio(), m_renderer->m_camera.getZNear(), m_renderer->m_camera.getZFar(), m_renderer->m_camera.getSegmentCount() };
+	m_renderer->m_camera.setFov(fov);
 }
 
 void VulkanRenderer::setResolution(uint32_t x, uint32_t y)
@@ -258,7 +286,8 @@ void VulkanRenderer::setResolution(uint32_t x, uint32_t y)
 
 void VulkanRenderer::setClipRange(float znear, float zfar)
 {
-	m_renderer->m_camera = Camera{ m_renderer->m_camera.getPosition(), m_renderer->m_camera.getLookAt(), m_renderer->m_camera.getFovy(), m_renderer->m_camera.getAspectRatio(), znear, zfar, m_renderer->m_camera.getSegmentCount() };
+	//m_renderer->m_camera = Camera{ m_renderer->m_camera.getPosition(), m_renderer->m_camera.getLookAt(), m_renderer->m_camera.getFovy(), m_renderer->m_camera.getAspectRatio(), znear, zfar, m_renderer->m_camera.getSegmentCount() };
+	m_renderer->m_camera.setZnear(znear, zfar);
 }
 
 ipengine::ipid VulkanRenderer::getCameraEntity()
@@ -292,7 +321,7 @@ void VulkanRenderer::loadTextureFromMemory(const GrAPI::t2d &, const ipengine::i
 
 std::vector<ipengine::ipid> VulkanRenderer::getActiveEntityNames(SCM::ISimpleContentModule_API & scm)
 {
-	auto& entities = m_scm->getEntities();
+	auto& entities = m_scm->getThreeDimEntities();
 	std::vector<ipengine::ipid> ids;
 	for (auto e : entities)
 	{
@@ -315,4 +344,125 @@ std::vector<Vertex> VulkanRenderer::scmVertsToVVertex(SCM::VertexVector& verts)
 		newverts[ix].texCoord = data[ix].m_uv;
 	}
 	return newverts;
+}
+
+bool VulkanRenderer::differenceInActiveEntities(std::vector<ipengine::ipid> & first, std::vector<ipengine::ipid>& second)
+{
+	if (first.size() != second.size())
+		return true;
+	std::sort(first.begin(), first.end());
+	std::sort(second.begin(), second.end());
+	size_t c = 0;
+	for (auto& id : first)
+	{
+		if (second[c++]==id)
+		{
+			continue;
+		}
+		return true;
+	}
+	return false;
+}
+
+void VulkanRenderer::splitChannels(const unsigned char * input, const int width, const int height, const int channels, const int outchannels, std::vector<std::vector<uint8_t>*>& output)
+{
+	for (size_t index = 0; index < width*height * channels; index += channels)
+	{
+		for (int ix2 = 0; ix2 < channels; ++ix2)
+		{
+			for (int ch = 0; ch < outchannels; ++ch)
+			{
+				(*output[ch])[index+ix2] = input[index + ch];
+			}
+		}
+	}
+}
+
+int VulkanRenderer::loadMesh(SCM::MeshData * data)
+{
+	auto verts = scmVertsToVVertex(data->m_vertices);
+	glm::vec3 minp, maxp;
+	minp = glm::vec3(std::numeric_limits<float>::max());
+	maxp = glm::vec3(-std::numeric_limits<float>::max());
+	for (auto v : verts)
+	{
+		minp = glm::min(minp, v.pos);
+		maxp = glm::max(maxp, v.pos);
+	}
+	m_allmeshes.insert({ data->m_meshId, std::make_shared<VMesh>(m_renderer->getManager()) });
+	m_allmeshes[data->m_meshId]->load(verts, data->m_indices, minp, maxp);
+	m_allmeshes[data->m_meshId]->uPerModelInfo = reinterpret_cast<PerModelUniformBuffer *>(m_renderer->getUniformBlob().alloc(sizeof(PerModelUniformBuffer)));
+	return 0;
+}
+
+rj::ImageWrapper VulkanRenderer::loadTexture(const std::string path, bool flip)
+{
+	int width;
+	int height;
+	int channels;
+	stbi__vertically_flip_on_load = flip;
+	unsigned char* image = stbi_load(path.c_str(), &width, &height, &channels, 4);
+	auto imgwrap = loadTextureBinary(image, width, height, channels);
+	stbi_image_free(image);
+
+	return imgwrap;
+}
+
+rj::ImageWrapper VulkanRenderer::loadTextureBinary(unsigned char * input, int width, int height, int channels)
+{
+	rj::ImageWrapper imgwrap;
+	//!TODO put gli format according to channels
+	rj::loadTexture2DFromBinaryData(&imgwrap, m_renderer->getManager(), input, width, height, gli::FORMAT_RGBA8_UNORM_PACK8);
+	return imgwrap;
+}
+
+void VulkanRenderer::updateDrawableRenderStates()
+{
+	m_renderer->getManager()->deviceWaitIdle();
+	m_renderer->createUniformBuffers();
+	m_renderer->createDescriptorSets();
+	m_renderer->createCommandBuffers();
+}
+
+void VulkanRenderer::updateVMeshData(ipengine::ipid meshid, const SCM::TransformData* data)
+{
+	auto vmeshtoupdate = m_allmeshes[meshid];
+	auto transformdata = data;
+	vmeshtoupdate->setPosition(transformdata->m_location);
+	vmeshtoupdate->setRotation(transformdata->m_rotation);
+	vmeshtoupdate->setScale((transformdata->m_scale.x + transformdata->m_scale.y + transformdata->m_scale.z) / 3);
+	vmeshtoupdate->uniformDataChanged = true;
+}
+
+glm::mat4 VulkanRenderer::ViewFromTransData(const SCM::TransformData *transform)
+{
+
+	/*	x y z					negative translation	x	y	z
+	|x.x	x.y		x.z		-cp.x| camera x achse	1	0	0
+	|y.x	y.y		y.z		-cp.y| camera y achse	0	1	0
+	|z.x	z.y		z.z		-cp.z| camera z achse   0	0	1
+	|0		0		0		1    | */
+	//transform.GetTransformMat();
+
+	glm::mat4 viewRot = glm::mat4(
+		glm::vec4(transform->m_localX.x, transform->m_localY.x, transform->m_localZ.x, 0.0f),
+		glm::vec4(transform->m_localX.y, transform->m_localY.y, transform->m_localZ.y, 0.0f),
+		glm::vec4(transform->m_localX.z, transform->m_localY.z, transform->m_localZ.z, 0.0f),
+		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+
+	glm::mat4 viewTr = glm::mat4(
+		glm::vec4(1, 0, 0, 0),
+		glm::vec4(0, 1, 0, 0),
+		glm::vec4(0, 0, 1, 0),
+		glm::vec4(-transform->m_location.x, -transform->m_location.y, -transform->m_location.z, 1));
+
+	auto viewmat = viewRot * viewTr;
+	//vdirty = false;
+	/*std::cout << "Camera axes: \n";
+	std::cout << "X: " << transform.localx.x << " " << transform.localx.y << " " << transform.localx.z << "\n";
+	std::cout << "Y: " << transform.localy.x << " " << transform.localy.y << " " << transform.localy.z << "\n";
+	std::cout << "Z: " << transform.localz.x << " " << transform.localz.y << " " << transform.localz.z << "\n\n";*/
+
+	return viewmat;
 }

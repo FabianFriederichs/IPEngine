@@ -38,8 +38,9 @@ namespace rj
 			m_info.minLod = minLod;
 			m_info.maxLod = maxLod;
 			m_info.mipLodBias = mipLodBias;
-			m_info.anisotropyEnable = anisotropyEnable;
-			m_info.maxAnisotropy = maxAnisotropy;
+			m_info.anisotropyEnable = m_device.m_enabledDeviceFeatures.samplerAnisotropy==VK_TRUE? anisotropyEnable:VK_FALSE;
+			if(m_info.anisotropyEnable==VK_TRUE)
+				m_info.maxAnisotropy = maxAnisotropy;
 			m_info.compareEnable = compareEnable;
 			m_info.compareOp = compareOp;
 			m_info.borderColor = borderColor;

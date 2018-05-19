@@ -129,7 +129,7 @@ public:
 		pManager->beginCommandBuffer(commandBuffers[imageIdx]);
 
 		auto framebuffers = pManager->getSwapChainFramebuffers();
-		pManager->cmdBeginRenderPass(commandBuffers[imageIdx], renderPass, framebuffers[imageIdx], {});
+		pManager->cmdBeginRenderPass(commandBuffers[imageIdx], renderPass, framebuffers[imageIdx], { });
 
 		pManager->cmdBindPipeline(commandBuffers[imageIdx], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
@@ -302,7 +302,7 @@ private:
 		pManager->beginCreateRenderPass();
 
 		auto swapChainFormat = pManager->getSwapChainImageFormat();
-		pManager->renderPassAddAttachment(swapChainFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+		pManager->renderPassAddAttachment(swapChainFormat, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
 			VK_SAMPLE_COUNT_1_BIT, VK_ATTACHMENT_LOAD_OP_LOAD);
 
 		pManager->beginDescribeSubpass();

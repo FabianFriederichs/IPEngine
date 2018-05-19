@@ -32,8 +32,8 @@ Camera::Camera(
 	memset(normFarPlaneZs, 0, sizeof(normFarPlaneZs));
 
 	const float lambda = 0.5f;
-	glm::mat4 P = glm::perspective(fovy, aspectRatio, zNear, zFar);
-	
+	glm::mat4 P = projMat = glm::perspective(fovy, aspectRatio, zNear, zFar);
+	viewMat = glm::lookAt(position, lookAtPos, glm::vec3(0.f, 1.f, 0.f));
 	for (uint32_t i = 1; i <= segmentCount; ++i)
 	{
 		float frac = float(i) / segmentCount;

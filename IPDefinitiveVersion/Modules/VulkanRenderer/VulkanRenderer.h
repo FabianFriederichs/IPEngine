@@ -15,6 +15,7 @@ public:
 	ModuleInformation* getModuleInfo(){ return &m_info; }
 
 private:
+	using EntityMap = std::unordered_map<ipengine::ipid, std::shared_ptr<VMesh>>;
 	ModuleInformation m_info;
 	DeferredRenderer *m_renderer;
 	std::vector<ipengine::Scheduler::SubHandle> handles;
@@ -26,6 +27,8 @@ private:
 	//std::unordered_map<ipengine::ipid, std::shared_ptr<ShaderProgram>> m_scmshadertoprogram;
 	std::unordered_map <ipengine::ipid, rj::ImageWrapper> m_scmtexturetot2d;
 	std::unordered_map <ipengine::ipid, std::unordered_map<std::string, rj::ImageWrapper>> m_scmtextomrart2d;
+	EntityMap m_allmeshes;
+	std::vector<ipengine::ipid> lastactiveentitites;
 	//SCM entity that represents the rendering camera
 	ipengine::ipid m_entrepcam;
 	//Update vulkan resources from SCM resources
@@ -65,7 +68,22 @@ private:
 	glm::mat4 parentInfluencedTransform(ipengine::ipid childid);
 	glm::mat4 parentInfluencedView(ipengine::ipid childid);
 	std::vector<Vertex> scmVertsToVVertex(SCM::VertexVector&);
+	bool differenceInActiveEntities(std::vector<ipengine::ipid>& first, std::vector<ipengine::ipid>& second);
+	void splitChannels(const unsigned char* input, const int width, const int height, const int inchannels, const int outchannels, std::vector<std::vector<uint8_t>*> &output);
+	glm::mat4 ViewFromTransData(const SCM::TransformData * transform);
 
+
+	//Render backend interactions-----------------------------------------------------------------------------
+	//return positive for success, negative for errors
+	int loadMesh(SCM::MeshData* data);
+	rj::ImageWrapper loadTexture(const std::string path, bool flip = false);
+	rj::ImageWrapper loadTextureBinary(unsigned char* input, int width, int height, int channels);
+	//!TODO loadTexture for cubemaps
+
+	//recreate render states
+	void updateDrawableRenderStates();
+
+	void updateVMeshData(ipengine::ipid meshid, const SCM::TransformData* data);
 };
 
 extern "C" BOOST_SYMBOL_EXPORT VulkanRenderer module;

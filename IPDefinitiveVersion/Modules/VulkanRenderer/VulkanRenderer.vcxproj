@@ -80,7 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(BOOST);$(SolutionDir)/ExternalDependencies;C:\VulkanSDK\1.0.39.1\Include;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(BOOST);$(SolutionDir)/ExternalDependencies;$(VULKAN_SDK)\Include;</IncludePath>
     <OutDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\$(ProjectName)_int\</IntDir>
   </PropertyGroup>
@@ -135,7 +135,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.0.39.1\Bin32;$(SolutionDir)\ExternalDependencies\assimp;$(SolutionDir)\ExternalDependencies\SDL2\Bin32;$(OutDir);</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VULKAN_SDK)\lib32;$(SolutionDir)\ExternalDependencies\assimp;$(SolutionDir)\ExternalDependencies\SDL2\Bin32;$(OutDir);</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;assimp-vc140-mt.lib;zlibstatic.lib;SDL2.lib;ipcore.lib;</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -187,7 +187,6 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="deferred_renderer.cpp" />
     <ClCompile Include="directional_light.cpp" />
-    <ClCompile Include="test.cpp" />
     <ClCompile Include="vbase.cpp" />
     <ClCompile Include="VDevice.cpp" />
     <ClCompile Include="VInstance.cpp" />

@@ -45,7 +45,7 @@ namespace rj
 			const char* msg,
 			void* userData)
 		{
-			std::cerr << "validation layer: " << msg << std::endl;
+			std::cout << "validation layer: " << msg << std::endl;
 			return VK_FALSE;
 		}
 

@@ -61,6 +61,7 @@ namespace rj
 		VkQueue getGraphicsQueue() const { assert(m_graphicsQueue); return m_graphicsQueue; }
 		VkQueue getComputeQueue() const { assert(m_computeQueue); return m_computeQueue; }
 		VkQueue getPresentQueue() const { assert(m_presentQueue); return m_presentQueue; }
+		VkPhysicalDeviceFeatures m_enabledDeviceFeatures;
 
 	protected:
 		void pickPhysicalDevice()
@@ -169,7 +170,6 @@ namespace rj
 		const VDeleter<VkInstance> &m_instance;
 		const VDeleter<VkSurfaceKHR> &m_surface;
 		std::vector<const char *> m_deviceExtensions;
-		VkPhysicalDeviceFeatures m_enabledDeviceFeatures;
 
 		VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE; // implicitly destroyed when the instance is destroyed
 		VDeleter<VkDevice> m_device{ vkDestroyDevice }; // support only one logical device right now

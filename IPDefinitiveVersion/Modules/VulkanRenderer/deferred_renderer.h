@@ -141,6 +141,24 @@ public:
 	void render();
 	VScene *getScene() { return &m_scene; }
 	rj::helper_functions::UniformBlob<PER_FRAME_UNIFORM_BLOB_SIZE>& getUniformBlob() { return m_perFrameUniformHostData; }
+	virtual void createQueryPools();
+	virtual void createRenderPasses();
+	virtual void createDescriptorSetLayouts();
+	virtual void createComputePipelines();
+	virtual void createGraphicsPipelines();
+	virtual void createCommandPools();
+	virtual void createComputeResources();
+	virtual void createDepthResources();
+	virtual void createColorAttachmentResources();
+	virtual void loadAndPrepareAssets();
+	virtual void createUniformBuffers();
+	virtual void createDescriptorPools();
+	virtual void createDescriptorSets();
+	virtual void createFramebuffers();
+	virtual void createCommandBuffers();
+	virtual void createSynchronizationObjects(); // semaphores, fences, etc. go in here
+
+	virtual void updateUniformHostData();
 protected:
 	uint32_t m_specEnvPrefilterRenderPass;
 	uint32_t m_shadowRenderPass;
@@ -207,6 +225,8 @@ protected:
 	DisplayInfoUniformBuffer *m_uDisplayInfo = nullptr;
 	rj::helper_functions::BufferWrapper m_oneTimeUniformDeviceData;
 	std::vector<rj::helper_functions::BufferWrapper> m_perFrameUniformDeviceData;
+
+	bool firstrender = false;
 
 	uint32_t m_brdfLutDescriptorSet;
 	uint32_t m_specEnvPrefilterDescriptorSet;
@@ -275,24 +295,8 @@ protected:
 	rj::helper_functions::FrameTimeCalculator m_finalOutputPassTimeCalculator;
 
 
-	virtual void createQueryPools();
-	virtual void createRenderPasses();
-	virtual void createDescriptorSetLayouts();
-	virtual void createComputePipelines();
-	virtual void createGraphicsPipelines();
-	virtual void createCommandPools();
-	virtual void createComputeResources();
-	virtual void createDepthResources();
-	virtual void createColorAttachmentResources();
-	virtual void loadAndPrepareAssets();
-	virtual void createUniformBuffers();
-	virtual void createDescriptorPools();
-	virtual void createDescriptorSets();
-	virtual void createFramebuffers();
-	virtual void createCommandBuffers();
-	virtual void createSynchronizationObjects(); // semaphores, fences, etc. go in here
 
-	virtual void updateUniformHostData();
+	//virtual void updateUniformHostData();
 	virtual void updateUniformDeviceData(uint32_t imgIdx);
 	virtual void updateText(uint32_t imageIdx) override;
 	virtual void drawFrame();
