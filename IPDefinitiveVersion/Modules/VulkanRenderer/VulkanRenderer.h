@@ -15,7 +15,8 @@ public:
 	ModuleInformation* getModuleInfo(){ return &m_info; }
 
 private:
-	using EntityMap = std::unordered_map<ipengine::ipid, std::shared_ptr<VMesh>>;
+	using MeshMap = std::unordered_map<ipengine::ipid, std::shared_ptr<VMesh>>;
+	using EntityMap = std::unordered_map<ipengine::ipid, MeshMap>;
 	ModuleInformation m_info;
 	DeferredRenderer *m_renderer;
 	std::vector<ipengine::Scheduler::SubHandle> handles;
@@ -27,7 +28,9 @@ private:
 	//std::unordered_map<ipengine::ipid, std::shared_ptr<ShaderProgram>> m_scmshadertoprogram;
 	std::unordered_map <ipengine::ipid, rj::ImageWrapper> m_scmtexturetot2d;
 	std::unordered_map <ipengine::ipid, std::unordered_map<std::string, rj::ImageWrapper>> m_scmtextomrart2d;
+	ipengine::ipid skybox = IPID_INVALID;
 	EntityMap m_allmeshes;
+	MeshMap m_uniqueMeshes;
 	std::vector<ipengine::ipid> lastactiveentitites;
 	//SCM entity that represents the rendering camera
 	ipengine::ipid m_entrepcam;
@@ -83,7 +86,10 @@ private:
 	//recreate render states
 	void updateDrawableRenderStates();
 
-	void updateVMeshData(ipengine::ipid meshid, const SCM::TransformData* data);
+	void updateVMeshData(std::shared_ptr<VMesh> mesh, const SCM::TransformData* data);
+
+	std::shared_ptr<VMesh> deepcopyVMeshAndAllocateUBO(const std::shared_ptr<VMesh> mesh);
+
 };
 
 extern "C" BOOST_SYMBOL_EXPORT VulkanRenderer module;

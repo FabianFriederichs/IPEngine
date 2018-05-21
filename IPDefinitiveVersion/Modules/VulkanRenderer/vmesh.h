@@ -5,7 +5,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/hash.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>    
 #include <assimp/postprocess.h>
@@ -541,7 +542,10 @@ public:
 	{
 		assert(uPerModelInfo);
 		if (!uniformDataChanged) return;
-		uPerModelInfo->M = glm::translate(glm::mat4_cast(worldRotation) * glm::scale(glm::mat4(), glm::vec3(scale)), worldPosition);
+		glm::mat4 T = glm::translate(worldPosition);
+		glm::mat4 R = glm::toMat4(worldRotation);
+		glm::mat4 S = glm::scale(glm::vec3(scale));
+		uPerModelInfo->M = T * R*S;// glm::translate(glm::mat4_cast(worldRotation) * glm::scale(glm::mat4(), glm::vec3(scale)), worldPosition);
 		uPerModelInfo->M_invTrans = glm::transpose(glm::inverse(uPerModelInfo->M));
 		uniformDataChanged = false;
 	}

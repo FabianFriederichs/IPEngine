@@ -48,6 +48,22 @@ void VulkanRenderer::updateData()
 	std::vector<ipengine::ipid> parents;
 	auto scene = m_renderer->getScene();
 
+	auto& lights = m_scm->getDirLights();
+
+	if (lights.size() > 0)
+	{
+		for (auto l : lights)
+		{
+			auto& camlight = m_renderer->getScene()->shadowLight;
+			
+
+			camlight.setColor(l.second->m_color);
+			camlight.setPositionAndDirection(l.second->getPosition(), l.second->getDirection());
+			break;
+		}
+	}
+
+
 	//load resources currently active 
 	for (auto eid : activeentitynames)
 	{
@@ -55,12 +71,13 @@ void VulkanRenderer::updateData()
 		if (findent != entities.end())
 		{
 			auto mO = findent->second;
-			
+			if (m_allmeshes.count(findent->first) < 1)
+				m_allmeshes[findent->first] = {};
 			for (auto mesh : mO->m_mesheObjects->m_meshes)
 			{
 				//TODO Check for NULL material
 
-				if (m_allmeshes.count(mesh->m_meshId)<1)
+				if (m_uniqueMeshes.count(mesh->m_meshId)<1)
 				{
 					//Dynamic VAO's vulkan TODO IMPORTANT!!!
 					//auto vao = (mesh->m_dynamic ? GLUtils::createDynamicVAO(*mesh) : GLUtils::createVAO(*mesh));
@@ -68,7 +85,8 @@ void VulkanRenderer::updateData()
 					int res = -1;
 					res = loadMesh(mesh);
 					//Update position
-					updateVMeshData(mesh->m_meshId, findent->second->m_transformData.getData());
+					//updateVMeshData(mesh->m_meshId, findent->second->m_transformData.getData());
+					m_allmeshes[findent->first][mesh->m_meshId] = m_uniqueMeshes[mesh->m_meshId];
 					if (!mesh->m_dynamic)
 					{
 						
@@ -82,10 +100,14 @@ void VulkanRenderer::updateData()
 						//Error loading mesh
 					}
 				}
+				else if(m_allmeshes.count(findent->first)>0)
+				{
+					if(m_allmeshes[findent->first].count(mesh->m_meshId)<1)
+						m_allmeshes[findent->first][mesh->m_meshId] = deepcopyVMeshAndAllocateUBO(m_uniqueMeshes[mesh->m_meshId]);
+				}
 				else
 				{
-					//Update position
-					updateVMeshData(mesh->m_meshId, findent->second->m_transformData.getData());
+					m_allmeshes[findent->first][mesh->m_meshId] = deepcopyVMeshAndAllocateUBO(m_uniqueMeshes[mesh->m_meshId]);
 				}
 				for (auto momats : mO->m_mesheObjects->meshtomaterial)
 				{
@@ -103,7 +125,7 @@ void VulkanRenderer::updateData()
 								int width;
 								int height;
 								int channels;
-								//stbi__vertically_flip_on_load = true;
+								stbi__vertically_flip_on_load = true;
 								unsigned char* image = stbi_load(texfile->m_path.c_str(), &width, &height, &channels, 4);
 								std::vector<uint8_t> metmap(width*height*channels);
 								std::vector<uint8_t> roughmap(width*height*channels);
@@ -120,7 +142,7 @@ void VulkanRenderer::updateData()
 							}
 							else
 							{
-								m_scmtexturetot2d[texts.second.m_texturefileId] = loadTexture(texfile->m_path);
+								m_scmtexturetot2d[texts.second.m_texturefileId] = loadTexture(texfile->m_path, true);
 							}
 							
 							//GLUtils::loadGLTexture(textures[])
@@ -128,9 +150,9 @@ void VulkanRenderer::updateData()
 							//load texture into gpu memory?? 
 						}
 					}
-					if (m_allmeshes.count(momats.first)>0)
+					if (m_allmeshes[findent->first].count(momats.first)>0)
 					{
-						auto& mesh = m_allmeshes[momats.first];//m_scmtexturetot2d[mat.]
+						auto& mesh = m_allmeshes[findent->first][momats.first];//m_scmtexturetot2d[mat.]
 
 						if (mesh->albedoMap.imageViews.size() == 0 && momat->m_textures.count("albedo")>0 && m_scmtexturetot2d.count(momat->m_textures["albedo"].m_texturefileId)>0)
 						{
@@ -151,6 +173,8 @@ void VulkanRenderer::updateData()
 							mesh->aoMap = m_scmtextomrart2d[momat->m_textures["mrar"].m_texturefileId]["ao"];
 						}
 					}
+					updateVMeshData(m_allmeshes[findent->first][mesh->m_meshId], findent->second->m_transformData.getData());
+
 				}
 				//else if (mesh->m_dynamic && mesh->m_dirty)//update dynamic meshes
 				//{
@@ -177,6 +201,14 @@ void VulkanRenderer::updateData()
 		}
 	}
 
+	//for (auto &t : textures)
+	//{
+	//	if (skybox!= IPID_INVALID && t.m_isCube)
+	//	{
+
+	//	}
+	//}
+
 	//Create differences of entity sets to figure out whether command buffers need to be recreated
 
 	auto &setscene = lastactiveentitites;
@@ -193,9 +225,10 @@ void VulkanRenderer::updateData()
 				int mcount = 0;
 				for (auto mo : entities[id]->m_mesheObjects->m_meshes)
 				{
-					if (m_allmeshes.count(mo->m_meshId) > 0)
+					if (m_allmeshes.count(id)>0 && m_allmeshes[id].count(mo->m_meshId) > 0)
 					{
-						scene->meshes[mo->m_meshId] = m_allmeshes[mo->m_meshId];
+						auto m = m_allmeshes[id][mo->m_meshId];
+						scene->meshes.push_back(m);
 						mcount++;
 					}
 				}
@@ -203,9 +236,10 @@ void VulkanRenderer::updateData()
 					lastactiveentitites.push_back(id);
 			}
 		}
+		m_renderer->getScene()->computeAABBWorldSpace();
 		updateDrawableRenderStates();
 	}
-	
+
 }
 
 bool VulkanRenderer::_startup()
@@ -389,9 +423,9 @@ int VulkanRenderer::loadMesh(SCM::MeshData * data)
 		minp = glm::min(minp, v.pos);
 		maxp = glm::max(maxp, v.pos);
 	}
-	m_allmeshes.insert({ data->m_meshId, std::make_shared<VMesh>(m_renderer->getManager()) });
-	m_allmeshes[data->m_meshId]->load(verts, data->m_indices, minp, maxp);
-	m_allmeshes[data->m_meshId]->uPerModelInfo = reinterpret_cast<PerModelUniformBuffer *>(m_renderer->getUniformBlob().alloc(sizeof(PerModelUniformBuffer)));
+	m_uniqueMeshes.insert({ data->m_meshId, std::make_shared<VMesh>(m_renderer->getManager()) });
+	m_uniqueMeshes[data->m_meshId]->load(verts, data->m_indices, minp, maxp);
+	m_uniqueMeshes[data->m_meshId]->uPerModelInfo = reinterpret_cast<PerModelUniformBuffer *>(m_renderer->getUniformBlob().alloc(sizeof(PerModelUniformBuffer)));
 	return 0;
 }
 
@@ -424,14 +458,30 @@ void VulkanRenderer::updateDrawableRenderStates()
 	m_renderer->createCommandBuffers();
 }
 
-void VulkanRenderer::updateVMeshData(ipengine::ipid meshid, const SCM::TransformData* data)
+void VulkanRenderer::updateVMeshData(std::shared_ptr<VMesh> mesh, const SCM::TransformData* data)
 {
-	auto vmeshtoupdate = m_allmeshes[meshid];
 	auto transformdata = data;
-	vmeshtoupdate->setPosition(transformdata->m_location);
-	vmeshtoupdate->setRotation(transformdata->m_rotation);
-	vmeshtoupdate->setScale((transformdata->m_scale.x + transformdata->m_scale.y + transformdata->m_scale.z) / 3);
-	vmeshtoupdate->uniformDataChanged = true;
+	mesh->setPosition(transformdata->m_location);
+	mesh->setRotation(transformdata->m_rotation);
+	mesh->setScale((transformdata->m_scale.x + transformdata->m_scale.y + transformdata->m_scale.z) / 3);
+	mesh->uniformDataChanged = true;
+}
+
+std::shared_ptr<VMesh> VulkanRenderer::deepcopyVMeshAndAllocateUBO(const std::shared_ptr<VMesh> mesh)
+{
+	auto newmesh = std::make_shared<VMesh>(m_renderer->getManager());
+	//newmesh->albedoMap = mesh->albedoMap;
+	//newmesh->aoMap = mesh->aoMap;
+	newmesh->geomDescrSetIndex = mesh->geomDescrSetIndex;
+	newmesh->indexBuffer = mesh->indexBuffer;
+	newmesh->materialType = mesh->materialType;
+	//newmesh->metalnessMap = mesh->metalnessMap;
+	//newmesh->normalMap = mesh->normalMap;
+	//newmesh->roughnessMap = mesh->roughnessMap;
+	newmesh->shadowDescrSetIndex = mesh->shadowDescrSetIndex;
+	newmesh->vertexBuffer = mesh->vertexBuffer;
+	newmesh->uPerModelInfo = reinterpret_cast<PerModelUniformBuffer *>(m_renderer->getUniformBlob().alloc(sizeof(PerModelUniformBuffer)));
+	return newmesh;
 }
 
 glm::mat4 VulkanRenderer::ViewFromTransData(const SCM::TransformData *transform)
