@@ -261,6 +261,23 @@ public:
 		}
 	}
 
+	bool startupModule(boost::shared_ptr<IModule_API> mod)
+	{
+		if (mod.get() && !mod->isStartUp)
+			mod->startUp();
+		if (mod.get())
+			return mod->isStartUp;
+		return false;
+	}
+	bool startupModule(std::string moduleID)
+	{
+		if (loadedModules.count(moduleID) > 0)
+		{
+			return shutdownModule(loadedModules[moduleID]);
+		}
+		return false;
+	}
+
 	bool shutdownModule(boost::shared_ptr<IModule_API> mod)
 	{
 		if (mod.get() && mod->isStartUp)
@@ -280,6 +297,24 @@ public:
 
 	std::map<std::string, boost::shared_ptr<IModule_API>> getModulesOfType(std::string type);
 
+
+	void cmd_startupModule(const ipengine::ConsoleParams& params)
+	{
+		if (params.getParamCount() != 1)
+		{
+			m_core->getConsole().println("Parameter incorrect. One parameter: A valid module id");
+		}
+		//check path valid
+		if (startupModule(params.get(0)))
+		{
+			m_core->getConsole().println(std::string("Module successfuly started.").c_str());
+		}
+		else
+		{
+			m_core->getConsole().println(std::string("Supplied module id not valid").c_str());
+		}
+	}
+
 	void cmd_shutdownModule(const ipengine::ConsoleParams& params)
 	{
 		if (params.getParamCount() != 1)
@@ -293,7 +328,7 @@ public:
 		}
 		else
 		{
-			m_core->getConsole().println(std::string("Supplied path is not a valid " + boost::dll::shared_library::suffix().generic_string()).c_str());
+			m_core->getConsole().println(std::string("Supplied module id not valid").c_str());
 		}
 	}
 

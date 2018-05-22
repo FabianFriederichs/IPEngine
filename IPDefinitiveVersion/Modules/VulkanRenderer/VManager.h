@@ -1288,25 +1288,34 @@ namespace rj
 			m_availableBufferNames.push_back(bufferName);
 		}
 
-		void transferHostDataToBuffer(uint32_t bufferName, VkDeviceSize sizeInBytes, const void *hostData, VkDeviceSize dstOffset = 0)
+		void transferHostDataToBuffer(uint32_t bufferName, VkDeviceSize sizeInBytes, const void *hostData, VkDeviceSize dstOffset = 0, bool usestaging = true)
 		{
 			if (!hostData) throw std::invalid_argument("hostData cannot be null");
 			if (sizeInBytes == 0) throw std::invalid_argument("sizeInBytes cannot be 0");
 
 			auto &dstBuffer = m_buffers.at(bufferName);
+			if (usestaging)
+			{
+				VBuffer stagingBuffer{ m_device };
+				stagingBuffer.init(sizeInBytes, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+					VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-			VBuffer stagingBuffer{ m_device };
-			stagingBuffer.init(sizeInBytes, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+				void *mapped = stagingBuffer.mapBuffer();
+				memcpy(mapped, hostData, sizeInBytes);
+				stagingBuffer.unmapBuffer();
+				mapped = nullptr;
 
-			void *mapped = stagingBuffer.mapBuffer();
-			memcpy(mapped, hostData, sizeInBytes);
-			stagingBuffer.unmapBuffer();
-			mapped = nullptr;
-
-			beginSingleTimeCommands();
-			recordCopyBufferToBufferCommands(m_singleTimeCommandBuffer, stagingBuffer, dstBuffer, sizeInBytes, 0, dstOffset);
-			endSingleTimeCommands();
+				beginSingleTimeCommands();
+				recordCopyBufferToBufferCommands(m_singleTimeCommandBuffer, stagingBuffer, dstBuffer, sizeInBytes, 0, dstOffset);
+				endSingleTimeCommands();
+			}
+			else
+			{
+				void* mapped = dstBuffer.mapBuffer();
+				memcpy(mapped, hostData, sizeInBytes);
+				dstBuffer.unmapBuffer();
+				mapped = nullptr;
+			}
 		}
 
 		void *mapBuffer(uint32_t bufferName, VkDeviceSize offset = 0, VkDeviceSize sizeInBytes = 0)

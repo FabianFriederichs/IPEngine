@@ -53,6 +53,23 @@
     </Module>
     <Module>
       <ignore>false</ignore>
+      <identifier>VulkanRenderer</identifier>
+      <dependencies>
+        <dependency>
+          <inject>true</inject>
+          <identifier>SCM</identifier>
+          <moduleID>SimpleContentModule</moduleID>
+        </dependency>
+        <dependency>
+          <inject>true</inject>
+          <identifier>WindowManager</identifier>
+          <moduleID>SDLWindowManager</moduleID>
+        </dependency>
+        </dependencies>
+
+    </Module>
+    <Module>
+      <ignore>false</ignore>
       <identifier>InputModule</identifier>
       <dependencies>
         <dependency>

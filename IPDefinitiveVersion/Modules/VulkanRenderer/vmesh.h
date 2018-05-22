@@ -514,7 +514,7 @@ public:
 	}
 
 	void load(
-		std::vector<Vertex> verts, std::vector<uint32_t> indices, glm::vec3 minPos, glm::vec3 maxPos)
+		std::vector<Vertex> verts, std::vector<uint32_t> indices, glm::vec3 minPos, glm::vec3 maxPos, bool ishostvisible = false)
 	{
 		using namespace rj::helper_functions;
 
@@ -525,9 +525,9 @@ public:
 		vertexBuffer = {};
 		vertexBuffer.size = sizeof(verts[0]) * verts.size();
 		vertexBuffer.buffer = pVulkanManager->createBuffer(vertexBuffer.size,
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, ishostvisible?VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT:VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-		pVulkanManager->transferHostDataToBuffer(vertexBuffer.buffer, vertexBuffer.size, verts.data());
+		pVulkanManager->transferHostDataToBuffer(vertexBuffer.buffer, vertexBuffer.size, verts.data(), 0Ui64, !ishostvisible);
 
 		// create index buffer
 		indexBuffer = {};

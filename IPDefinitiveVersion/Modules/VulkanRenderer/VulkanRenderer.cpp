@@ -83,10 +83,9 @@ void VulkanRenderer::updateData()
 					//auto vao = (mesh->m_dynamic ? GLUtils::createDynamicVAO(*mesh) : GLUtils::createVAO(*mesh));
 					//m_scmmeshtovao[mesh->m_meshId] = vao;
 					int res = -1;
-					res = loadMesh(mesh);
+					res = loadMesh(mesh, mesh->m_dynamic);
 					//Update position
 					//updateVMeshData(mesh->m_meshId, findent->second->m_transformData.getData());
-					m_allmeshes[findent->first][mesh->m_meshId] = m_uniqueMeshes[mesh->m_meshId];
 					if (!mesh->m_dynamic)
 					{
 						
@@ -99,6 +98,8 @@ void VulkanRenderer::updateData()
 					{
 						//Error loading mesh
 					}
+					m_allmeshes[findent->first][mesh->m_meshId] = m_uniqueMeshes[mesh->m_meshId];
+
 				}
 				else if(m_allmeshes.count(findent->first)>0)
 				{
@@ -174,7 +175,12 @@ void VulkanRenderer::updateData()
 						}
 					}
 					updateVMeshData(m_allmeshes[findent->first][mesh->m_meshId], findent->second->m_transformData.getData());
-
+					if (mesh->m_dynamic && mesh->m_dirty)
+					{
+						mesh->updateNormals();
+						mesh->updateTangents();
+						updateDynamicMeshBuffer(mesh, m_allmeshes[findent->first][mesh->m_meshId]);
+					}
 				}
 				//else if (mesh->m_dynamic && mesh->m_dirty)//update dynamic meshes
 				//{
@@ -415,7 +421,7 @@ void VulkanRenderer::splitChannels(const unsigned char * input, const int width,
 	}
 }
 
-int VulkanRenderer::loadMesh(SCM::MeshData * data)
+int VulkanRenderer::loadMesh(SCM::MeshData * data, bool dynamic)
 {
 	auto verts = scmVertsToVVertex(data->m_vertices);
 	glm::vec3 minp, maxp;
@@ -427,7 +433,7 @@ int VulkanRenderer::loadMesh(SCM::MeshData * data)
 		maxp = glm::max(maxp, v.pos);
 	}
 	m_uniqueMeshes.insert({ data->m_meshId, std::make_shared<VMesh>(m_renderer->getManager()) });
-	m_uniqueMeshes[data->m_meshId]->load(verts, data->m_indices, minp, maxp);
+	m_uniqueMeshes[data->m_meshId]->load(verts, data->m_indices, minp, maxp, dynamic);
 	m_uniqueMeshes[data->m_meshId]->uPerModelInfo = reinterpret_cast<PerModelUniformBuffer *>(m_renderer->getUniformBlob().alloc(sizeof(PerModelUniformBuffer)));
 	return 0;
 }
@@ -451,6 +457,18 @@ rj::ImageWrapper VulkanRenderer::loadTextureBinary(unsigned char * input, int wi
 	//!TODO put gli format according to channels
 	rj::loadTexture2DFromBinaryData(&imgwrap, m_renderer->getManager(), input, width, height, gli::FORMAT_RGBA8_UNORM_PACK8);
 	return imgwrap;
+}
+
+void VulkanRenderer::updateDynamicMeshBuffer(SCM::MeshData* data, std::shared_ptr<VMesh> mesh)
+{
+	if (data->m_dynamic)
+	{
+		auto verts = scmVertsToVVertex(data->m_vertices);
+		void* mapped = m_renderer->getManager()->mapBuffer(mesh->vertexBuffer.buffer);
+		memcpy(mapped, reinterpret_cast<const void*>(verts.data()), sizeof(Vertex) * verts.size());
+		m_renderer->getManager()->unmapBuffer(mesh->vertexBuffer.buffer);
+		mapped = nullptr;
+	}
 }
 
 void VulkanRenderer::updateDrawableRenderStates()

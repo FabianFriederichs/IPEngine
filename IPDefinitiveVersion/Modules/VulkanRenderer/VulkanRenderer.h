@@ -81,9 +81,10 @@ private:
 
 	//Render backend interactions-----------------------------------------------------------------------------
 	//return positive for success, negative for errors
-	int loadMesh(SCM::MeshData* data);
+	int loadMesh(SCM::MeshData* data, bool dynamic = false);
 	rj::ImageWrapper loadTexture(const std::string path, bool flip = false);
 	rj::ImageWrapper loadTextureBinary(unsigned char* input, int width, int height, int channels);
+	void updateDynamicMeshBuffer(SCM::MeshData*, std::shared_ptr<VMesh>);
 	//!TODO loadTexture for cubemaps
 
 	//recreate render states
