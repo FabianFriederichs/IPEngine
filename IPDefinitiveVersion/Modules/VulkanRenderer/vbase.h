@@ -129,9 +129,11 @@ public:
 	virtual void recreateSwapChain();
 
 protected:
+	//rj::VManager m_vulkanManager;// { this, m_width, m_height, getWindowTitle(), getEnabledPhysicalDeviceFeatures() };
+	rj::VManager m_vulkanManager;// { this, m_width, m_height, getWindowTitle(), getEnabledPhysicalDeviceFeatures() };
+
 	VkPhysicalDeviceFeatures m_physicalDeviceFeatures;
 
-	rj::VManager m_vulkanManager{ this, m_width, m_height, getWindowTitle(), getEnabledPhysicalDeviceFeatures() };
 
 
 	uint32_t m_descriptorPool;
@@ -178,6 +180,9 @@ protected:
 	virtual void updateUniformDeviceData(uint32_t imageIdx) = 0;
 	virtual void updateText(uint32_t imageIdx) {};
 	virtual void drawFrame() = 0;
+
+public:
+	VBaseGraphics(SDL_SysWMinfo info) : m_vulkanManager(this, m_width, m_height, info, m_windowTitle, getEnabledPhysicalDeviceFeatures()) {}
 };
 
 #endif

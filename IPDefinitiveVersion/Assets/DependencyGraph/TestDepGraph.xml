@@ -27,17 +27,26 @@
 <DependencyGraph>
   <Modules>
     <Module>
+      <ignore>false</ignore>
+      <identifier>SDLWindowManager</identifier>
+    </Module>
+    <Module>
       <ignore>true</ignore>
       <identifier>BasicOpenVRModule</identifier>
     </Module>
     <Module>
       <ignore>false</ignore>
-      <identifier>VulkanRenderer</identifier>
+      <identifier>GraphicsModule</identifier>
       <dependencies>
         <dependency>
           <inject>true</inject>
           <identifier>SCM</identifier>
           <moduleID>SimpleContentModule</moduleID>
+        </dependency>
+        <dependency>
+          <inject>true</inject>
+          <identifier>WindowManager</identifier>
+          <moduleID>SDLWindowManager</moduleID>
         </dependency>
         </dependencies>
 
@@ -154,7 +163,7 @@
         <dependency>
           <inject>true</inject>
           <identifier>graphics</identifier>
-          <moduleID>VulkanRenderer</moduleID>
+          <moduleID>GraphicsModule</moduleID>
         </dependency>
       </dependencies>
     </Module>

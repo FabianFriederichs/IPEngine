@@ -97,7 +97,8 @@ namespace rj
 			createInfo.oldSwapchain = oldSwapChain;
 
 			VkSwapchainKHR newSwapChain;
-			if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &newSwapChain) != VK_SUCCESS)
+			auto res = vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &newSwapChain);
+			if (res != VK_SUCCESS)
 			{
 				throw std::runtime_error("failed to create swap chain!");
 			}

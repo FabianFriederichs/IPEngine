@@ -47,7 +47,7 @@ namespace rj
 		}
 */
 		VWindow(const VDeleter<VkInstance> &inst,
-			uint32_t width, uint32_t height,
+			uint32_t width, uint32_t height, SDL_SysWMinfo info,
 			const std::string &title = "",
 			void *app = nullptr)
 			:
@@ -57,8 +57,9 @@ namespace rj
 			m_app(app),
 			m_surface{ m_instance, vkDestroySurfaceKHR }
 		{
-			initWindow();
-			createSurface();
+			//initWindow();
+			m_window = SDL_GL_GetCurrentWindow();
+			createSurface(info);
 		}
 
 		operator const VDeleter<VkSurfaceKHR> &() const
@@ -120,7 +121,7 @@ namespace rj
 			return extensions;
 		}
 
-		void createSurface()
+		void createSurface(SDL_SysWMinfo info)
 		{
 			/*if (glfwCreateWindowSurface(m_instance, m_window, nullptr, m_surface.replace()) != VK_SUCCESS)
 			{
@@ -128,15 +129,15 @@ namespace rj
 			}*/
 			//m_surface = { m_instance, vkDestroySurfaceKHR };
 
-			SDL_SysWMinfo windowInfo;
+			/*SDL_SysWMinfo windowInfo;
 			SDL_VERSION(&windowInfo.version);
 			if (!SDL_GetWindowWMInfo(m_window, &windowInfo)) {
 				throw std::system_error(std::error_code(), "SDK window manager info is not available.");
-			}
+			}*/
 			VkWin32SurfaceCreateInfoKHR surfaceInfo = {};
 			surfaceInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-			surfaceInfo.hinstance = GetModuleHandle(NULL);
-			surfaceInfo.hwnd = windowInfo.info.win.window;
+			surfaceInfo.hinstance = info.info.win.hinstance;// GetModuleHandle(NULL);
+			surfaceInfo.hwnd = info.info.win.window;
 
 			VkResult result = vkCreateWin32SurfaceKHR(m_instance, &surfaceInfo, NULL, m_surface.replace());
 			if (result != VK_SUCCESS) {

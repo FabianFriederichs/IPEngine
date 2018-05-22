@@ -248,10 +248,13 @@ bool VulkanRenderer::_startup()
 	GLTF_VERSION = "2.0";
 	GLTF_NAME = "..//assets//gltf//avocado//avocado.gltf";
 #endif
-	m_renderer = new DeferredRenderer();
-	m_renderer->initialize();
+	
 
 	m_scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(m_scmID);
+	m_wm = m_info.dependencies.getDep<IWindowManager_API>(m_wmID);
+	window = m_wm->getNewWindow();
+	m_renderer = new DeferredRenderer(m_wm->getWindowInfo(window));
+	m_renderer->initialize();
 
 	ipengine::Scheduler& sched = m_core->getScheduler();
 	handles.push_back(sched.subscribe(ipengine::TaskFunction::make_func<VulkanRenderer, &VulkanRenderer::render>(this),

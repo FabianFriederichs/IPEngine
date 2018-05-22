@@ -7,6 +7,7 @@
 #include <IGraphics_API.h>
 #include "deferred_renderer.h"
 #include <ISimpleContentModule_API.h>
+#include <IWindowManager_API.h>
 
 class VulkanRenderer : public IGraphics_API {
 public:
@@ -21,8 +22,10 @@ private:
 	DeferredRenderer *m_renderer;
 	std::vector<ipengine::Scheduler::SubHandle> handles;
 	std::string m_scmID = "SCM";
+	std::string m_wmID = "WindowManager";
 	boost::shared_ptr<SCM::ISimpleContentModule_API> m_scm;
-
+	boost::shared_ptr<IWindowManager_API> m_wm;
+	SDL_Window* window;
 	//Maps to map vulkan <-> scm resource id's
 	//std::unordered_map<ipengine::ipid, std::shared_ptr<VAO>> m_scmmeshtovao;
 	//std::unordered_map<ipengine::ipid, std::shared_ptr<ShaderProgram>> m_scmshadertoprogram;

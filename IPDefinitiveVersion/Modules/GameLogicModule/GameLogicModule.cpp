@@ -694,3 +694,12 @@ void GameLogicModule::onHoldStop(ipengine::ipid source, ipengine::ipid target)
 		enttarget->m_parent = nullptr;
 	}
 }
+
+void GameLogicModule::dependencyUpdated(std::string depID)
+{
+	if (depID == "graphics")
+	{
+		graphics = m_info.dependencies.getDep<IGraphics_API>(depID);
+		cameraid = IPID_INVALID;
+	}
+}

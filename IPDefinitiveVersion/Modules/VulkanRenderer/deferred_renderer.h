@@ -133,7 +133,7 @@ struct DisplayInfoUniformBuffer
 class DeferredRenderer : public VBaseGraphics
 {
 public:
-	DeferredRenderer();
+	DeferredRenderer(SDL_SysWMinfo info);
 
 	virtual void run();
 	void initialize();

@@ -223,11 +223,11 @@ namespace rj
 	{
 	public:
 		VManager(void *app,
-			uint32_t winWidth = 1920, uint32_t winHeight = 1080, const std::string &winTitle = "",
+			uint32_t winWidth, uint32_t winHeight, SDL_SysWMinfo info, const std::string &winTitle = "",
 			const VkPhysicalDeviceFeatures &enabledFeatures = {})
 			:
 			m_instance{ m_enableValidationLayers,{ "VK_LAYER_LUNARG_standard_validation" }, VWindow::getRequiredExtensions()},
-			m_window{m_instance, winWidth, winHeight, winTitle, app },
+			m_window{m_instance, winWidth, winHeight, info, winTitle, app },
 			m_device{ m_enableValidationLayers,{ "VK_LAYER_LUNARG_standard_validation" }, m_instance, m_window,{ VK_KHR_SWAPCHAIN_EXTENSION_NAME }, enabledFeatures },
 			m_swapChain{ m_device, m_window }
 		{

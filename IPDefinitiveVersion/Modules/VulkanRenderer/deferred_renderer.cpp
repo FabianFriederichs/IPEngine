@@ -1,12 +1,13 @@
 #include "deferred_renderer.h"
 
 
-DeferredRenderer::DeferredRenderer()
+DeferredRenderer::DeferredRenderer(SDL_SysWMinfo info) : VBaseGraphics(info)
 {
 	m_verNumMajor = 0;
 	m_verNumMinor = 1;
 
 	m_windowTitle = "Laugh Engine";
+	//m_vulkanManager = rj::VManager(this, m_width, m_height, info, getEnabledPhysicalDeviceFeatures());
 	m_vulkanManager.windowSetTitle(m_windowTitle);
 
 	VkPhysicalDeviceProperties props;
