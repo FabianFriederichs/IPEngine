@@ -5,22 +5,26 @@
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/external_dependencies/cmake/")
 
 # glm adds an interface target
-add_subdirectory(glm)
+add_subdirectory(external_dependencies/glm) # target: glm
 
 # moodycamels mpmc queue
-add_subdirectory(moodycamel)
+add_subdirectory(external_dependencies/moodycamel) # target: moodycamel_queue
 
 # stb_image build dll
-add_subdirectory(stb_image)
+add_subdirectory(external_dependencies/stb_image) # target: stb::stb_image
+
+# opengl, just in case, glew does that usually for you
+find_package(OpenGL REQUIRED) # target: OpenGL::GL
 
 # glew build dll
-add_subdirectory(glew)
+add_subdirectory(external_dependencies/glew) # target: glew::glew
 
 # vulkan sould be integrated in current cmale installs
-find_package(Vulkan)
+find_package(Vulkan) # target: Vulkan::Vulkan
 
 # sdl2 set SDL2_DIR variable to tell cmake the config path
-find_package(SDL2 REQUIRED)
+find_package(SDL2 REQUIRED) # target: SDL2::SDL2
 
 # openvr
-find_package(OpenVR)
+set(OpenVR_ROOT "${CMAKE_SOURCE_DIR}/external_dependencies/openvr")
+find_package(OpenVR) # target: OpenVR::OpenVR

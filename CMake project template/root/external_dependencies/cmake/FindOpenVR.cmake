@@ -35,10 +35,9 @@ find_library(OpenVR_LIBRARY
   openvr_api
   PATHS
   ${OpenVR_ROOT}
-  ENV OpenVR_SDK
   PATH_SUFFIXES
   lib
-  "lib/${PLAT_DIR_NAME}")
+  "lib/${plat_dir_name}")
 
 # find the include path
 find_path(OpenVR_INCLUDE_DIR

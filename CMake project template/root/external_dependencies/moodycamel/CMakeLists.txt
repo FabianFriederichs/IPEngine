@@ -3,8 +3,8 @@ project(MoodyCamelConcurrentQueue VERSION 1.0 LANGUAGES CXX)
 
 add_library(moodycamel_queue INTERFACE)
 
-target_include_directories(stb_image
-    PUBLIC 
+target_include_directories(moodycamel_queue
+    INTERFACE 
         $<INSTALL_INTERFACE:include>    
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>
 )

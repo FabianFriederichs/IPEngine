@@ -1,3 +1,5 @@
+# this is not an original glew file! just for convenient dll building!
+
 cmake_minimum_required(VERSION 3.0)
 project(glew)
 
@@ -8,6 +10,15 @@ target_include_directories(glew
         $<INSTALL_INTERFACE:include>    
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
+
+target_compile_definitions(glew
+    PRIVATE
+        GLEW_BUILD
+)
+
+# find opengl
+find_package(OpenGL REQUIRED)
+target_link_libraries(glew OpenGL::GL)
 
 install(TARGETS glew
         EXPORT glewConfig
