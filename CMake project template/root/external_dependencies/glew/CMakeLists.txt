@@ -18,7 +18,9 @@ target_compile_definitions(glew
 
 # find opengl
 find_package(OpenGL REQUIRED)
-target_link_libraries(glew OpenGL::GL)
+target_link_libraries(glew
+    PUBLIC
+        OpenGL::GL)
 
 install(TARGETS glew
         EXPORT glewConfig
