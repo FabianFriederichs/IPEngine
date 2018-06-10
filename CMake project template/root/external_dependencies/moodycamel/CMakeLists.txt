@@ -17,6 +17,6 @@ install(TARGETS moodycamel_queue
 )
 
 install(DIRECTORY DESTINATION include)
-install(FILE "concurrentqueue.h" DESTINATION ${CMAKE_INSTALL_PREFIX}/include/)
+install(FILES "concurrentqueue.h" DESTINATION ${CMAKE_INSTALL_PREFIX}/include/)
 
 install(EXPORT moodycamel_queueConfig DESTINATION ${CMAKE_INSTALL_PREFIX}/)
