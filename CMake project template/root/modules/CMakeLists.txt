@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.0)
+
+# add all module subdirectories
+add_subdirectory(BasicGraphicsContentModule)
+add_subdirectory(BasicOpenVRModule)
+add_subdirectory(DataStoreModule)
+add_subdirectory(GameLogicModule)
+add_subdirectory(GraphicsModule)
+add_subdirectory(InputModule)
+add_subdirectory(PhysicsModule)
+add_subdirectory(SimpleContentModule)
+add_subdirectory(SimpleSceneModule)
+add_subdirectory(VRGraphicsModule)

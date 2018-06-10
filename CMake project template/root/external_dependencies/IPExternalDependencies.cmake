@@ -1,6 +1,4 @@
-## add an interface target for each dependency. if a dependency should be built
-#  along the project, that can be done here too.
-#  make sure everything is exported as target
+## add all the dependencies here and create single targets which can be used throughout the project
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/external_dependencies/cmake/")
 
@@ -34,3 +32,6 @@ endif()
 # openvr
 set(OpenVR_ROOT "${CMAKE_SOURCE_DIR}/external_dependencies/openvr")
 find_package(OpenVR) # target: OpenVR::OpenVR
+
+# boost
+find_package(Boost REQUIRED) # targets: Boost::boost, Boost::filesystem

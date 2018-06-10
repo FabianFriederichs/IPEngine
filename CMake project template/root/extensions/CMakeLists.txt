@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 3.0)
+
+# add all extension subdirectories
+add_subdirectory(exSSMExtendedPBRPhysicsLoader)
+add_subdirectory(exSSMExtendedWriterPhysics)
+add_subdirectory(ExtensionTest)
+add_subdirectory(GraphicsModulePostRenderVR)
+add_subdirectory(GraphicsModulePreRenderVR)
+add_subdirectory(VREntitySceneLoader)
