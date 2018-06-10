@@ -28,7 +28,7 @@ find_package(Vulkan) # target: Vulkan::Vulkan
 # sdl2, option 2: build sdl2 along the project
 add_subdirectory(external_dependencies/SDL2) # target: SDL2
 if(NOT TARGET SDL2::SDL2 AND TARGET SDL2)
-add_library(SDL2::SDL2 ALIAS SDL2) # for consistency with install output
+add_library(SDL2::SDL2 ALIAS SDL2) # for consistency with install outpu # target: SDL2::SDL2
 endif()
 
 # openvr
