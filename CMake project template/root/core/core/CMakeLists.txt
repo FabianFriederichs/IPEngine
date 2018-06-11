@@ -99,13 +99,18 @@ target_include_directories(core
         $<INSTALL_INTERFACE:include>    
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/public>
     PRIVATE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+
+target_compile_definitions(core
+    PRIVATE
+        EXPORT_IP_CORE)
 
 # core dependencies
 target_link_libraries(core
     PUBLIC
         moodycamel_queue)
+       # ipengine::platform_abstraction_layer)
 
 # install rules
 install(TARGETS core
@@ -117,4 +122,6 @@ install(TARGETS core
 
 install(DIRECTORY include/public/ DESTINATION include)
 
-install(EXPORT coreConfig NAMESPACE ipengine DESTINATION ${CMAKE_INSTALL_PREFIX}/)
+install(EXPORT coreConfig NAMESPACE ipengine:: DESTINATION ${CMAKE_INSTALL_PREFIX}/)
+
+add_library(ipengine::core ALIAS core)

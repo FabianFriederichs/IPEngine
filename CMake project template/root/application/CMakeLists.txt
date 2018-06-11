@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 add_executable(demo src/Demo.cpp)
 
-target_link_libraries(demo ipengine::application_base ipengine::api_headers ipengine::core ipengine::injector)
+target_link_libraries(demo ipengine::application_base ipengine::api_headers)
 
 install(TARGETS demo
         EXPORT demoConfig

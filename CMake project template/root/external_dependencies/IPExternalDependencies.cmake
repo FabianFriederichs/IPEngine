@@ -34,4 +34,6 @@ set(OpenVR_ROOT "${CMAKE_SOURCE_DIR}/external_dependencies/openvr")
 find_package(OpenVR) # target: OpenVR::OpenVR
 
 # boost
-find_package(Boost REQUIRED) # targets: Boost::boost, Boost::filesystem
+set(Boost_USE_STATIC_LIBS TRUE)
+set(Boost_USE_RELEASE_LIBS TRUE)
+find_package(Boost REQUIRED COMPONENTS filesystem) # targets: Boost::boost, Boost::filesystem
