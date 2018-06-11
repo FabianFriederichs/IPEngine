@@ -2,10 +2,10 @@
 #define _LOW_LEVEL_ALLOCATORS_H_
 #include <atomic>
 #include <vector>
-#include <IPCore/Util/spinlock.h>
+#include <core/util/spinlock.h>
 #include <chrono>
-#include <IPCore/core_config.h>
-#include <IPCore/Memory/memory_utils.h>
+#include <core/core_config.h>
+#include <core/memory/memory_utils.h>
 
 namespace ipengine {
 	//TODO: provide some instantiations of those in core

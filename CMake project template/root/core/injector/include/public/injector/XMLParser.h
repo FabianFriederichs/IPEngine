@@ -1,7 +1,7 @@
 #ifndef _XMLPARSER_H_
 #define _XMLPARSER_H_
 
-#include "DependencyParser.h"
+#include <injector/DependencyParser.h>
 #include <boost/property_tree/xml_parser.hpp>
 #include <memory>
 #pragma once

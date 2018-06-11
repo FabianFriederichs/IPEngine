@@ -1,10 +1,10 @@
 #ifndef _CORE_CONSOLE_H_
 #define _CORE_CONSOLE_H_
 
-#include <IPCore/core_config.h>
-#include <IPCore/Util/function.h>
+#include <core/core_config.h>
+#include <core/util/function.h>
 #include <iostream>
-#include <IPCore/Core/ICoreTypes.h>
+#include <core/core_types.h>
 
 #define MAX_COMMAND_NAME_LENGTH 50
 #define MAX_COMMAND_PARAMS 32

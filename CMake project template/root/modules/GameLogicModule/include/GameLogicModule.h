@@ -10,8 +10,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <chrono>
-#include <IPCore/Messaging/EndpointRegistry.h>
-#include <IPCore/DebugMonitoring/ErrorHandler.h>
+#include <core/messaging/EndpointRegistry.h>
+#include <core/debug_monitoring/ErrorHandler.h>
 #include <IPhysicsModule_API.h>
 
 class GameLogicModule : public IModule_API {

@@ -1,6 +1,6 @@
 #ifndef _ID_GEN_H_
 #define _ID_GEN_H_
-#include <IPCore/Core/ICoreTypes.h>
+#include <core/core_types.h>
 #include <atomic>
 
 namespace ipengine

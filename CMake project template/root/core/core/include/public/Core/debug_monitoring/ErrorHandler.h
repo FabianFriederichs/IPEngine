@@ -1,13 +1,13 @@
 #ifndef _ERROR_HANDLER_H_
 #define _ERROR_HANDLER_H_
-#include <IPCore/core_config.h>
-#include <IPCore/Core/ICoreTypes.h>
-#include <IPCore/Util/function.h>
+#include <core/core_config.h>
+#include <core/core_types.h>
+#include <core/util/function.h>
 #include <atomic>
-#include <IPCore/Util/spinlock.h>
+#include <core/util/spinlock.h>
 #include <mutex>
-#include <IPCore/DebugMonitoring/Error.h>
-#include <IPCore/DebugMonitoring/ErrorManager.h>
+#include <core/debug_monitoring/Error.h>
+#include <core/debug_monitoring/ErrorManager.h>
 
 //convenience macro for standard try catch
 #define BEGINEX try {

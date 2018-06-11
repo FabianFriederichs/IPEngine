@@ -1,16 +1,16 @@
 #ifndef _I_CORE_H_
 #define _I_CORE_H_
-#include <IPCore/core_config.h>
-#include <IPCore/ThreadingServices/TaskLib.h>
-#include <IPCore/RuntimeControl/Scheduler.h>
-#include <IPCore/RuntimeControl/Console.h>
-#include <IPCore/Messaging/EndpointRegistry.h>
-#include <IPCore/Config/ConfigManager.h>
-#include <IPCore/Memory/MemoryManager.h>
-#include <IPCore/DebugMonitoring/ErrorManager.h>
-#include <IPCore/Util/idgen.h>
+#include <core/core_config.h>
+#include <core/threading/TaskLib.h>
+#include <core/runtime/Scheduler.h>
+#include <core/runtime/Console.h>
+#include <core/messaging/EndpointRegistry.h>
+#include <core/config/ConfigManager.h>
+#include <core/memory/MemoryManager.h>
+#include <core/debug_monitoring/ErrorManager.h>
+#include <core/util/idgen.h>
 
-#include <IPCore/Core/ICoreTypes.h>
+#include <core/core_types.h>
 //TODO: create core interface and core implementation. Maybe pimpl the whole thing
 namespace ipengine
 {

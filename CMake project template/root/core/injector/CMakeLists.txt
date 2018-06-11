@@ -34,7 +34,9 @@ target_include_directories(injector
 target_link_libraries(injector
     PUBLIC
         Boost::boost
-        Boost::filesystem)
+        Boost::filesystem
+        ipengine::core
+        ipengine::api_headers)
 
 # install rules
 install(TARGETS injector

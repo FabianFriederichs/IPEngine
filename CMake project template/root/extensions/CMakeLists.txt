@@ -1,9 +1,22 @@
 cmake_minimum_required(VERSION 3.0)
 
 # add all extension subdirectories
+
+
 add_subdirectory(exSSMExtendedPBRPhysicsLoader)
+setTargetFolder(exSSMExtendedPBRPhysicsLoader extensions)
+
 add_subdirectory(exSSMExtendedWriterPhysics)
+setTargetFolder(exSSMExtendedWriterPhysics extensions)
+
 add_subdirectory(ExtensionTest)
-add_subdirectory(GraphicsModulePostRenderVR)
+setTargetFolder(ExtensionTest extensions)
+
+#add_subdirectory(GraphicsModulePostRenderVR)
+#setTargetFolder(GraphicsModulePostRenderVR extensions)
+
 add_subdirectory(GraphicsModulePreRenderVR)
+setTargetFolder(GraphicsModulePreRenderVR extensions)
+
 add_subdirectory(VREntitySceneLoader)
+setTargetFolder(VREntitySceneLoader extensions)

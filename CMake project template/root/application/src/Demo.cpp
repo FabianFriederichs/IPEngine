@@ -1,23 +1,23 @@
 // Demo.cpp : Defines the entry point for the console application.
 //
 #include <tchar.h>
-#include <Injector/Injector.h>
+#include <injector/Injector.h>
 #include <chrono>
 #include <IInput_API.h>
 #include <iostream>
 #include <thread>
-#include <IPCore\Core\ICore.h>
+#include <core/core.h>
 #include <ISimpleSceneModule_API.h>
 #include <ISimpleContentModule_API.h>
-#include <ApplicationBase/Application.h>
+#include <application_base/Application.h>
 #include <IPhysicsModule_API.h>
 boost::shared_ptr<IInput_API> input;
 
-#define DEP_GRAPH_PATH "../Assets/Dependencygraph/TestDepGraph.xml"
+#define DEP_GRAPH_PATH "Assets/DependencyGraph/TestDepGraph.xml"
 #ifdef _DEBUG
-#define CONFIG_PATH "../Assets/Config/config.cfg"
+#define CONFIG_PATH "Assets/Config/config.cfg"
 #else
-#define CONFIG_PATH "../Assets/Config/config_release.cfg"
+#define CONFIG_PATH "Assets/Config/config_release.cfg"
 #endif
 
 
@@ -48,7 +48,7 @@ public:
 		auto ssm = boost::dynamic_pointer_cast<ISimpleSceneModule_API>(mods["SimpleSceneModule"]);
 		auto scm = boost::dynamic_pointer_cast<SCM::ISimpleContentModule_API>(mods["SimpleContentModule"]);
 		//auto phys = boost::dynamic_pointer_cast<IPhysicsModule_API>(mods["PhysicsModule"]);
-		auto sceneid = ssm->LoadSceneFromFile("../Assets/Scenes/TestScene.xml");
+		auto sceneid = ssm->LoadSceneFromFile("Assets/Scenes/TestScene.xml");
 		//sceneid = ssm->LoadSceneFromFile("test.xml");
 		ssm->SwitchActiveScene(sceneid);
 		//phys->createcloth();

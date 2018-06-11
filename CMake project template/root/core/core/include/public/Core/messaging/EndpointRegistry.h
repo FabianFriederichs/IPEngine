@@ -1,9 +1,9 @@
 #ifndef _ENDPOINT_REGISTRY_H_
 #define _ENDPOINT_REGISTRY_H_
-#include <IPCore/core_config.h>
-#include <IPCore/Messaging/MessageEndpoint.h>
-#include <IPCore/Util/spinlock.h>
-#include <IPCore/Core/ICoreTypes.h>
+#include <core/core_config.h>
+#include <core/messaging/MessageEndpoint.h>
+#include <core/util/spinlock.h>
+#include <core/core_types.h>
 #include <map>
 
 namespace ipengine

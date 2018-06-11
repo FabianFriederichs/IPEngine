@@ -1,10 +1,10 @@
 #pragma once
 #include <exception>
-#include <IPCore/Util/any.h>
+#include <core/util/any.h>
 #include <memory>
-#include <IPCore/core_config.h>
+#include <core/core_config.h>
 
-#include <IPCore/ThreadingServices/Common.h>
+#include <core/threading/Common.h>
 
 namespace ipengine
 {

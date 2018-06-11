@@ -15,7 +15,6 @@
 #include <mutex>
 #include <IBasicOpenVRModule_API.h>
 #include <math.h>
-#include <IPCore/Core/ICore.h>
 // This class is exported from the Plugin1.dll
 class InputModule : public IInput_API {
 public:

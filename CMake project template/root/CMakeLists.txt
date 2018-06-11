@@ -16,8 +16,19 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${IP_BINARY_OUTPUT_DIRECTORY}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${IP_BINARY_OUTPUT_DIRECTORY}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${IP_BINARY_OUTPUT_DIRECTORY}")
 
+# some cmake helpers
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+
+# visual studio project folder stuff
+if(MSVC)
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+endif()
+
+# some custom cmake tools
+include(IPCMakeUtils)
+
 ## external dependencies
-include(external_dependencies/IPExternalDependencies.cmake)
+include(IPExternalDependencies)
 
 ## core
 add_subdirectory(core)
@@ -33,5 +44,9 @@ add_subdirectory(extensions)
 
 ## application
 add_subdirectory(application)
+setTargetFolder(demo IPEngineDemoApplication)
+
+
+## do something smart to copy neccessary dlls, sos and assets into the output directory
 
 ## install stuff?

@@ -3,9 +3,9 @@
 #include <functional>
 #include <atomic>
 #include <memory>
-#include <IPCore/Util/function.h>
+#include <core/util/function.h>
 
-#include <IPCore/ThreadingServices/TaskContext.h>
+#include <core/threading/TaskContext.h>
 
 namespace ipengine {
 

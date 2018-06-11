@@ -1,14 +1,14 @@
 #pragma once
-#include <IPCore/ThreadingServices/TaskLib.h>
+#include <core/threading/TaskLib.h>
 #include <vector>
 #include <chrono>
 #include <map>
-#include <IPCore/Util/refctr.h>
-#include <IPCore/Util/spinlock.h>
-#include <IPCore/libs/concurrentqueue.h>
-#include <IPCore/core_config.h>
+#include <core/util/refctr.h>
+#include <core/util/spinlock.h>
+#include <concurrentqueue.h>
+#include <core/core_config.h>
 #include <mutex>
-#include <IPCore/RuntimeControl/Time.h>
+#include <core/runtime/Time.h>
 
 //High level scheduler interface.
 //subscribe/unsubscribe function

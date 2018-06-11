@@ -1,8 +1,8 @@
 #ifndef _MESSAGE_QUEUE_H_
 #define _MESSAGE_QUEUE_H_
-#include <IPCore/libs/concurrentqueue.h>
-#include <IPCore/Messaging/Message.h>
-#include <IPCore/core_config.h>
+#include <concurrentqueue.h>
+#include <core/messaging/Message.h>
+#include <core/core_config.h>
 
 namespace ipengine
 {

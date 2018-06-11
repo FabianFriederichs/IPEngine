@@ -1,6 +1,6 @@
 #ifndef _DEPENDENCYPARSER_H_
 #define _DEPENDENCYPARSER_H_
-#include "DependencyGraph.h"
+#include <injector/DependencyGraph.h>
 
 #pragma once
 class DependencyParser

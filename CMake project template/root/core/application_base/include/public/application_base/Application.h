@@ -11,9 +11,9 @@
 #define APP_API
 #endif
 
-#include <IPCore/RuntimeControl/Time.h>
-#include <Injector/Injector.h>
-#include <IPCore/Core/ICore.h>
+#include <core/runtime/Time.h>
+#include <injector/Injector.h>
+#include <core/core.h>
 
 
 namespace ipengine

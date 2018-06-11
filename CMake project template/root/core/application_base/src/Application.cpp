@@ -1,7 +1,7 @@
-#include "Application.h"
+#include <application_base/Application.h>
 
-#include <Injector/Injector.h>
-#include <IPCore/Core/ICore.h>
+#include <injector/Injector.h>
+#include <core/core.h>
 #include <iostream>
 //implementation
 class ipengine::Application::ApplicationImpl

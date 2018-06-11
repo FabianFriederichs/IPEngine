@@ -2,7 +2,7 @@
 #define _I_CORE_TYPES_
 #include <cstdint>
 #include <string>
-#include <IPCore/core_config.h>
+#include <core/core_config.h>
 namespace ipengine
 {
 	//identifiers

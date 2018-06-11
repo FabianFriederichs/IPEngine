@@ -1,5 +1,5 @@
-#include <IPCore/Config/ConfigManager.h>
-#include <IPCore/Util/spinlock.h>
+#include <core/config/ConfigManager.h>
+#include <core/util/spinlock.h>
 #include <unordered_map>
 #include <iostream>
 #include <sstream>

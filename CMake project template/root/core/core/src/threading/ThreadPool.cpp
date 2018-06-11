@@ -1,4 +1,4 @@
-#include <IPCore/ThreadingServices/ThreadPool.h>
+#include <core/threading/ThreadPool.h>
 
 // ----------------------------------------------- TASK SYSTEM INTERNAL SECTION --------------------------------------------------------
 ipengine::ThreadPool::Worker::Worker(ipengine::ThreadPool * pool, size_t id) :

@@ -6,23 +6,23 @@
 //complexity and some contention problems from the system.
 //All of that under the assumption that the OS and runtime liraries implement a meaningful "yield" operation
 
-#include <IPCore/Util/Deque.h>
+#include <core/util/Deque.h>
 #include <random>
 #include <vector>
 #include <iostream>
-#include <IPCore/Memory/lowlevel_allocators.h>
+#include <core/memory/lowlevel_allocators.h>
 #include <atomic>
-#include <IPCore/Util/LFDS.h>
+#include <core/util/LFDS.h>
 #include <assert.h>
-#include <IPCore/Util/stack.h>
-#include <IPCore/libs/concurrentqueue.h>
+#include <core/util/stack.h>
+#include <concurrentqueue.h>
 #include <string>
-#include <IPCore/core_config.h>
+#include <core/core_config.h>
 
-#include <IPCore/ThreadingServices/Common.h>
-#include <IPCore/ThreadingServices/Task.h>
-#include <IPCore/ThreadingServices/TaskHandle.h>
-#include <IPCore/ThreadingServices/TaskContext.h>
+#include <core/threading/Common.h>
+#include <core/threading/Task.h>
+#include <core/threading/TaskHandle.h>
+#include <core/threading/TaskContext.h>
 
 
 namespace ipengine

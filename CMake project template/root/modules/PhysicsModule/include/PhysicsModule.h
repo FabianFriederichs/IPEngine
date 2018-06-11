@@ -11,8 +11,8 @@
 #include <boost/config.hpp>
 #include <IPhysicsModule_API.h>
 #include <ISimpleSceneModule_API.h>
-#include <IPCore/Memory/memory_utils.h>
-#include <IPCore/ThreadingServices/TaskLib.h>
+#include <core/memory/memory_utils.h>
+#include <core/threading/TaskLib.h>
 // This class is exported from the Plugin2.dll
 
 #define MAX_SPRINGS_PER_PARTICLE 12

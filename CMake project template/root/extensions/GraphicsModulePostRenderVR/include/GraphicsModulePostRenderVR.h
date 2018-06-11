@@ -6,7 +6,7 @@
 #include <ISimpleContentModule_API.h>
 #include <IGraphics_API.h>
 #include <IBasicOpenVRModule_API.h>
-#include <GraphicsModulePReRenderVR/GraphicsModulePreRenderVR.h>
+#include <GraphicsModulePreRenderVR.h>
 #include <IDataStoreModuleh_API.h>
 
 class GraphicsModulePostRenderVR : public IExtension {

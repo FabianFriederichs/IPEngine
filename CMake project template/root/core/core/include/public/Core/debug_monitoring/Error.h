@@ -1,7 +1,7 @@
 #ifndef _ERROR_H_
 #define _ERROR_H_
-#include <IPCore/core_config.h>
-#include <IPCore/Core/ICoreTypes.h>
+#include <core/core_config.h>
+#include <core/core_types.h>
 
 
 namespace ipengine

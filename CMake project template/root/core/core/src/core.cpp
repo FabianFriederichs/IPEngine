@@ -1,4 +1,4 @@
-#include <IPCore/Core/ICore.h>
+#include <core/core.h>
 #include <sstream>
 
 ipengine::Core::Core() :

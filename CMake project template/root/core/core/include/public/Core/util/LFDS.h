@@ -1,8 +1,7 @@
 #pragma once
 #include <atomic>
-#include <IPCore/Util/spinlock.h>
+#include <core/util/spinlock.h>
 #include <cstdint>
-#include <IPCore/ThreadingServices/Task.h>
 //#include "hazard_pointer.h"
 #define ACQUIRE std::memory_order_acquire
 #define RELEASE std::memory_order_release

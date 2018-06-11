@@ -1,6 +1,6 @@
 #pragma once
 #include <type_traits>
-#include <IPCore/Util/spinlock.h>
+#include <core/util/spinlock.h>
 
 namespace ipengine {
 

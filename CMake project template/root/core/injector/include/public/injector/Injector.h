@@ -5,14 +5,14 @@
 #include <boost/dll/import.hpp>
 #include <boost/dll/alias.hpp>
 #include <boost/function/function_base.hpp>
-#include "DependencyGraph.h"
+#include <injector/DependencyGraph.h>
 #include <IModule_API.h>
-#include <IPCore/Core/ICore.h>
+#include <core/core.h>
 #include <iostream>
 #include <algorithm>
 #include <list>
 #include <queue>
-#include "XMLParser.h"
+#include <injector/XMLParser.h>
 /*
 Stuff to do:
 	flags?

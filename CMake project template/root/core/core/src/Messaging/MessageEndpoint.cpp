@@ -1,4 +1,4 @@
-#include "MessageEndpoint.h"
+#include <core/messaging/MessageEndpoint.h>
 
 ipengine::MessageEndpoint::MessageEndpoint(ipengine::ipid id, const std::string & name) :
 	m_endpointid(id),

@@ -1,4 +1,4 @@
-#include <IPCore/RuntimeControl/Scheduler.h>
+#include <core/runtime/Scheduler.h>
 
 // class scheduler -----------------------------------------------------------
 

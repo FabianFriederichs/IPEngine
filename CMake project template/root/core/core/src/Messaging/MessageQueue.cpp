@@ -1,4 +1,4 @@
-#include "MessageQueue.h"
+#include <core/messaging/MessageQueue.h>
 
 inline ipengine::MessageQueue::MessageQueue() :
 	m_queue(512)

@@ -7,7 +7,7 @@
 #include <IBasicOpenVRModule_API.h>
 #include <ISimpleSceneModule_API.h>
 #include <glm/glm.hpp>
-#include <glew\include\GL\glew.h>
+#include <GL/glew.h>
 #include <IDataStoreModuleh_API.h>
 #include "glerror.h"
 class VREntitySceneLoader : public IExtension {

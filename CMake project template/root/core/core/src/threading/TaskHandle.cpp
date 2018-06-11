@@ -1,5 +1,5 @@
-#include <IPCore/ThreadingServices/TaskHandle.h>
-#include <IPCore/ThreadingServices/ThreadPool.h>
+#include <core/threading/TaskHandle.h>
+#include <core/threading/ThreadPool.h>
 
 ipengine::TaskHandle::TaskHandle() :
 	m_task(nullptr),

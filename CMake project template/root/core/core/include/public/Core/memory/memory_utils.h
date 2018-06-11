@@ -1,6 +1,6 @@
 #ifndef _MEMORY_UTILS_H_
 #define _MEMORY_UTILS_H_
-#include <IPCore/core_config.h>
+#include <core/core_config.h>
 #include <cassert>
 namespace ipengine
 {

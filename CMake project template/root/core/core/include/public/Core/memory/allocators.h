@@ -1,7 +1,7 @@
 #ifndef _ALLOCATORS_H_
 #define _ALLOCATORS_H_
 #include <type_traits>
-#include <IPCore/Memory/MemoryManager.h>
+#include <core/memory/MemoryManager.h>
 #include <scoped_allocator>
 //std allocator conforming interfaces for using custom memory allocation strategies with std containers
 namespace ipengine

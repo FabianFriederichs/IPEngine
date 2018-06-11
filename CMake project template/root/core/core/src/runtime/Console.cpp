@@ -1,9 +1,9 @@
-#include <IPCore/RuntimeControl/Console.h>
+#include <core/runtime/Console.h>
 #include <unordered_map>
 #include <cctype>
 #include <mutex>
 #include <type_traits>
-#include <IPCore/Util/spinlock.h>
+#include <core/util/spinlock.h>
 #include <atomic>
 
 //console command implementation

@@ -1,9 +1,9 @@
 #pragma once
 #include <memory>
 #include <atomic>
-#include <IPCore/core_config.h>
+#include <core/core_config.h>
 
-#include <IPCore/ThreadingServices/Common.h>
+#include <core/threading/Common.h>
 
 namespace ipengine {
 	class ThreadPool;

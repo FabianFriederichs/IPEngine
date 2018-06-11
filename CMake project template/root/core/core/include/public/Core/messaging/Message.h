@@ -1,9 +1,9 @@
 #ifndef _MESSAGE_H_
 #define	_MESSAGE_H_
-#include <IPCore/RuntimeControl/Time.h>
-#include <IPCore/core_config.h>
-#include <IPCore/Util/any.h>
-#include <IPCore/Core/ICoreTypes.h>
+#include <core/runtime/Time.h>
+#include <core/core_config.h>
+#include <core/util/any.h>
+#include <core/core_types.h>
 
 //TODO: Create some class "Message". Possible attributes of such a thing:
 //		Type

@@ -1,14 +1,14 @@
 #ifndef _MESSAGE_ENDPOINT_H_
 #define _MESSAGE_ENDPOINT_H_
-#include <IPCore/Messaging/MessageQueue.h>
-#include <IPCore/Messaging/Message.h>
+#include <core/messaging/MessageQueue.h>
+#include <core/messaging/Message.h>
 #include <vector>
 #include <thread>
 #include <mutex>
 #include <unordered_map>
-#include <IPCore/Util/function.h>
-#include <IPCore/Memory/lowlevel_allocators.h>
-#include <IPCore/Util/refctr.h>
+#include <core/util/function.h>
+#include <core/memory/lowlevel_allocators.h>
+#include <core/util/refctr.h>
 
 #define MT_ALLMESSAGES 0
 //TODO: Create some kind of endpoint class. The class should be returned when subscribing to a

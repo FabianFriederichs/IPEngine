@@ -1,4 +1,4 @@
-#include "EndpointRegistry.h"
+#include <core/messaging/EndpointRegistry.h>
 
 ipengine::EndpointRegistry::EndpointRegistry() :
 	m_lock(),

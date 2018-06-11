@@ -110,7 +110,7 @@ target_compile_definitions(core
 target_link_libraries(core
     PUBLIC
         moodycamel_queue)
-       # ipengine::platform_abstraction_layer)
+       # ipengine::platform_abstraction_layer) # uncomment this when PAL is ready to use
 
 # install rules
 install(TARGETS core

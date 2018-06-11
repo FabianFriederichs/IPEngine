@@ -4,8 +4,8 @@
 #include <mutex>
 #include <condition_variable>
 #include <memory>
-#include <IPCore/Util/spinlock.h>
-#include <IPCore/Memory/lowlevel_allocators.h>
+#include <core/util/spinlock.h>
+#include <core/memory/lowlevel_allocators.h>
 
 namespace ipengine {
 

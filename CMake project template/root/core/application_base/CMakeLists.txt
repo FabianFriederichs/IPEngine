@@ -7,7 +7,7 @@ set(appbase_private_headers)
 set(appbase_sources)
 
 # injector ------------------------------------------------------------------------------------------------------
-list(APPEND appbase_public_headers "include/public/application_base/Applicationh.h")
+list(APPEND appbase_public_headers "include/public/application_base/Application.h")
 
 list(APPEND appbase_sources "src/Application.cpp")
 
