@@ -1,0 +1,3 @@
+injector.reassign "VulkanRenderer" "WindowManager" "SDLWindowManager"
+injector.reassign "VulkanRenderer" "SCM" "SimpleContentModule"
+injector.reassign "GameLogicModule" "graphics" "VulkanRenderer"

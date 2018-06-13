@@ -87,7 +87,7 @@ public:
 	{
 		//assert(size() == 0);
 
-		return dependencies.lower_bound(dependencyID) != dependencies.end();
+		return dependencies.count(dependencyID)>0;
 	}
 };
 
@@ -226,7 +226,7 @@ protected:
 
 	bool shutDown()
 	{
-		isStartUp = _shutdown();
+		isStartUp = !_shutdown();
 		return isStartUp;
 	}
 

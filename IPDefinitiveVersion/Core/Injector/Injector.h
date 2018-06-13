@@ -96,18 +96,78 @@ public:
 		//change dependency "dependencyID" in module "moduleID" to the module "newModuleID"
 		//Do checks whether it's correct and then update the pointer in "moduleID"s moduleinfo of specified dependency
 		//Tell "moduleID" to update it's pointers and do any work that's necessary for reassignment
+		if (!mod.get())
+			return 0;
 		auto minfo = mod->getModuleInfo();
+		auto mod2 = loadedModules[newModuleID];
+		auto minfo2 = mod2->getModuleInfo();
 		if (loadedModules.count(newModuleID) < 1)
 			return 0;
-		if (loadedModules[newModuleID]->getModuleInfo()->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam) != std::string::npos)
+
+		if (!minfo->dependencies.exists(dependencyID))
 		{
+			if (minfo->depinfo.count(dependencyID) > 0)
+			{
+				//Check whether dependency fits the depinfo and is valid
+				if (minfo2->iam.find(minfo->depinfo[dependencyID].moduleType) != std::string::npos)
+				{
+					if (!mod2->isStartUp)
+					{
+						if (!mod2->startUp())
+							return 0;
+					}
+					minfo->dependencies.assignDependency(dependencyID, mod2);
+					mod->dependencyUpdated(dependencyID);
+					//Update dependencygraph accordingly
+					depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
+					return 1;
+				}
+				else
+				{
+					//Module is not compatible, return with error
+					return 0;
+				}
+			}
+			else
+			{
+				if (!mod2->isStartUp)
+				{
+					if (!mod2->startUp())
+						return 0;
+				}
+				minfo->dependencies.assignDependency(dependencyID, mod2);
+				mod->dependencyUpdated(dependencyID);
+				//Update dependencygraph accordingly
+				depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
+				return 1;
+			}
+		}
+		else if (minfo2->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam) != std::string::npos)
+		{
+			//auto oldmod = minfo->dependencies.getDep<IModule_API>(dependencyID);
 			//reassignment should work, i think? 
 			//Check whether dependency is updatable at runtime
 			if (minfo->depinfo.count(dependencyID)&& !minfo->depinfo[dependencyID].isUpdatable)
 			{
 				return 0;
 			}
-			minfo->dependencies.assignDependency(dependencyID, loadedModules[newModuleID]);
+
+
+			//if (depgraph->findModule(oldmod->getModuleInfo()->identifier)->getDepCounter() == 1)
+			//{
+			//	//Shutdown
+			//	oldmod->shutDown();
+			//}
+
+			//!TODO check newmoduleid for startedup and depinfo valid
+			if (!mod2->isStartUp)
+			{
+				if(!mod2->startUp())
+					return 0;
+			}
+
+
+			minfo->dependencies.assignDependency(dependencyID, mod2);
 			mod->dependencyUpdated(dependencyID);
 			//Update dependencygraph accordingly
 			depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
@@ -125,10 +185,54 @@ public:
 		//change dependency "dependencyID" in module "moduleID" to the module "newModuleID"
 		//Do checks whether it's correct and then update the pointer in "moduleID"s moduleinfo of specified dependency
 		//Tell "moduleID" to update it's pointers and do any work that's necessary for reassignment
+		if (!mod.get())
+			return 0;
 		auto minfo = mod->getInfo();
+		auto mod2 = loadedModules[newModuleID];
+		auto minfo2 = mod2->getModuleInfo();
 		if (loadedModules.count(newModuleID) < 1)
 			return 0;
-		if (minfo->dependencies.exists(dependencyID) && loadedModules[newModuleID]->getModuleInfo()->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam)!=std::string::npos)
+
+		//Case Dependee doesn't have the dependency yet, basically an assign. Check if it's in depinfo and if so check for compatability
+		if (!minfo->dependencies.exists(dependencyID))
+		{
+			if (minfo->depinfo.count(dependencyID) > 0)
+			{
+				//Check whether dependency fits the depinfo and is valid
+				if (minfo2->iam.find(minfo->depinfo[dependencyID].moduleType) != std::string::npos)
+				{
+					if (!mod2->isStartUp)
+					{
+						if (!mod2->startUp())
+							return 0;
+					}
+					minfo->dependencies.assignDependency(dependencyID, mod2);
+					mod->dependencyUpdated(dependencyID);
+					//Update dependencygraph accordingly
+					depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
+					return 1;
+				}
+				else
+				{
+					//Module is not compatible, return with error
+					return 0;
+				}
+			}
+			else
+			{
+				if (!mod2->isStartUp)
+				{
+					if (!mod2->startUp())
+						return 0;
+				}
+				minfo->dependencies.assignDependency(dependencyID, mod2);
+				mod->dependencyUpdated(dependencyID);
+				//Update dependencygraph accordingly
+				depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
+				return 1;
+			}
+		}
+		else if (minfo2->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam)!=std::string::npos)
 		{
 			//reassignment should work, i think? 
 			//Check whether dependency is updatable at runtime
@@ -136,10 +240,19 @@ public:
 			{
 				return 0;
 			}
-			minfo->dependencies.assignDependency(dependencyID, loadedModules[newModuleID]);
+
+			//!TODO check newmoduleid for startedup and depinfo valid
+			if (!mod2->isStartUp)
+			{
+				if (!mod2->startUp())
+					return 0;
+			}
+
+			minfo->dependencies.assignDependency(dependencyID, mod2);
 			mod->dependencyUpdated(dependencyID);
 			//Update dependencygraph accordingly
 			depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
+
 			return 1;
 		}
 		else
@@ -148,7 +261,76 @@ public:
 		}
 	}
 
+	bool startupModule(boost::shared_ptr<IModule_API> mod)
+	{
+		if (mod.get() && !mod->isStartUp)
+			mod->startUp();
+		if (mod.get())
+			return mod->isStartUp;
+		return false;
+	}
+	bool startupModule(std::string moduleID)
+	{
+		if (loadedModules.count(moduleID) > 0)
+		{
+			return shutdownModule(loadedModules[moduleID]);
+		}
+		return false;
+	}
+
+	bool shutdownModule(boost::shared_ptr<IModule_API> mod)
+	{
+		if (mod.get() && mod->isStartUp)
+			mod->shutDown();
+		if (mod.get())
+			return !mod->isStartUp;
+		return false;
+	}
+	bool shutdownModule(std::string moduleID)
+	{
+		if (loadedModules.count(moduleID) > 0)
+		{
+			return shutdownModule(loadedModules[moduleID]);
+		}
+		return false;
+	}
+
 	std::map<std::string, boost::shared_ptr<IModule_API>> getModulesOfType(std::string type);
+
+
+	void cmd_startupModule(const ipengine::ConsoleParams& params)
+	{
+		if (params.getParamCount() != 1)
+		{
+			m_core->getConsole().println("Parameter incorrect. One parameter: A valid module id");
+		}
+		//check path valid
+		if (startupModule(params.get(0)))
+		{
+			m_core->getConsole().println(std::string("Module successfuly started.").c_str());
+		}
+		else
+		{
+			m_core->getConsole().println(std::string("Supplied module id not valid").c_str());
+		}
+	}
+
+	void cmd_shutdownModule(const ipengine::ConsoleParams& params)
+	{
+		if (params.getParamCount() != 1)
+		{
+			m_core->getConsole().println("Parameter incorrect. One parameter: A valid module id");
+		}
+		//check path valid
+		if (shutdownModule(params.get(0)))
+		{
+			m_core->getConsole().println(std::string("Module successfuly shut down.").c_str());
+		}
+		else
+		{
+			m_core->getConsole().println(std::string("Supplied module id not valid").c_str());
+		}
+	}
 
 	void cmd_loadModule(const ipengine::ConsoleParams& params)
 	{
@@ -364,6 +546,16 @@ public:
 			console.println("Module not found");
 		}
 	}
+
+	void cmd_debugswitchgraphics(const ipengine::ConsoleParams& params)
+	{
+		auto &console = m_core->getConsole();
+		auto targ = "VulkanRenderer";
+		reassignDependency(loadedModules[targ], "WindowManager", "SDLWindowManager");
+		reassignDependency(loadedModules[targ], "SCM", "SimpleContentModule");
+		reassignDependency(loadedModules["GameLogicModule"], "graphics", targ);
+		console.println("have fun");
+	}
 	
 	
 
@@ -372,7 +564,7 @@ public:
 	bool saveDependencyGraph(std::string);
 
 	bool shutdown();
-	bool shutdownModule(std::string);
+	//bool shutdownModule(std::string);
 };
 
 #endif

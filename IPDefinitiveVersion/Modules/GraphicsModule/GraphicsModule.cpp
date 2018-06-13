@@ -7,7 +7,7 @@ bool GraphicsModule::_startup()
 {
 	//get dependencies
 	m_scm = m_info.dependencies.getDep<SCM::ISimpleContentModule_API>(m_scmID);
-
+	m_wm = m_info.dependencies.getDep<IWindowManager_API>(m_wmID);
 	//setup
 	setup();
 	int mvc;
@@ -130,7 +130,7 @@ void GraphicsModule::loadTextureFromMemory(const GrAPI::t2d & data, const ipengi
 	}
 
 	m_scmtexturetot2d[id] = std::make_shared<Texture2D>(texid);
-
+	setMaterialTexParams(m_scmtexturetot2d[id]->tex);
 	//return std::make_shared<Texture2D>(texid);
 
 }
@@ -171,9 +171,14 @@ bool GraphicsModule::_shutdown()
 	m_scmshadertoprogram.clear();
 	m_scmtexturetot2d.clear();
 
-
 	SDL_GL_DeleteContext(context);
-	SDL_DestroyWindow(window);
+	m_wm->destroy(window);
+	/*auto cont = wglGetCurrentContext();
+	wglMakeCurrent(NULL, NULL);
+	wglDeleteContext(cont);*/
+	//ReleaseDC(m_wm->getWindowInfo().info.win.window, m_wm->getWindowInfo().info.win.hdc);
+	//SDL_GL_DeleteContext(context);
+	//SDL_DestroyWindow(window);
 	return true;
 }
 
@@ -200,7 +205,7 @@ GraphicsModule::GraphicsModule(void)
 	DataDepName = "Data";
 	m_info.identifier = "GraphicsModule";
 	m_info.version = "1.0";
-	m_info.iam = "IGraphics_API";
+	m_info.iam = "IModule_API.IGraphics_API";
 	return;
 }
 
@@ -844,10 +849,10 @@ void GraphicsModule::setup()
 }
 void GraphicsModule::setupSDL()
 {
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)
-	{
-		//std::cout << "Could not initialize SDL." << std::endl;
-	}
+	//if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	//{
+	//	//std::cout << "Could not initialize SDL." << std::endl;
+	//}
 
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -859,8 +864,10 @@ void GraphicsModule::setupSDL()
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, static_cast<int>(m_core->getConfigManager().getInt("graphics.window.msaa_samples")));
 	}
-	window = SDL_CreateWindow(m_core->getConfigManager().getString("graphics.window.title").c_str(), SDL_WINDOWPOS_CENTERED,
-							  SDL_WINDOWPOS_CENTERED, static_cast<int>(width), static_cast<int>(height), SDL_WINDOW_OPENGL);
+	width = m_wm->getWidth();
+	height = m_wm->getHeight();
+	window = m_wm->getNewWindow();// SDL_CreateWindow(m_core->getConfigManager().getString("graphics.window.title").c_str(), SDL_WINDOWPOS_CENTERED,
+							     //SDL_WINDOWPOS_CENTERED, static_cast<int>(width), static_cast<int>(height), SDL_WINDOW_OPENGL);
 
 	if (window == NULL)
 	{
@@ -868,14 +875,16 @@ void GraphicsModule::setupSDL()
 		/*printDebug("Could not create SDL window.\n");
 		return 1;*/
 	}
-	if (!SDL_GetWindowWMInfo(window, &info))
+	info = m_wm->getWindowInfo(window);
+	/*if (!SDL_GetWindowWMInfo(window, &info))
 	{
 
-	}
+	}*/
 	auto fsetting = m_core->getConfigManager().getInt("graphics.window.fullscreen");
 	if(fsetting)
 		SDL_SetWindowFullscreen(window, fsetting == 1 ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN);
 	context = SDL_GL_CreateContext(window);
+	auto er = SDL_GetError();
 	wincontext = wglGetCurrentContext();
 	//check null
 	SDL_GL_SetSwapInterval(m_core->getConfigManager().getBool("graphics.window.vsync") ? 1 : 0);
