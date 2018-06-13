@@ -1,1 +1,0 @@
-put your scene description files here!
