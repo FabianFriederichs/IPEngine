@@ -1,0 +1,341 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{37FA425D-3DA9-3103-B735-CBF9575F3DFC}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>VREntitySceneLoader</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VREntitySceneLoader.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VREntitySceneLoader</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VREntitySceneLoader.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VREntitySceneLoader</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">VREntitySceneLoader.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">VREntitySceneLoader</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">VREntitySceneLoader.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">VREntitySceneLoader</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\injector\include\public;C:\Program Files\boost_libraries\boost_1_65_1;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\core\include\public;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\moodycamel;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\api_headers\api;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glm;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glew\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;GLM_ENABLE_EXPERIMENTAL;CMAKE_INTDIR="Debug";VREntitySceneLoader_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GLM_ENABLE_EXPERIMENTAL;CMAKE_INTDIR=\"Debug\";VREntitySceneLoader_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\injector\include\public;C:\Program Files\boost_libraries\boost_1_65_1;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\core\include\public;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\moodycamel;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\api_headers\api;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glm;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glew\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\injector\include\public;C:\Program Files\boost_libraries\boost_1_65_1;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\core\include\public;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\moodycamel;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\api_headers\api;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glm;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glew\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\Debug\injector.lib;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\Debug\core.lib;opengl32.lib;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\Debug\glew.lib;C:\Program Files\boost_libraries\boost_1_65_1\stage\lib\libboost_filesystem-vc141-mt-gd-1_65_1.lib;C:\Program Files\boost_libraries\boost_1_65_1\stage\lib\libboost_system-vc141-mt-gd-1_65_1.lib;opengl32.lib;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\lib\win32\openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/output/x86/Debug/VREntitySceneLoader.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/output/x86/Debug/VREntitySceneLoader.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version></Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\injector\include\public;C:\Program Files\boost_libraries\boost_1_65_1;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\core\include\public;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\moodycamel;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\api_headers\api;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glm;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glew\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GLM_ENABLE_EXPERIMENTAL;CMAKE_INTDIR="Release";VREntitySceneLoader_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat></DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GLM_ENABLE_EXPERIMENTAL;CMAKE_INTDIR=\"Release\";VREntitySceneLoader_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\injector\include\public;C:\Program Files\boost_libraries\boost_1_65_1;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\core\include\public;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\moodycamel;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\api_headers\api;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glm;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glew\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\injector\include\public;C:\Program Files\boost_libraries\boost_1_65_1;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\core\include\public;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\moodycamel;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\api_headers\api;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glm;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glew\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\Release\injector.lib;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\Release\core.lib;opengl32.lib;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\Release\glew.lib;C:\Program Files\boost_libraries\boost_1_65_1\stage\lib\libboost_filesystem-vc141-mt-1_65_1.lib;C:\Program Files\boost_libraries\boost_1_65_1\stage\lib\libboost_system-vc141-mt-1_65_1.lib;opengl32.lib;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\lib\win32\openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/output/x86/Release/VREntitySceneLoader.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/output/x86/Release/VREntitySceneLoader.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version></Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\injector\include\public;C:\Program Files\boost_libraries\boost_1_65_1;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\core\include\public;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\moodycamel;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\api_headers\api;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glm;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glew\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>MinSizeRel/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GLM_ENABLE_EXPERIMENTAL;CMAKE_INTDIR="MinSizeRel";VREntitySceneLoader_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat></DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GLM_ENABLE_EXPERIMENTAL;CMAKE_INTDIR=\"MinSizeRel\";VREntitySceneLoader_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\injector\include\public;C:\Program Files\boost_libraries\boost_1_65_1;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\core\include\public;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\moodycamel;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\api_headers\api;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glm;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glew\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\injector\include\public;C:\Program Files\boost_libraries\boost_1_65_1;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\core\include\public;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\moodycamel;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\api_headers\api;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glm;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glew\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\MinSizeRel\injector.lib;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\MinSizeRel\core.lib;opengl32.lib;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\MinSizeRel\glew.lib;C:\Program Files\boost_libraries\boost_1_65_1\stage\lib\libboost_filesystem-vc141-mt-1_65_1.lib;C:\Program Files\boost_libraries\boost_1_65_1\stage\lib\libboost_system-vc141-mt-1_65_1.lib;opengl32.lib;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\lib\win32\openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/output/x86/MinSizeRel/VREntitySceneLoader.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/output/x86/MinSizeRel/VREntitySceneLoader.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version></Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\injector\include\public;C:\Program Files\boost_libraries\boost_1_65_1;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\core\include\public;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\moodycamel;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\api_headers\api;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glm;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glew\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>RelWithDebInfo/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GLM_ENABLE_EXPERIMENTAL;CMAKE_INTDIR="RelWithDebInfo";VREntitySceneLoader_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GLM_ENABLE_EXPERIMENTAL;CMAKE_INTDIR=\"RelWithDebInfo\";VREntitySceneLoader_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\injector\include\public;C:\Program Files\boost_libraries\boost_1_65_1;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\core\include\public;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\moodycamel;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\api_headers\api;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glm;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glew\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\injector\include\public;C:\Program Files\boost_libraries\boost_1_65_1;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\core\core\include\public;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\moodycamel;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\api_headers\api;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glm;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\glew\include;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\RelWithDebInfo\injector.lib;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\RelWithDebInfo\core.lib;opengl32.lib;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\output\x86\RelWithDebInfo\glew.lib;C:\Program Files\boost_libraries\boost_1_65_1\stage\lib\libboost_filesystem-vc141-mt-1_65_1.lib;C:\Program Files\boost_libraries\boost_1_65_1\stage\lib\libboost_system-vc141-mt-1_65_1.lib;opengl32.lib;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\openvr\lib\win32\openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/output/x86/RelWithDebInfo/VREntitySceneLoader.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/output/x86/RelWithDebInfo/VREntitySceneLoader.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version></Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/extensions/VREntitySceneLoader/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-HC:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root" "-BC:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/testbuild" --check-stamp-file "C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/testbuild/extensions/VREntitySceneLoader/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/extensions/VREntitySceneLoader/CMakeLists.txt;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\CMakeLists.txt;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\testbuild\CMakeFiles\3.9.3\CMakeCCompiler.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\CMakeCommonLanguageInclude.cmake;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\testbuild\extensions\VREntitySceneLoader\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/extensions/VREntitySceneLoader/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-HC:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root" "-BC:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/testbuild" --check-stamp-file "C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/testbuild/extensions/VREntitySceneLoader/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/extensions/VREntitySceneLoader/CMakeLists.txt;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\CMakeLists.txt;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\testbuild\CMakeFiles\3.9.3\CMakeCCompiler.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\CMakeCommonLanguageInclude.cmake;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\testbuild\extensions\VREntitySceneLoader\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/extensions/VREntitySceneLoader/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-HC:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root" "-BC:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/testbuild" --check-stamp-file "C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/testbuild/extensions/VREntitySceneLoader/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/extensions/VREntitySceneLoader/CMakeLists.txt;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\CMakeLists.txt;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\testbuild\CMakeFiles\3.9.3\CMakeCCompiler.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\CMakeCommonLanguageInclude.cmake;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\testbuild\extensions\VREntitySceneLoader\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/extensions/VREntitySceneLoader/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-HC:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root" "-BC:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/testbuild" --check-stamp-file "C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/testbuild/extensions/VREntitySceneLoader/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/extensions/VREntitySceneLoader/CMakeLists.txt;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\CMakeLists.txt;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\testbuild\CMakeFiles\3.9.3\CMakeCCompiler.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.9\Modules\CMakeCommonLanguageInclude.cmake;C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\testbuild\extensions\VREntitySceneLoader\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include\glerror.h" />
+    <ClInclude Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include\libheaders.h" />
+    <ClInclude Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\include\VREntitySceneLoader.h" />
+    <ClCompile Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src\glerror.cpp"  />
+    <ClCompile Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\extensions\VREntitySceneLoader\src\VREntitySceneLoader.cpp"  />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\testbuild\ZERO_CHECK.vcxproj">
+      <Project>{F97D0012-D3E4-30AC-BCAF-432E71D510C0}</Project>
+      <Name>ZERO_CHECK</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\testbuild\core\core\core.vcxproj">
+      <Project>{280C8463-C683-3612-86AE-803280381FE2}</Project>
+      <Name>core</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\testbuild\external_dependencies\glew\glew.vcxproj">
+      <Project>{4CDED584-ACAE-326E-9CD7-6B5CD9A75DCA}</Project>
+      <Name>glew</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\testbuild\core\injector\injector.vcxproj">
+      <Project>{AC633434-6CB4-3F4D-9E89-8469C8F724B1}</Project>
+      <Name>injector</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

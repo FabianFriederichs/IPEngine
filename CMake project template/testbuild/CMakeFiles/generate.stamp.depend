@@ -1,0 +1,34 @@
+# CMake generation dependency list for this directory.
+C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/CMakeLists.txt
+C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/testbuild/CMakeFiles/3.9.3/CMakeSystem.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/CMakeSystemSpecificInitialize.cmake
+C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/testbuild/CMakeFiles/3.9.3/CMakeCXXCompiler.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/CMakeSystemSpecificInformation.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/CMakeGenericSystem.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/Platform/Windows.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/Platform/WindowsPaths.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/CMakeCXXInformation.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/CMakeLanguageInformation.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/Compiler/MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/Compiler/CMakeCommonCompilerMacros.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/Platform/Windows-MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/Platform/Windows-MSVC.cmake
+C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/testbuild/CMakeFiles/3.9.3/CMakeRCCompiler.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/CMakeRCInformation.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/CMakeCommonLanguageInclude.cmake
+C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/cmake/IPCMakeUtils.cmake
+C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/cmake/IPExternalDependencies.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/FindOpenGL.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/FindVulkan.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/FindPackageMessage.cmake
+C:/Program Files (x86)/SDL2/cmake/SDL2ConfigVersion.cmake
+C:/Program Files (x86)/SDL2/cmake/SDL2Config.cmake
+C:/Program Files (x86)/SDL2/cmake/SDL2Targets.cmake
+C:/Program Files (x86)/SDL2/cmake/SDL2Targets-release.cmake
+C:/Users/Fabian/Documents/SourceTreeRepos/IPEngine/CMake project template/root/cmake/FindOpenVR.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.9/Modules/FindBoost.cmake
