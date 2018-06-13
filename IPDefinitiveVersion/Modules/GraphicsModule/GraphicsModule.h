@@ -8,14 +8,13 @@
 // defined with this macro as being exported.
 
 #include <boost/config.hpp>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
 #include <glm/gtx/quaternion.hpp>
 #include <memory>
 #include <unordered_map>
 #include "libheaders.h"
 #include "Utils.h"
 #include <IGraphics_API.h>
+#include <IWindowManager_API.h>
 #include <stack>
 //#define GLEW_STATIC
 // This class is exported from the Plugin2.dll
@@ -44,7 +43,9 @@ private:
 	ModuleInformation m_info;
 	std::string DataDepName;
 	std::string m_scmID = "SCM";
+	std::string m_wmID = "WindowManager";
 	boost::shared_ptr<SCM::ISimpleContentModule_API> m_scm;
+	boost::shared_ptr<IWindowManager_API> m_wm;
 	std::vector<ipengine::Scheduler::SubHandle> handles;
 
 	//window

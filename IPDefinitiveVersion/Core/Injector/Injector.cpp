@@ -20,6 +20,8 @@ bool Injector::recursiveInject(DGStuff::Module* mod, bool doextension)
 	ExtensionInformation* pexinf;
 	boost::shared_ptr<IModule_API> p;
 	ModuleInformation* pinf;
+	if (mod->ignore)
+		return true;
 	if (mod->isExtension)
 	{
 		//!TODO Make sure the extension exists so no nullptr is used 
@@ -60,6 +62,12 @@ bool Injector::recursiveInject(DGStuff::Module* mod, bool doextension)
 		//!TODO Make sure the extension exists so no nullptr is used 
 
 		p = loadedModules[mod->identifier];
+		if (!p)
+		{
+			//Moddule doesn't exist
+			m_core->getConsole().println(std::string("Couldn't load module " + mod->identifier + ". Shared Library wasn't loaded.").c_str());
+			return false;
+		}
 		pinf = p->getModuleInfo();
 		
 		if (p->isStartUp)
@@ -113,6 +121,7 @@ bool Injector::recursiveInject(DGStuff::Module* mod, bool doextension)
 			//check inject status, check ignore/inject meme then inject, and startup stuff
 		}
 
+		
 		return p->startUp();
 	}
 	
@@ -156,6 +165,9 @@ void Injector::registerCommands(ipengine::Core * core)
 	console.addCommand("injector.getmodulesoftype", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_getModulesOfType>(this), "ech moduletype");
 	console.addCommand("injector.activateExt", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_enableExtension>(this), "ech modid exid prio active");
 	console.addCommand("injector.removeDep", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_removeDependency>(this), "ech modid depid");
+	console.addCommand("injector.sdmod", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_shutdownModule>(this), "Shutdown Module modid");
+	console.addCommand("injector.sumod", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_startupModule>(this), "Startup Module modid");
+	console.addCommand("inj.d", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_debugswitchgraphics>(this), "w");
 }
 
 void Injector::LoadModules(std::string path, bool reload )
@@ -271,12 +283,9 @@ bool Injector::shutdown()
 	bool completeshutdown = true;
 	for (auto mod : loadedModules)
 	{
-		completeshutdown = mod.second->shutDown();
+		completeshutdown = shutdownModule(mod.second);
 	}
 	return completeshutdown;
 }
 
-bool Injector::shutdownModule(std::string identifier)
-{
-	return loadedModules.find(identifier)!=loadedModules.end()?loadedModules[identifier]->shutDown() : false;
-}
+

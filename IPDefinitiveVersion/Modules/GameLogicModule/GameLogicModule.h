@@ -81,6 +81,9 @@ private:
 	//bool inProximity(ipengine::ipid source, ipengine::ipid target, float maxDistance);
 	void onHoldStart(ipengine::ipid source, ipengine::ipid target);
 	void onHoldStop(ipengine::ipid source, ipengine::ipid target);
+
+protected:
+	virtual void dependencyUpdated(std::string depID) override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT GameLogicModule module;

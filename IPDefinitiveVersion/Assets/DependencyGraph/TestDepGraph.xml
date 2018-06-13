@@ -27,10 +27,15 @@
 <DependencyGraph>
   <Modules>
     <Module>
+      <ignore>false</ignore>
+      <identifier>SDLWindowManager</identifier>
+    </Module>
+    <Module>
       <ignore>true</ignore>
       <identifier>BasicOpenVRModule</identifier>
     </Module>
     <Module>
+      <ignore>false</ignore>
       <identifier>GraphicsModule</identifier>
       <dependencies>
         <dependency>
@@ -38,25 +43,37 @@
           <identifier>SCM</identifier>
           <moduleID>SimpleContentModule</moduleID>
         </dependency>
-      </dependencies>
-      <ExtensionPoints>
-        <Point>
-          <identifier>PreRender</identifier>
-          <Extensions>
-            <Extension>
-              <extensionname>GraphicsModulePreRenderVR</extensionname>
-              <priority>0</priority>
-            </Extension>
-          </Extensions>
-        </Point>
-      </ExtensionPoints>
+        <dependency>
+          <inject>true</inject>
+          <identifier>WindowManager</identifier>
+          <moduleID>SDLWindowManager</moduleID>
+        </dependency>
+        </dependencies>
+
+    </Module>
+    <Module>
+      <ignore>false</ignore>
+      <identifier>VulkanRenderer</identifier>
+      <dependencies>
+        <dependency>
+          <inject>true</inject>
+          <identifier>SCM</identifier>
+          <moduleID>SimpleContentModule</moduleID>
+        </dependency>
+        <dependency>
+          <inject>true</inject>
+          <identifier>WindowManager</identifier>
+          <moduleID>SDLWindowManager</moduleID>
+        </dependency>
+        </dependencies>
+
     </Module>
     <Module>
       <ignore>false</ignore>
       <identifier>InputModule</identifier>
       <dependencies>
         <dependency>
-          <inject>true</inject>
+          <inject>false</inject>
           <identifier>openvr</identifier>
           <moduleID>BasicOpenVRModule</moduleID>
         </dependency>
@@ -122,7 +139,7 @@
           <moduleID>SimpleContentModule</moduleID>
         </dependency>
         <dependency>
-          <inject>true</inject>
+          <inject>false</inject>
           <identifier>openvr</identifier>
           <moduleID>BasicOpenVRModule</moduleID>
         </dependency>
@@ -164,11 +181,6 @@
           <inject>true</inject>
           <identifier>graphics</identifier>
           <moduleID>GraphicsModule</moduleID>
-        </dependency>
-        <dependency>
-          <inject>true</inject>
-          <identifier>physics</identifier>
-          <moduleID>PhysicsModule</moduleID>
         </dependency>
       </dependencies>
     </Module>
