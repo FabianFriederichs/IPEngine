@@ -505,6 +505,10 @@ std::shared_ptr<VMesh> VulkanRenderer::deepcopyVMeshAndAllocateUBO(const std::sh
 	return newmesh;
 }
 
+void VulkanRenderer::setMaterialTexDefaultParams(ipengine::ipid, bool)
+{
+}
+
 glm::mat4 VulkanRenderer::ViewFromTransData(const SCM::TransformData *transform)
 {
 

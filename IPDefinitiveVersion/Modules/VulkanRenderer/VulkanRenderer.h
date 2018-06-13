@@ -94,6 +94,10 @@ private:
 
 	std::shared_ptr<VMesh> deepcopyVMeshAndAllocateUBO(const std::shared_ptr<VMesh> mesh);
 
+
+	// Inherited via IGraphics_API
+	virtual void setMaterialTexDefaultParams(ipengine::ipid, bool) override;
+
 };
 
 extern "C" BOOST_SYMBOL_EXPORT VulkanRenderer module;
