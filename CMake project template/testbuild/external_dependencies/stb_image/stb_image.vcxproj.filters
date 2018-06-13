@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\stb_image\src\stb_image.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\stb_image\include\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\external_dependencies\stb_image\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4693F3EF-7597-3427-968E-FBD7B69F7796}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{19C539B8-A000-38ED-B613-9E9251051FD2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

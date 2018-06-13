@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\modules\SimpleSceneModule\src\Scene.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\modules\SimpleSceneModule\src\SimpleSceneModule.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\modules\SimpleSceneModule\include\Scene.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\modules\SimpleSceneModule\include\SimpleSceneModule.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Fabian\Documents\SourceTreeRepos\IPEngine\CMake project template\root\modules\SimpleSceneModule\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{FA9EE85A-5C43-3099-AEF7-06B7CDA0E17E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{03E0FE2E-41E4-3C67-A7E8-D31990D0382E}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
