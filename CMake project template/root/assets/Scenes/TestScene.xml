@@ -342,7 +342,7 @@
 	<Meshes>
 		<Mesh>
 			<Id>0</Id>
-			<Path>../assets/models/uglypot.obj</Path>
+			<Path>assets/models/uglypot.obj</Path>
 			<Materials>
 				<Material>
 					<MaterialId>0</MaterialId>
@@ -354,7 +354,7 @@
 		</Mesh>
 		<Mesh>
 			<Id>2</Id>
-			<Path>../assets/models/sandyground.obj</Path>
+			<Path>assets/models/sandyground.obj</Path>
 			<Materials>
 				<Material>
 					<MaterialId>2</MaterialId>
@@ -363,7 +363,7 @@
 		</Mesh>
 		<Mesh>
 			<Id>4</Id>
-			<Path>../assets/models/lantern_obj.obj</Path>
+			<Path>assets/models/lantern_obj.obj</Path>
 			<Materials>
 				<Material>
 					<MaterialId>3</MaterialId>
@@ -387,7 +387,7 @@
 		</Mesh>
 		<Mesh>
 			<Id>3</Id>
-			<Path>../assets/models/dagger.obj</Path>
+			<Path>assets/models/dagger.obj</Path>
 			<Materials>
 				<Material>
 					<MaterialId>4</MaterialId>
@@ -396,7 +396,7 @@
 		</Mesh>
 		<Mesh>
 			<Id>5</Id>
-			<Path>../assets/models/barrels_obj.obj</Path>
+			<Path>assets/models/barrels_obj.obj</Path>
 			<Materials>
 				<Material>
 					<MaterialId>5</MaterialId>
@@ -405,7 +405,7 @@
 		</Mesh>
 		<Mesh>
 			<Id>6</Id>
-			<Path>../assets/models/barrels_obj.obj</Path>
+			<Path>assets/models/barrels_obj.obj</Path>
 			<Materials>
 				<Material>
 					<MaterialId>6</MaterialId>
@@ -414,7 +414,7 @@
 		</Mesh>
 		<Mesh>
 			<Id>7</Id>
-			<Path>../assets/models/barrels_obj.obj</Path>
+			<Path>assets/models/barrels_obj.obj</Path>
 			<Materials>
 				<Material>
 					<MaterialId>7</MaterialId>
@@ -423,7 +423,7 @@
 		</Mesh>
 		<Mesh>
 			<Id>8</Id>
-			<Path>../assets/models/rmod2.obj</Path>
+			<Path>assets/models/rmod2.obj</Path>
 			<Materials>
 				<Material>
 					<MaterialId>12</MaterialId>
@@ -439,8 +439,8 @@
 		</Shader>
 		<Shader>
 			<Id>1</Id>
-			<VSPath>../assets/shaders/forward_pbr.vs</VSPath>
-			<FSPath>../assets/shaders/forward_pbr.fs</FSPath>
+			<VSPath>assets/shaders/forward_pbr.vs</VSPath>
+			<FSPath>assets/shaders/forward_pbr.fs</FSPath>
 		</Shader>
 	</Shaders>
 	<Materials>
@@ -740,171 +740,171 @@
 	<Textures>
 		<Texture>
 			<Id>0</Id>
-			<TexturePath>../assets/textures/metal/metaldiff.png</TexturePath>
+			<TexturePath>assets/textures/metal/metaldiff.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>2</Id>
-			<TexturePath>../assets/textures/metal/metalgloss.png</TexturePath>
+			<TexturePath>assets/textures/metal/metalgloss.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>4</Id>
-			<TexturePath>../assets/textures/metal/metalheight.png</TexturePath>
+			<TexturePath>assets/textures/metal/metalheight.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>3</Id>
-			<TexturePath>../assets/textures/metal/metalnormal.png</TexturePath>
+			<TexturePath>assets/textures/metal/metalnormal.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>1</Id>
-			<TexturePath>../assets/textures/metal/metalspec.png</TexturePath>
+			<TexturePath>assets/textures/metal/metalspec.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>5</Id>
-			<TexturePath>../assets/textures/wood/wooddiff.png</TexturePath>
+			<TexturePath>assets/textures/wood/wooddiff.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>7</Id>
-			<TexturePath>../assets/textures/wood/woodgloss.png</TexturePath>
+			<TexturePath>assets/textures/wood/woodgloss.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>9</Id>
-			<TexturePath>../assets/textures/wood/woodheight.png</TexturePath>
+			<TexturePath>assets/textures/wood/woodheight.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>8</Id>
-			<TexturePath>../assets/textures/wood/woodnormal.png</TexturePath>
+			<TexturePath>assets/textures/wood/woodnormal.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>6</Id>
-			<TexturePath>../assets/textures/wood/woodspec.png</TexturePath>
+			<TexturePath>assets/textures/wood/woodspec.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>14</Id>
-			<TexturePath>../assets/textures/woodpbr/albedo.png</TexturePath>
+			<TexturePath>assets/textures/woodpbr/albedo.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>15</Id>
-			<TexturePath>../assets/textures/woodpbr/mrar.png</TexturePath>
+			<TexturePath>assets/textures/woodpbr/mrar.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>16</Id>
-			<TexturePath>../assets/textures/woodpbr/normal.png</TexturePath>
+			<TexturePath>assets/textures/woodpbr/normal.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>17</Id>
-			<TexturePath>../assets/textures/woodpbr/emissive.png</TexturePath>
+			<TexturePath>assets/textures/woodpbr/emissive.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>10</Id>
-			<TexturePath>../assets/textures/metalpbr/albedo.png</TexturePath>
+			<TexturePath>assets/textures/metalpbr/albedo.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>11</Id>
-			<TexturePath>../assets/textures/metalpbr/mrar2.png</TexturePath>
+			<TexturePath>assets/textures/metalpbr/mrar2.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>12</Id>
-			<TexturePath>../assets/textures/metalpbr/normal.png</TexturePath>
+			<TexturePath>assets/textures/metalpbr/normal.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>13</Id>
-			<TexturePath>../assets/textures/metalpbr/emissive.png</TexturePath>
+			<TexturePath>assets/textures/metalpbr/emissive.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>18</Id>
-			<TexturePath>../assets/textures/sandypbr/albedo.png</TexturePath>
+			<TexturePath>assets/textures/sandypbr/albedo.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>19</Id>
-			<TexturePath>../assets/textures/sandypbr/mrar.png</TexturePath>
+			<TexturePath>assets/textures/sandypbr/mrar.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>20</Id>
-			<TexturePath>../assets/textures/sandypbr/normal.png</TexturePath>
+			<TexturePath>assets/textures/sandypbr/normal.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>21</Id>
-			<TexturePath>../assets/textures/sandypbr/emissive.png</TexturePath>
+			<TexturePath>assets/textures/sandypbr/emissive.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>22</Id>
-			<TexturePath>../assets/textures/lantern/lantern_albedo.jpg</TexturePath>
+			<TexturePath>assets/textures/lantern/lantern_albedo.jpg</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>23</Id>
-			<TexturePath>../assets/textures/lantern/lantern_mrar.png</TexturePath>
+			<TexturePath>assets/textures/lantern/lantern_mrar.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>24</Id>
-			<TexturePath>../assets/textures/lantern/lantern_normal.jpg</TexturePath>
+			<TexturePath>assets/textures/lantern/lantern_normal.jpg</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>25</Id>
-			<TexturePath>../assets/textures/lantern/emissive.png</TexturePath>
+			<TexturePath>assets/textures/lantern/emissive.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>26</Id>
-			<TexturePath>../assets/textures/dagger/dagger_albedo.png</TexturePath>
+			<TexturePath>assets/textures/dagger/dagger_albedo.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>27</Id>
-			<TexturePath>../assets/textures/dagger/dagger_mrar.png</TexturePath>
+			<TexturePath>assets/textures/dagger/dagger_mrar.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>28</Id>
-			<TexturePath>../assets/textures/dagger/dnormal.png</TexturePath>
+			<TexturePath>assets/textures/dagger/dnormal.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>29</Id>
-			<TexturePath>../assets/textures/dagger/emissive.png</TexturePath>
+			<TexturePath>assets/textures/dagger/emissive.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>30</Id>
-			<TexturePath>../assets/textures/drums/drum1albedo.png</TexturePath>
+			<TexturePath>assets/textures/drums/drum1albedo.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>31</Id>
-			<TexturePath>../assets/textures/drums/drum1_mrar.png</TexturePath>
+			<TexturePath>assets/textures/drums/drum1_mrar.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>32</Id>
-			<TexturePath>../assets/textures/drums/drum1_normal.png</TexturePath>
+			<TexturePath>assets/textures/drums/drum1_normal.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>33</Id>
-			<TexturePath>../assets/textures/drums/emissive.png</TexturePath>
+			<TexturePath>assets/textures/drums/emissive.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>34</Id>
-			<TexturePath>../assets/textures/drums/drum2albedo.png</TexturePath>
+			<TexturePath>assets/textures/drums/drum2albedo.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>35</Id>
-			<TexturePath>../assets/textures/drums/drum2_mrar.png</TexturePath>
+			<TexturePath>assets/textures/drums/drum2_mrar.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>36</Id>
-			<TexturePath>../assets/textures/drums/drum2_normal.png</TexturePath>
+			<TexturePath>assets/textures/drums/drum2_normal.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>37</Id>
-			<TexturePath>../assets/textures/drums/emissive.png</TexturePath>
+			<TexturePath>assets/textures/drums/emissive.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>38</Id>
-			<TexturePath>../assets/textures/drums/drum3albedo.png</TexturePath>
+			<TexturePath>assets/textures/drums/drum3albedo.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>39</Id>
-			<TexturePath>../assets/textures/drums/drum3_mrar.png</TexturePath>
+			<TexturePath>assets/textures/drums/drum3_mrar.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>40</Id>
-			<TexturePath>../assets/textures/drums/drum3_normal.png</TexturePath>
+			<TexturePath>assets/textures/drums/drum3_normal.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>41</Id>
-			<TexturePath>../assets/textures/drums/emissive.png</TexturePath>
+			<TexturePath>assets/textures/drums/emissive.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>42</Id>
@@ -912,35 +912,35 @@
 		</Texture>
 		<Texture>
 			<Id>43</Id>
-			<TexturePath>../assets/textures/RenderModel/rmod_albedo.png</TexturePath>
+			<TexturePath>assets/textures/RenderModel/rmod_albedo.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>44</Id>
-			<TexturePath>../assets/textures/RenderModel/rmod_mrar.png</TexturePath>
+			<TexturePath>assets/textures/RenderModel/rmod_mrar.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>45</Id>
-			<TexturePath>../assets/textures/RenderModel/rmod_normal.png</TexturePath>
+			<TexturePath>assets/textures/RenderModel/rmod_normal.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>46</Id>
-			<TexturePath>../assets/textures/RenderModel/rmod_emissive.png</TexturePath>
+			<TexturePath>assets/textures/RenderModel/rmod_emissive.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>47</Id>
-			<TexturePath>../assets/textures/wornfabric/albedo.png</TexturePath>
+			<TexturePath>assets/textures/wornfabric/albedo.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>48</Id>
-			<TexturePath>../assets/textures/wornfabric/mrar.png</TexturePath>
+			<TexturePath>assets/textures/wornfabric/mrar.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>49</Id>
-			<TexturePath>../assets/textures/wornfabric/normal.png</TexturePath>
+			<TexturePath>assets/textures/wornfabric/normal.png</TexturePath>
 		</Texture>
 		<Texture>
 			<Id>50</Id>
-			<TexturePath>../assets/textures/wornfabric/emissive.png</TexturePath>
+			<TexturePath>assets/textures/wornfabric/emissive.png</TexturePath>
 		</Texture>
 	</Textures>
 </Scene>
