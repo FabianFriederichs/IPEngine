@@ -71,7 +71,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(BOOST);$(SolutionDir)/ExternalDependencies;C:\VulkanSDK\1.0.39.1\Include;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/API_Headers;$(SolutionDir)/../Core;$(BOOST);$(SolutionDir)/ExternalDependencies;C:\VulkanSDK\1.0.39.1\Include;</IncludePath>
     <IntDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\$(ProjectName)_int\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -80,7 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(BOOST);$(SolutionDir)/ExternalDependencies;$(VULKAN_SDK)\Include;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/API_Headers;$(SolutionDir)/../Core;$(BOOST);$(SolutionDir)/ExternalDependencies;$(VULKAN_SDK)\Include;</IncludePath>
     <OutDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\$(ProjectName)_int\</IntDir>
   </PropertyGroup>

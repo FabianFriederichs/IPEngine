@@ -57,20 +57,24 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="CoreSheet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="CoreSheet.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="CoreSheet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="CoreSheet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies;$(BOOST);$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/ApplicationBase</IncludePath>
+    <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/../Core;$(SolutionDir)/ExternalDependencies;$(BOOST);$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/ApplicationBase</IncludePath>
     <OutDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\$(ProjectName)_int\</IntDir>
   </PropertyGroup>
@@ -82,7 +86,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/Core;$(SolutionDir)/ExternalDependencies;$(BOOST);$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/ApplicationBase</IncludePath>
+    <IncludePath>$(SolutionDir)/API_Headers;$(SolutionDir)/../Core;$(SolutionDir)/ExternalDependencies;$(BOOST);$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/ApplicationBase</IncludePath>
     <OutDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Output\$(Platform)\$(Configuration)\$(ProjectName)_int\</IntDir>
   </PropertyGroup>
