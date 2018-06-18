@@ -1,8 +1,19 @@
+/** \addtogroup threading
+*  @{
+*/
+
+/*!
+\file Common.h
+*/
+
 #ifndef _TS_COMMON_H_
 #define _TS_COMMON_H_
 
 namespace ipengine
 {
+	/*!
+	\brief Defines a class that is used as a hint in the thread pool system. It is used to determine which worker a task is executed on.
+	*/
 	class WorkerToken
 	{
 		friend class ThreadPool;
@@ -23,3 +34,4 @@ namespace ipengine
 }
 
 #endif
+/** @}*/

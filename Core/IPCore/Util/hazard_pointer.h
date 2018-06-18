@@ -1,30 +1,48 @@
-#pragma once
+/** \addtogroup threading
+*  @{
+*/
+
+/*!
+\file hazard_pointer.h
+*/
+#ifndef _HAZARD_POINTER_H_
+#define _HAZARD_POINTER_H_
 #include <atomic>
 #include <thread>
 #include <stdexcept>
 
 
-//----------- README -----------
-// Acquire a hazard pointer in your code as follows:
-//
-//	hptr& hazptr = get_hp_for_current_thread();
-//	
-//	...
-//	
-//	node* tmp;
-//	do //loop to make sure that the element pointed by oldhead wasn't deleted between reading of head and writing the hp.
-//	{
-//		tmp = oldhead;
-//		hazptr.store(oldhead);
-//		oldhead = head.load();
-//	} while (oldhead != tmp);
-//	//from this point, no thread can delete the node
-//	
-
-//the hazard pointer type that is intended for use in code
+/*!
+\brief Defines how many hazard pointers are available for the whole application.
+*/
 #define MAX_HAZARD_POINTERS 100
 
 namespace ipengine {
+	/*!
+	\brief Hazard pointer implementation.
+
+	Hazard pointers are used to manage lifetime ob objects in lock-free algorithms and data structures.
+	This implementation of the hazard pointer scheme is taken from
+
+	- Anthony Williams. C++ Concurrency in action: Practical Multithreading. Manning Publications, 2012. -
+
+	Acquire a hazard pointer in your code as follows:
+
+	\code{.cpp}
+	hptr& hazptr = get_hp_for_current_thread();
+
+	...
+
+	node* tmp;
+	do //loop to make sure that the element pointed by oldhead wasn't deleted between reading of head and writing the hp.
+	{
+		tmp = oldhead;
+		hazptr.store(oldhead);
+		oldhead = head.load();
+	} while (oldhead != tmp);
+	//from this point, no thread can delete the node
+	\endcode
+	*/
 	using hptr = std::atomic<void*>;
 
 
@@ -94,3 +112,5 @@ namespace ipengine {
 	}
 
 }
+#endif
+/** @}*/

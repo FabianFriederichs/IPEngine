@@ -1,9 +1,31 @@
-#pragma once
+/** \addtogroup typelibrary
+*  @{
+*/
+
+/*!
+\file stack.h
+\brief Some super slim stack implementations.
+
+This was a test of how much overhead the standard library containers add on top
+of such a very basic implementation.
+In debug builds, the overhead is quite noticable, in release builds
+virtually no difference can be measured.
+*/
+#ifndef _STACK_H_
+#define _STACK_H_
 #include <type_traits>
 #include <IPCore/Util/spinlock.h>
 
 namespace ipengine {
 
+	/*!
+	\brief Non-threadsafe implemenation of a stack datastructure.
+
+	Minimal, growing stack implementation.
+	The underlying array size is doubled when the stack is full.
+
+	\tparam T Type of the items. T must be trivially copyable.
+	*/
 	template <typename T>
 	class stack
 	{
@@ -100,6 +122,9 @@ namespace ipengine {
 		delete[] old;
 	}
 
+	/*!
+	\brief Essentially the same as stack, but made thread-safe with a YieldingSpinlock.
+	*/
 	template <typename T>
 	class spinlock_stack
 	{
@@ -195,9 +220,10 @@ namespace ipengine {
 	{
 		T* old = m_arr;
 		m_arr = new T[size_t(1) << (m_logsz * 2)];
-		//std::copy(old, old + m_index, m_arr);
 		memcpy_s(m_arr, size_t(1) << m_logsz, old, size_t(1) << m_logsz);
 		m_logsz = m_logsz * 2;
 		delete[] old;
 	}
 }
+#endif
+/** @}*/

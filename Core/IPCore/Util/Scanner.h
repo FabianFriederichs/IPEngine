@@ -1,3 +1,15 @@
+/** \addtogroup util
+*  @{
+*/
+
+/*!
+\file Scanner.h
+\brief Not implemented yet.
+
+A tokenizer, parameterizable with regular expressions or regular production rules
+shall be implemented here.
+*/
+
 #ifndef _SCANNER_H_
 #define _SCANNER_H_
 
@@ -23,3 +35,4 @@
 //	};
 //}
 #endif
+/** @}*/

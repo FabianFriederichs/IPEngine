@@ -7,6 +7,27 @@
 #include <atomic>
 
 //console command implementation
+namespace ipengine {
+	class CORE_API ConsoleCommand
+	{
+	public:
+		ConsoleCommand();
+		ConsoleCommand(ipcrstr name, const CommandFunc& func);
+		ConsoleCommand(ipcrstr name, const CommandFunc& func, ipcrstr description);
+		ConsoleCommand(const ConsoleCommand& other) = default;
+		ConsoleCommand(ConsoleCommand&& other) = default;
+		ConsoleCommand& operator=(const ConsoleCommand& other) = default;
+		ConsoleCommand& operator=(ConsoleCommand&& other) = default;
+		~ConsoleCommand();
+		void call(const ConsoleParams& params);
+		ipcrstr getDescription();
+		ipcrstr getName();
+	private:
+		CommandFunc comfunc;
+		ipchar name[MAX_COMMAND_NAME_LENGTH + 1];
+		ipchar description[MAX_DESC_LENGTH + 1];
+	};
+}
 
 ipengine::ConsoleCommand::ConsoleCommand()
 {

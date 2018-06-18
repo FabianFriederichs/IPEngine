@@ -1,9 +1,40 @@
-#pragma once
+/** \addtogroup typelibrary
+Defines common types and data structures for the whole system.
+*  @{
+*/
+
+/*!
+\file LFDS.h
+\brief Lock-free data structures
+
+Lock-free data structures are data structures which don't use locks or mutexes to synchronize
+access from multiple threads. Instead they're relying on atomic operations implemented in hardware
+and memory-order guarantees which those operations give.
+They are incredibly hard to implement because its very difficult to reason about the code.
+But it's worth it because they have several advantages over the traditional, lock-based datastructures.
+
+They:
+\li Decrease contention
+\li Decrease latency
+\li Increase throughput
+
+This is, because they are essentially the finest-grade locking that one can archieve on the hardware.
+Atomic synchronization can be thought of as micro-locks that are acquired for at most the time the
+CPU needs to execute the atomic operation.
+
+There are many papers out there which propose new lock-free data structures but many of them
+are either very hard to implement or they have drawbacks in terms of portability and performance
+in practice.
+
+Over the time some of these data structures shall be implemented in this file.
+*/
+
+#ifndef _LOCK_FREE_DATA_STRUCTURES_
+#define _LOCK_FREE_DATA_STRUCTURES_
 #include <atomic>
 #include <IPCore/Util/spinlock.h>
 #include <cstdint>
 #include <IPCore/ThreadingServices/Task.h>
-//#include "hazard_pointer.h"
 #define ACQUIRE std::memory_order_acquire
 #define RELEASE std::memory_order_release
 #define RELAXED std::memory_order_relaxed
@@ -11,6 +42,9 @@
 
 namespace ipengine {
 
+	/*!
+	\brief Implements a growable ring buffer data structure.
+	*/
 	template <typename T>
 	class RingBuffer
 	{
@@ -25,6 +59,10 @@ namespace ipengine {
 	public:
 
 		RingBuffer();
+		/*!
+		\brief Initializes the ring buffer with an array of size 2^logcap.
+		\param[in] logcap	Initial size of the array is 2^logcap.
+		*/
 		RingBuffer(SIndex logcap = 10);
 		RingBuffer(const RingBuffer<T>& other);
 		RingBuffer(RingBuffer<T>&& other);
@@ -79,6 +117,11 @@ namespace ipengine {
 		}
 	}
 
+	/*!
+	\brief Access elements.
+
+	\returns	Returns a reference to the element with index idx mod capacity from the internal array.
+	*/
 	template<typename T>
 	inline T & RingBuffer<T>::operator[](typename RingBuffer<T>::SIndex idx)
 	{
@@ -92,10 +135,15 @@ namespace ipengine {
 		}
 	}
 
+
+	/*!
+	\brief Const-access elements.
+
+	\returns	Returns a const reference to the element with index idx mod capacity from the internal array.
+	*/
 	template<typename T>
 	inline const T & RingBuffer<T>::operator[](typename RingBuffer<T>::SIndex idx) const
 	{
-		// TODO: hier Rückgabeanweisung eingeben
 		if (m_array != nullptr)
 		{
 			return m_array[static_cast<typename RingBuffer<T>::Index>(idx) & (static_cast<typename RingBuffer<T>::Index>(capacity()) - static_cast<typename RingBuffer<T>::Index>(1))];
@@ -105,7 +153,10 @@ namespace ipengine {
 			throw std::out_of_range("Internal array was nullptr.");
 		}
 	}
-
+	
+	/*!
+	\brief Returns a new ring buffer with double the size of the old one and all elements copied over.
+	*/
 	template<typename T>
 	RingBuffer<T>* RingBuffer<T>::grow(typename RingBuffer<T>::SIndex back, typename RingBuffer<T>::SIndex front)
 	{
@@ -119,6 +170,9 @@ namespace ipengine {
 
 	//-------------------------------- LOCK FREE STACK ---------------------------------------------------------------------------------------------------
 
+	/*!
+	\brief Not implemented yet.
+	*/
 	template <typename T>
 	class LockFreeStack
 	{
@@ -220,6 +274,9 @@ namespace ipengine {
 
 	//------------------------------- LOCK FREE QUEUE ---------------------------------------------------------------------------------------------------
 
+	/*!
+	\brief Not implemented yet.
+	*/
 	template <typename T>
 	class LockFreeQueue
 	{
@@ -228,6 +285,18 @@ namespace ipengine {
 
 	//----------------- http://www.di.ens.fr/~zappa/readings/ppopp13.pdf ---------------- A LOCK FREE WORK STEALING DEQUE FOR THE WORKERS -----------------------------------------
 
+	/*!
+	\brief Implementation of the Chase-Lev work stealing queue.
+	
+	"Dynamic Circular Work-Stealing Deque"; David Chase, Yossi Lev; 2005
+	http://www.di.ens.fr/~zappa/readings/ppopp13.pdf
+
+	The steal operation is thread safe, push and pop are not.
+	This data structure is used for the local work queues of the workers in the thread pool system.
+
+	If the RingBuffer has to grow, the old RingBuffer instance is enqueued for deallocation
+	when no thread accesses it anymore.
+	*/
 	template <typename T>
 	class LockFreeWSQueue
 	{
@@ -309,6 +378,7 @@ namespace ipengine {
 
 	//TODO: refine memory orderings when this stuff works
 
+	//! Try to delete the old RingBuffer instance or enqueue it for later deallocation
 	template<typename T>
 	inline void LockFreeWSQueue<T>::try_delete_arr(RingBuffer<T>* oldarr)
 	{
@@ -328,6 +398,7 @@ namespace ipengine {
 			try_delete_arr();
 	}
 
+	//! Iterate through the to-be-deleted list and try to delete some of the old RingBuffer instances.
 	template<typename T>
 	inline void LockFreeWSQueue<T>::try_delete_arr() //one problem here: although it's very likely that a dead array is eventually deleted, it could theoretically happen that the array stays in memory forever if contention on steal is too high
 	{
@@ -350,6 +421,7 @@ namespace ipengine {
 		}
 	}
 
+	//! Push an item onto the private end of the queue. Not thread safe.
 	template <typename T>
 	bool LockFreeWSQueue<T>::push(const T& item)
 	{
@@ -375,6 +447,7 @@ namespace ipengine {
 		return true;
 	}
 
+	//! Push an item onto the private end of the queue. Not thread safe.
 	template <typename T>
 	bool LockFreeWSQueue<T>::push(T&& item)
 	{
@@ -400,6 +473,14 @@ namespace ipengine {
 		return true;
 	}
 
+	/*! 
+	\brief Pop an item from the private end of the queue. Not thread safe.
+	
+	Copies the item into target.
+
+	\param[out] target  Instance the item should be copied to.
+	\returns			Returns true if an item was popped. Returns false if the queue was empty.
+	*/
 	template <typename T>
 	bool LockFreeWSQueue<T>::pop(T& target)
 	{
@@ -437,8 +518,14 @@ namespace ipengine {
 		}
 	}
 
-	//steal can be called from multiple threads
+	/*!
+	\brief Steals an item from the public end of the queue. Thread safe.
 
+	Copies the item into target.
+
+	\param[out] target  Instance the item should be copied to.
+	\returns			Returns true if an item was stolen. Returns false if the queue was empty.
+	*/
 	template <typename T>
 	bool LockFreeWSQueue<T>::steal(T& target)
 	{
@@ -468,6 +555,9 @@ namespace ipengine {
 		}
 	}
 
+	/*!
+	\brief Returns the number of items currently in the queue.
+	*/
 	template <typename T>
 	typename RingBuffer<T>::SIndex LockFreeWSQueue<T>::size()
 	{
@@ -477,18 +567,25 @@ namespace ipengine {
 		return s;
 	}
 
+	/*!
+	\brief Returns the current capacity of the underlying ring buffer.
+	*/
 	template <typename T>
 	typename RingBuffer<T>::SIndex LockFreeWSQueue<T>::capacity()
 	{
 		return m_items.load()->capacity();
 	}
 
+	/*!
+	\brief Returns true if the queue is empty.
+	*/
 	template <typename T>
 	bool LockFreeWSQueue<T>::empty()
 	{
 		return m_front.load() >= m_back.load();
 	}
 
+	//! Not implemented yet.
 	template <typename T>
 	void LockFreeWSQueue<T>::clear()
 	{
@@ -497,3 +594,5 @@ namespace ipengine {
 
 
 }
+#endif
+/** @}*/

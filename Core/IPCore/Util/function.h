@@ -1,3 +1,10 @@
+/** \addtogroup typelibrary
+*  @{
+*/
+
+/*!
+\file function.h
+*/
 #ifndef _FUNCTION_H_
 #define _FUNCTION_H_
 #include <exception>
@@ -8,6 +15,7 @@
 
 namespace ipengine {
 
+	//! Is thrown when an invalid function object is invoked
 	class bad_invocation_exception : public std::exception
 	{
 	public:
@@ -17,10 +25,28 @@ namespace ipengine {
 		}
 	};
 
-
+	/*!
+	\brief unused
+	*/
 	template <class UNUSED_T>
 	class function;
 
+	/*!
+	\brief Implements a general purpose function wrapper.
+
+	In contrast to the std:: implementation, everything that is callable with the same signature
+	is handled as the same type. This achieved through some void pointer- and template trickery.
+
+	Complete objects with a function call operator are supported when FUNCTION_SUPPORT_FUNCTORS is defined.
+	This is optional, because callable objects aka functors have to be allocated on the heap, because
+	their size is not fixed, and heap allocations are slow. Small object optimization like the one in soo_any
+	could be implemented, though.
+
+	Instances of function are created by calling factory functions, which is more convenient than creating
+	them with constructor calls, because some type deduction features are not available with constructors.
+
+	\todo Implement small object optimization
+	*/
 	template <class R, class ... ARGS>
 	class function<R(ARGS...)>
 	{
@@ -109,11 +135,10 @@ namespace ipengine {
 		}
 
 	public:
-		//TODO: isEmpty() or isValid() member!!!
-		//public data
+		//! Return type
 		using return_type = R;
 
-		//ctors
+		//! Creates an empty function object.
 		function() :
 			func_store{ nullptr },
 			object_ptr(nullptr)
@@ -127,6 +152,7 @@ namespace ipengine {
 		{
 		}
 
+		//! Copy constructor
 		function(const function<R(ARGS...)>& other) :
 			func_store(other.func_store),
 			object_ptr(other.object_ptr)
@@ -145,6 +171,7 @@ namespace ipengine {
 #endif
 		}
 
+		//! Move constructor
 		function(function<R(ARGS...)>&& other) noexcept :
 		func_store(other.func_store),
 			object_ptr(other.object_ptr)
@@ -158,6 +185,7 @@ namespace ipengine {
 			other.clear();
 		}
 
+		//! Destructor
 		~function()
 		{
 #ifdef FUNCTION_SUPPORT_FUNCTORS
@@ -168,7 +196,7 @@ namespace ipengine {
 #endif
 		}
 
-		//Assignment operators
+		//! Copy assignment.
 		function<R(ARGS...)>& operator=(const function<R(ARGS...)>& other)
 		{
 			if (this == &other)
@@ -178,6 +206,7 @@ namespace ipengine {
 			return *this;
 		}
 
+		//! Move assignment.
 		function<R(ARGS...)>& operator=(function<R(ARGS...)>&& other) noexcept
 		{
 			if (this == &other)
@@ -193,6 +222,7 @@ namespace ipengine {
 			return *this;
 		}
 
+		//! Swaps contents of two function objects
 		void swap(function<R(ARGS...)>& other) noexcept
 		{
 			FWrp fstore = func_store;
@@ -221,6 +251,11 @@ namespace ipengine {
 		//factory
 		//function pointers
 		//compile time version
+		/*!
+		\brief Create a function object with a plain function pointer known at compile time.
+		\tparam func	Function pointer
+		\returns		function object
+		*/
 		template <func_ptr func>
 		static function<R(ARGS...)> make_func()
 		{
@@ -230,6 +265,11 @@ namespace ipengine {
 			return f;
 		}
 
+		/*!
+		\brief Create a function object with a plain function pointer not known at compile time.
+		\param func		Function pointer
+		\returns		function object
+		*/
 		static function<R(ARGS...)> make_func(func_ptr func)
 		{
 			function<R(ARGS...)> f;
@@ -238,8 +278,33 @@ namespace ipengine {
 			return f;
 		}
 
-		//member functions
-		//compile time version
+		/*!
+		\brief Create a function object that wraps a member function pointer.
+		\tparam Class	Type of the class
+		\tparam memfunc	Pointer to member function. Must be known at compile time.
+		\returns		function object
+
+		Example usage:
+
+		Let there be a class:
+		\code{.cpp}
+		class Test
+		{
+		public:
+			int somefunction(int, float);
+		};
+		\endcode
+
+		A function object that wraps Test::somefunction is created as follows:
+		\code{.cpp}
+		Test t;
+		auto testfunc = function<int(int, float)>::make_func<Test, &Test::somefunction>(&t);
+		//invoke it
+		int res = testfunc(42, 3.0f);
+		\endcode
+
+		\attention	Make sure that the object lives at least as long as the function object that references the memberfunction. Undefined behaviour otherwise.
+		*/		
 		template <class Class, R(Class::*memfunc)(ARGS...)>
 		static function<R(ARGS...)> make_func(Class* object)
 		{
@@ -249,6 +314,33 @@ namespace ipengine {
 			return f;
 		}
 
+		/*!
+		\brief Create a function object that wraps a const member function pointer.
+		\tparam Class	Type of the class
+		\tparam memfunc	Pointer to member function. Must be known at compile time.
+		\returns		function object
+
+		Example usage:
+
+		Let there be a class:
+		\code{.cpp}
+		class Test
+		{
+		public:
+		int somefunction(int, float) const;
+		};
+		\endcode
+
+		A function object that wraps Test::somefunction is created as follows:
+		\code{.cpp}
+		Test t;
+		auto testfunc = function<int(int, float)>::make_func<Test, &Test::somefunction>(&t);
+		//invoke it
+		int res = testfunc(42, 3.0f);
+		\endcode
+
+		\attention	Make sure that the object lives at least as long as the function object that references the memberfunction. Undefined behaviour otherwise.
+		*/
 		template <class Class, R(Class::*memfunc)(ARGS...) const>
 		static function<R(ARGS...)> make_func(Class* object)
 		{
@@ -259,7 +351,15 @@ namespace ipengine {
 		}
 
 #ifdef FUNCTION_SUPPORT_FUNCTORS
-		//general functor version
+		/*!
+		\brief Create a function object from a callable object (functor).
+
+		Note that functors are stored on the heap which adds additional cost to creation of the function object.
+
+		\tparam Functor		Type of the functor.
+		\param[in] func		Reference to an instance of Functor
+		\returns			Returns a function object.
+		*/
 		template <class Functor>
 		static function<R(ARGS...)> make_func(Functor&& func)
 		{
@@ -272,7 +372,14 @@ namespace ipengine {
 			return f;
 		}
 #endif
-		//operators
+		/*!
+		\brief Calls whatever is held by the function object with the given arguments.
+
+		The arguments are perfect-forwarded to the called entity.
+
+		\returns	Returns whatever the called entity returns.
+		\throws		Throws bad_invocation_exception if the function object is invalid or empty.
+		*/
 		R operator()(ARGS&&... args)
 		{
 			if (func_store.function == nullptr)
@@ -283,7 +390,10 @@ namespace ipengine {
 				return (*func_store.moffunction)(object_ptr, std::forward<ARGS>(args)...);
 		}
 
-		//other member functions
+		/*!
+		\brief Returns true if the function object is empty.
+		\returns	Returns true if the function object is empty.
+		*/
 		bool isEmpty()
 		{
 			return func_store.function == nullptr;
@@ -292,3 +402,4 @@ namespace ipengine {
 
 }
 #endif
+/** @}*/
