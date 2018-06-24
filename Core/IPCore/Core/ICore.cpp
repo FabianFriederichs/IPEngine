@@ -14,6 +14,10 @@ ipengine::Core::~Core()
 {
 }
 
+/*!
+The member function creates instances of the functionality-implementing classes in the right order
+and registers the core's error handlers and console commands.
+*/
 void ipengine::Core::initialize(const iprstr configpath)
 {
 	cmodule_memorymanager = new MemoryManager();
@@ -54,28 +58,36 @@ void ipengine::Core::stop()
 	m_isrunning.store(false);
 }
 
+/*!
+During a tick, the following actions happen in this order:
+\li Handle pending exceptions
+\li Execute pending console command calls
+\li Trigger a schedule cycle on the Scheduler instance
+\li Send pending messages from the core
+\li Dispatch incoming messages for the core
+\li If the m_isrunning flag is set false, set shouldstop true to signal
+	the calling application to stop
+*/
 ipengine::Time ipengine::Core::tick(bool& shouldstop)
 {
 	auto t1 = Time::now();
-
 	cmodule_errormanager->handlePendingExceptions();
-
 	cmodule_console->executePendingCommands();
-
 	if (m_isrunning.load(std::memory_order_relaxed))
 	{
 		cmodule_scheduler->schedule();
 		core_msgep->sendPendingMessages();
 		core_msgep->dispatch();
 	}
-
 	if (!m_isrunning.load(std::memory_order_relaxed))
 		shouldstop = true;
-
 	auto t2 = Time::now();
 	return Time(t2.nano() - t1.nano());
 }
 
+/*!
+All exceptions are printed. If the severity field of an exception evaluates as "FATAL", the core is stopped.
+*/
 void ipengine::Core::handleError(ipex & ex)
 {
 	std::stringstream msg;

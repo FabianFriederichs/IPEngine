@@ -1,11 +1,25 @@
+/** \addtogroup memory
+*  @{
+*/
+
+/*!
+\file allocators.h
+\brief High-level allocators should go here.
+*/
+
 #ifndef _ALLOCATORS_H_
 #define _ALLOCATORS_H_
 #include <type_traits>
 #include <IPCore/Memory/MemoryManager.h>
 #include <scoped_allocator>
-//std allocator conforming interfaces for using custom memory allocation strategies with std containers
 namespace ipengine
 {
+	/*!
+	\brief std compliant allocator.
+
+	std-compliant allocator implementation that uses MemoryManager for all allocations and deallocations.
+	The scoped allocator thing needs to be tested, yet.
+	*/
 	template <typename T>
 	class IPAllocator
 	{
@@ -59,8 +73,8 @@ namespace ipengine
 
 	template <typename T>
 	using IPAlloc = std::scoped_allocator_adaptor<IPAllocator<T>>;
-
-	//TODO create an allocator which allocates alligned storage via alloc_aligned stuff in memory_utils.h
 }
 
 #endif
+
+/** @}*/

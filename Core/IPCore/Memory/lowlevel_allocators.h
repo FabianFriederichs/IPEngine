@@ -1,3 +1,11 @@
+/** \addtogroup memory
+*  @{
+*/
+
+/*!
+\file lowlevel_allocators.h
+\brief Defines some special allocators
+*/
 #ifndef _LOW_LEVEL_ALLOCATORS_H_
 #define _LOW_LEVEL_ALLOCATORS_H_
 #include <atomic>
@@ -16,6 +24,22 @@ namespace ipengine {
 	//memory with the second version across different translation units!!
 
 	//Basic Free List allocator for fixed block size with arbitrary alignment, not threadsafe
+
+	/*!
+	\brief Free list allocator strategy implementation for fixed block sizes. Not thread safe.
+
+	This class implements a basic free list allocator. Chunks of memory are allocated on demand and
+	split into blocks. A block can either be occupied (through an allocation) or free.
+	A free block contains a pointer to the next free block, i.e. the free blocks form
+	a in-memory singly linked list. Allocations pop blocks and deallocations push blocks
+	from and onto that list. If the list is empty, a new chunk is allocated and split into
+	blocks, the resulting list is merged with the currently empty list.
+	Currently the chunks are never freed until the FreeList object is destroyed.
+
+	\tparam alignment		The desired alignment for each block
+	\tparam blocksize		The desired block size (note that this sets the maximum number of bytes that can be allocated at once)
+	\tparam	blocksperchunk	Defines the size of a chunk
+	*/
 	template <size_t alignment, size_t blocksize, size_t blocksperchunk>
 	class FreeList
 	{
@@ -23,27 +47,43 @@ namespace ipengine {
 		static_assert(blocksize > 0, "blocksize must be greater than 0.");
 		static_assert(blocksperchunk > 0, "blocksperchunk must be greater than 0.");
 
+		//! Node data structure for the in-memory list
 		typedef struct node
 		{
 			node* next;
 		} node;
 
+		/*!
+		\brief Describes a chunk of memory.
+
+		A chunk has a pointer to the allocated memory block, a pointer to the first address in the chunk
+		that meets the specified alignment requirement and pointers to the first and the last block.
+		*/
 		typedef struct chunk
 		{
-			void* memptr;
-			void* alignedaddr;
-			node* head;
-			node* last;
+			void* memptr;		//!< Pointer to the underlying memory block
+			void* alignedaddr;	//!< First address in the chunk that meets the alignment requirement
+			node* head;			//!< Pointer to the first node or block
+			node* last;			//!< Pointer to the last node or block
 		} chunk;
 
+		//! Current head of the linked list of blocks
 		node* head;
+		//! Number of chunks allocated in total
 		size_t chunk_count;
+		//! Blocksize, round up to the next multiple of alignment
 		size_t aligned_blocksize;
+		//! Size of a chunk, calculated as blocksperchunk * aligned_blocksize
 		size_t aligned_chunksize;
+		//! All chunks that are currently allocated
 		std::vector<chunk> chunks;
+		//! Flag that signals that the FreeList is ready to perform allocations and deallocations
 		bool initialized;
 
 	private:
+		/*!
+		\brief Allocates a new chunk and calculates the alignedaddr member.
+		*/
 		bool allocate_chunk(chunk& c)
 		{
 			if (!initialized)
@@ -68,6 +108,9 @@ namespace ipengine {
 			return true;
 		}
 
+		/*!
+		\brief Splits the chunk into blocks and connects them to an in-memory linked list of free blocks.
+		*/
 		bool setup_chunk(chunk& c)
 		{
 			if (!initialized)
@@ -98,6 +141,7 @@ namespace ipengine {
 			return true;
 		}
 
+		//! Deallocates a chunk
 		void deallocate_chunk(chunk& c)
 		{
 			if (c.memptr != nullptr)
@@ -110,6 +154,7 @@ namespace ipengine {
 			}
 		}
 
+		//! Allocates and initializes a new chunk and adds the resulting new, free blocks to the current linked list of free blocks
 		bool addChunk()
 		{
 			//if head isn't nullpointer, the free list is not empty so adding a new block would corrupt the list.
@@ -123,13 +168,14 @@ namespace ipengine {
 			setup_chunk(c);
 			//push the new chunk onto our chunk vector
 			chunks.push_back(c);
-			//increse chunk count
+			//increase chunk count
 			++chunk_count;
 			head = chunks[chunks.size() - 1].head;
 			return true;
 		}
 
 	public:
+		//! Constructor
 		FreeList() :
 			head(nullptr),
 			chunk_count(0),
@@ -140,6 +186,7 @@ namespace ipengine {
 		{
 		}
 
+		//! Destructor
 		~FreeList()
 		{
 			for (auto& c : chunks)
@@ -148,6 +195,11 @@ namespace ipengine {
 			}
 		}
 
+		/*!
+		\brief Initializes the FreeList with a single chunk.
+
+		\returns Returns true if the initialization was successful.
+		*/
 		bool initialize()
 		{
 			if (initialized)
@@ -167,6 +219,14 @@ namespace ipengine {
 			return true;
 		}
 
+		/*!
+		\brief Allocates a block of memory.
+
+		Allocates a block of memory with a size up to blocksize and with the alignment specified through the alignment template parameter.
+		
+		\param[in] size			Size of the memory block to be allocated
+		\throw std::bad_alloc	Throws std::bad_alloc if size is larger than the specified block size or if no free block was available and the allocation of a new chunk failed.
+		*/
 		void* allocate(size_t size)
 		{
 			if (size > blocksize)
@@ -191,6 +251,14 @@ namespace ipengine {
 			}
 		}
 
+		/*!
+		\brief Deallocates a block of memory.
+
+		Deallocates a block of memory pointed by ptr.
+		\param[in] ptr	Pointer to the block that should be deallocated.
+
+		\attention Never deallocate a block that was allocated on another FreeList instance!
+		*/
 		void deallocate(void* ptr)
 		{
 			if (!initialized)
@@ -201,6 +269,12 @@ namespace ipengine {
 			head = reclaimed;
 		}
 
+		/*!
+		\brief Returns true if the given address is from this free list instance.
+
+		\param[in] address	The address to be checked
+		\returns			Returns true if the address belongs to a block from this list instance.
+		*/
 		bool isFromList(void* address)
 		{
 			for (int i = 0; i < chunks.size(); i++)
@@ -212,10 +286,28 @@ namespace ipengine {
 		}
 	};
 
+	/*!
+	\brief Thread safe implementation of a free list allocator
 
-	//TODO: There is a bug when blocksperchunk == 1. Also bad performance of our Central Free List.
-	//Probably making batch and chunk arrays lockfree will fix this.
+	This class implements a very basic thread safe free list. It is inspired from
+	Google's tcmalloc: http://goog-perftools.sourceforge.net/doc/tcmalloc.html
 
+	A central list is used to manage large parts of the free list, it is protected by a mutex.
+	Thread-local thread caches are used to cache parts of the linked list for every thread.
+	If the local list of blocks is empty on allocation, a new batch of blocks is
+	pulled from the central list. If the thread cache exceeds a threshold of free blocks (through deallocations)
+	a batch of blocks is pushed back onto the central list. This way the mutex of the central list must only
+	be locked every blocksperchunk allocations.
+
+	\attention No instance is created from ThreadSafeFreeList. That means that the whole translation unit shares
+	a static instance of the list with the given template parameters. Therefore two rules must be followed:
+	1: Do not deallocate a block that was allocated in another translation unit. 2: Do not deallocate a block that
+	was allocated by another template instantiation of ThreadSafeFreeList.
+
+	\tparam alignment		Desired alignment of all blocks
+	\tparam blocksize		Maximum size of memory blocks that can be allocated
+	\tparam blocksperchunk	How many blocks are allocated at once, also determines batch size pulled and pushed onto the central list.
+	*/
 	template <size_t alignment, size_t blocksize, size_t blocksperchunk>
 	class ThreadSafeFreeList
 	{
@@ -224,7 +316,9 @@ namespace ipengine {
 		static_assert(blocksperchunk > 0, "blocksperchunk must be greater than 0.");
 
 	private:
-		//internal types
+		/*!
+		\brief Central list of chunks
+		*/
 		class CentralFreeList
 		{
 		public:
@@ -261,6 +355,9 @@ namespace ipengine {
 			//exceptional situations
 
 		private:
+			/*!
+			\brief Allocates a new chunk and calculates the alignedaddr member.
+			*/
 			bool allocate_chunk(chunk& c)
 			{
 				if (!initialized)
@@ -286,6 +383,9 @@ namespace ipengine {
 				return true;
 			}
 
+			/*!
+			\brief Initializes the free list on the chunks memory range
+			*/
 			bool setup_chunk(chunk& c)
 			{
 				if (!initialized)
@@ -312,6 +412,9 @@ namespace ipengine {
 				return true;
 			}
 
+			/*!
+			\brief Deallocates a chunk
+			*/
 			void deallocate_chunk(chunk& c)
 			{
 				if (c.memptr != nullptr)
@@ -323,6 +426,10 @@ namespace ipengine {
 				}
 			}
 
+			/*!
+			\brief Allocates and initilizes a new chunk.
+			\returns Returns true on success.
+			*/
 			bool addChunk()
 			{
 				chunk c;
@@ -362,6 +469,10 @@ namespace ipengine {
 				}
 			}
 
+			/*!
+			\brief Preallocates n chunks of memory
+			\param[in] n Number of chunks to be preallocated.
+			*/
 			void reserve(size_t n)
 			{
 				batches.reserve(n);
@@ -373,6 +484,10 @@ namespace ipengine {
 				}
 			}
 
+			/*!
+			\brief Initializes the free list.
+			\returns Returns true on success.
+			*/
 			bool initialize()
 			{
 				if (initialized)
@@ -392,6 +507,9 @@ namespace ipengine {
 				return true;
 			}
 
+			/*!
+			\brief Pulls a batch of blocks from the central list.
+			*/
 			batch pullBatch()
 			{
 				std::lock_guard<mutex_t> lock(mtx);
@@ -405,6 +523,9 @@ namespace ipengine {
 				return b;
 			}
 
+			/*!
+			\brief Pushes a batch of blocks back onto the central list.
+			*/
 			void pushBatch(const batch& b)
 			{
 				//std::cout << "pullbatch\n";
@@ -415,6 +536,14 @@ namespace ipengine {
 
 		using CList = CentralFreeList;
 
+		/*!
+		\brief Caches parts of the free list per thread to reduce contention.
+
+		Allocation and deallocation is done via the thread_local ThreadCache object for
+		a specific thread. If no more blocks are available in the cache, a new batch is pulled from the centra list.
+		If there are 2 * blocksperchunk free blocks in the cache through many deallocations, a batch of blocksperchunk
+		blocks is pushed back onto the central free list.
+		*/
 		class ThreadCache
 		{
 		public:
@@ -422,12 +551,18 @@ namespace ipengine {
 
 			//members
 
+			//! Current number of free blocks in the cache
 			size_t count; //if count > blocksperchunk save position into split. and update splitend on every incoming free.  if count is then > 2*blocksperchunk push the batch beginning with split back on cl.
+			//! Used to split the current free list when a batch is pushed back onto the central list
 			size_t splitcount;
+			//! Head of the cached free list
 			typename CList::node* head;	//if splitlist is not pushed back yet and head is nullptr, head = splitstart and splitstart = splitend = nullptr
+			//! Split position
 			typename CList::node* split;
+			//! Reference to the central list instance
 			CList& clst;
 
+			//! Constructor
 			ThreadCache(CList& clst) :
 				count(0),
 				splitcount(0),
@@ -438,6 +573,7 @@ namespace ipengine {
 
 			}
 
+			//! Destructor. Any free nodes left ware pushed back onto the central list.
 			~ThreadCache()
 			{
 				if (count > 0 && head != nullptr)
@@ -452,6 +588,14 @@ namespace ipengine {
 				}
 			}
 
+			/*!
+			\brief Allocates a block of memory.
+
+			Allocates blocks of memory up to blocksize bytes. All blocks are aligned as specified by the aligned template parameter.
+
+			\param[in] size		Size of the block to be allocated. Must be > 0 and <= blocksize.
+			\returns			Returns a void pointer to the newly allocated block.
+			*/
 			void* allocate(size_t size)
 			{
 				if (head == nullptr)
@@ -466,42 +610,18 @@ namespace ipengine {
 				head = head->next;
 				--count;
 				return p;
-
-				/*
-				if (head == nullptr)
-				{
-					//++tcecount;
-					//return nullptr;
-					//std::cout << "Threadcache is empty\n";
-					if (split != nullptr)
-					{
-						//std::cout << "Swapped in splitlist\n";
-						head = split;
-						split = nullptr;
-						count = splitcount;
-						splitcount = 0;
-					}
-					else
-					{
-						//++pullcount;
-						typename CList::batch b = clst.pullBatch();
-						//std::cout << "Pulled a new batch\n";
-						head = b.first;
-						split = nullptr;
-						splitcount = 0;
-						count = b.size;
-					}
-				}
-				//proceed using head as the new allocated block as usual
-
-				void* p = static_cast<void*>(head);
-				head = head->next;
-				--count;
-				return p;
-				*/
 			}
 
-			void deallocate(void* ptr)	//something weird here. deallocate is quite slow. figure this out later
+			/*!
+			\brief Deallocates a block of memory.
+
+			Deallocates a block of memory and internally pushes it onto the cached list of free blocks.
+			If the number of free blocks exceeds 2 * blocksperchunk, a batch of blocksperchunk blocks is
+			pushed back onto the central list.
+
+			\param[in] ptr	Pointer to the block of memory to be deallocated.
+			*/
+			void deallocate(void* ptr)
 			{
 				typename CList::node* reclaimed = static_cast<typename CList::node*>(ptr);
 				reclaimed->next = head;
@@ -525,44 +645,23 @@ namespace ipengine {
 					count -= blocksperchunk;
 					return;
 				}
-
-
-
-				/*
-				if (count < blocksperchunk) //put freed elements onto active list
-				{
-					typename CList::node* reclaimed = static_cast<typename CList::node*>(ptr);
-					reclaimed->next = head;
-					head = reclaimed;
-					++count;
-				}
-				else
-				{
-					typename CList::node* reclaimed = static_cast<typename CList::node*>(ptr);
-					reclaimed->next = split;
-					split = reclaimed;
-					++splitcount;
-
-					if (splitcount == blocksperchunk)
-					{
-						//push the enire splitlist back onto the central list
-						typename CList::batch b{ split, splitcount };
-						clst.pushBatch(b);
-						split = nullptr;
-						splitcount = 0;
-						//std::cout << "Returned splitlist\n";
-					}
-				}
-				*/
 			}
 		};
 
-
+		//! Static central list instance
 		static CList centralList;
+		//! One ThreadCache instance per thread
 		static thread_local ThreadCache tc;
 
 	public:
+		/*!
+		\brief Allocates a block of memory of up to blocksperchunk bytes.
 
+		This function is thread safe. It uses a thread_local instance of ThreadCache.
+		\param[in] size		Size of the block to be allocated. Must be > 0 and <= blocksize.
+		\returns			Returns a void pointer to the newly allocated block.
+		\throws Throws std::bad_alloc if an allocation failed.
+		*/
 		static inline void* allocate(size_t size)
 		{
 			if (size > blocksize)
@@ -570,31 +669,37 @@ namespace ipengine {
 			return tc.allocate(size);
 		}
 
+		/*!
+		\brief Deallocates a block of memory.
+
+		This function is thread safe.
+		\param[in] ptr	A pointer to the block to be deallocated.
+
+		\attention  Never deallocate a block that was allocated from another template instantiation of ThreadSafeFreeList or in another translation unit.
+		*/
 		static inline void deallocate(void* ptr)
 		{
 			tc.deallocate(ptr);
 		}
 
+		//! Tells the central list to allocate n chunks in advance.
 		static void reservechunks(size_t n)
 		{
 			centralList.reserve(n);
 		}
 	};
 
+	//! Definition of the static CentralFreeList instance
 	template<size_t alignment, size_t blocksize, size_t blocksperchunk>
 	typename ThreadSafeFreeList<alignment, blocksize, blocksperchunk>::CList ThreadSafeFreeList<alignment, blocksize, blocksperchunk>::centralList;
 
+	//! Definition of the thread_local ThreadCache instances
 	template<size_t alignment, size_t blocksize, size_t blocksperchunk>
 	thread_local typename ThreadSafeFreeList<alignment, blocksize, blocksperchunk>::ThreadCache ThreadSafeFreeList<alignment, blocksize, blocksperchunk>::tc(ThreadSafeFreeList<alignment, blocksize, blocksperchunk>::centralList);
 
 	//---------------------------------------------------------------------------------------------------------------------------------
-
-	//TODO: some other memory allocation strategies:
-	//- stack allocator
-	//- linear allocator
-	//- some general purpose thingy
-	//integrate them into the MemoryManager class later
 	
 
 }
 #endif
+/** @}*/

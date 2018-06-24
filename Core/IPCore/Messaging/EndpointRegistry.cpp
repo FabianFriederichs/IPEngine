@@ -30,7 +30,10 @@ void ipengine::EndpointRegistry::destroyEndpoint(ipengine::EndpointHandle& handl
 ipengine::MessageType ipengine::EndpointRegistry::registerMessageType(const ipstring & name)
 {
 	std::lock_guard<YieldingSpinLock<5000>> lock(m_mtlock);
-	auto newid = m_idgen.fetch_add(1, std::memory_order_relaxed);
+	auto it = std::find_if(m_messageTypes.begin(), m_messageTypes.end(), [name](std::unordered_map<MessageType, ipengine::ipstring>::value_type& p) { return p.second == name; });
+	if (it != m_messageTypes.end())
+		return IPID_INVALID;
+	auto newid = m_idgen.fetch_add(1, std::memory_order_relaxed);	
 	m_messageTypes.insert(std::make_pair(newid, name));
 	return newid;
 }

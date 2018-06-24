@@ -1,3 +1,10 @@
+/** \addtogroup typelibrary
+*  @{
+*/
+
+/*!
+\file Dequeue.h
+*/
 #ifndef _WS_QUEUE_H_
 #define _WS_QUEUE_H_
 #include <atomic>
@@ -44,25 +51,40 @@ namespace ipengine {
 	};
 
 	//make this stuff lock free in the future. for testing now, i'll stick to a lock based implementation.
+	/*!
+	\brief A basic, node-based implementation of a thread safe double-ended queue.
+
+	Nodes are allocated using the FreeList implementation to prevent memory fragmentation.
+	*/
 	template <typename T>
 	class Deque
 	{
-		//using NodeAlloc = ThreadSafeFreeList<128, sizeof(DQNode<T>), 4096>;
 		const size_t nsz = sizeof(DQNode<T>);
 	public:
 		Deque();
 		~Deque();
 
+		//! Pushes an item right
 		bool push_right(const T& item);
+		//! Pushes an item left
 		bool push_left(const T& item);
+		//! Pushes an item right
 		bool push_right(T&& item);
+		//! Pushes an item left
 		bool push_left(T&& item);
+		//! Pops an item left, thread waits if empty
 		bool pop_left(T& target);			//pop, wait if empty
+		//! Tries to pop an item left, returns false if empty.
 		bool try_pop_left(T& target);		//pop, return empty shared_ptr if empty
+		//! Pops an item right, thread waits if empty
 		bool pop_right(T& target);			//steal, wait if empty
+		//! Tries to pop an item right, returns false if empty.
 		bool try_pop_right(T& target);		//steal, return empty shared_ptr if empty
+		//! Returns the current number of items in the queue
 		size_t size();			//return current size
+		//! Returns true if the queue is empty
 		bool empty();		//true if empty
+		//! Empties the whole queue
 		void clear();		//remove all items
 
 	private:
@@ -428,3 +450,4 @@ namespace ipengine {
 
 }
 #endif
+/** @}*/

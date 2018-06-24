@@ -309,6 +309,7 @@ void PhysicsModule::satisfyConstraintBatch(ipengine::TaskContext& context) //fix
 
 		for (size_t s = p1.m_springIndex; s < p1.m_springIndex + p1.m_springCount; s++)
 		{
+			cvels[s - p1.m_springIndex] = glm::vec4(0.0f);
 			const Spring& spring = ub.m_cloth->m_springs[s];
 			Particle& p2 = preadbuf[spring.m_connectedParticleIndex];
 			//Particle& wp2 = pwritebuf[spring.m_connectedParticleIndex];

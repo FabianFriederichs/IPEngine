@@ -831,20 +831,20 @@ namespace SCM
 	class BoundingBox
 	{
 	public:
-		glm::quat m_rotation;
-		glm::vec3 m_center;
+		glm::quat m_rotation = glm::quat();
+		glm::vec3 m_center = glm::vec3(0.0f);
 		glm::vec3 m_size = { 0.f,0.f,0.f };
-		glm::mat4 bdtoworld;
-		glm::vec3 m_velocity;
+		glm::mat4 bdtoworld = glm::mat4(1.0f);
+		glm::vec3 m_velocity = glm::vec3(0.0f);
 	};
 
 	class BoundingSphere
 	{
 	public:
-		glm::vec3 m_center;
+		glm::vec3 m_center = glm::vec3(0.0f);
 		glm::float32 m_radius = 0.0f;
-		glm::mat4 bdtoworld;
-		glm::vec3 m_velocity;
+		glm::mat4 bdtoworld = glm::mat4(1.0f);
+		glm::vec3 m_velocity = glm::vec3(0.0f);
 	};
 
 	union BoundingData

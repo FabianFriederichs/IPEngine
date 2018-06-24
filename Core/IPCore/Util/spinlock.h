@@ -1,4 +1,27 @@
-#pragma once
+/** \addtogroup threading
+*  @{
+*/
+
+/*!
+\file spinlock.h
+\brief Some spinlock implementations.
+
+Spinlocks are very useful in situations where little contention is expected on a lock.
+Spinlock often do not need system calls in such situation, instead they busy-wait
+for a short time. The basic spinlock simply busy-waits until the lock can be acquired,
+other variants implement some strategy to reduce wasted cpu time if they have to wait
+longer than a specific period of time.
+
+All the spinlock classes are compatible with std::lock_guard and std::unique_lock.
+
+The locks imply acquire semantics for the lock() functions and release semantics for the release() functions,
+regarding memory order.
+
+\todo Implement support for recursive locking
+*/
+
+#ifndef _SPIN_LOCK_H_
+#define _SPIN_LOCK_H_
 #include <atomic>
 #include <chrono>
 #include <random>
@@ -7,6 +30,11 @@
 
 namespace ipengine {
 
+	/*!
+	\brief Basic spinlock implementation.
+
+	Busy-waits until the lock is acquired.
+	*/
 	class alignas(TS_CACHE_LINE_SIZE)BasicSpinLock
 	{
 	private:
@@ -24,23 +52,33 @@ namespace ipengine {
 		BasicSpinLock(const BasicSpinLock& other) = delete;
 		BasicSpinLock(BasicSpinLock&& other) = delete;
 
-
+		//! Busy-waits until the lock is acquired.
 		inline void lock()
 		{
 			while (lck.test_and_set(std::memory_order_acquire));
 		}
 
+		//! Releases the lock.
 		inline void unlock() noexcept
 		{
 			lck.clear(std::memory_order_release);
 		}
 
+		/*!
+		\brief Tries to acquire the lock.
+		\returns	Returns true if the lock was acquired successfully, false otherwise.
+		*/
 		inline bool try_lock() noexcept
 		{
 			return lck.test_and_set(std::memory_order_acquire);
 		}
 	};
 
+	/*!
+	\brief Yields after every iteration and sleeps for a short period of time after MAX_SPINS iterations.
+
+	\tparam MAX_SPINS	Thread is put to sleep after MAX_SPINS iterations of waiting.
+	*/
 	template <size_t MAX_SPINS = 4000>
 	class alignas(TS_CACHE_LINE_SIZE)YieldingSpinLock
 	{
@@ -60,7 +98,11 @@ namespace ipengine {
 		YieldingSpinLock(const YieldingSpinLock& other) = delete;
 		YieldingSpinLock(YieldingSpinLock&& other) = delete;
 
+		/*!
+		\brief Acquires the lock.
 
+		Yields after each iteration and sleeps for 500us when the number of iterations reached MAX_SPINS.
+		*/
 		inline void lock()
 		{
 			size_t iterations = 0;
@@ -77,17 +119,29 @@ namespace ipengine {
 			}
 		}
 
+		//! Releases the lock.
 		inline void unlock() noexcept
 		{
 			lck.clear(std::memory_order_release);
 		}
 
+		/*!
+		\brief Tries to acquire the lock.
+
+		\returns	Returns true of the lock was acquired, false otherwise.
+		*/
 		inline bool try_lock() noexcept
 		{
 			return lck.test_and_set(std::memory_order_acquire);
 		}
 	};
 
+	/*!
+	\brief Same as the other two implementations but with randomized, exponential backoff.
+
+	This implementation was not very useful in the tests, rather use the standard std::mutex and
+	see if it delivers better performance, first.
+	*/
 	template <size_t MAX_SPINS = 4000, size_t MAX_BACKOFF = 4000>
 	class alignas(TS_CACHE_LINE_SIZE)TTASSpinLock
 	{
@@ -162,3 +216,5 @@ namespace ipengine {
 	};
 
 }
+#endif
+/** @}*/

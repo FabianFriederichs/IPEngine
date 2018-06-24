@@ -1,10 +1,19 @@
+/** \addtogroup typelibrary
+*  @{
+*/
+
+/*!
+\file any.h
+*/
 #ifndef _ANY_H_
 #define _ANY_H_
 #include <typeinfo>
 #include <memory>
 
-//TODO: Small object optimization
 namespace ipengine {
+	/*!
+	\brief Implements the type erasure idiom.
+	*/
 	class any
 	{
 	private:
@@ -58,20 +67,28 @@ namespace ipengine {
 
 	public:
 		//PUBLIC INTERFACE
-		//default ctor
+		//! Default constructor
 		any() :
 			m_value(std::make_unique<any_model<int>>(0))
 		{
 		}
 
-		//ctor
+		/*!
+		\brief Initializes the any object with some arbitrary data.
+		\tparam T		Type of the data.
+		\param[in] val	Data.
+		*/
 		template <typename T>
 		any(T val) :
 			m_value(std::make_unique<any_model<T>>(std::forward<T>(val)))
 		{
 		}
 
-		//assign probably needs const fix in the future
+		/*!
+		\brief Assigns new data to the any object
+		\tparam T		Type of the data.
+		\param[in] val	Data.
+		*/
 		template <typename T>
 		any& operator=(T val)
 		{
@@ -79,19 +96,25 @@ namespace ipengine {
 			return *this;
 		}
 
-		//cp ctor
+		/*!
+		\brief Copy constructor.
+		*/
 		any(const any& other) :
 			m_value(other.m_value->clone())
 		{
 		}
 
-		//mv ctor
+		/*!
+		\brief Move constructor.
+		*/
 		any(any&& other) :
 			m_value(std::move(other.m_value))
 		{
 		}
 
-		//cp assign
+		/*!
+		\brief Copy assignment.
+		*/
 		any& operator=(const any& other)
 		{
 			if (this == &other)
@@ -101,7 +124,9 @@ namespace ipengine {
 			return *this;
 		}
 
-		//mv assign
+		/*!
+		\brief Move assignment.
+		*/
 		any& operator=(any&& other) noexcept
 		{
 			if (this == &other)
@@ -110,46 +135,75 @@ namespace ipengine {
 			return *this;
 		}
 
-		//swap
+		/*!
+		\brief Swaps content of two any's.
+		*/
 		void swap(any& other) noexcept
 		{
 			m_value.swap(other.m_value);
 		}
 
+		/*!
+		\brief Returns the size of the held object.
+		*/
 		size_t size() const
 		{
 			return m_value->size();
 		}
 
+		/*!
+		\brief returns std::type_info for the held object.
+		*/
 		const std::type_info& type() const
 		{
 			return m_value->type();
 		}
 
+		/*!
+		\brief Casts the held content to T&.
+		\tparam		Desired type.
+		\returns	Returns a reference to T.
+		\throws		Throws std::bad_cast if the content cannot be converted to T.
+		*/
 		template <typename T>
 		T& cast()
 		{
 			return *dynamic_cast<any_model<T>&>(*m_value);
 		}
 
+		/*!
+		\brief Casts the held content to const T&.
+		\tparam		Desired type.
+		\returns	Returns a const reference to T.
+		\throws		Throws std::bad_cast if the content cannot be converted to T.
+		*/
 		template <typename T>
 		const T& cast() const
 		{
 			return *dynamic_cast<any_model<T>&>(*m_value);
 		}
 
+		/*!
+		\brief Implicit conversion to T&.
+		*/
 		template <typename T>
 		operator T&()
 		{
 			return cast<T>();
 		}
 
+		/*!
+		\brief Implicit conversion to const T&.
+		*/
 		template <typename T>
 		operator const T&() const
 		{
 			return cast<T>();
 		}
 
+		/*!
+		\brief Destroys the held object.
+		*/
 		void clear()
 		{
 			m_value = std::make_unique<any_model<int>>(0);
@@ -164,6 +218,11 @@ namespace ipengine {
 	//sizeof(soo_any) is 32 bytes. SOO will work with up to 16 bytes: 8 bytes are reserved for the vtable pointer. another 8 bytes are needed for the "small" flag.
 #define ANY_SOB_SIZE 24
 
+	/*!
+	\brief Implements the type erasure idiom with small object optimization.
+
+	Small object optimization prevents heap allocations for object sizes up to 16 bytes.
+	*/
 	class soo_any
 	{
 	private:
@@ -241,7 +300,7 @@ namespace ipengine {
 
 	public:
 		//PUBLIC INTERFACE
-		//default ctor
+		//! Default constructor
 		soo_any()
 		{
 			new(reinterpret_cast<void*>(&m_value))soo_any_model<int>(0);
@@ -270,7 +329,11 @@ namespace ipengine {
 			}
 		}
 
-		//ctor
+		/*!
+		\brief Initializes the any object with some arbitrary data.
+		\tparam T		Type of the data.
+		\param[in] val	Data.
+		*/
 		template <typename T>
 		soo_any(T val)
 		{
@@ -286,7 +349,11 @@ namespace ipengine {
 			}
 		}
 
-		//assign probably needs const fix in the future
+		/*!
+		\brief Assigns new data to the any object
+		\tparam T		Type of the data.
+		\param[in] val	Data.
+		*/
 		template <typename T>
 		soo_any& operator=(T val)
 		{
@@ -307,7 +374,9 @@ namespace ipengine {
 			return *this;*/
 		}
 
-		//cp ctor
+		/*!
+		\brief Copy constructor.
+		*/
 		soo_any(const soo_any& other)
 		{
 			if (other.small)
@@ -322,7 +391,9 @@ namespace ipengine {
 			}
 		}
 
-		//mv ctor
+		/*!
+		\brief Move constructor.
+		*/
 		soo_any(soo_any&& other)
 		{
 			if (other.small)
@@ -341,7 +412,9 @@ namespace ipengine {
 			}
 		}
 
-		//cp assign
+		/*!
+		\brief Copy assignment.
+		*/
 		soo_any& operator=(const soo_any& other)
 		{
 			if (this == &other)
@@ -360,7 +433,9 @@ namespace ipengine {
 			return *this;
 		}
 
-		//mv assign
+		/*!
+		\brief Move assignment.
+		*/
 		soo_any& operator=(soo_any&& other)
 		{
 			if (this == &other)
@@ -383,7 +458,9 @@ namespace ipengine {
 			return *this;
 		}
 
-		//swap
+		/*!
+		\brief Swaps content of two soo_any's.
+		*/
 		void swap(soo_any& other)
 		{
 			if (other.small)
@@ -427,6 +504,9 @@ namespace ipengine {
 			}
 		}
 
+		/*!
+		\brief Returns the size of the held object.
+		*/
 		size_t size() const
 		{
 			if (small)
@@ -440,6 +520,9 @@ namespace ipengine {
 
 		}
 
+		/*!
+		\brief returns std::type_info for the held object.
+		*/
 		const std::type_info& type() const
 		{
 			if (small)
@@ -452,6 +535,12 @@ namespace ipengine {
 			}
 		}
 
+		/*!
+		\brief Casts the held content to T&.
+		\tparam		Desired type.
+		\returns	Returns a reference to T.
+		\throws		Throws std::bad_cast if the content cannot be converted to T.
+		*/
 		template <typename T>
 		T& cast()
 		{
@@ -466,6 +555,12 @@ namespace ipengine {
 
 		}
 
+		/*!
+		\brief Casts the held content to const T&.
+		\tparam		Desired type.
+		\returns	Returns a const reference to T.
+		\throws		Throws std::bad_cast if the content cannot be converted to T.
+		*/
 		template <typename T>
 		const T& cast() const
 		{
@@ -479,18 +574,27 @@ namespace ipengine {
 			}
 		}
 
+		/*!
+		\brief Implicit conversion to T&.
+		*/
 		template <typename T>
 		operator T&()
 		{
 			return cast<T>();
 		}
 
+		/*!
+		\brief Implicit conversion to const T&.
+		*/
 		template <typename T>
 		operator const T&() const
 		{
 			return cast<T>();
 		}
 
+		/*!
+		\brief Destroys the held object.
+		*/
 		void clear()
 		{
 			destruct_old();
@@ -508,6 +612,14 @@ namespace ipengine {
 		};
 	};
 
+	/*!
+	\brief Implements the type erasure idiom with customizable maximum size for small object optimization.
+
+	Small object optimization prevents heap allocations for object sizes up to the size specified
+	with the SMALL_OBJECT_SIZE template parameter.
+
+	\tparam SMALL_OBJECT_SIZE	Maximum object size up to which small object optimization works.
+	*/
 	template<size_t SMALL_OBJECT_SIZE = 16>
 	class soo_any_s
 	{
@@ -592,7 +704,7 @@ namespace ipengine {
 
 	public:
 		//PUBLIC INTERFACE
-		//default ctor
+		//! Default constructor
 		soo_any_s()
 		{
 			new(reinterpret_cast<void*>(&m_value))soo_any_s_model<int>(0);
@@ -621,7 +733,11 @@ namespace ipengine {
 			}
 		}
 
-		//ctor
+		/*!
+		\brief Initializes the any object with some arbitrary data.
+		\tparam T		Type of the data.
+		\param[in] val	Data.
+		*/
 		template <typename T>
 		soo_any_s(T val)
 		{
@@ -637,7 +753,11 @@ namespace ipengine {
 			}
 		}
 
-		//assign probably needs const fix in the future
+		/*!
+		\brief Assigns new data to the any object
+		\tparam T		Type of the data.
+		\param[in] val	Data.
+		*/
 		template <typename T>
 		soo_any_s& operator=(T val)
 		{
@@ -658,7 +778,9 @@ namespace ipengine {
 			return *this;*/
 		}
 
-		//cp ctor
+		/*!
+		\brief Copy constructor.
+		*/
 		soo_any_s(const this_type& other)
 		{
 			if (other.small)
@@ -673,7 +795,9 @@ namespace ipengine {
 			}
 		}
 
-		//mv ctor
+		/*!
+		\brief Move constructor.
+		*/
 		soo_any_s(this_type&& other)
 		{
 			if (other.small)
@@ -692,7 +816,9 @@ namespace ipengine {
 			}
 		}
 
-		//cp assign
+		/*!
+		\brief Copy assignment.
+		*/
 		soo_any_s& operator=(const this_type& other)
 		{
 			if (this == &other)
@@ -711,7 +837,9 @@ namespace ipengine {
 			return *this;
 		}
 
-		//mv assign
+		/*!
+		\brief Move assignment.
+		*/
 		soo_any_s& operator=(this_type&& other)
 		{
 			if (this == &other)
@@ -734,7 +862,9 @@ namespace ipengine {
 			return *this;
 		}
 
-		//swap
+		/*!
+		\brief Swaps content of two any's.
+		*/
 		void swap(this_type& other)
 		{
 			if (other.small)
@@ -778,6 +908,9 @@ namespace ipengine {
 			}
 		}
 
+		/*!
+		\brief Returns the size of the held object.
+		*/
 		size_t size() const
 		{
 			if (small)
@@ -791,6 +924,9 @@ namespace ipengine {
 
 		}
 
+		/*!
+		\brief returns std::type_info for the held object.
+		*/
 		const std::type_info& type() const
 		{
 			if (small)
@@ -803,6 +939,12 @@ namespace ipengine {
 			}
 		}
 
+		/*!
+		\brief Casts the held content to T&.
+		\tparam		Desired type.
+		\returns	Returns a reference to T.
+		\throws		Throws std::bad_cast if the content cannot be converted to T.
+		*/
 		template <typename T>
 		T& cast()
 		{
@@ -817,6 +959,12 @@ namespace ipengine {
 
 		}
 
+		/*!
+		\brief Casts the held content to const T&.
+		\tparam		Desired type.
+		\returns	Returns a const reference to T.
+		\throws		Throws std::bad_cast if the content cannot be converted to T.
+		*/
 		template <typename T>
 		const T& cast() const
 		{
@@ -830,18 +978,27 @@ namespace ipengine {
 			}
 		}
 
+		/*!
+		\brief Implicit conversion to T&.
+		*/
 		template <typename T>
 		operator T&()
 		{
 			return cast<T>();
 		}
 
+		/*!
+		\brief Implicit conversion to const T&.
+		*/
 		template <typename T>
 		operator const T&() const
 		{
 			return cast<T>();
 		}
 
+		/*!
+		\brief Destroys the held object.
+		*/
 		void clear()
 		{
 			destruct_old();
@@ -860,3 +1017,4 @@ namespace ipengine {
 	};
 }
 #endif
+/** @}*/
