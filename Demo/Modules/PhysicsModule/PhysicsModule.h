@@ -80,8 +80,8 @@ private:
 	//scheduler subscription
 	std::vector<ipengine::Scheduler::SubHandle> schedulerSubscriptionHandle;
 	std::vector<ipengine::ipid> clothentities;
-	boost::shared_ptr<SCM::ISimpleContentModule_API> contentmodule;
-	boost::shared_ptr<ISimpleSceneModule_API> scenemodule;
+	std::shared_ptr<SCM::ISimpleContentModule_API> contentmodule;
+	std::shared_ptr<ISimpleSceneModule_API> scenemodule;
 
 	//private types
 	class Particle

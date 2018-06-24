@@ -17,7 +17,7 @@ public:
 
 private:
 	ExtensionInformation m_info;
-	boost::shared_ptr<IPhysicsModule_API> physics;
+	std::shared_ptr<IPhysicsModule_API> physics;
 	bool init = false;
 };
 

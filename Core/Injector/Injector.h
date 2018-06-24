@@ -38,9 +38,9 @@ private:
 	std::unordered_map<std::shared_ptr<DGStuff::DependencyGraph>, std::string> graphs;
 	std::unordered_map<std::shared_ptr<DGStuff::DependencyGraph>, bool> graphHasChanges;
 	std::string depgraphpath;
-	std::map<std::string, boost::shared_ptr<IModule_API>> loadedModules;
-	std::map<std::string, boost::shared_ptr<IExtension>> loadedExtensions;
-	std::vector<boost::filesystem::path> dlibFilePaths;	
+	std::map<std::string, std::shared_ptr<IModule_API>> loadedModules;
+	std::map<std::string, std::shared_ptr<IExtension>> loadedExtensions;
+	std::vector<boost::filesystem::path> dlibFilePaths;
 
 	//Unnecessary, using std::find_if with lambda instead.
 	DGStuff::Module* getModuleByIdentifier(std::vector<DGStuff::Module> *modules, std::string id);
@@ -49,6 +49,104 @@ private:
 
 	void LoadModule(ipengine::Core * core, std::string path);
 	ipengine::Core *m_core;
+
+	/*template<typename... Args>
+	bool safelyCall(bool (*f)(Args...), std::string errorinfo, Args... args)
+	{
+		try {
+			return (*f)(args...);
+		}
+		catch (std::exception ex)
+		{
+			auto errmess = errorinfo.append(ex.what());
+			if (m_core)
+			{
+				m_core->getErrorManager().reportException(ipengine::ipex(errmess.c_str(), ipengine::ipex_severity::error));
+			}
+			else
+			{
+				std::cout << errmess;
+			}
+			return false;
+		}
+	}*/
+
+	bool safelyStartup(std::shared_ptr<IModule_API> mod, std::string errorinfo)
+	{
+		try {
+			return mod->startUp();
+		}
+		catch (std::exception ex)
+		{
+			auto errmess = errorinfo.append(ex.what());
+			if (m_core)
+			{
+				m_core->getErrorManager().reportException(ipengine::ipex(errmess.c_str(), ipengine::ipex_severity::error));
+			}
+			else
+			{
+				std::cout << errmess;
+			}
+			return false;
+		}
+	}
+
+	bool safelyShutdown(std::shared_ptr<IModule_API> mod, std::string errorinfo)
+	{
+		try {
+			return mod->shutDown();
+		}
+		catch (std::exception ex)
+		{
+			auto errmess = errorinfo.append(ex.what());
+			if (m_core)
+			{
+				m_core->getErrorManager().reportException(ipengine::ipex(errmess.c_str(), ipengine::ipex_severity::error));
+			}
+			else
+			{
+				std::cout << errmess;
+			}
+			return false;
+		}
+	}
+
+	template<typename T>
+	bool safelyDependencyUpdated(std::shared_ptr<T> mod, std::string dep, std::shared_ptr<IModule_API> olddep, std::string errorinfo)
+	{
+		try {
+			mod->dependencyUpdated(dep, olddep);
+		}
+		catch (std::exception ex)
+		{
+			auto errmess = errorinfo.append(ex.what());
+			if (m_core)
+			{
+				m_core->getErrorManager().reportException(ipengine::ipex(errmess.c_str(), ipengine::ipex_severity::error));
+			}
+			else
+			{
+				std::cout << errmess;
+			}
+			return false;
+		}
+		return true;
+	}
+
+	std::string getModuleStartupErrorMessage(std::string modname, std::string location)
+	{
+		return "Failed to start up module " + modname + " at " + location + ". Module error report:\n";
+	}
+	std::string getModuleShutdownErrorMessage(std::string modname, std::string location)
+	{
+		return "Failed to shut down module " + modname + " at " + location + ". Module error report:\n";
+	}
+
+	std::string getModuleDependencyChangedErrorMessage(std::string modname, std::string dependencyID)
+	{
+		return modname + "Module failed its dependency update callback at depid" + dependencyID + " at Injector::reassignDependency. Failed module is dependent. Module error report:\n";
+
+	}
 
 public:
 	void registerCommands(ipengine::Core *core);
@@ -64,34 +162,42 @@ public:
 		m_core = core;
 		registerCommands(core);
 		XMLParser parser;
-		auto g = parser.parse(dependencyXMLPath);
-		if (parser.getResult() != DependencyParser::READING_SUCCESS)
-		{
-			//TODO
-			//error handling
+		bool failedparse = false;
+		std::shared_ptr<DGStuff::DependencyGraph> g;
+		try {
+			g = parser.parse(dependencyXMLPath);
 		}
-		
-		
-		depgraphpath = dependencyXMLPath;
-		graphs[g] = depgraphpath;
-		graphHasChanges[g] = false;
-		depgraph = g;
-		 //if (parseDepGraphFromPropertyTree(parsePropTreeFromXML(dependencyXMLPath)))
-		//{
-		//	//TODO
-		//	//do error handling and memes
-		//}
-		libFolderPath = libraryFolderpath;
+		catch (std::exception& ex)
+		{
+			failedparse = true;
+			if (core)
+			{
+				core->getErrorManager().reportException(ipengine::ipex(ex.what(), ipengine::ipex_severity::warning, 0, "Injector::Injector(ipengine::Core, std::string, std::string"));
+			}
+			else
+			{
+				std::cout << ex.what();
+			}
+		}
+
+		if (!failedparse) {
+			depgraphpath = dependencyXMLPath;
+			graphs[g] = depgraphpath;
+			graphHasChanges[g] = false;
+			depgraph = g;
+
+			libFolderPath = libraryFolderpath;
+		}
 	};
 
 	void LoadModules(std::string path = "", bool reload = false);
 
-	const std::map<std::string, boost::shared_ptr<IModule_API>>& getLoadedModules()
+	const std::map<std::string, std::shared_ptr<IModule_API>>& getLoadedModules()
 	{
 		return loadedModules;
 	}
 
-	uint32_t reassignDependency(boost::shared_ptr<IModule_API> mod, std::string dependencyID, std::string newModuleID)
+	uint32_t reassignDependency(std::shared_ptr<IModule_API> mod, std::string dependencyID, std::string newModuleID)
 	{
 		//change dependency "dependencyID" in module "moduleID" to the module "newModuleID"
 		//Do checks whether it's correct and then update the pointer in "moduleID"s moduleinfo of specified dependency
@@ -103,9 +209,11 @@ public:
 		auto minfo2 = mod2->getModuleInfo();
 		if (loadedModules.count(newModuleID) < 1)
 			return 0;
-
+		auto location = "Injector::reassignDependency(IModule_API)";
+		std::shared_ptr<IModule_API> olddep = nullptr;
 		if (!minfo->dependencies.exists(dependencyID))
 		{
+
 			if (minfo->depinfo.count(dependencyID) > 0)
 			{
 				//Check whether dependency fits the depinfo and is valid
@@ -113,11 +221,15 @@ public:
 				{
 					if (!mod2->isStartUp)
 					{
-						if (!mod2->startUp())
+
+						if (!safelyStartup(mod2, getModuleStartupErrorMessage(mod2->getModuleInfo()->identifier, location)))
+						{
 							return 0;
+						}
+
 					}
 					minfo->dependencies.assignDependency(dependencyID, mod2);
-					mod->dependencyUpdated(dependencyID);
+					safelyDependencyUpdated(mod, dependencyID, olddep, getModuleDependencyChangedErrorMessage(minfo2->identifier, dependencyID));
 					//Update dependencygraph accordingly
 					depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
 					return 1;
@@ -132,11 +244,13 @@ public:
 			{
 				if (!mod2->isStartUp)
 				{
-					if (!mod2->startUp())
+					if (!safelyStartup(mod2, getModuleStartupErrorMessage(mod2->getModuleInfo()->identifier, location)))
+					{
 						return 0;
+					}
 				}
 				minfo->dependencies.assignDependency(dependencyID, mod2);
-				mod->dependencyUpdated(dependencyID);
+				safelyDependencyUpdated(mod, dependencyID, olddep, getModuleDependencyChangedErrorMessage(minfo2->identifier, dependencyID));
 				//Update dependencygraph accordingly
 				depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
 				return 1;
@@ -144,6 +258,7 @@ public:
 		}
 		else if (minfo2->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam) != std::string::npos)
 		{
+			olddep = minfo->dependencies.getDep<IModule_API>(dependencyID);
 			//auto oldmod = minfo->dependencies.getDep<IModule_API>(dependencyID);
 			//reassignment should work, i think? 
 			//Check whether dependency is updatable at runtime
@@ -162,13 +277,15 @@ public:
 			//!TODO check newmoduleid for startedup and depinfo valid
 			if (!mod2->isStartUp)
 			{
-				if(!mod2->startUp())
+				if (!safelyStartup(mod2, getModuleStartupErrorMessage(mod2->getModuleInfo()->identifier, location)))
+				{
 					return 0;
+				}
 			}
 
 
 			minfo->dependencies.assignDependency(dependencyID, mod2);
-			mod->dependencyUpdated(dependencyID);
+			safelyDependencyUpdated(mod, dependencyID, olddep, getModuleDependencyChangedErrorMessage(minfo2->identifier, dependencyID));
 			//Update dependencygraph accordingly
 			depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
 		
@@ -180,7 +297,7 @@ public:
 		}
 	}
 
-	uint32_t reassignDependency(boost::shared_ptr<IExtension> mod, std::string dependencyID, std::string newModuleID)
+	uint32_t reassignDependency(std::shared_ptr<IExtension> mod, std::string dependencyID, std::string newModuleID)
 	{
 		//change dependency "dependencyID" in module "moduleID" to the module "newModuleID"
 		//Do checks whether it's correct and then update the pointer in "moduleID"s moduleinfo of specified dependency
@@ -192,7 +309,9 @@ public:
 		auto minfo2 = mod2->getModuleInfo();
 		if (loadedModules.count(newModuleID) < 1)
 			return 0;
+		auto location = "Injector::reassignDependency(IExtension)";
 
+		std::shared_ptr<IModule_API> olddep = nullptr;
 		//Case Dependee doesn't have the dependency yet, basically an assign. Check if it's in depinfo and if so check for compatability
 		if (!minfo->dependencies.exists(dependencyID))
 		{
@@ -203,11 +322,11 @@ public:
 				{
 					if (!mod2->isStartUp)
 					{
-						if (!mod2->startUp())
+						if (!safelyStartup(mod2, getModuleStartupErrorMessage(mod2->getModuleInfo()->identifier, location)))
 							return 0;
 					}
 					minfo->dependencies.assignDependency(dependencyID, mod2);
-					mod->dependencyUpdated(dependencyID);
+					safelyDependencyUpdated(mod, dependencyID, olddep, getModuleDependencyChangedErrorMessage(minfo2->identifier, dependencyID));
 					//Update dependencygraph accordingly
 					depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
 					return 1;
@@ -222,11 +341,11 @@ public:
 			{
 				if (!mod2->isStartUp)
 				{
-					if (!mod2->startUp())
+					if (!safelyStartup(mod2, getModuleStartupErrorMessage(mod2->getModuleInfo()->identifier, location)))
 						return 0;
 				}
 				minfo->dependencies.assignDependency(dependencyID, mod2);
-				mod->dependencyUpdated(dependencyID);
+				safelyDependencyUpdated(mod, dependencyID, olddep, getModuleDependencyChangedErrorMessage(minfo2->identifier, dependencyID));
 				//Update dependencygraph accordingly
 				depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
 				return 1;
@@ -234,6 +353,7 @@ public:
 		}
 		else if (minfo2->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam)!=std::string::npos)
 		{
+			olddep = minfo->dependencies.getDep<IModule_API>(dependencyID);
 			//reassignment should work, i think? 
 			//Check whether dependency is updatable at runtime
 			if (minfo->depinfo.count(dependencyID) && !minfo->depinfo[dependencyID].isUpdatable)
@@ -244,12 +364,12 @@ public:
 			//!TODO check newmoduleid for startedup and depinfo valid
 			if (!mod2->isStartUp)
 			{
-				if (!mod2->startUp())
+				if (!safelyStartup(mod2, getModuleStartupErrorMessage(mod2->getModuleInfo()->identifier, location)))
 					return 0;
 			}
 
 			minfo->dependencies.assignDependency(dependencyID, mod2);
-			mod->dependencyUpdated(dependencyID);
+			safelyDependencyUpdated(mod, dependencyID, olddep, getModuleDependencyChangedErrorMessage(minfo2->identifier, dependencyID));
 			//Update dependencygraph accordingly
 			depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
 
@@ -261,10 +381,10 @@ public:
 		}
 	}
 
-	bool startupModule(boost::shared_ptr<IModule_API> mod)
+	bool startupModule(std::shared_ptr<IModule_API> mod)
 	{
 		if (mod.get() && !mod->isStartUp)
-			mod->startUp();
+			safelyStartup(mod, getModuleStartupErrorMessage(mod->getModuleInfo()->identifier, "Injector::startupModule"));
 		if (mod.get())
 			return mod->isStartUp;
 		return false;
@@ -273,15 +393,15 @@ public:
 	{
 		if (loadedModules.count(moduleID) > 0)
 		{
-			return shutdownModule(loadedModules[moduleID]);
+			return startupModule(loadedModules[moduleID]);
 		}
 		return false;
 	}
 
-	bool shutdownModule(boost::shared_ptr<IModule_API> mod)
+	bool shutdownModule(std::shared_ptr<IModule_API> mod)
 	{
 		if (mod.get() && mod->isStartUp)
-			mod->shutDown();
+			safelyShutdown(mod, getModuleShutdownErrorMessage(mod->getModuleInfo()->identifier, "Injector::shutdownModule"));
 		if (mod.get())
 			return !mod->isStartUp;
 		return false;
@@ -295,7 +415,7 @@ public:
 		return false;
 	}
 
-	std::map<std::string, boost::shared_ptr<IModule_API>> getModulesOfType(std::string type);
+	std::map<std::string, std::shared_ptr<IModule_API>> getModulesOfType(std::string type);
 
 
 	void cmd_startupModule(const ipengine::ConsoleParams& params)

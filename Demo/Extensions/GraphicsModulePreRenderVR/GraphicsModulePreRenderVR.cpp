@@ -604,7 +604,7 @@ ExtensionInformation * GraphicsModulePreRenderVR::getInfo()
 	return &m_info;
 }
 
-void GraphicsModulePreRenderVR::setupControllerMat(boost::shared_ptr<vr::IVRRenderModels> rendermodels, vr::RenderModel_t * cntrmodel, IGraphics_API* graphicsmodule)
+void GraphicsModulePreRenderVR::setupControllerMat(std::shared_ptr<vr::IVRRenderModels> rendermodels, vr::RenderModel_t * cntrmodel, IGraphics_API* graphicsmodule)
 {
 	if (!iscontrmadsetup)
 	{

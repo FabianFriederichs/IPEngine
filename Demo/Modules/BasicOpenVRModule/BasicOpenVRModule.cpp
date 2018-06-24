@@ -18,7 +18,7 @@ bool BasicOpenVRModule::initVR()
 	
 	vr::EVRInitError vrerr;
 	auto vrs = vr::VR_Init(&vrerr, vr::EVRApplicationType::VRApplication_Scene);
-	vrsystem = boost::shared_ptr<vr::IVRSystem>(vrs);
+	vrsystem = std::shared_ptr<vr::IVRSystem>(vrs);
 	if (!(vrerr == vr::VRInitError_None)) {
 		fprintf(stderr, "OpenVR initialization failed.\n");
 		vr::VR_Shutdown();
@@ -33,11 +33,11 @@ bool BasicOpenVRModule::_startup()
 	if (initVR())
 	{
 		connected = true;
-		compositor = boost::shared_ptr<vr::IVRCompositor>(vr::VRCompositor());
-		chaperone = boost::shared_ptr<vr::IVRChaperone>(vr::VRChaperone());
-		overlay = boost::shared_ptr<vr::IVROverlay>(vr::VROverlay());
-		rendermodels = boost::shared_ptr<vr::IVRRenderModels>(vr::VRRenderModels());
-		screenshots = boost::shared_ptr<vr::IVRScreenshots>(vr::VRScreenshots());
+		compositor = std::shared_ptr<vr::IVRCompositor>(vr::VRCompositor());
+		chaperone = std::shared_ptr<vr::IVRChaperone>(vr::VRChaperone());
+		overlay = std::shared_ptr<vr::IVROverlay>(vr::VROverlay());
+		rendermodels = std::shared_ptr<vr::IVRRenderModels>(vr::VRRenderModels());
+		screenshots = std::shared_ptr<vr::IVRScreenshots>(vr::VRScreenshots());
 		return true;
 	}
 
@@ -52,7 +52,7 @@ bool BasicOpenVRModule::_shutdown()
 	return true;
 }
 
-boost::shared_ptr<vr::IVRSystem> BasicOpenVRModule::getSystem() //Return the pointer to the initialized IVRSystem.
+std::shared_ptr<vr::IVRSystem> BasicOpenVRModule::getSystem() //Return the pointer to the initialized IVRSystem.
 {
 	return vrsystem;
 }
@@ -60,23 +60,23 @@ bool BasicOpenVRModule::isConnected() //Should return true if VR_Init has been s
 {
 	return connected;
 }
-boost::shared_ptr<vr::IVRChaperone> BasicOpenVRModule::getChaperone()
+std::shared_ptr<vr::IVRChaperone> BasicOpenVRModule::getChaperone()
 {
 	return chaperone;
 }
-boost::shared_ptr<vr::IVRCompositor> BasicOpenVRModule::getCompositor()
+std::shared_ptr<vr::IVRCompositor> BasicOpenVRModule::getCompositor()
 {
 	return compositor;
 }
-boost::shared_ptr<vr::IVROverlay> BasicOpenVRModule::getOverlay()
+std::shared_ptr<vr::IVROverlay> BasicOpenVRModule::getOverlay()
 {
 	return overlay;
 }
-boost::shared_ptr<vr::IVRRenderModels> BasicOpenVRModule::getRenderModels()
+std::shared_ptr<vr::IVRRenderModels> BasicOpenVRModule::getRenderModels()
 {
 	return rendermodels;
 }
-boost::shared_ptr<vr::IVRScreenshots> BasicOpenVRModule::getScreenshots()
+std::shared_ptr<vr::IVRScreenshots> BasicOpenVRModule::getScreenshots()
 {
 	return screenshots;
 }

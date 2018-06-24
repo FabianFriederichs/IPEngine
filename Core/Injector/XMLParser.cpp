@@ -38,7 +38,7 @@ std::shared_ptr<DGStuff::Dependency> XMLParser::ptreeToDep(const boost::property
 		d->identifier = ident;
 		return d;
 	}
-	return std::shared_ptr<DGStuff::Dependency>(); //? is this correct
+	return std::shared_ptr<DGStuff::Dependency>(nullptr); //returns nullptr
 }
 
 std::shared_ptr<DGStuff::ExtensionPoint> XMLParser::ptreeToExP(const boost::property_tree::ptree * node, std::list<DGStuff::Module>& mods)
@@ -113,7 +113,13 @@ XMLParser::pDepGraph XMLParser::parse(std::string path)
 {
 	pDepGraph dgraph = std::make_shared<DGStuff::DependencyGraph>();
 	boost::property_tree::ptree tree;
-	boost::property_tree::read_xml(path, tree, boost::property_tree::xml_parser::no_comments);//Check out what tree has in it if parsing fails
+	try {
+		boost::property_tree::read_xml(path, tree, boost::property_tree::xml_parser::no_comments);//Check out what tree has in it if parsing fails
+	}
+	catch (boost::property_tree::xml_parser_error& ex)
+	{
+		std::throw_with_nested(std::exception("Failed to parse dependency tree xml in XMLParser::parse"));
+	}
 	//create module for each module node in ptree
 	//auto n = tree.get_child("DependencyGraph.Modules");
 	for (auto node : tree.get_child("DependencyGraph.Modules"))
@@ -188,11 +194,12 @@ XMLParser::ParseResult XMLParser::write(DGStuff::DependencyGraph& graph, std::st
 	}
 	catch (boost::property_tree::xml_parser_error ex)
 	{
-		//todo handle stuff
-		_lastResult = ParseResult::WRITING_FAILED;
-		return getResult();
+		////todo handle stuff
+		//_lastResult = ParseResult::WRITING_FAILED;
+		//return getResult();
+		std::throw_with_nested(std::exception("Failed to write property tree to xml file in XMLParser::write"));
 	}
-	return ParseResult();
+	return ParseResult::WRITING_SUCCESS;
 }
 
 XMLParser::ParseResult XMLParser::getResult()

@@ -18,25 +18,25 @@ public:
 	ModuleInformation* getModuleInfo(){ return &m_info; }
 	
 
-	boost::shared_ptr<vr::IVRSystem> getSystem(); //Return the pointer to the initialized IVRSystem.
+	std::shared_ptr<vr::IVRSystem> getSystem(); //Return the pointer to the initialized IVRSystem.
 	bool isConnected(); //Should return true if VR_Init has been successfully called
-	boost::shared_ptr<vr::IVRChaperone> getChaperone();
-	boost::shared_ptr<vr::IVRCompositor> getCompositor();
-	boost::shared_ptr<vr::IVROverlay> getOverlay();
-	boost::shared_ptr<vr::IVRRenderModels> getRenderModels();
-	boost::shared_ptr<vr::IVRScreenshots> getScreenshots();
+	std::shared_ptr<vr::IVRChaperone> getChaperone();
+	std::shared_ptr<vr::IVRCompositor> getCompositor();
+	std::shared_ptr<vr::IVROverlay> getOverlay();
+	std::shared_ptr<vr::IVRRenderModels> getRenderModels();
+	std::shared_ptr<vr::IVRScreenshots> getScreenshots();
 	bool initVR();
 private:
 	ModuleInformation m_info;
 
 private:
-	boost::shared_ptr<vr::IVRSystem> vrsystem; //Return the pointer to the initialized IVRSystem.
+	std::shared_ptr<vr::IVRSystem> vrsystem; //Return the pointer to the initialized IVRSystem.
 	bool connected = false; //Should return true if VR_Init has been successfully called
-	boost::shared_ptr<vr::IVRChaperone> chaperone;
-	boost::shared_ptr<vr::IVRCompositor> compositor;
-	boost::shared_ptr<vr::IVROverlay> overlay;
-	boost::shared_ptr<vr::IVRRenderModels> rendermodels;
-	boost::shared_ptr<vr::IVRScreenshots> screenshots;
+	std::shared_ptr<vr::IVRChaperone> chaperone;
+	std::shared_ptr<vr::IVRCompositor> compositor;
+	std::shared_ptr<vr::IVROverlay> overlay;
+	std::shared_ptr<vr::IVRRenderModels> rendermodels;
+	std::shared_ptr<vr::IVRScreenshots> screenshots;
 
 	// Inherited via IBasicOpenVRModule_API
 	virtual bool _startup() override;

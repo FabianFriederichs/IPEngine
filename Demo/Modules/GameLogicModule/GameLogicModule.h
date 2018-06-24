@@ -28,10 +28,10 @@ private:
 	ModuleInformation m_info;
 	ipengine::Time delta;
 	ipengine::Time lastUpdate;
-	boost::shared_ptr<IInput_API> inputmodule;
-	boost::shared_ptr<SCM::ISimpleContentModule_API> contentmodule;
-	boost::shared_ptr<IGraphics_API> graphics;
-	boost::shared_ptr<IPhysicsModule_API> physicsmodule;
+	std::shared_ptr<IInput_API> inputmodule;
+	std::shared_ptr<SCM::ISimpleContentModule_API> contentmodule;
+	std::shared_ptr<IGraphics_API> graphics;
+	std::shared_ptr<IPhysicsModule_API> physicsmodule;
 	std::vector<ipengine::Scheduler::SubHandle> handles;
 	ipengine::Time lastInputTimestamp = ipengine::Time(0.f);
 	ipengine::Time timing = ipengine::Time(1.f / 60.f, 1);

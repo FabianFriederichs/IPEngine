@@ -4,7 +4,6 @@
 #include <string>
 #include <map>
 #include <unordered_map>
-#include <boost/smart_ptr.hpp>
 #include <bitset>
 #include <iostream>
 #include <IPCore/Core/ICore.h>
@@ -24,9 +23,9 @@ class DependencyContainer
 {
 	friend class Injector;
 private:
-	std::unordered_map<std::string, boost::shared_ptr<IModule_API>> dependencies;
+	std::unordered_map<std::string, std::shared_ptr<IModule_API>> dependencies;
 protected:
-	void assignDependency(const std::string dependencyID, boost::shared_ptr<IModule_API> module)
+	void assignDependency(const std::string dependencyID, std::shared_ptr<IModule_API> module)
 	{
 		//assert(size() == 0);
 		/*if (!exists(dependencyID))
@@ -69,15 +68,15 @@ public:
 	}
 
 	template<typename T>
-	boost::shared_ptr<T> getDep(const std::string dependencyID)
+	std::shared_ptr<T> getDep(const std::string dependencyID)
 	{
 		auto d = dependencies.find(dependencyID);
 		if (d == dependencies.end())
 		{
 			//Doesn't exist case
-			return boost::shared_ptr<T>(); //nullptr essentially
+			return std::shared_ptr<T>(); //nullptr essentially
 		}
-		boost::shared_ptr<T> m = boost::dynamic_pointer_cast<T>(d->second); //Assert this?
+		std::shared_ptr<T> m = std::dynamic_pointer_cast<T>(d->second); //Assert this?
 		return m;
 	}
 
@@ -119,7 +118,7 @@ struct DependencyInformation
 
 struct ExtensionInformation
 {
-	//using ExtensionReceptor = std::map<std::string, std::vector<boost::shared_ptr<IExtension>>>; //ExP name : [priority]:ExP object 
+	//using ExtensionReceptor = std::map<std::string, std::vector<std::shared_ptr<IExtension>>>; //ExP name : [priority]:ExP object 
 	DependencyContainer dependencies;
 	//std::vector<std::string> dependencies; //List of the dependency names this module takes. Has to be identical to the string key used by the IModule_API to hold the IModule_API reference. Maybe add flags for whethher it's optional?
 	//std::string iam; //Maybe make this a string container and have it contain every possible upcast? then you can easily check whether a module can be used as a dependency for X
@@ -179,7 +178,7 @@ public:
 		}
 	}
 
-	void assignExtension(std::string pointIdent, uint32_t prio, boost::shared_ptr<IExtension> iexp)
+	void assignExtension(std::string pointIdent, uint32_t prio, std::shared_ptr<IExtension> iexp)
 	{
 		auto it = expoints[pointIdent].begin();
 		if (prio >= expoints[pointIdent].size())
@@ -189,12 +188,12 @@ public:
 		expoints[pointIdent].insert(it, iexp);
 	}
 
-	std::map<std::string, std::vector<boost::shared_ptr<IExtension>>> expoints;
+	std::map<std::string, std::vector<std::shared_ptr<IExtension>>> expoints;
 };
 
 struct ModuleInformation
 {
-	//using ExtensionReceptor = std::map<std::string, std::vector<boost::shared_ptr<IExtension>>>; //ExP name : [priority]:ExP object 
+	//using ExtensionReceptor = std::map<std::string, std::vector<std::shared_ptr<IExtension>>>; //ExP name : [priority]:ExP object 
 	DependencyContainer dependencies;
 	//std::vector<std::string> dependencies; //List of the dependency names this module takes. Has to be identical to the string key used by the IModule_API to hold the IModule_API reference. Maybe add flags for whethher it's optional?
 	std::string iam; //Maybe make this a string container and have it contain every possible upcast? then you can easily check whether a module can be used as a dependency for X
@@ -231,7 +230,7 @@ protected:
 	}
 
 	//Should be overriden by modules that have dependencies that can be updated at runtime.
-	virtual void dependencyUpdated(std::string depID) {};
+	virtual void dependencyUpdated(std::string depID, std::shared_ptr<IModule_API> oldDep) {};
 
 	//virtual bool injectDependency(std::string dependencyID, IModule_API *dependency) = 0;
 private:

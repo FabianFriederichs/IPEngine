@@ -44,8 +44,8 @@ private:
 	std::string DataDepName;
 	std::string m_scmID = "SCM";
 	std::string m_wmID = "WindowManager";
-	boost::shared_ptr<SCM::ISimpleContentModule_API> m_scm;
-	boost::shared_ptr<IWindowManager_API> m_wm;
+	std::shared_ptr<SCM::ISimpleContentModule_API> m_scm;
+	std::shared_ptr<IWindowManager_API> m_wm;
 	std::vector<ipengine::Scheduler::SubHandle> handles;
 
 	//window

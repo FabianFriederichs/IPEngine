@@ -43,10 +43,10 @@ private:
 			m.m[0][3], m.m[1][3], m.m[2][3]);
 	}
 
-	boost::shared_ptr<SCM::ISimpleContentModule_API> scm;
-	boost::shared_ptr<IBasicOpenVRModule_API> ovrmodule;
-	boost::shared_ptr<ISimpleSceneModule_API> scenemodule;
-	//boost::shared_ptr<IDataStoreModuleh_API> datastore;
+	std::shared_ptr<SCM::ISimpleContentModule_API> scm;
+	std::shared_ptr<IBasicOpenVRModule_API> ovrmodule;
+	std::shared_ptr<ISimpleSceneModule_API> scenemodule;
+	//std::shared_ptr<IDataStoreModuleh_API> datastore;
 	ExtensionInformation m_info;
 	bool init = false;
 };
