@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="PAL" version="4">
+  <OBJECT>
+    <ID name="PAL" mc="Standard.ClassDiagram" uid="82b13410-9212-4b49-a518-27f5dd30fb4b"/>
+    <PID name="ipengine_core_wb_l1" mc="Standard.Package" uid="6968e9a7-3135-4da5-b5ca-e9d4e5b0a2dc"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">46</ATT>
+      <ATT name="UiData"><![CDATA[eJztm21v4jgQgP9KhO5r0rzRwtHtikLVQ6Uvgr2V7r5UTuKAt4mNHGdb9tefnRCOpjSYEEK74kNbYpIZvzwzmRm7519fwkD5CWmECP7SMDS9oXy9OL93fkCXKcjjTQ2FzWfwS4PQiRYSDwaIaB4CEwpCDXqIEapFDDD0pMEAhhCzKL12s5uuw3Fy3U+vG0oIfhD6uFSqNy7OHyiZQcrmCgYh1xWAOYlZHzDAv/sOghguOoHjIGicXJyfZA+8eXTM5gFsvBqCWTSESNwfaS6hUEuflehfD0Qu8KCXKbt6YSPoS2q54yIWTyrwhfWdAe9j8lF88KAP4oDlBnmSDqdo4BQGgEGP9yM3Z7eiSfkpWsT0AOwB6mm9AETRYkmUlukYlm3oats0TNV27LYKmkZLNc/8pudZuu/YTvG0c2nsBpNnPAQODHI9GDOK8KRx8dAdnp8kXxQOhARwgHsknJEIMb4E70iTENWbosCjUEgYooi9osIqAbYrOoX5Rw51L/u8E9Aj3h2AJ4KFxQqZp3rH4D92y+iYprE17fbeaReop3a1d0izOVba8Kzp+XZTtXRTV20buCrvElCblgfbNrA9vRpCefd8QkOl60SMAlfgpwzBHNKPA26zKnAfKAoBnd9xERUzrHfK83sqyy8X9TLfGWL7CHEpiG8BwoKcHWE+KwGzkBrNgAunkE8f5UjfZS1/JS31hxiteqE9PUJbCtoUDwmB0ZQ8PyL3jaBLwjUBvJwvRmNYPPhE0hOcPxPqbRDmgyDaJI0B9+kxYpBCUk3XgjVrsr0osFi0EiNcsrtiTu0yrzgR0CIfJQ6ht7wYwQj9Ak4ArymJZ/V7BkM/uobP4Bp2fI8ZZfJkwLhyJ2ZwItjk2HazhkPBKp0qVwMrN44jrWVofQ1KGXZPFn+KHbFRJksWAoHofIb1fdZwKKylc+Ij1odNKiCbEm/fTJdJoBHmMRfm4QuPhVwWc1Suw8GibZy1HYDsmrPlI9klyc5Y2TXMKJMvS7F7KNdcc+Zs/IbxcYWY7tv1lknspPD9l8/4AXaWak7ufkd6a3G/Ao+KsZYj3iyTFyKMIU3qGQnq/CKpZ+zEt7CYiSiNLhZc3b4ybx6zw89Be4LMjpGGWSbzewfcA8UWZs1pn3ncEP2QUYdZLuFbizKMDhRp1JzoHVn+FJHG269yelD0nV8hF5TY45HXsv5QgbYAb0MkYklsCJml8t4QTOByszjZ6BK2LFrFhvFYtKa8VBlY5Q8USNh2zTnw8chDOdMe8ykIAsRk7Ft2A1lmz/dQO8iyfSu5hbxtJlVcO8iMPg4Dl4QhwRomTJQK7vifio83WS29Y7etjm2KI06trQ3eki4bfNwzegPsU/B/SUbMsnJquLoBTUv1uWWrtm84qiMs3gTWqQvOmmcQNCswdqFrzzu/8q++IcJP0boEyirO/At5FUK3ZnZVd2GmvnIqkK9cwHVxtQ+ATWVUjklMXdjF7pTQnNLijPGtUpAIEfH1CMzHAfLEMY2FZImeeMj3uRfDLswtbB9xTUngkcFqWGbHLFNO6MOIrR1rYWpZOFYRGe1nkJ18SUdigGLZF/y8F4fmnhhx4iC9QTj/MrrCcfinlEO7gfM/eoTnVMl7OhU48JYD6Q9GV71vG148CYYj8JSfl83ZFQN0ApncoxIzuM6/Fyac1Qd01t4KZR/fy6f+aGUyNugWFr36fmwX3w5fWGpmwsffghm/N/1dkAsJ7y2Z+7xvsZvM8HLSp+CZz1QS5eb4KywWLL2TlwqItECI4K7plcR6ShzbPXXY/3FBeY+Xodq/1obdf65Gj5fd3s316P7vu37VJYD3eV5Zs/VxSHHqfIRhXzB8u3+orRD0H8kFmHk=]]></ATT>
+      <ATT name="Name"><![CDATA[PAL]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <LINK relation="Represented">
+        <ID name="Platform Abstraction Layer" mc="Standard.Component" uid="9e75df45-3020-44ac-adea-53de94a4d04b"/>
+        <REFOBJ>
+          <ID name="Note" mc="Infrastructure.Note" uid="61c01e23-f4a4-4f1b-b4ac-2a36ca757ea5"/>
+        </REFOBJ>
+      </LINK>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Infrastructure.Note" uid="3a7b1406-2de1-4b46-9808-8b0e2db26926"/>
+          <ATTRIBUTES>
+            <ATT name="Content"></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

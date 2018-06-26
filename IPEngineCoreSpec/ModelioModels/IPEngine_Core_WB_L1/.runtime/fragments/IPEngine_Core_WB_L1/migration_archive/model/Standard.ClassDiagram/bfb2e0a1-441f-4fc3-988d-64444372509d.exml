@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Platform Services" version="4">
+  <OBJECT>
+    <ID name="Platform Services" mc="Standard.ClassDiagram" uid="bfb2e0a1-441f-4fc3-988d-64444372509d"/>
+    <PID name="ipengine_core_wb_l1" mc="Standard.Package" uid="6968e9a7-3135-4da5-b5ca-e9d4e5b0a2dc"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">45</ATT>
+      <ATT name="UiData"><![CDATA[eJztm1tv4jgUx78KQvuaNDcuXTodtVB1Ua+C2ZF2X6qTxAFPExs5pi3z6ddOCEtTGky4qmIeWuKSc3z5nZPztzNn39+isPKCWIwp+VY1daNa+X5+9uD+Qh6vYF80VSt8MkLfqpQN9Ij6KMRU9zEMGEQ68jGnTI85cPysoxBFiPA4vfayL11H/eS6k15XKxH8ouxp5tSonp89MjpCjE8qBCLhK4QJHfMOcBB/+wnhGE07QcZhWD05PzvJbvhwa59PQlR9NwSraAix/H6se5QhPb1XoX9tiD3wkZ85u3rjPRQoerkXJqZ3VtAb77hd0cfko/zgowDGIc8N8iQdTtHAGQqBI1/0Izdnd7Kp8iJb5PQA8YH5ejuEOJ4uScUNXAsZYGqOYwaaE3i2dtps+lrdEf/shlUzTv3iaRfW+A2hr+QWXBTmetDnDJNB9fxR9DCgLKr0EXvBHorPTpKvFQ6LhqhL2jQa0RhzsSCf2FYw1R7i0GdIWrjFMX/HiF0Cc092ioiPAvF29nktvHuiO0AGkozpelmG0TIdo1U3zJZtmCuz72ydfQl+GmVbRzab44pVP20EqOlqTXA9zTFRoIHrgOZA3a+7FjQcr/G1ea1titdHhiNgk3thYsPoGq3y2NZVsRWm3iZrs+sc2V2F3TvARAKzJsONEgxLq/EIPDREYiGZIPk+a/kradl9edHcLav1I6ursJpSoWAwHtLXJ+x9MHRJhScgs2nibIyKx5xYekaTV8r8JcYCCONl1jh4z08xRwzRzXQtXLAUq5sCN+YMPF5ihDNk56LotMwDTdawOMBJHmjPLnooxr/BDdE1o+PR7hOCaRwzwgFnhDWfWmYZRQxcOHfHHA0kkoLWi6xhX4wqi+LNMCpi4gjpCpC+56MMsifTX8Vp1ywjfKVBkJ3PaH7IGvZFs7LMPdK8F8GA+JD620a5jCbGRBRWRNQoouDx+FgQch11p239rG0PQO9YAB+BXg3oDJF1a4kyElgJ2X0l4h2LYfML1r4bxHTbGbeMaFPC918x43s4KNqxcPuK9G4z60oqNkyzGuhWGc2HCUEs2aJICBcXyRbFWljLQBnITc7pOmurb61bR+V30JAnpKxZV1hlVN0nvO6pkrB2LOms4/nlIZUWVjkxt5BgFO+pnNixiDsifMjlxMc/5fzg+Ke4wh6UOJtR97L46F+f8rak3LAVDnKsUpo2ggGane0mB1QyhGWrPN/ty9YUk01WT/ljf4WQ3rG+Pb6YsFJE98XIwxBzlbBWPe9VOaLd14Gvat9KnviuqpKKtwOyWB9HoUejiBKdUC7V/734teF3j2zLaDlNo1WzrZZVX4Ltgji3lXcCDve9uS4JGPy/yyJnuQK1wDYbhq1Zds3WnKBe09ya7WpOrQlewwPDsPJyrUyMS19bPrFVf+LdYvIcL1JJdrGqL+RVGl2Z2XnfhSp87pU9sXKh8CXcPgIfqrjs0zHz0AXxhpTlnBbLwo9OITEiq+keTPoh9uVbFVPLCj3xcRCILEY8lFvYDhaeknpj9p6rKQK1WSIWOijmC8daqB8LxyoLoq0M0mzlt2sUBiiXfcrPZ+Vn7o6eIA6xG0zyD6MrMo7+VEpoN2jyR5sKBeXJsEwNdv3ZQDrd3lX7x5IHT4JhD57z87JcS3FgA8TVblWYwUX5vVBebr6Os7e2CXb4WT7NR3OTUSv2LSN6/vl4Wvx19MbTMJM5/g5G4rvpzwIJJLO3ouT5PGKXheHloMPgVczULUxQPjsVbg3MspOfGoj1UJoQqemdxd1saKx2137/FwrOZ7wM1c61fnvxz1Xv6fKifXPde/j7vrNp5f85z3NrtrgOKVbMRxi2BcOPh8ed7f/8B98SerA=]]></ATT>
+      <ATT name="Name"><![CDATA[Platform Services]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <LINK relation="Represented">
+        <ID name="Platform Services" mc="Standard.Component" uid="2697fe8b-8abc-41ef-ab4a-4a6d6b2a74c7"/>
+        <REFOBJ>
+          <ID name="Note" mc="Infrastructure.Note" uid="a5f31703-2353-4f65-b53b-458ac7ca0020"/>
+        </REFOBJ>
+      </LINK>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Infrastructure.Note" uid="6516f05f-e767-40ca-ac98-647b08bdc8be"/>
+          <ATTRIBUTES>
+            <ATT name="Content"></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

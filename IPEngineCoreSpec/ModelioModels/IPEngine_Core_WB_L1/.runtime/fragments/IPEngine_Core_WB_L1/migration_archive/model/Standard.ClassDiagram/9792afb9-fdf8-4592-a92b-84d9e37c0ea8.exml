@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Messaging Services" version="4">
+  <OBJECT>
+    <ID name="Messaging Services" mc="Standard.ClassDiagram" uid="9792afb9-fdf8-4592-a92b-84d9e37c0ea8"/>
+    <PID name="ipengine_core_wb_l1" mc="Standard.Package" uid="6968e9a7-3135-4da5-b5ca-e9d4e5b0a2dc"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">50</ATT>
+      <ATT name="UiData"><![CDATA[eJztm2tvozgUhv8KivZrKJD7ptNRm1TdqlclsyPtfqkcc0g8BTsyTtvMr18bQjalKTHkqipS24ADx7fnHM5r09Pvb4FvvAAPCaPfSrZplYzvZ6cPg1+AhUFcWVQyxHQM30qMD82AueATZroEDTkKTHCJYNwMBRLk2QQfAqAijM9xctFV0I/Ou/F5yQjQL8af5pVapbPTR87GwMXUoCiQdfloyiaiiwSS3/1E/gRmjaAT3y+dnJ2eJDd8uLUvpj6U3nXByepCqK4PTcw4mPG9Gu3roBAjF9yksss30QNPs5Z7aWJ2pwFvoju4lm2MDtWBCx6a+CLVyZO4O1kd5+AjAa5sR2rM7lSR8aJK1PAg6iLumh0fheFsSoxWo+Ugb9Aqe67XLFdrLaeMWs6g3Ky6Lag0sAWomT3s0pq4oeyV3qIB+KkW9AUndFg6u4MwREN5aPSBvxAM4elJdF1mv5gP17TDgjELiZAz8olxDVOdEfFdDsrCLQnFO0gqBTjHqlFUHkrGO8nxWnz3ZHMQHSo0ZhPmNK22/Kk5drvi2LnZr26dfQV+7GVbRzYZYqNVx55t2VCuYJC8Nmyv3LLrzbJnWbju4YplVb0vzmttU7w+chIgPr2XJjaMrtUuzm1dl1tp6m26NrzVI7y54L1DhCpi1oS4UQBiZTUcIwwjkDPJJcr3SclfUcnuE4zmbmGtH2HNBWuMhYbBcMRenwj+YOiCyZoQnY+T4BPI7nRk6Rmmr4y7K4x5yA9XWRMIPz+FAjiwzTTNXzIX+U2hQSg4wqJAD+fMLrhRq8gjTaWxxCNRIOjMT3oQkt9o4MMVZ5Px7iOCbR1DwiGHhDWfW3YRVYyErHwwETBUTEpcz5OCfUGqLYw3A6l0iiOleSh9D0gRZk9mH9mB1y4ifpVBpBqf4PyQFOwLZ22te8R5P6IBxIi522a5iDAmVOZWVKYpMufBYiIRuQquZ2X9pGwPRO9YBR+Jzkl0wsi66UQRHazF7L5C8Y4Vsf0F898NYrrtkFtEuGnh+68c8T3sF+1YvH1FercadhUWG8ZZj3SniO4jlAKP1ikixOVJtE6xFtfKU4ZqqXM20eX8K+zOUf0dNuURKmtmFk4RZfcJsHvKJZwdyzrnuJF5UNmFU0zQLUUYwj1lFDsWckeGDzqj+PhVqh4S/pRnBKMCezT6tSx/CcCcAbci46hobOg4hXRtgIYw3+SNNqqUD6tStdHbV6UxJ5tMoNIvAGj49I417vEVhXwu3Zdd930idPxad+NXZ692Xzu/um0ruPWbVyllrwkkzj4JfMyCgFGTMqGWAO7lx6bfoHOsdrWufu2208wvlCraywGH+w7dNfU4+n+pRY2yUWlYHtjVWrlVcypl9aZnGVVxtYwG1UbdtgHj+oqoqOXkqq4t79zqP/JuCX0OlwmlSrayz+RVGc3N7GLdmUp84e09OXO+rEtW+4jESKfKPptwDOcUjxhPVZqtDD9WiiIjKp/uoWnfJ656vWJmWaMlLvE8GcUohtTEdomsKUo4EljtmtWuWLX8vtCFUCzta6aEzOyryoi208l2OhJpdFBN+4yfz/LP1B09SRzwG0LTD6NLOgn+1ApoNzD9o8OkhsLKLWOD1+68I93r3mXnx4oHT4RhDz2nx2W1mhKID0Ho3aoxgsvie6bA3HwiV9naQtjhR/k4Hi0MRtrLl3j04vOxlX05vInYzVSMv0NjeW38N0MDqeitqXk+99hVbngx7HL0KkfqFk0hHZ0yFwfm0cmNDYSmr0zI0PTO4m6WNPLdtd//SCHpiJeg2r0yb8//uew9XZx3bq56D3/fdzct/T/neWHOluch2ZL5CMO2YPjx8LizBaD/ADVVdcE=]]></ATT>
+      <ATT name="Name"><![CDATA[Messaging Services]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <LINK relation="Represented">
+        <ID name="Messaging Services" mc="Standard.Component" uid="96cf101e-3ce8-471f-9168-f00c6fc3004f"/>
+        <REFOBJ>
+          <ID name="Note" mc="Infrastructure.Note" uid="370fe145-9523-4d9e-a4c4-ab47611ecc64"/>
+        </REFOBJ>
+      </LINK>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Infrastructure.Note" uid="d8954046-1561-49ee-9983-f66a95097150"/>
+          <ATTRIBUTES>
+            <ATT name="Content"></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

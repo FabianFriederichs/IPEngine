@@ -1,0 +1,122 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="IPEngine Core" version="4">
+  <OBJECT>
+    <ID name="IPEngine Core" mc="Standard.Component" uid="e469c948-5329-4d7b-a644-ad9afcaa7381"/>
+    <PID name="ipengine_core_wb_l1" mc="Standard.Package" uid="6968e9a7-3135-4da5-b5ca-e9d4e5b0a2dc"/>
+    <ATTRIBUTES>
+      <ATT name="IsActive">false</ATT>
+      <ATT name="IsMain">false</ATT>
+      <ATT name="IsElementary">false</ATT>
+      <ATT name="IsAbstract">false</ATT>
+      <ATT name="IsLeaf">false</ATT>
+      <ATT name="IsRoot">false</ATT>
+      <ATT name="Visibility">Public</ATT>
+      <ATT name="Name"><![CDATA[IPEngine Core]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="InternalStructure">
+        <OBJECT>
+          <ID name="Port" mc="Standard.Port" uid="321cbac5-32ff-45db-b200-04076cb57273"/>
+          <ATTRIBUTES>
+            <ATT name="IsBehavior">false</ATT>
+            <ATT name="IsService">true</ATT>
+            <ATT name="IsConjugated">false</ATT>
+            <ATT name="Direction">None</ATT>
+            <ATT name="IsConstant">false</ATT>
+            <ATT name="MultiplicityMin"><![CDATA[1]]></ATT>
+            <ATT name="MultiplicityMax"><![CDATA[1]]></ATT>
+            <ATT name="Value"></ATT>
+            <ATT name="Name"><![CDATA[Port]]></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <COMP relation="Required">
+              <OBJECT>
+                <ID name="RequiredInterface" mc="Standard.RequiredInterface" uid="c2d43034-d305-46a9-94b7-5b2b53ede655"/>
+                <ATTRIBUTES>
+                  <ATT name="Name"><![CDATA[RequiredInterface]]></ATT>
+                  <ATT name="status">1970354901745664</ATT>
+                </ATTRIBUTES>
+                <DEPENDENCIES></DEPENDENCIES>
+              </OBJECT>
+            </COMP>
+            <COMP relation="OwnedNaryEnd">
+              <REFOBJ>
+                <ID name="" mc="Standard.NaryConnectorEnd" uid="836e5bb7-e305-45cd-82c8-da23c697ba92"/>
+              </REFOBJ>
+            </COMP>
+          </DEPENDENCIES>
+        </OBJECT>
+        <OBJECT>
+          <ID name="Port1" mc="Standard.Port" uid="98a01e6f-271a-485c-9ab9-5158b5f18b7a"/>
+          <ATTRIBUTES>
+            <ATT name="IsBehavior">false</ATT>
+            <ATT name="IsService">true</ATT>
+            <ATT name="IsConjugated">false</ATT>
+            <ATT name="Direction">None</ATT>
+            <ATT name="IsConstant">false</ATT>
+            <ATT name="MultiplicityMin"><![CDATA[1]]></ATT>
+            <ATT name="MultiplicityMax"><![CDATA[1]]></ATT>
+            <ATT name="Value"></ATT>
+            <ATT name="Name"><![CDATA[Port1]]></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <COMP relation="Provided">
+              <OBJECT>
+                <ID name="ProvidedInterface" mc="Standard.ProvidedInterface" uid="a8dc2ae8-049a-4dc1-b152-d24c83f2bfd9"/>
+                <ATTRIBUTES>
+                  <ATT name="Name"><![CDATA[ProvidedInterface]]></ATT>
+                  <ATT name="status">1970354901745664</ATT>
+                </ATTRIBUTES>
+                <DEPENDENCIES></DEPENDENCIES>
+              </OBJECT>
+            </COMP>
+          </DEPENDENCIES>
+        </OBJECT>
+        <OBJECT>
+          <ID name="Port3" mc="Standard.Port" uid="e5a8409c-0119-42fe-a7d2-6c20382579a3"/>
+          <ATTRIBUTES>
+            <ATT name="IsBehavior">false</ATT>
+            <ATT name="IsService">true</ATT>
+            <ATT name="IsConjugated">false</ATT>
+            <ATT name="Direction">None</ATT>
+            <ATT name="IsConstant">false</ATT>
+            <ATT name="MultiplicityMin"><![CDATA[1]]></ATT>
+            <ATT name="MultiplicityMax"><![CDATA[1]]></ATT>
+            <ATT name="Value"></ATT>
+            <ATT name="Name"><![CDATA[Port3]]></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <COMP relation="Provided">
+              <OBJECT>
+                <ID name="ProvidedInterface" mc="Standard.ProvidedInterface" uid="41fcf4b4-104d-4436-9cc7-0b58e785dfbb"/>
+                <ATTRIBUTES>
+                  <ATT name="Name"><![CDATA[ProvidedInterface]]></ATT>
+                  <ATT name="status">1970354901745664</ATT>
+                </ATTRIBUTES>
+                <DEPENDENCIES></DEPENDENCIES>
+              </OBJECT>
+            </COMP>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+      <COMP relation="OwnedElement">
+        <COMPID name="Timing" mc="Standard.Component" uid="ae0761ca-fb31-46d5-b12e-56bb8b3d43e6"/>
+        <COMPID name="Console" mc="Standard.Component" uid="1b81add2-1197-48a6-8b72-fe29da573476"/>
+        <COMPID name="Runtime Control" mc="Standard.Component" uid="5e439e75-234e-4e55-b72c-27918e26f229"/>
+        <COMPID name="Threading Services" mc="Standard.Component" uid="b5e2460b-7206-4ff5-a9e3-bd096de4586d"/>
+        <COMPID name="Data Store / Repository" mc="Standard.Component" uid="ce272be0-368e-45e7-92db-f8601ea51fba"/>
+        <COMPID name="Messaging Services" mc="Standard.Component" uid="96cf101e-3ce8-471f-9168-f00c6fc3004f"/>
+        <COMPID name="Module Manager" mc="Standard.Component" uid="3d6e5f8a-da6d-4863-9cfc-b829dbb843f1"/>
+        <COMPID name="Configuration Manager" mc="Standard.Component" uid="fe8625b1-5979-4584-89c2-eeade090a287"/>
+        <COMPID name="Memory Manager" mc="Standard.Component" uid="4e808bea-82bb-4722-9dc5-a75b67c4f1a0"/>
+        <COMPID name="Platform Services" mc="Standard.Component" uid="2697fe8b-8abc-41ef-ab4a-4a6d6b2a74c7"/>
+        <COMPID name="Debug/Monitoring" mc="Standard.Component" uid="62f1787a-b372-4629-be35-5c2f52054a9b"/>
+        <COMPID name="Core Interface" mc="Standard.Component" uid="24103a96-0a5f-40a1-9a17-47fe30072407"/>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

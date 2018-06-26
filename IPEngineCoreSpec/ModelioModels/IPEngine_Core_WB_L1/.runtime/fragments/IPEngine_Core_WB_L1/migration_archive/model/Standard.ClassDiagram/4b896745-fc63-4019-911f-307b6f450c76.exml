@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Threading and Synchronisation" version="4">
+  <OBJECT>
+    <ID name="Threading and Synchronisation" mc="Standard.ClassDiagram" uid="4b896745-fc63-4019-911f-307b6f450c76"/>
+    <PID name="ipengine_core_wb_l1" mc="Standard.Package" uid="6968e9a7-3135-4da5-b5ca-e9d4e5b0a2dc"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">121</ATT>
+      <ATT name="UiData"><![CDATA[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]]></ATT>
+      <ATT name="Name"><![CDATA[Threading and Synchronisation]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <LINK relation="Represented">
+        <ID name="Timing" mc="Standard.Component" uid="ae0761ca-fb31-46d5-b12e-56bb8b3d43e6"/>
+        <ID name="Threading Services" mc="Standard.Component" uid="b5e2460b-7206-4ff5-a9e3-bd096de4586d"/>
+        <REFOBJ>
+          <ID name="Note" mc="Infrastructure.Note" uid="d96a4fea-dc76-4845-9fcf-82e90bfc825f"/>
+        </REFOBJ>
+        <REFOBJ>
+          <ID name="Note" mc="Infrastructure.Note" uid="fb43b2ac-92dd-43f7-a5aa-d6efddf35220"/>
+        </REFOBJ>
+      </LINK>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Infrastructure.Note" uid="ff32c15c-9657-49fb-a4b2-c4387b39a2cd"/>
+          <ATTRIBUTES>
+            <ATT name="Content"></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

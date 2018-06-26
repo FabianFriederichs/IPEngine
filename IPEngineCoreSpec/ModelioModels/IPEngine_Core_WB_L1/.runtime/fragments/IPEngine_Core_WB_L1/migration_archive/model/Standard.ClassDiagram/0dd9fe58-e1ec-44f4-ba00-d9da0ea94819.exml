@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Data Store / Repository" version="4">
+  <OBJECT>
+    <ID name="Data Store / Repository" mc="Standard.ClassDiagram" uid="0dd9fe58-e1ec-44f4-ba00-d9da0ea94819"/>
+    <PID name="ipengine_core_wb_l1" mc="Standard.Package" uid="6968e9a7-3135-4da5-b5ca-e9d4e5b0a2dc"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">71</ATT>
+      <ATT name="UiData"><![CDATA[eJztm1tzokgUx78KZe0rCIhR10ymEk1lrVxLZ6Zq9yXVwEF7At1W007ifPrtBnEMMdjiLTvrSyIdOacvv3M4/25y+vklCrUfwGJMyaeKZZgV7fPZ6b37HTyuYV80VTQ+HcOnCmVDI6I+hJgaPkZDhiIDfMwpM2KOOH4yIIQICI/Tay/70lU0SK676XVFi9B3yh7nTs3K2ekDo2NgfKoRFAlfIZrSCe8ijsTfvqFwArNOkEkYVqpnp9Xshje3Dvg0hMqrIdhFQ4jl92PDowyM9F6F/nVQ7CEf/MzZ5QvvQ6Do5U6YmN2pwQvvuj3Rx+Sj/OBDgCYhzw2ymg6naOAMQsTBF/3IzdmtbNJ+yBY5PYj4iPlGJ0RxPFsSzfT9VgD1pg4WeLrjBI7uItPU/ZaPTEAtp2m1iqddWOPXhD6TG+RCmOvBgDNMhpUzuaDaQBADWlXrw5jGEp/paTX5cuHgaAg90qFRco9Ylnc8KJjqjHDoM5AWbnDMX5FSKwG7JztFxEcBeif7vBHkfdEdRIaSj9mq2Y7ZtmyzLdahbTettSPA2XkESPzTWNs5uNkcax7YDdsFU6+dNEF36tDQW7bv6kHzxLQA1a3ARf8HauvbovaB4Qix6Z0wsWWAzXZ5eE9U4RWmXqYbE+wcCV6f4FuEicRmQ5IbJUiWVuMx8mAEYjmZ4Pkua/kradl/wdHcL7EnR2LXJzZlQ8FgPKLPj9h7Y+iCCk+IzCeLswkUjzyx9ATTZ8r8FcYCFMarrHHkPT3GHBjQ7XQtXLIg65tCbswZ8niJEc7BXYilVpmHm6xtcYCTbNCZX/Qhxj+RG8IVo5Px/tOCZR7zwofPCxs+wawyehlx4dydcBhKMAWz51nDoUhVlszbIVVExhHVtVF9TUkZcKuzX8Up2Coji6VBJDufMX2fNRyKaWURfGT6gEIC+Ij6uwa6jGLGRJRaRFQtogTy+ERwchX1Zm2DrO0AWO9ZHh+xLoN1Bsqm1UUZgawE7qGS8p6lsvUb1sRbxHTXebeMmFPC9x8x4wc4WNqzoPsd6d197pVsbJlpNdztMloQEwIs2cBIOBcXyQbGRnDLcBnKjdDZauvrb8LbR0X4H0A94WXDGsMuo/beofZAVYW9Z6lnH089P16xYZcTeUs5hvhABcaexd0R5I9fYLz9U84Pjr+JK+yhEmc56l6WvzZgzKhbUYDUFA5+7FJaN0JDmJ8IJwdaMpBlqzwVHsjWFJZt1lP5VwYUAnvPuvf4UkOJuB6I8Ych5irBrXpKrHKwe6hjYtW+lTwnXlc9FW8WZBE/iUKPRhElBqFc7g3ciV9bfnvJSV69M9s1+QaTvb54qinvE3zc9+96JGDo1x6MnGWt3vTcZqMZ6LYIed1pgKc3Xc/Sa67pIOvEtxpmfQuRLn3t+IRX/bl3g8lTvEw31YrVfiGv0ujazC76LlTnCy/9iZULhS/h9gHxkYrLAZ0wD86JN6Is57RYKL51ihIjsrLuo+kgxL58F2NmWaEnPg4CkcWIB7mF7WLhKak6Mlgtu9m2nXygKsRCF2K+dKyFirJwrLIs2s0g2yUGKJd9xs97RWjujr4gDtg1JvmH0SWZRH8qJbRrmP7RoUJNeTIsU4M9fz6Qbq9/2fmy4sGTYNhHT/l5Wa2rOGJD4Gq3KszgsvxeKDW3X83VdrY59vGzfJqPFiZjhW8Z0YvPxxX/xwAvPA0zmeNv0Vh8N/1ZIIRk9lYUPu9H7KowvBh2GXoWM3WDppDPToXbBPPs5KcGYiOUJkRqemVxP5sb69112P9pwfmMN5ceV8bN+d+X/ceL8871Vf/+61132/r/fZ4X1mx5HVKsm48w7AqGL/cPe9sF+hdSTo9V]]></ATT>
+      <ATT name="Name"><![CDATA[Data Store / Repository]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <LINK relation="Represented">
+        <ID name="Data Store / Repository" mc="Standard.Component" uid="ce272be0-368e-45e7-92db-f8601ea51fba"/>
+        <REFOBJ>
+          <ID name="Note" mc="Infrastructure.Note" uid="58cb878f-2e27-47ec-8bc1-3b04a16d1705"/>
+        </REFOBJ>
+      </LINK>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Infrastructure.Note" uid="00a7c40c-04cf-4cbd-8897-321c5cb6c7b8"/>
+          <ATTRIBUTES>
+            <ATT name="Content"></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>
