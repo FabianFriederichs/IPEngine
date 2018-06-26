@@ -33,7 +33,7 @@ public:
 	uint32_t renderHeight, renderWidth;
 
 	GLuint quadVAO, quadVBO;
-	boost::shared_ptr<SCM::ISimpleContentModule_API> scm;
+	std::shared_ptr<SCM::ISimpleContentModule_API> scm;
 	FramebufferDesc leftEyeDesc;
 	FramebufferDesc rightEyeDesc;
 	vr::TrackedDevicePose_t lastposes[vr::k_unMaxTrackedDeviceCount];
@@ -109,11 +109,11 @@ private:
 			m.m[0][3], m.m[1][3], m.m[2][3]);
 	}
 
-	void setupControllerMat(boost::shared_ptr<vr::IVRRenderModels> , vr::RenderModel_t *, IGraphics_API*);
+	void setupControllerMat(std::shared_ptr<vr::IVRRenderModels> , vr::RenderModel_t *, IGraphics_API*);
 
-	boost::shared_ptr<IBasicOpenVRModule_API> ovrmodule;
-	boost::shared_ptr<IDataStoreModuleh_API> datastore;
-	boost::shared_ptr<ISimpleSceneModule_API> scenemodule;
+	std::shared_ptr<IBasicOpenVRModule_API> ovrmodule;
+	std::shared_ptr<IDataStoreModuleh_API> datastore;
+	std::shared_ptr<ISimpleSceneModule_API> scenemodule;
 	ExtensionInformation m_info;
 	std::vector<ipengine::Scheduler::SubHandle> handle;
 	bool init = false;

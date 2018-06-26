@@ -11,7 +11,7 @@
 #include <ISimpleContentModule_API.h>
 #include <ApplicationBase/Application.h>
 #include <IPhysicsModule_API.h>
-boost::shared_ptr<IInput_API> input;
+std::shared_ptr<IInput_API> input;
 
 #define DEP_GRAPH_PATH "../Assets/Dependencygraph/TestDepGraph.xml"
 #ifdef _DEBUG
@@ -45,8 +45,8 @@ public:
 	{
 		
 		auto mods = getInjector().getLoadedModules();
-		auto ssm = boost::dynamic_pointer_cast<ISimpleSceneModule_API>(mods["SimpleSceneModule"]);
-		auto scm = boost::dynamic_pointer_cast<SCM::ISimpleContentModule_API>(mods["SimpleContentModule"]);
+		auto ssm = std::dynamic_pointer_cast<ISimpleSceneModule_API>(mods["SimpleSceneModule"]);
+		auto scm = std::dynamic_pointer_cast<SCM::ISimpleContentModule_API>(mods["SimpleContentModule"]);
 		//auto phys = boost::dynamic_pointer_cast<IPhysicsModule_API>(mods["PhysicsModule"]);
 		auto sceneid = ssm->LoadSceneFromFile("../Assets/Scenes/TestScene.xml");
 		//sceneid = ssm->LoadSceneFromFile("test.xml");
@@ -124,7 +124,7 @@ int _tmain(int argc, _TCHAR* argv[])
 //	std::cout << SCM::allMeshObjectsAsString(*scm, true);
 //	//core.getThreadPool().startWorkers();
 //	//auto b = core.getThreadPool().isRunning();
-//	//boost::shared_ptr<IScheduler_API> schedAPI = boost::dynamic_pointer_cast<IScheduler_API>(mods["Scheduler"]);
+//	//std::shared_ptr<IScheduler_API> schedAPI = boost::dynamic_pointer_cast<IScheduler_API>(mods["Scheduler"]);
 //	//IInput_API input = dynamic_cast<IInput_API>(mods["InputModule"]);
 //
 //	//[input]()->void {

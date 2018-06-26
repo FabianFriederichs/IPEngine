@@ -18,9 +18,9 @@ public:
 
 private:
 	ExtensionInformation m_info;
-	//boost::shared_ptr<ISimpleSceneModule_API> ssm;
-	boost::shared_ptr<IPhysicsModule_API> physics;
-	boost::shared_ptr<SCM::ISimpleContentModule_API> scm;
+	//std::shared_ptr<ISimpleSceneModule_API> ssm;
+	std::shared_ptr<IPhysicsModule_API> physics;
+	std::shared_ptr<SCM::ISimpleContentModule_API> scm;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT exSSMExtendedPBRPhysicsLoader extension;

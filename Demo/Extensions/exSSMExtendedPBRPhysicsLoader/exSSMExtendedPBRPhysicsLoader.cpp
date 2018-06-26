@@ -101,7 +101,7 @@ void exSSMExtendedPBRPhysicsLoader::execute(std::vector<std::string> argnames, s
 	auto type = args[1].cast<std::string>();
 	auto tree = args[2].cast<boost::property_tree::ptree>();
 	auto entity = args[4].cast<SCM::Entity*>();
-	auto scm = args[5].cast<boost::shared_ptr<SCM::ISimpleContentModule_API>>();
+	auto scm = args[5].cast<std::shared_ptr<SCM::ISimpleContentModule_API>>();
 	auto entitymap = args[6].cast<std::unordered_map<int, ipengine::ipid>*>();
 	auto materialmap = args[9].cast<std::unordered_map<int, ipengine::ipid>*>();
 

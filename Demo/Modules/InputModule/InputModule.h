@@ -37,9 +37,9 @@ private:
 	std::mutex mymutex;
 	void pollData();
 	void pollDataC(ipengine::TaskContext &c);
-	boost::shared_ptr<vr::IVRSystem> vrsys;
+	std::shared_ptr<vr::IVRSystem> vrsys;
 	bool isVRconnected = false;
-	boost::shared_ptr<IBasicOpenVRModule_API> openvr;
+	std::shared_ptr<IBasicOpenVRModule_API> openvr;
 	vr::TrackedDevicePose_t lastposes[vr::k_unMaxTrackedDeviceCount];
 	void hmd34ToPosition(const vr::HmdMatrix34_t& matrix, float position[3])
 	{
