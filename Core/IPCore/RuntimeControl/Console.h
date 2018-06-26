@@ -114,7 +114,6 @@ namespace ipengine
 		\returns			Returns true when the command was successfully added. false is returned if the command already exists.
 		*/
 		bool addCommand(ipcrstr name, const CommandFunc& cfunc);
-		~Console();
 		/*!
 		\brief Adds a new command.
 

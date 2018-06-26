@@ -1,21 +1,8 @@
 #include "Injector.h"
-// Injector.cpp : Defines the entry point for the console application.
-//
 
-DGStuff::Module * Injector::getModuleByIdentifier(std::vector<DGStuff::Module>* modules, std::string id)
+bool Injector::recursiveInject(ipdg::Module* mod, bool doextension)
 {
-	for (auto& m : *modules)
-	{
-		if (m.identifier == id)
-		{
-			return &m; //returning address of something that won't exist afterwards anymore WRONG
-		}
-	}
-	return nullptr;
-}
-
-bool Injector::recursiveInject(DGStuff::Module* mod, bool doextension)
-{
+	
 	std::shared_ptr<IExtension> pex;
 	ExtensionInformation* pexinf;
 	std::shared_ptr<IModule_API> p;
@@ -218,6 +205,46 @@ void Injector::LoadModule(ipengine::Core *core, std::string path)
 	}
 }
 
+inline bool Injector::safelyStartup(std::shared_ptr<IModule_API> mod, std::string errorinfo)
+{
+	try {
+		return mod->startUp();
+	}
+	catch (std::exception ex)
+	{
+		auto errmess = errorinfo.append(ex.what());
+		if (m_core)
+		{
+			m_core->getErrorManager().reportException(ipengine::ipex(errmess.c_str(), ipengine::ipex_severity::error));
+		}
+		else
+		{
+			std::cout << errmess;
+		}
+		return false;
+	}
+}
+
+inline bool Injector::safelyShutdown(std::shared_ptr<IModule_API> mod, std::string errorinfo)
+{
+	try {
+		return mod->shutDown();
+	}
+	catch (std::exception ex)
+	{
+		auto errmess = errorinfo.append(ex.what());
+		if (m_core)
+		{
+			m_core->getErrorManager().reportException(ipengine::ipex(errmess.c_str(), ipengine::ipex_severity::error));
+		}
+		else
+		{
+			std::cout << errmess;
+		}
+		return false;
+	}
+}
+
 void Injector::registerCommands(ipengine::Core * core)
 {
 	auto& console = core->getConsole();
@@ -232,6 +259,47 @@ void Injector::registerCommands(ipengine::Core * core)
 	console.addCommand("injector.sdmod", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_shutdownModule>(this), "Shutdown Module. Arguments: moduleid");
 	console.addCommand("injector.sumod", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_startupModule>(this), "Startup Module. Arguments: moduleid");
 	console.addCommand("inj.d", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_debugswitchgraphics>(this), "Debug command");
+}
+
+inline Injector::Injector(ipengine::Core * core)
+{
+	m_core = core;
+	if(core)
+		registerCommands(core);
+}
+
+inline Injector::Injector(ipengine::Core * core, std::string dependencyXMLPath, std::string libraryFolderpath)
+{
+	m_core = core;
+	if(core)
+		registerCommands(core);
+	XMLParser parser;
+	bool failedparse = false;
+	std::shared_ptr<ipdg::DependencyGraph> g;
+	try {
+		g = parser.parse(dependencyXMLPath);
+	}
+	catch (std::exception& ex)
+	{
+		failedparse = true;
+		if (core)
+		{
+			core->getErrorManager().reportException(ipengine::ipex(ex.what(), ipengine::ipex_severity::warning, 0, "Injector::Injector(ipengine::Core, std::string, std::string"));
+		}
+		else
+		{
+			std::cout << ex.what();
+		}
+	}
+
+	if (!failedparse) {
+		depgraphpath = dependencyXMLPath;
+		graphs[g] = depgraphpath;
+		graphHasChanges[g] = false;
+		depgraph = g;
+
+		libFolderPath = libraryFolderpath;
+	}
 }
 
 void Injector::LoadModules(std::string path, bool reload )
@@ -313,6 +381,226 @@ void Injector::LoadModules(std::string path, bool reload )
 	}
 }
 
+inline uint32_t Injector::reassignDependency(std::shared_ptr<IExtension> mod, std::string dependencyID, std::string newModuleID)
+{
+	//change dependency "dependencyID" in module "moduleID" to the module "newModuleID"
+	//Do checks whether it's correct and then update the pointer in "moduleID"s moduleinfo of specified dependency
+	//Tell "moduleID" to update it's pointers and do any work that's necessary for reassignment
+	if (!mod.get())
+		return 0;
+	auto minfo = mod->getInfo();
+	auto mod2 = loadedModules[newModuleID];
+	auto minfo2 = mod2->getModuleInfo();
+	if (loadedModules.count(newModuleID) < 1)
+		return 0;
+	auto location = "Injector::reassignDependency(IExtension)";
+
+	std::shared_ptr<IModule_API> olddep = nullptr;
+	//Case Dependee doesn't have the dependency yet, basically an assign. Check if it's in depinfo and if so check for compatability
+	if (!minfo->dependencies.exists(dependencyID))
+	{
+		if (minfo->depinfo.count(dependencyID) > 0)
+		{
+			//Check whether dependency fits the depinfo and is valid
+			if (minfo2->iam.find(minfo->depinfo[dependencyID].moduleType) != std::string::npos)
+			{
+				if (!mod2->isStartUp)
+				{
+					if (!safelyStartup(mod2, getModuleStartupErrorMessage(mod2->getModuleInfo()->identifier, location)))
+						return 0;
+				}
+				minfo->dependencies.assignDependency(dependencyID, mod2);
+				safelyDependencyUpdated(mod, dependencyID, olddep, getModuleDependencyChangedErrorMessage(minfo2->identifier, dependencyID));
+				//Update dependencygraph accordingly
+				depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
+				return 1;
+			}
+			else
+			{
+				//Module is not compatible, return with error
+				return 0;
+			}
+		}
+		else
+		{
+			if (!mod2->isStartUp)
+			{
+				if (!safelyStartup(mod2, getModuleStartupErrorMessage(mod2->getModuleInfo()->identifier, location)))
+					return 0;
+			}
+			minfo->dependencies.assignDependency(dependencyID, mod2);
+			safelyDependencyUpdated(mod, dependencyID, olddep, getModuleDependencyChangedErrorMessage(minfo2->identifier, dependencyID));
+			//Update dependencygraph accordingly
+			depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
+			return 1;
+		}
+	}
+	else if (minfo2->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam) != std::string::npos)
+	{
+		olddep = minfo->dependencies.getDep<IModule_API>(dependencyID);
+		//reassignment should work, i think? 
+		//Check whether dependency is updatable at runtime
+		if (minfo->depinfo.count(dependencyID) && !minfo->depinfo[dependencyID].isUpdatable)
+		{
+			return 0;
+		}
+
+		//!TODO check newmoduleid for startedup and depinfo valid
+		if (!mod2->isStartUp)
+		{
+			if (!safelyStartup(mod2, getModuleStartupErrorMessage(mod2->getModuleInfo()->identifier, location)))
+				return 0;
+		}
+
+		minfo->dependencies.assignDependency(dependencyID, mod2);
+		safelyDependencyUpdated(mod, dependencyID, olddep, getModuleDependencyChangedErrorMessage(minfo2->identifier, dependencyID));
+		//Update dependencygraph accordingly
+		depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
+
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+inline bool Injector::startupModule(std::shared_ptr<IModule_API> mod)
+{
+	if (mod.get() && !mod->isStartUp)
+		safelyStartup(mod, getModuleStartupErrorMessage(mod->getModuleInfo()->identifier, "Injector::startupModule"));
+	if (mod.get())
+		return mod->isStartUp;
+	return false;
+}
+
+inline bool Injector::startupModule(std::string moduleID)
+{
+	if (loadedModules.count(moduleID) > 0)
+	{
+		return startupModule(loadedModules[moduleID]);
+	}
+	return false;
+}
+
+inline bool Injector::shutdownModule(std::shared_ptr<IModule_API> mod)
+{
+	if (mod.get() && mod->isStartUp)
+		safelyShutdown(mod, getModuleShutdownErrorMessage(mod->getModuleInfo()->identifier, "Injector::shutdownModule"));
+	if (mod.get())
+		return !mod->isStartUp;
+	return false;
+}
+
+inline bool Injector::shutdownModule(std::string moduleID)
+{
+	if (loadedModules.count(moduleID) > 0)
+	{
+		return shutdownModule(loadedModules[moduleID]);
+	}
+	return false;
+}
+
+inline uint32_t Injector::reassignDependency(std::shared_ptr<IModule_API> mod, std::string dependencyID, std::string newModuleID)
+{
+	//change dependency "dependencyID" in module "moduleID" to the module "newModuleID"
+	//Do checks whether it's correct and then update the pointer in "moduleID"s moduleinfo of specified dependency
+	//Tell "moduleID" to update it's pointers and do any work that's necessary for reassignment
+	if (!mod.get())
+		return 0;
+	auto minfo = mod->getModuleInfo();
+	auto mod2 = loadedModules[newModuleID];
+	auto minfo2 = mod2->getModuleInfo();
+	if (loadedModules.count(newModuleID) < 1)
+		return 0;
+	auto location = "Injector::reassignDependency(IModule_API)";
+	std::shared_ptr<IModule_API> olddep = nullptr;
+	if (!minfo->dependencies.exists(dependencyID))
+	{
+
+		if (minfo->depinfo.count(dependencyID) > 0)
+		{
+			//Check whether dependency fits the depinfo and is valid
+			if (minfo2->iam.find(minfo->depinfo[dependencyID].moduleType) != std::string::npos)
+			{
+				if (!mod2->isStartUp)
+				{
+
+					if (!safelyStartup(mod2, getModuleStartupErrorMessage(mod2->getModuleInfo()->identifier, location)))
+					{
+						return 0;
+					}
+
+				}
+				minfo->dependencies.assignDependency(dependencyID, mod2);
+				safelyDependencyUpdated(mod, dependencyID, olddep, getModuleDependencyChangedErrorMessage(minfo2->identifier, dependencyID));
+				//Update dependencygraph accordingly
+				depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
+				return 1;
+			}
+			else
+			{
+				//Module is not compatible, return with error
+				return 0;
+			}
+		}
+		else
+		{
+			if (!mod2->isStartUp)
+			{
+				if (!safelyStartup(mod2, getModuleStartupErrorMessage(mod2->getModuleInfo()->identifier, location)))
+				{
+					return 0;
+				}
+			}
+			minfo->dependencies.assignDependency(dependencyID, mod2);
+			safelyDependencyUpdated(mod, dependencyID, olddep, getModuleDependencyChangedErrorMessage(minfo2->identifier, dependencyID));
+			//Update dependencygraph accordingly
+			depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
+			return 1;
+		}
+	}
+	else if (minfo2->iam.find(minfo->dependencies.getDep<IModule_API>(dependencyID)->getModuleInfo()->iam) != std::string::npos)
+	{
+		olddep = minfo->dependencies.getDep<IModule_API>(dependencyID);
+		//auto oldmod = minfo->dependencies.getDep<IModule_API>(dependencyID);
+		//reassignment should work, i think? 
+		//Check whether dependency is updatable at runtime
+		if (minfo->depinfo.count(dependencyID) && !minfo->depinfo[dependencyID].isUpdatable)
+		{
+			return 0;
+		}
+
+
+		//if (depgraph->findModule(oldmod->getModuleInfo()->identifier)->getDepCounter() == 1)
+		//{
+		//	//Shutdown
+		//	oldmod->shutDown();
+		//}
+
+		//!TODO check newmoduleid for startedup and depinfo valid
+		if (!mod2->isStartUp)
+		{
+			if (!safelyStartup(mod2, getModuleStartupErrorMessage(mod2->getModuleInfo()->identifier, location)))
+			{
+				return 0;
+			}
+		}
+
+
+		minfo->dependencies.assignDependency(dependencyID, mod2);
+		safelyDependencyUpdated(mod, dependencyID, olddep, getModuleDependencyChangedErrorMessage(minfo2->identifier, dependencyID));
+		//Update dependencygraph accordingly
+		depgraph->changeDependency(minfo->identifier, dependencyID, newModuleID);
+
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 std::map<std::string, std::shared_ptr<IModule_API>> Injector::getModulesOfType(std::string type)
 {
 	// TODO: insert return statement here
@@ -327,6 +615,265 @@ std::map<std::string, std::shared_ptr<IModule_API>> Injector::getModulesOfType(s
 		}
 	}
 	return temp;
+}
+
+inline void Injector::cmd_startupModule(const ipengine::ConsoleParams & params)
+{
+	if (params.getParamCount() != 1)
+	{
+		m_core->getConsole().println("Parameter incorrect. One parameter: A valid module id");
+	}
+	//check path valid
+	if (startupModule(params.get(0)))
+	{
+		m_core->getConsole().println(std::string("Module successfuly started.").c_str());
+	}
+	else
+	{
+		m_core->getConsole().println(std::string("Supplied module id not valid").c_str());
+	}
+}
+
+inline void Injector::cmd_shutdownModule(const ipengine::ConsoleParams & params)
+{
+	if (params.getParamCount() != 1)
+	{
+		m_core->getConsole().println("Parameter incorrect. One parameter: A valid module id");
+	}
+	//check path valid
+	if (shutdownModule(params.get(0)))
+	{
+		m_core->getConsole().println(std::string("Module successfuly shut down.").c_str());
+	}
+	else
+	{
+		m_core->getConsole().println(std::string("Supplied module id not valid").c_str());
+	}
+}
+
+inline void Injector::cmd_loadModule(const ipengine::ConsoleParams & params)
+{
+	if (params.getParamCount() != 1)
+	{
+		m_core->getConsole().println("Parameter incorrect. One parameter: A valid filepath");
+	}
+	//check path valid
+	auto path = boost::filesystem::path(params.get(0));
+	if (boost::filesystem::exists(path) && boost::filesystem::is_regular_file(path) && path.has_extension() && path.extension() == boost::dll::shared_library::suffix())
+	{
+		LoadModule(m_core, path.generic_string());
+	}
+	else
+	{
+		m_core->getConsole().println(std::string("Supplied path is not a valid " + boost::dll::shared_library::suffix().generic_string()).c_str());
+	}
+}
+
+inline void Injector::cmd_reassignDep(const ipengine::ConsoleParams & params)
+{
+	if (params.getParamCount() != 3)
+	{
+		m_core->getConsole().println("Parameter incorrect. Three parameters: A valid module id, dependencyid, module id");
+	}
+	//Get dependee (parameter 1) from string
+	if (loadedModules.count(params.get(0)) > 0)
+	{
+		if (reassignDependency(loadedModules[params.get(0)], params.get(1), params.get(2)) == 1)
+		{
+			m_core->getConsole().println("Dependency updated successfully");
+		}
+		else
+		{
+			m_core->getConsole().println("Something went wrong updating the dependency. Either a parameter is wrong or the dependency supplied in parameter 2 is not updatable");
+		}
+	}
+	else if (loadedExtensions.count(params.get(0)) > 0)
+	{
+		if (reassignDependency(loadedExtensions[params.get(0)], params.get(1), params.get(2)) == 1)
+		{
+			m_core->getConsole().println("Dependency updated successfully");
+		}
+		else
+		{
+			m_core->getConsole().println("Something went wrong updating the dependency. Either a parameter is wrong or the dependency supplied in parameter 2 is not updatable");
+		}
+	}
+	else
+	{
+		m_core->getConsole().println("Parameter incorrect. Fist paremeter is not a valid module id");
+	}
+}
+
+inline void Injector::cmd_getLoadedModules(const ipengine::ConsoleParams & params)
+{
+	auto& modules = getLoadedModules();
+	auto &console = m_core->getConsole();
+
+	console.println("Modules:");
+	for (auto& mod : modules)
+	{
+		auto minfo = mod.second->getModuleInfo();
+		std::string mstrinfo("\t" + mod.first + ": " + minfo->identifier + " | " + minfo->iam + " | " + minfo->version);
+		console.println(mstrinfo.c_str());
+	}
+	console.println("");
+	console.println("Extensions:");
+	for (auto& mod : loadedExtensions)
+	{
+		auto minfo = mod.second->getInfo();
+		std::string mstrinfo("\t" + mod.first + ": " + minfo->identifier + " | " + minfo->version);
+		console.println(mstrinfo.c_str());
+	}
+}
+
+inline void Injector::cmd_getDependencies(const ipengine::ConsoleParams & params)
+{
+	auto &console = m_core->getConsole();
+
+	if (params.getParamCount() != 1)
+	{
+		console.println("Parameter incorrect. One parameter: A valid module id");
+	}
+
+	if (loadedModules.count(params.get(0)) > 0)
+	{
+		auto mod = loadedModules[params.get(0)];
+		auto &deps = mod->getModuleInfo()->dependencies;
+		console.println("Dependencies:");
+		for (auto& dep : deps.dependencies)
+		{
+			std::string output("\t" + dep.first + ": " + dep.second->getModuleInfo()->identifier);
+			console.println(output.c_str());
+		}
+	}
+	else if (loadedExtensions.count(params.get(0)) > 0)
+	{
+		auto mod = loadedExtensions[params.get(0)];
+		auto &deps = mod->getInfo()->dependencies;
+		console.println("Dependencies:");
+		for (auto& dep : deps.dependencies)
+		{
+			std::string output("\t" + dep.first + ": " + dep.second->getModuleInfo()->identifier);
+			console.println(output.c_str());
+		}
+	}
+	else
+	{
+		m_core->getConsole().println("Parameter incorrect. Fist paremeter is not a valid module id");
+	}
+}
+
+inline void Injector::cmd_getDependencyInfo(const ipengine::ConsoleParams & params)
+{
+	auto &console = m_core->getConsole();
+
+	if (params.getParamCount() != 1)
+	{
+		console.println("Parameter incorrect. One parameter: A valid module id");
+	}
+
+	if (loadedModules.count(params.get(0)) > 0)
+	{
+		auto mod = loadedModules[params.get(0)];
+		auto &deps = mod->getModuleInfo()->depinfo;
+		console.println("Module supplied dependency information:");
+		for (auto& dep : deps)
+		{
+			std::string output("\t" + dep.first + ": \n\t\tType: " + dep.second.moduleType + "\n\t\tMandatory: " + (dep.second.isMandatory ? "true" : "false") + "\n\t\tUpdateable: " + (dep.second.isUpdatable ? "true" : "false"));
+			console.println(output.c_str());
+		}
+	}
+	else if (loadedExtensions.count(params.get(0)) > 0)
+	{
+		auto mod = loadedExtensions[params.get(0)];
+		auto &deps = mod->getInfo()->depinfo;
+		console.println("Module supplied dependency information:");
+		for (auto& dep : deps)
+		{
+			std::string output("\t" + dep.first + ": \n\t\tType: " + dep.second.moduleType + "\n\t\tMandatory: " + (dep.second.isMandatory ? "true" : "false") + "\n\t\tUpdateable: " + (dep.second.isUpdatable ? "true" : "false"));
+			console.println(output.c_str());
+		}
+	}
+	else
+	{
+		m_core->getConsole().println("Parameter incorrect. Fist paremeter is not a valid module id");
+	}
+}
+
+inline void Injector::cmd_getModulesOfType(const ipengine::ConsoleParams & params)
+{
+	auto &console = m_core->getConsole();
+	if (params.getParamCount() != 1)
+	{
+		console.println("Parameter incorrect. One parameter: A module type");
+	}
+
+	auto modules = getModulesOfType(params.get(0));
+	for (auto &mod : modules)
+	{
+		console.println(mod.first.c_str());
+	}
+
+}
+
+inline void Injector::cmd_removeDependency(const ipengine::ConsoleParams & params)
+{
+	auto &console = m_core->getConsole();
+	if (params.getParamCount() != 2)
+	{
+		console.println("Parameter incorrect. three parameters: A Module ID, a Dependency ID and a bool");
+	}
+	auto modid = params.get(0);
+	auto depid = params.get(1);
+
+	if (loadedModules.count(modid) > 0)
+	{
+		auto modinfo = loadedModules[modid]->getModuleInfo();
+		modinfo->dependencies.removeDependency(depid);
+
+	}
+	else if (loadedExtensions.count(modid) > 0)
+	{
+		auto modinfo = loadedExtensions[modid]->getInfo();
+		modinfo->dependencies.removeDependency(depid);
+	}
+	else
+	{
+		console.println("Module not found");
+	}
+
+}
+
+inline void Injector::cmd_enableExtension(const ipengine::ConsoleParams & params)
+{
+	auto &console = m_core->getConsole();
+	if (params.getParamCount() != 4)
+	{
+		console.println("Parameter incorrect. three parameters: A Module ID, a Dependency ID and a bool");
+	}
+	auto modid = params.get(0);
+	auto exid = params.get(1);
+	auto prio = params.getInt(2);
+	auto active = params.get(3);
+	if (loadedModules.count(modid) > 0)
+	{
+		auto modinfo = loadedModules[modid]->getModuleInfo();
+		modinfo->expoints.setActive(exid, prio, active);
+	}
+	else
+	{
+		console.println("Module not found");
+	}
+}
+
+inline void Injector::cmd_debugswitchgraphics(const ipengine::ConsoleParams & params)
+{
+	auto &console = m_core->getConsole();
+	auto targ = "VulkanRenderer";
+	reassignDependency(loadedModules[targ], "WindowManager", "SDLWindowManager");
+	reassignDependency(loadedModules[targ], "SCM", "SimpleContentModule");
+	reassignDependency(loadedModules["GameLogicModule"], "graphics", targ);
+	console.println("have fun");
 }
 
 bool Injector::saveDependencyGraph()

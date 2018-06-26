@@ -10,10 +10,10 @@ class XMLParser : DependencyParser
 public:
 	
 private:
-	DGStuff::Module ptreeToModule(const boost::property_tree::ptree *);
-	std::shared_ptr<DGStuff::Dependency> ptreeToDep(const boost::property_tree::ptree *, std::list<DGStuff::Module>&);
-	std::shared_ptr<DGStuff::ExtensionPoint> ptreeToExP(const boost::property_tree::ptree *, std::list<DGStuff::Module>&);
-	void ptreeModuleDep(const boost::property_tree::ptree *, DGStuff::DependencyGraph &);
+	ipdg::Module ptreeToModule(const boost::property_tree::ptree *);
+	std::shared_ptr<ipdg::Dependency> ptreeToDep(const boost::property_tree::ptree *, std::list<ipdg::Module>&);
+	std::shared_ptr<ipdg::ExtensionPoint> ptreeToExP(const boost::property_tree::ptree *, std::list<ipdg::Module>&);
+	void ptreeModuleDep(const boost::property_tree::ptree *, ipdg::DependencyGraph &);
 
 	ParseResult _lastResult;
 public:
@@ -22,7 +22,7 @@ public:
 		
 	// Inherited via DependencyParser
 	virtual pDepGraph parse(std::string) override;
-	virtual ParseResult write(DGStuff::DependencyGraph&, std::string) override;
+	virtual ParseResult write(ipdg::DependencyGraph&, std::string) override;
 
 	// Inherited via DependencyParser
 	virtual ParseResult getResult() override;

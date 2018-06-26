@@ -36,9 +36,9 @@ public:
 		WRITING_SUCCESS,
 		READING_SUCCESS
 	};
-	using pDepGraph = std::shared_ptr<DGStuff::DependencyGraph>;
+	using pDepGraph = std::shared_ptr<ipdg::DependencyGraph>;
 	virtual pDepGraph parse(std::string) = 0;
-	virtual ParseResult write(DGStuff::DependencyGraph&, std::string) = 0;
+	virtual ParseResult write(ipdg::DependencyGraph&, std::string) = 0;
 
 	virtual ParseResult getResult() = 0;
 };

@@ -5,9 +5,9 @@
 #include <boost/dll/alias.hpp>
 #include <boost/function/function_base.hpp>
 
-DGStuff::Module XMLParser::ptreeToModule(const boost::property_tree::ptree * node)
+ipdg::Module XMLParser::ptreeToModule(const boost::property_tree::ptree * node)
 {
-	DGStuff::Module tmod;
+	ipdg::Module tmod;
 
 	//properties
 	//ignore - bool
@@ -21,7 +21,7 @@ DGStuff::Module XMLParser::ptreeToModule(const boost::property_tree::ptree * nod
 	return tmod;
 }
 
-std::shared_ptr<DGStuff::Dependency> XMLParser::ptreeToDep(const boost::property_tree::ptree * node, std::list<DGStuff::Module>& mods)
+std::shared_ptr<ipdg::Dependency> XMLParser::ptreeToDep(const boost::property_tree::ptree * node, std::list<ipdg::Module>& mods)
 {
 
 	//properties
@@ -31,19 +31,19 @@ std::shared_ptr<DGStuff::Dependency> XMLParser::ptreeToDep(const boost::property
 	auto inj = node->get<bool>("inject", false);
 	auto ident = node->get<std::string>("identifier", "");
 	auto modid = node->get<std::string>("moduleID", "");
-	auto mod = std::find_if(mods.begin(), mods.end(), [modid](DGStuff::Module e)->bool {return  e.identifier == modid; });
+	auto mod = std::find_if(mods.begin(), mods.end(), [modid](ipdg::Module e)->bool {return  e.identifier == modid; });
 	if (mod!=mods.end())
 	{
-		auto d = std::make_shared<DGStuff::Dependency>(&(*mod), inj);
+		auto d = std::make_shared<ipdg::Dependency>(&(*mod), inj);
 		d->identifier = ident;
 		return d;
 	}
-	return std::shared_ptr<DGStuff::Dependency>(nullptr); //returns nullptr
+	return std::shared_ptr<ipdg::Dependency>(nullptr); //returns nullptr
 }
 
-std::shared_ptr<DGStuff::ExtensionPoint> XMLParser::ptreeToExP(const boost::property_tree::ptree * node, std::list<DGStuff::Module>& mods)
+std::shared_ptr<ipdg::ExtensionPoint> XMLParser::ptreeToExP(const boost::property_tree::ptree * node, std::list<ipdg::Module>& mods)
 {
-	auto tpoint = std::make_shared<DGStuff::ExtensionPoint>();
+	auto tpoint = std::make_shared<ipdg::ExtensionPoint>();
 	//properties
 	//identifier - string
 	//Extensions - Extension node
@@ -55,10 +55,10 @@ std::shared_ptr<DGStuff::ExtensionPoint> XMLParser::ptreeToExP(const boost::prop
 	for (auto child : node->get_child("Extensions"))
 	{
 		auto modid = child.second.get<std::string>("extensionname", "");
-		auto mod = std::find_if(mods.begin(), mods.end(), [modid](DGStuff::Module e)->bool {return  e.identifier == modid; });
+		auto mod = std::find_if(mods.begin(), mods.end(), [modid](ipdg::Module e)->bool {return  e.identifier == modid; });
 		if (mod != mods.end()) //! error mesage or something when skipping nodes because it's not keeping format
 		{
-			auto e = DGStuff::Extension(&(*mod), child.second.get<uint32_t>("priority", 0));
+			auto e = ipdg::Extension(&(*mod), child.second.get<uint32_t>("priority", 0));
 			tpoint->extensions.push_back(e); //?do I need to move or is my assign copy ctor ok? or is it a different ctor I need?
 		}
 	}
@@ -66,7 +66,7 @@ std::shared_ptr<DGStuff::ExtensionPoint> XMLParser::ptreeToExP(const boost::prop
 	return tpoint;
 }
 
-void XMLParser::ptreeModuleDep(const boost::property_tree::ptree * node, DGStuff::DependencyGraph& graph)
+void XMLParser::ptreeModuleDep(const boost::property_tree::ptree * node, ipdg::DependencyGraph& graph)
 {
 	//get module
 	auto ident = node->get<std::string>("identifier", "");
@@ -111,7 +111,7 @@ XMLParser::~XMLParser()
 
 XMLParser::pDepGraph XMLParser::parse(std::string path)
 {
-	pDepGraph dgraph = std::make_shared<DGStuff::DependencyGraph>();
+	pDepGraph dgraph = std::make_shared<ipdg::DependencyGraph>();
 	boost::property_tree::ptree tree;
 	try {
 		boost::property_tree::read_xml(path, tree, boost::property_tree::xml_parser::no_comments);//Check out what tree has in it if parsing fails
@@ -141,7 +141,7 @@ XMLParser::pDepGraph XMLParser::parse(std::string path)
 	return dgraph; //? is a std::move sensible here?
 }
 
-XMLParser::ParseResult XMLParser::write(DGStuff::DependencyGraph& graph, std::string path)
+XMLParser::ParseResult XMLParser::write(ipdg::DependencyGraph& graph, std::string path)
 {
 	//TODO
 	boost::property_tree::ptree tree;
