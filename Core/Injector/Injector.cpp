@@ -1,4 +1,8 @@
 #include "Injector.h"
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/dll/import.hpp>
+#include <boost/dll/alias.hpp>
+#include <boost/function/function_base.hpp>
 
 bool Injector::recursiveInject(ipdg::Module* mod, bool doextension)
 {

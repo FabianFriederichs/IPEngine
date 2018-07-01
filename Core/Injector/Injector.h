@@ -10,10 +10,7 @@ Dependency Injection realizing components
 #ifndef _INJECTOR_H_
 #define _INJECTOR_H_
 
-#include <boost/property_tree/xml_parser.hpp>
-#include <boost/dll/import.hpp>
-#include <boost/dll/alias.hpp>
-#include <boost/function/function_base.hpp>
+
 #include "DependencyGraph.h"
 #include <IModule_API.h>
 //#include <IPCore/Core/ICore.h>
