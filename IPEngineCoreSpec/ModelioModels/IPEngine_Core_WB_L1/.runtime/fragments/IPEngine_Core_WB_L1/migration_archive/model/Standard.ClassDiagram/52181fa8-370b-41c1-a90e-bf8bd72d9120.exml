@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Memory Manager" version="4">
+  <OBJECT>
+    <ID name="Memory Manager" mc="Standard.ClassDiagram" uid="52181fa8-370b-41c1-a90e-bf8bd72d9120"/>
+    <PID name="ipengine_core_wb_l1" mc="Standard.Package" uid="6968e9a7-3135-4da5-b5ca-e9d4e5b0a2dc"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">55</ATT>
+      <ATT name="UiData"><![CDATA[eJztm1tv4jgUx78KQvtKmguUsHQ66kDVRb0KZkfafamc5AQ8TWzkmGmZT792QliaQjABAqp4aCFuco4vPx+fv51efH0Lg8ovYBGm5EvV0PRq5evlxaPzE1xewZ4oqlb4dAxfqpQNtZB6EGCqeRgNGQo18DCnTIs44vhFgwBCIDxKrt30pptwEF93k+tqJUQ/KXueO9WrlxdPjI6B8WmFoFD4CtCUTngXcST+9gMFE5hVgkyCoHp2eXGWPvDh0QGfBlB91wQzrwmRvD/SXMpAS55VqF8HRS7ywEudXb/xPviKXh6EidmTFXjjXacn6hh/lV888NEk4JlGniXNyWs4gwBx8EQ9Mn12L4sqv2SJ7B5EPMQ8rROgKJoNSaVhGrbhI7tmNXWnVjdco4ZaOtQc33a8pum1DFPP73Zhjd8S+krukANBpgYDzjAZVi/vIaRsWrlHBA2BXZzF9+S2iQbQIx0ajmmEuRiNFYYVTHVGOPAYSAt3OOLvALEKMO7KShHxVfDdSb9vxXZfVAeRocRiNlimrrcN8VO3jbZVNzYGv7538CX1yRTbO69pH1fqYOu2A6hmm46AtWmatZbnNmqo2XDOm27dN9BnhrWxK1ifGA4Rmz4IEzvmVm8XZ/ZclVlh6m26Nbj1E7jK4N4jTCQtWwLcLACwtBqNkQsjEKPIBMYPaclfcUn5WYVdLqjnJ1CVQU2QUDAYjejrM3Y/GPpGhSdE5n3E2QTyGxxbeoHpK2XeGmM+CqJ11jhyX54jDgzobqoWLBmHzU0hJ+IMubxAC+e8LkyhVpGlTOat2MdxEOjML/oQ4d/ICeCG0cm4/Ghg6KdwcKzhYMv1yigigREXzp0Jh6HkUaB6lRYcClBlFbwbQI0sEidCVxP6Ho4ivJ7NPvIDrlFE6UqDSFY+RfkxLTgUysq69oRy+SIB+Ih6++a4iAjGRORTRKQmIs9x+UTgcRP2ZmWDtOwANJeseE80b0Bzyse2KUQRzavE66FCcMnq1/iE+e4OMd13uC0i1JTw/Vf0+AEOhEoWa5+R3r2FXInEjlFWo9wsovMwIcDiPYkYb3ER70lsxbScJUO5pTkb5Nrmu+jmSe0dL+ExJltmFGYRJbcC1gPlEGbJMs48HVIeTUZhFhNwS/GF6EBZRMnC7cTv0WYRH/+U8YOjH+IKu6jAGYy6l+WH+9oMtjVZhqVwYGMW0rGhGNv5AW58ECXnryyVh7gDWZowssukKXuwrzCfS9a0p1cP1KfzQDQ7CDBXmdOqh7oq57CHOtVVrVvBY91NlVG+/k8n+iQMXBqGlGiEcin3H8THjl8tsqxmu2G12nW93jbs7Iq4fpJbytL/eN+J6xGfof+3VWQvV8B2fbduGjXPBl9M8GarZuuOXbNbqHFuIv3ctNZ0ltIEl772fDKrvtzdYfISLRNHVr6Sz+VVGt2Y2UXfucp74Y08MXKB8CXcPiE+UnE5oBPmwhVxR5RlnOarwY9OUWxE5tF9NB0E2JOvTswsK9TEw74vohhxITOwXSw8xclGCqthmW3LLLDWdSHiS9uaKxtz2yqzof00sp3dolFooBz2GT+rcs/ME31BHLBbTLKL0TWZhH8qBbRbmP7RoUI7uXJaJgZ73rwh3V7/uvN9zcITY9hHL9l+Wa+iOGJD4GqPKvTgsvieKyx3n8RZe9v4Ov4on8Sjhc5o5PuWM3pxfWzl3w5vPJlmMsbfo7G4N/mdo39k9FbUO6tn7Lpp+G3YZehV9NQdmkI2OuVuCsyjk5cYiLRAmhCh6Z3FcrYyNnvqsP9egrMRL0W1e6PdXf1z3X/+dtW5vek//v3Q3bXsX83zwpgtz0Py5fIJhn3B8P3xqbTNn/8AE5Ri/g==]]></ATT>
+      <ATT name="Name"><![CDATA[Memory Manager]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <LINK relation="Represented">
+        <ID name="Memory Manager" mc="Standard.Component" uid="4e808bea-82bb-4722-9dc5-a75b67c4f1a0"/>
+        <REFOBJ>
+          <ID name="Note" mc="Infrastructure.Note" uid="e8cfc421-d8ef-4779-80b8-89a562a06232"/>
+        </REFOBJ>
+      </LINK>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Infrastructure.Note" uid="156a91f4-da11-47ee-808a-9d3456444911"/>
+          <ATTRIBUTES>
+            <ATT name="Content"></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

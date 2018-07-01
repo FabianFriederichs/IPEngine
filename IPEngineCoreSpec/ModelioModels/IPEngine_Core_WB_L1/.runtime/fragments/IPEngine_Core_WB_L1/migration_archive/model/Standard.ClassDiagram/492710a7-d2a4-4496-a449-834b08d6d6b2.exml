@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Configuration Manager" version="4">
+  <OBJECT>
+    <ID name="Configuration Manager" mc="Standard.ClassDiagram" uid="492710a7-d2a4-4496-a449-834b08d6d6b2"/>
+    <PID name="ipengine_core_wb_l1" mc="Standard.Package" uid="6968e9a7-3135-4da5-b5ca-e9d4e5b0a2dc"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">4</ATT>
+      <ATT name="UiData"><![CDATA[eJztU01P4zAQ/StW7nVLiQpIoQgSVCECRe2yEic0qafB4NiV7UDz77GbdqFdNQoSWi57STzjeW8+/CY6WxaCvKI2XMnT4ID2AnI2jMbZM84s4cy5AmKrBZ4GSue0UAwFV5RxyDUUFBm3SlNjwfIXigILlNbU9mwTNCqmKzup7YAU8Kz045+kvWAY3Wm1QG0rIqFwuQRUqrQJWHB3v0GUuC5ClkIE3WHU3QD+gk5tJTDYaqHf1ILx8YbOlEZaY1vUF4OZAUO2SXa5tBOct8xy6yjWSIJLm2RXrsbV0R8YzqEUdqfJbt1OU+MaBVhkro6dmd14F3n1Hj8ekAw0o7EAY9ZPQsKT/tFBD446rA9hJwxPBh1w387xYZj1jtmADbJ+89gdm72W6k2mkKHYqWBqNZd5MIyVnPO81E4NSpIbkJCjjrqr0MbWlMArGatioQz32D38LajiJy6YRs+QcuMHuv7tRaRcvpj24Rd5ouHNlZNChXpbiIeNu7TZHlbjDRWewa3PFuG/2Z6voX5WepztkUMyoun5w+Xk8eI8vh5Nxve3yfcopMU2fn6zD/V80kL4Xws/ooVf47vvFsHeq3fIeI8u]]></ATT>
+      <ATT name="Name"><![CDATA[Configuration Manager]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Infrastructure.Note" uid="f493082d-fa48-47ed-98e4-607cf105ffef"/>
+          <ATTRIBUTES>
+            <ATT name="Content"></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

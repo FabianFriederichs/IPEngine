@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="IPEngine_Core_WB_L1" version="4">
+  <OBJECT>
+    <ID name="IPEngine_Core_WB_L1" mc="Infrastructure.DiagramSet" uid="112ea280-e2ed-4288-bf4c-32b258691c5f"/>
+    <PID name="IPEngine_Core_WB_L1" mc="Standard.Project" uid="8c849302-9417-4784-bb5d-dc7b20c1d87f"/>
+    <ATTRIBUTES>
+      <ATT name="Name"><![CDATA[IPEngine_Core_WB_L1]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES></DEPENDENCIES>
+  </OBJECT>
+</EXT>
