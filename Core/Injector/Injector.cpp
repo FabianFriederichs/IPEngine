@@ -43,12 +43,13 @@ bool Injector::recursiveInject(ipdg::Module* mod, bool doextension)
 			{
 				ismandatory = true;
 			}
-			if (!d || (d && loadedModules.count(d->identifier) == 0 && !loadedModules[d->identifier]))
+			if (!d || (d && loadedModules.count(d->identifier) > 0 && !loadedModules[d->identifier]))
 			{
 				if (errmanager)
 					errmanager->reportException(ipengine::ipex("Injector::recursiveInject encountered a problen. Dependency module node did not have a corresponding module loaded", ipengine::ipex_severity::warning));
 				if(ismandatory)
 					return false;
+				continue;
 			}
 
 			recursiveInject(d);
@@ -82,7 +83,7 @@ bool Injector::recursiveInject(ipdg::Module* mod, bool doextension)
 	else
 	{
 		//!TODO Make sure the extension exists so no nullptr is used 
-		if (loadedModules.count(mod->identifier) == 0 && !loadedModules[mod->identifier])
+		if (!(loadedModules.count(mod->identifier) > 0 && loadedModules[mod->identifier]))
 		{
 			if(errmanager)
 				errmanager->reportException(ipengine::ipex("Injector::recursiveInject failed because supplied module node did not have a corresponding module loaded.", ipengine::ipex_severity::warning));
@@ -129,12 +130,13 @@ bool Injector::recursiveInject(ipdg::Module* mod, bool doextension)
 			{
 				ismandatory = true;
 			}
-			if (!d || (d && loadedModules.count(d->identifier) == 0 && !loadedModules[d->identifier]))
+			if (!d || (d && loadedModules.count(d->identifier) > 0 && !loadedModules[d->identifier]))
 			{
 				if (errmanager)
 					errmanager->reportException(ipengine::ipex("Injector::recursiveInject encountered a problen. Dependency module node did not have a corresponding module loaded", ipengine::ipex_severity::warning));
 				if(ismandatory)
 					return false;
+				continue;
 			}
 			recursiveInject(d);
 			auto injectee = loadedModules[d->identifier];
