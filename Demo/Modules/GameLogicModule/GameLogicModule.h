@@ -83,7 +83,7 @@ private:
 	void onHoldStop(ipengine::ipid source, ipengine::ipid target);
 
 protected:
-	virtual void dependencyUpdated(std::string depID) override;
+	virtual void dependencyUpdated(std::string depID, std::shared_ptr<IModule_API> oldDep) override;
 };
 
 extern "C" BOOST_SYMBOL_EXPORT GameLogicModule module;

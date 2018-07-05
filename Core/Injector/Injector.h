@@ -212,7 +212,7 @@ private:
 	//! Hashmap keeping all extensions that have been loaded. Key is the extensions identifier.
 	std::map<std::string, std::shared_ptr<IExtension>> loadedExtensions;
 	
-	std::vector<boost::filesystem::path> dlibFilePaths;
+	std::vector<std::string> dlibFilePaths;
 
 	/*!
 	 \brief Recursively injects and starts up a module and all it's dependencies.
@@ -336,6 +336,8 @@ private:
 	void cmd_enableExtension(const ipengine::ConsoleParams& params);
 
 	void cmd_debugswitchgraphics(const ipengine::ConsoleParams& params);
+
+	void cmd_enableVRForOGL(const ipengine::ConsoleParams& params);
 };
 
 #endif

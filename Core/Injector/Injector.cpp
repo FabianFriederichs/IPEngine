@@ -263,6 +263,8 @@ void Injector::registerCommands(ipengine::Core * core)
 	console.addCommand("injector.sdmod", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_shutdownModule>(this), "Shutdown Module. Arguments: moduleid");
 	console.addCommand("injector.sumod", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_startupModule>(this), "Startup Module. Arguments: moduleid");
 	console.addCommand("inj.d", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_debugswitchgraphics>(this), "Debug command");
+	console.addCommand("inj.f", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_enableVRForOGL>(this), "Debug command");
+
 }
 
 inline Injector::Injector(ipengine::Core * core)
@@ -330,14 +332,14 @@ void Injector::LoadModules(std::string path, bool reload )
 	{
 		if (boost::filesystem::is_regular_file(f.path()) && f.path().has_extension() && f.path().extension() == boost::dll::shared_library::suffix())
 		{
-			dlibFilePaths.push_back(f.path());
+			dlibFilePaths.push_back(std::string(f.path().generic_string()));
 		}
 	}
 
 	//load modules from the found library paths. 
 	for (auto path : dlibFilePaths)
 	{
-		LoadModule(m_core, path.generic_string());
+		LoadModule(m_core, path);
 	}
 
 
@@ -874,9 +876,32 @@ inline void Injector::cmd_debugswitchgraphics(const ipengine::ConsoleParams & pa
 {
 	auto &console = m_core->getConsole();
 	auto targ = "VulkanRenderer";
+	if(loadedModules.count(targ)==0)
+	{
+		console.println("no fun allowed :(");
+	}
 	reassignDependency(loadedModules[targ], "WindowManager", "SDLWindowManager");
 	reassignDependency(loadedModules[targ], "SCM", "SimpleContentModule");
 	reassignDependency(loadedModules["GameLogicModule"], "graphics", targ);
+	console.println("have fun");
+}
+
+void Injector::cmd_enableVRForOGL(const ipengine::ConsoleParams & params)
+{
+	auto &console = m_core->getConsole();
+	auto targ = "GraphicsModule";
+	auto targ2 = "GraphicsModulePreRenderVR";
+	startupModule("BasicOpenVRModule");
+	if (loadedModules.count(targ) == 0)
+	{
+		console.println("no fun allowed :(");
+	}
+	reassignDependency(loadedExtensions[targ2], "WindowManager", "SDLWindowManager");
+	reassignDependency(loadedExtensions[targ2], "SCM", "SimpleContentModule");
+	reassignDependency(loadedModules["openvr"], "BasicOpenVRModule", targ);
+	auto& exp = loadedModules[targ]->getModuleInfo()->expoints;
+	exp.assignExtension("PreRender", 0, loadedExtensions[targ2]);
+	exp.setActive("PreRender");
 	console.println("have fun");
 }
 

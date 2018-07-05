@@ -52,7 +52,7 @@
 
     </Module>
     <Module>
-      <ignore>false</ignore>
+      <ignore>true</ignore>
       <identifier>VulkanRenderer</identifier>
       <dependencies>
         <dependency>
