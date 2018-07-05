@@ -898,9 +898,10 @@ void Injector::cmd_enableVRForOGL(const ipengine::ConsoleParams & params)
 	{
 		console.println("no fun allowed :(");
 	}
-	reassignDependency(loadedExtensions[targ2], "WindowManager", "SDLWindowManager");
+	reassignDependency(loadedExtensions[targ2], "openvr", "BasicOpenVRModule");
 	reassignDependency(loadedExtensions[targ2], "SCM", "SimpleContentModule");
-	reassignDependency(loadedModules["openvr"], "BasicOpenVRModule", targ);
+	reassignDependency(loadedModules["InputModule"], "openvr", "BasicOpenVRModule");
+
 	auto& exp = loadedModules[targ]->getModuleInfo()->expoints;
 	exp.assignExtension("PreRender", 0, loadedExtensions[targ2]);
 	exp.setActive("PreRender");

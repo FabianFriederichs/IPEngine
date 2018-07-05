@@ -82,6 +82,19 @@ private:
 
 	// Inherited via IInput_API
 	virtual IInput::VRDevices getDeviceFromIndex(int index) override;
+
+	virtual virtual void dependencyUpdated(std::string depID, std::shared_ptr<IModule_API> oldDep)
+	{
+		if (m_info.dependencies.exists("openvr"))
+		{
+			openvr = m_info.dependencies.getDep<IBasicOpenVRModule_API>("openvr");
+			if (openvr->isConnected())
+			{
+				vrsys = openvr->getSystem();
+				isVRconnected = true;
+			}
+		}
+	}
 };
 extern "C" BOOST_SYMBOL_EXPORT InputModule module;
 InputModule module;
