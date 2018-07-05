@@ -17,7 +17,7 @@
     <DEPENDENCIES>
       <COMP relation="Realized">
         <OBJECT>
-          <ID name="InterfaceRealization" mc="Standard.InterfaceRealization" uid="b7a0568a-5d79-4da9-9a8d-c1ea3a0d40a4"/>
+          <ID name="InterfaceRealization" mc="Standard.InterfaceRealization" uid="c555f153-f34a-4aa6-b973-8cffa281831f"/>
           <ATTRIBUTES>
             <ATT name="Name"><![CDATA[InterfaceRealization]]></ATT>
             <ATT name="status">1970354901745664</ATT>

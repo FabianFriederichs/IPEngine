@@ -49,6 +49,10 @@
           </DEPENDENCIES>
         </OBJECT>
       </COMP>
+      <COMP relation="OwnedElement">
+        <COMPID name="Application" mc="Standard.Class" uid="2725fb14-9637-4375-adbf-f96eccf036d6"/>
+        <COMPID name="Concrete application" mc="Standard.Class" uid="c1986ebb-baf4-436f-b056-bd54c58aeb44"/>
+      </COMP>
     </DEPENDENCIES>
   </OBJECT>
 </EXT>

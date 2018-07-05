@@ -772,7 +772,7 @@ void GameLogicModule::onHoldStop(ipengine::ipid source, ipengine::ipid target)
 	}
 }
 
-void GameLogicModule::dependencyUpdated(std::string depID)
+void GameLogicModule::dependencyUpdated(std::string depID, std::shared_ptr<IModule_API> oldDep)
 {
 	if (depID == "graphics")
 	{
@@ -780,3 +780,8 @@ void GameLogicModule::dependencyUpdated(std::string depID)
 		cameraid = IPID_INVALID;
 	}
 }
+
+//void GameLogicModule::dependencyUpdated(std::string depID)
+//{
+//	
+//}

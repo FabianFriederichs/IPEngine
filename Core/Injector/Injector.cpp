@@ -205,7 +205,7 @@ void Injector::LoadModule(ipengine::Core *core, std::string path)
 	}
 }
 
-inline bool Injector::safelyStartup(std::shared_ptr<IModule_API> mod, std::string errorinfo)
+bool Injector::safelyStartup(std::shared_ptr<IModule_API> mod, std::string errorinfo)
 {
 	try {
 		return mod->startUp();
@@ -225,7 +225,7 @@ inline bool Injector::safelyStartup(std::shared_ptr<IModule_API> mod, std::strin
 	}
 }
 
-inline bool Injector::safelyShutdown(std::shared_ptr<IModule_API> mod, std::string errorinfo)
+bool Injector::safelyShutdown(std::shared_ptr<IModule_API> mod, std::string errorinfo)
 {
 	try {
 		return mod->shutDown();
@@ -261,14 +261,14 @@ void Injector::registerCommands(ipengine::Core * core)
 	console.addCommand("inj.d", ipengine::CommandFunc::make_func<Injector, &Injector::cmd_debugswitchgraphics>(this), "Debug command");
 }
 
-inline Injector::Injector(ipengine::Core * core)
+Injector::Injector(ipengine::Core * core)
 {
 	m_core = core;
 	if(core)
 		registerCommands(core);
 }
 
-inline Injector::Injector(ipengine::Core * core, std::string dependencyXMLPath, std::string libraryFolderpath)
+Injector::Injector(ipengine::Core * core, std::string dependencyXMLPath, std::string libraryFolderpath)
 {
 	m_core = core;
 	if(core)
@@ -381,7 +381,7 @@ void Injector::LoadModules(std::string path, bool reload )
 	}
 }
 
-inline uint32_t Injector::reassignDependency(std::shared_ptr<IExtension> mod, std::string dependencyID, std::string newModuleID)
+uint32_t Injector::reassignDependency(std::shared_ptr<IExtension> mod, std::string dependencyID, std::string newModuleID)
 {
 	//change dependency "dependencyID" in module "moduleID" to the module "newModuleID"
 	//Do checks whether it's correct and then update the pointer in "moduleID"s moduleinfo of specified dependency
@@ -465,7 +465,7 @@ inline uint32_t Injector::reassignDependency(std::shared_ptr<IExtension> mod, st
 	}
 }
 
-inline bool Injector::startupModule(std::shared_ptr<IModule_API> mod)
+bool Injector::startupModule(std::shared_ptr<IModule_API> mod)
 {
 	if (mod.get() && !mod->isStartUp)
 		safelyStartup(mod, getModuleStartupErrorMessage(mod->getModuleInfo()->identifier, "Injector::startupModule"));
@@ -474,7 +474,7 @@ inline bool Injector::startupModule(std::shared_ptr<IModule_API> mod)
 	return false;
 }
 
-inline bool Injector::startupModule(std::string moduleID)
+bool Injector::startupModule(std::string moduleID)
 {
 	if (loadedModules.count(moduleID) > 0)
 	{
@@ -483,7 +483,7 @@ inline bool Injector::startupModule(std::string moduleID)
 	return false;
 }
 
-inline bool Injector::shutdownModule(std::shared_ptr<IModule_API> mod)
+bool Injector::shutdownModule(std::shared_ptr<IModule_API> mod)
 {
 	if (mod.get() && mod->isStartUp)
 		safelyShutdown(mod, getModuleShutdownErrorMessage(mod->getModuleInfo()->identifier, "Injector::shutdownModule"));
@@ -492,7 +492,7 @@ inline bool Injector::shutdownModule(std::shared_ptr<IModule_API> mod)
 	return false;
 }
 
-inline bool Injector::shutdownModule(std::string moduleID)
+bool Injector::shutdownModule(std::string moduleID)
 {
 	if (loadedModules.count(moduleID) > 0)
 	{
@@ -501,7 +501,7 @@ inline bool Injector::shutdownModule(std::string moduleID)
 	return false;
 }
 
-inline uint32_t Injector::reassignDependency(std::shared_ptr<IModule_API> mod, std::string dependencyID, std::string newModuleID)
+uint32_t Injector::reassignDependency(std::shared_ptr<IModule_API> mod, std::string dependencyID, std::string newModuleID)
 {
 	//change dependency "dependencyID" in module "moduleID" to the module "newModuleID"
 	//Do checks whether it's correct and then update the pointer in "moduleID"s moduleinfo of specified dependency
@@ -617,7 +617,7 @@ std::map<std::string, std::shared_ptr<IModule_API>> Injector::getModulesOfType(s
 	return temp;
 }
 
-inline void Injector::cmd_startupModule(const ipengine::ConsoleParams & params)
+void Injector::cmd_startupModule(const ipengine::ConsoleParams & params)
 {
 	if (params.getParamCount() != 1)
 	{
@@ -634,7 +634,7 @@ inline void Injector::cmd_startupModule(const ipengine::ConsoleParams & params)
 	}
 }
 
-inline void Injector::cmd_shutdownModule(const ipengine::ConsoleParams & params)
+void Injector::cmd_shutdownModule(const ipengine::ConsoleParams & params)
 {
 	if (params.getParamCount() != 1)
 	{
@@ -651,7 +651,7 @@ inline void Injector::cmd_shutdownModule(const ipengine::ConsoleParams & params)
 	}
 }
 
-inline void Injector::cmd_loadModule(const ipengine::ConsoleParams & params)
+void Injector::cmd_loadModule(const ipengine::ConsoleParams & params)
 {
 	if (params.getParamCount() != 1)
 	{
@@ -669,7 +669,7 @@ inline void Injector::cmd_loadModule(const ipengine::ConsoleParams & params)
 	}
 }
 
-inline void Injector::cmd_reassignDep(const ipengine::ConsoleParams & params)
+void Injector::cmd_reassignDep(const ipengine::ConsoleParams & params)
 {
 	if (params.getParamCount() != 3)
 	{
@@ -704,7 +704,7 @@ inline void Injector::cmd_reassignDep(const ipengine::ConsoleParams & params)
 	}
 }
 
-inline void Injector::cmd_getLoadedModules(const ipengine::ConsoleParams & params)
+void Injector::cmd_getLoadedModules(const ipengine::ConsoleParams & params)
 {
 	auto& modules = getLoadedModules();
 	auto &console = m_core->getConsole();
@@ -726,7 +726,7 @@ inline void Injector::cmd_getLoadedModules(const ipengine::ConsoleParams & param
 	}
 }
 
-inline void Injector::cmd_getDependencies(const ipengine::ConsoleParams & params)
+void Injector::cmd_getDependencies(const ipengine::ConsoleParams & params)
 {
 	auto &console = m_core->getConsole();
 
@@ -763,7 +763,7 @@ inline void Injector::cmd_getDependencies(const ipengine::ConsoleParams & params
 	}
 }
 
-inline void Injector::cmd_getDependencyInfo(const ipengine::ConsoleParams & params)
+void Injector::cmd_getDependencyInfo(const ipengine::ConsoleParams & params)
 {
 	auto &console = m_core->getConsole();
 
@@ -800,7 +800,7 @@ inline void Injector::cmd_getDependencyInfo(const ipengine::ConsoleParams & para
 	}
 }
 
-inline void Injector::cmd_getModulesOfType(const ipengine::ConsoleParams & params)
+void Injector::cmd_getModulesOfType(const ipengine::ConsoleParams & params)
 {
 	auto &console = m_core->getConsole();
 	if (params.getParamCount() != 1)
@@ -816,7 +816,7 @@ inline void Injector::cmd_getModulesOfType(const ipengine::ConsoleParams & param
 
 }
 
-inline void Injector::cmd_removeDependency(const ipengine::ConsoleParams & params)
+void Injector::cmd_removeDependency(const ipengine::ConsoleParams & params)
 {
 	auto &console = m_core->getConsole();
 	if (params.getParamCount() != 2)
@@ -844,7 +844,7 @@ inline void Injector::cmd_removeDependency(const ipengine::ConsoleParams & param
 
 }
 
-inline void Injector::cmd_enableExtension(const ipengine::ConsoleParams & params)
+void Injector::cmd_enableExtension(const ipengine::ConsoleParams & params)
 {
 	auto &console = m_core->getConsole();
 	if (params.getParamCount() != 4)
@@ -866,7 +866,7 @@ inline void Injector::cmd_enableExtension(const ipengine::ConsoleParams & params
 	}
 }
 
-inline void Injector::cmd_debugswitchgraphics(const ipengine::ConsoleParams & params)
+void Injector::cmd_debugswitchgraphics(const ipengine::ConsoleParams & params)
 {
 	auto &console = m_core->getConsole();
 	auto targ = "VulkanRenderer";

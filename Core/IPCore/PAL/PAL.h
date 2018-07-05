@@ -20,9 +20,12 @@ Should provide easy interfaces for essential platform specific tasks:
 #ifndef _PLATFORM_ABSTRACTION_LAYER_H_
 #define _PLATFORM_ABSTRACTION_LAYER_H_
 
+// define export symbols stuff for windows platforms
+
 namespace ipengine 
 {
 	//define an abstract interface for the functionality documented above
+
 }
 
 #endif
