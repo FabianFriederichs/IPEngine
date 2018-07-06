@@ -623,12 +623,16 @@ void GraphicsModulePreRenderVR::setupControllerMat(std::shared_ptr<vr::IVRRender
 
 		SCM::TextureData td{ tf.m_textureId };
 		td.m_size = { controllerdiffuse->unWidth, controllerdiffuse->unHeight };
+		td.data.insert(td.data.begin(), controllerdiffuse->rubTextureMapData, controllerdiffuse->rubTextureMapData+(int)(td.m_size.x* td.m_size.y * 4));
 		SCM::TextureData td2{ tf2.m_textureId };
 		td2.m_size = { 1,1 };
+		td2.data.assign({ 0,0,0 });
 		SCM::TextureData td3{ tf3.m_textureId };
 		td3.m_size = { 1, 1 };
+		td3.data.assign({ 0, (uint8_t)(255 * 0.65), 255, 10 });
 		SCM::TextureData td4{ tf4.m_textureId };
 		td4.m_size = { 1, 1 };
+		td4.data.assign({ 0,0,0,1 });
 
 		//Generate material with this texture
 		SCM::MaterialData md{ m_core->createID(), scm->getShaders().back().m_shaderId,{ { "albedo", td },{ "mrar", td3 },{ "normal", td2 },{ "emissive", td4 } } };

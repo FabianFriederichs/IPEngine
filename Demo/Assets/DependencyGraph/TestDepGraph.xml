@@ -182,6 +182,11 @@
           <identifier>graphics</identifier>
           <moduleID>GraphicsModule</moduleID>
         </dependency>
+        <dependency>
+          <inject>true</inject>
+          <identifier>physics</identifier>
+          <moduleID>PhysicsModule</moduleID>
+        </dependency>
       </dependencies>
     </Module>
   </Modules>

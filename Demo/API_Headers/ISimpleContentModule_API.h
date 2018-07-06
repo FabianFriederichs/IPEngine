@@ -910,6 +910,7 @@ namespace SCM
 		ipengine::ipid m_texturefileId;
 		glm::vec2 m_offset;
 		glm::vec2 m_size;
+		std::vector<uint8_t> data;
 	};
 
 	class VertexData

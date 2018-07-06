@@ -126,8 +126,18 @@ void VulkanRenderer::updateData()
 								int width;
 								int height;
 								int channels;
-								stbi__vertically_flip_on_load = true;
-								unsigned char* image = stbi_load(texfile->m_path.c_str(), &width, &height, &channels, 4);
+								stbi__vertically_flip_on_load = true; 
+								unsigned char* image;
+								if (texts.second.data.empty())
+								{
+									image = stbi_load(texfile->m_path.c_str(), &width, &height, &channels, 4);
+								}
+								else {
+									image = texts.second.data.data() + (size_t)(texts.second.m_offset.x + texts.second.m_offset.y);
+									width = texts.second.m_size.x;
+									height = texts.second.m_size.y;
+									channels = 4;
+								}
 								std::vector<uint8_t> metmap(width*height*channels);
 								std::vector<uint8_t> roughmap(width*height*channels);
 								std::vector<uint8_t> aomap(width*height*channels);
@@ -140,10 +150,17 @@ void VulkanRenderer::updateData()
 								//rj::loadTexture2DFromBinaryData(&imgwrap, m_renderer->getManager(), image, width, height, format);
 
 								m_scmtexturetot2d[texts.second.m_texturefileId] = imgwrap;
+								if (texts.second.data.empty())
+									stbi_image_free(image);
 							}
 							else
 							{
-								m_scmtexturetot2d[texts.second.m_texturefileId] = loadTexture(texfile->m_path, true);
+								if(texts.second.data.empty())
+									m_scmtexturetot2d[texts.second.m_texturefileId] = loadTexture(texfile->m_path, true);
+								else
+								{
+									m_scmtexturetot2d[texts.second.m_texturefileId] = loadTextureBinary(texts.second.data.data() + (size_t)(texts.second.m_offset.x + texts.second.m_offset.y), texts.second.m_size.x, texts.second.m_size.y, 4);
+								}
 							}
 							
 							//GLUtils::loadGLTexture(textures[])
@@ -268,7 +285,7 @@ bool VulkanRenderer::_startup()
 		ipengine::Scheduler::SubType::Frame,
 		1,
 		&m_core->getThreadPool(),
-		true)
+		false)
 	);
 	//m_renderer->run();
 	return true;
@@ -446,7 +463,8 @@ rj::ImageWrapper VulkanRenderer::loadTexture(const std::string path, bool flip)
 	stbi__vertically_flip_on_load = flip;
 	unsigned char* image = stbi_load(path.c_str(), &width, &height, &channels, 4);
 	auto imgwrap = loadTextureBinary(image, width, height, channels);
-	stbi_image_free(image);
+	if(image)
+		stbi_image_free(image);
 
 	return imgwrap;
 }
