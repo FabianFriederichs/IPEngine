@@ -81,6 +81,7 @@ private:
 	//bool inProximity(ipengine::ipid source, ipengine::ipid target, float maxDistance);
 	void onHoldStart(ipengine::ipid source, ipengine::ipid target);
 	void onHoldStop(ipengine::ipid source, ipengine::ipid target);
+	void cmd_setcameraentity(const ipengine::ConsoleParams& params);
 
 protected:
 	virtual void dependencyUpdated(std::string depID, std::shared_ptr<IModule_API> oldDep) override;

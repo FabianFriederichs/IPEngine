@@ -36,7 +36,7 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 	else if (!contentmodule->getEntityById(cameraid)->isActive)
 	{
 	auto caments = contentmodule->getEntitiesByName("Camera");
-	for (auto e : caments)
+	/*for (auto e : caments)
 	{
 		if (e->isActive)
 		{
@@ -45,13 +45,23 @@ void GameLogicModule::update(ipengine::TaskContext& c)
 
 			graphics->setCameraEntity(cameraid);
 		}
-	}
+	}*/
 	}
 	if (hmdid == IPID_INVALID)
 	{
 		auto caments = contentmodule->getEntitiesByName("OpenVRHMD");
 		if (!caments.empty())
+		{
 			hmdid = caments.front()->m_entityId;
+		}
+	}
+	if (graphics && hmdid!=IPID_INVALID)
+	{
+		if (graphics->getCameraEntity() != hmdid)
+		{
+			graphics->setCameraEntity(hmdid);
+		}
+
 	}
 	modifier = delta.mic() / timing.mic();
 	auto now = std::chrono::high_resolution_clock::now();
@@ -357,7 +367,7 @@ void GameLogicModule::mousescrollUpdate(IInput::Input &i)
 
 void GameLogicModule::entityUpdate(SCM::Entity *e)
 {
-	if (e->m_name == "Camera" && mouseDelta!=glm::vec2(0,0))
+	if (e->m_name == "Camera"  && mouseDelta!=glm::vec2(0,0))
 	{
 		//yaw = std::fmod(yaw + mouseDelta.x*0.01, 360);
 		//yaw = (int)(yaw + mouseDelta.x*0.1) % 360;
@@ -390,7 +400,7 @@ void GameLogicModule::entityUpdate(SCM::Entity *e)
 	}
 	
 
-	if (e->m_name == "Camera" && !box)//&& camVelocity != glm::vec3(0, 0, 0))
+	if (e->m_name == "Camera"&& !box)//&& camVelocity != glm::vec3(0, 0, 0))
 	{
 
 		//auto x = e->m_transformData.getData()->m_localX*(float)camVelocity.x*(float)modifier;
@@ -665,6 +675,7 @@ bool GameLogicModule::_startup()
 	m_errhandler.registerCustomHandler(ipengine::ErrorHandlerFunc::make_func<GameLogicModule, &GameLogicModule::onError>(this));
 	mousecamera = m_core->getConfigManager().getBool("GameLogic.Camera.mouse_move");
 	minimum_y = m_core->getConfigManager().getFloat("GameLogic.Camera.minimum_y");
+	m_core->getConsole().addCommand("logic.setcam", ipengine::CommandFunc::make_func<GameLogicModule, &GameLogicModule::cmd_setcameraentity>(this), "Sets camera entity. Arguments: ipid");
 	return true;
 }
 
@@ -769,6 +780,27 @@ void GameLogicModule::onHoldStop(ipengine::ipid source, ipengine::ipid target)
 		//! todo adjust target transform rotation. Apply source rotation to target rotaiton
 
 		enttarget->orphane();//;->m_parent = nullptr;
+	}
+}
+
+void GameLogicModule::cmd_setcameraentity(const ipengine::ConsoleParams & params)
+{
+	if (params.getParamCount() != 1)
+	{
+		m_core->getConsole().println("Parameter incorrect. One parameter: A valid entity id");
+	}
+	//check path valid
+	if (contentmodule->getEntityById(params.getInt(0)))
+	{
+		if (graphics)
+		{
+			cameraid = params.getInt(0);
+			graphics->setCameraEntity(params.getInt(0));
+		}
+	}
+	else
+	{
+		m_core->getConsole().println(std::string("Supplied entity id not valid").c_str());
 	}
 }
 

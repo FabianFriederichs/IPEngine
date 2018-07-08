@@ -79,7 +79,6 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 		ovrmodule = m_info.dependencies.getDep<IBasicOpenVRModule_API>("openvr");
 		//datastore = m_info.dependencies.getDep<IDataStoreModuleh_API>("datastore");
 		scenemodule = m_info.dependencies.getDep<ISimpleSceneModule_API>("scene");
-
 		//glGenVertexArrays(1, &quadVAO); //GLERR;
 		//glGenBuffers(1, &quadVBO); //GLERR;
 		//glBindVertexArray(quadVAO); //GLERR;
@@ -348,8 +347,16 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	auto cameraentity = scm->getEntityById(graphicsmodule->getCameraEntity());
 	//datastore->set("cameraid",cameraentity);
 	//cam = scm->getEntityById(cameraentity);
-	if(hmdid!= IPID_INVALID)
-		graphicsmodule->setCameraEntity(hmdid);
+	std::string command = "logic.setcam ";// +hmdid;
+	static bool setcam = false;
+	if (hmdid != IPID_INVALID && !setcam)
+	{
+		m_core->getConsole().println((command + std::to_string(hmdid)).c_str());
+		auto res = m_core->getConsole().submitCommand((command + std::to_string(hmdid)).c_str());
+		if (res)
+			res = m_core->getConsole().executePendingCommands();
+		setcam = true;
+	}	//graphicsmodule->setCameraEntity(hmdid);
 
 	/*if (cam == nullptr)
 	{
@@ -566,7 +573,14 @@ void GraphicsModulePreRenderVR::execute(std::vector<std::string> argnames, std::
 	//glDisable(GL_MULTISAMPLE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, prew, preh);
-	graphicsmodule->setCameraEntity(hmdentity->m_entityId);//scm->getEntityByName("OpenVRHMD")->m_parent->m_entityId);
+	graphicsmodule->setCameraEntity(hmdid);
+	//if(hmdentity)
+	//m_core->getConsole().executeImmediate("logic.setcam " + hmdentity->m_entityId);
+	/*auto res = m_core->getConsole().submitCommand((command + std::to_string(hmdid)).c_str());
+	if (res)
+		res = m_core->getConsole().executePendingCommands();*/
+
+	//graphicsmodule->setCameraEntity(hmdentity->m_entityId);//scm->getEntityByName("OpenVRHMD")->m_parent->m_entityId);
 
 	*matrices.proj = preproj;
 	*matrices.view = preview;

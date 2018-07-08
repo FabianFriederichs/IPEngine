@@ -10,6 +10,7 @@
 #include <glew\include\GL\glew.h>
 #include <IDataStoreModuleh_API.h>
 #include <ISimpleSceneModule_API.h>
+#include <ILogicModule_API.h>
 #include "glerror.h"
 class GraphicsModulePreRenderVR : public IExtension {
 public:
@@ -114,6 +115,7 @@ private:
 	std::shared_ptr<IBasicOpenVRModule_API> ovrmodule;
 	std::shared_ptr<IDataStoreModuleh_API> datastore;
 	std::shared_ptr<ISimpleSceneModule_API> scenemodule;
+	std::shared_ptr<ILogicModule_API> logic;
 	ExtensionInformation m_info;
 	std::vector<ipengine::Scheduler::SubHandle> handle;
 	bool init = false;
