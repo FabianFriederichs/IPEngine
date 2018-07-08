@@ -59,6 +59,9 @@ bool GraphicsModule::_startup()
 		glm::vec3(-5, -5, 40.0f),
 		glm::vec3(5, 5, 0.1f)
 	);*/
+
+	m_core->getConsole().addCommand("graphics.drawbvs", ipengine::CommandFunc::make_func<GraphicsModule, &GraphicsModule::cmd_toggledebugdraw>(this), "Toggles visibility of bounding volumes. Usage:\ngraphics.drawbvs <true|false>\nIf the bool parameter is omitted, the visibility is toggled.");
+
 	return true;
 }
 
@@ -156,6 +159,7 @@ bool GraphicsModule::_shutdown()
 	m_s_iblspec.reset();
 	m_s_iblbrdf.reset();
 	m_s_envconv.reset();
+	m_s_bvdebug.reset();
 	m_fb_shadow.reset();
 	m_fb_gblur1.reset();
 	m_fb_gblur2.reset();
@@ -196,6 +200,18 @@ void GraphicsModule::setMaterialTexDefaultParams(ipengine::ipid id, bool genmipm
 	else
 	{
 		it->second->setTexParams(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT, m_mtexMaxAnisoLevel);
+	}
+}
+
+void GraphicsModule::cmd_toggledebugdraw(const ipengine::ConsoleParams & params)
+{
+	if (params.getParamCount() == 1)
+	{
+		m_debug_bvs = params.getBool(0);
+	}
+	else
+	{
+		m_debug_bvs = !m_debug_bvs;
 	}
 }
 
@@ -410,12 +426,12 @@ void GraphicsModule::loadShaders()
 		m_s_skybox = GLUtils::createShaderProgram(vspath, fspath);
 	}
 
-	if (m_debug_bvs)
-	{
+	//if (m_debug_bvs)
+	//{
 		vspath = m_core->getConfigManager().getString("graphics.shaders.bv_debug.vertex");
 		fspath = m_core->getConfigManager().getString("graphics.shaders.bv_debug.fragment");
 		m_s_bvdebug = GLUtils::createShaderProgram(vspath, fspath);
-	}
+	//}
 }
 void GraphicsModule::setupFrameBuffers()
 {

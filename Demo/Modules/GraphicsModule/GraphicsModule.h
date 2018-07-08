@@ -211,6 +211,9 @@ private:
 
 	// Geerbt über IGraphics_API
 	virtual void setMaterialTexDefaultParams(ipengine::ipid, bool) override;
+
+	//toggle debug draw
+	void cmd_toggledebugdraw(const ipengine::ConsoleParams& params);
 };
 
 extern "C" BOOST_SYMBOL_EXPORT GraphicsModule module;
