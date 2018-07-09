@@ -86,7 +86,8 @@ public:
 	std::string cmd;
 };
 
-int _tmain(int argc, _TCHAR* argv[])
+//int _tmain(int argc, _TCHAR* argv[])
+int main()
 {
 	try
 	{

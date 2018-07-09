@@ -40,7 +40,7 @@ boost::shared_ptr<IInput_API> input;
 class MyApp : public ipengine::Application
 {
 public:
-	// Geerbt über Application
+	// Geerbt ï¿½ber Application
 	virtual void initialize() override
 	{
 		
@@ -86,7 +86,7 @@ public:
 	std::string cmd;
 };
 
-int _tmain(int argc, _TCHAR* argv[])
+int main()
 {
 	try
 	{

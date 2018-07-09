@@ -5,8 +5,8 @@
 /*!
 \file Dequeue.h
 */
-#ifndef _WS_QUEUE_H_
-#define _WS_QUEUE_H_
+#ifndef _DE_QUEUE_H_
+#define _DE_QUEUE_H_
 #include <atomic>
 #include <mutex>
 #include <condition_variable>

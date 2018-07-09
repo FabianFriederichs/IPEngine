@@ -1,0 +1,3 @@
+lib sources
+https://github.com/ValveSoftware/openvr
+https://github.com/cameron314/concurrentqueue
