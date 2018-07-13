@@ -924,14 +924,14 @@ void GraphicsModule::updateData()
 		if (findent != entities.end())
 		{
 			auto mO = findent->second;
-			for (auto momats : mO->m_mesheObjects->meshtomaterial)
+			for (auto& momats : mO->m_mesheObjects->meshtomaterial)
 			{
 				auto momat = m_scm->getMaterialById(momats.second);
-				for (auto texts : momat->m_textures)
+				for (auto& texts : momat->m_textures)
 				{
 					if (m_scmtexturetot2d.count(texts.second.m_texturefileId) < 1)
 					{
-						for (auto fexfiles : textures)
+						for (auto& fexfiles : textures)
 						{
 							if (fexfiles.m_textureId == texts.second.m_texturefileId)
 							{
@@ -986,7 +986,7 @@ void GraphicsModule::updateData()
 void GraphicsModule::drawScene(ShaderProgram* shader)
 {
 	auto& drawableEntities = m_scm->getThreeDimEntities();
-	for (auto ep : drawableEntities)
+	for (auto& ep : drawableEntities)
 	{
 		auto entity = ep.second;
 		if (!entity->isActive)
@@ -997,7 +997,7 @@ void GraphicsModule::drawScene(ShaderProgram* shader)
 void GraphicsModule::drawSceneShadow(ShaderProgram* shader)
 {
 	auto& drawableEntities = m_scm->getThreeDimEntities();
-	for (auto ep : drawableEntities)
+	for (auto& ep : drawableEntities)
 	{
 		auto entity = ep.second;
 		if (!entity->isActive)
@@ -1090,7 +1090,7 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 	}
 
 	lc = 0;
-	for (auto pl : pointlights)
+	for (auto& pl : pointlights)
 	{
 		shader->setUniform(("u_pointLights[" + std::to_string(lc) + "].color").c_str(), pl.second->m_color);
 		shader->setUniform(("u_pointLights[" + std::to_string(lc) + "].position").c_str(), pl.second->getVSPosition(viewmat));
@@ -1102,7 +1102,7 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 	shader->setUniform("u_pointLightCount", lc);
 
 	lc = 0;
-	for (auto sl : spotlights)
+	for (auto& sl : spotlights)
 	{
 		shader->setUniform(("u_spotLights[" + std::to_string(lc) + "].color").c_str(), sl.second->m_color);
 		shader->setUniform(("u_spotLights[" + std::to_string(lc) + "].position").c_str(), sl.second->getVSPosition(viewmat));
@@ -1137,7 +1137,7 @@ void GraphicsModule::setLightUniforms(ShaderProgram* shader)
 }
 void GraphicsModule::setMaterialUniforms(SCM::MaterialData * mdata, ShaderProgram* shader, const glm::vec2& tcoffset, const glm::vec2& tcscale)
 {
-	for (auto tp : mdata->m_textures)
+	for (auto& tp : mdata->m_textures)
 	{
 		auto& t = tp.second;
 		auto& tex = m_scmtexturetot2d[t.m_texturefileId];
@@ -1386,7 +1386,7 @@ void GraphicsModule::drawSCMMesh(ipengine::ipid meshid)
 {
 	if (m_scmmeshtovao.count(meshid) < 1)
 		return;
-	auto vao = m_scmmeshtovao[meshid];
+	auto& vao = m_scmmeshtovao[meshid];
 	if (vao && vao->vao != 0)
 	{
 		glBindVertexArray(vao->vao);GLERR
@@ -1458,7 +1458,7 @@ void GraphicsModule::renderBoundingVolumes()
 	auto& drawableEntities = m_scm->getThreeDimEntities();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDisable(GL_CULL_FACE);
-	for (auto ep : drawableEntities)
+	for (auto& ep : drawableEntities)
 	{
 		auto entity = ep.second;
 		if (!entity->isActive)
@@ -1491,7 +1491,7 @@ std::vector<ipengine::ipid> GraphicsModule::getActiveEntityNames(SCM::ISimpleCon
 {
 	auto& entities = scm.getEntities();
 	std::vector<ipengine::ipid> ids;
-	for (auto e : entities)
+	for (auto& e : entities)
 	{
 		if (e.second->isActive)
 		{

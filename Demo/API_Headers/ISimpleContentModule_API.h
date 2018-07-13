@@ -2111,7 +2111,7 @@ namespace SCM
 	static std::string allEntitiesAsString(ISimpleContentModule_API& content, bool withproperties = false)
 	{
 		std::string out="";
-		for (auto ents : content.getEntities())
+		for (auto& ents : content.getEntities())
 		{
 			out += "Id: " + std::to_string(ents.second->m_entityId) + ": " + ents.second->m_name + " Active: " + (ents.second->isActive?"True":"False") + "\n";
 			if (withproperties)
@@ -2155,7 +2155,7 @@ namespace SCM
 	{
 		std::string out = "";
 
-		for (auto mobs : content.getMeshedObjects())
+		for (auto& mobs : content.getMeshedObjects())
 		{
 			out += "Id: " + std::to_string(mobs.m_meshObjectId) + ": " + std::to_string(mobs.m_meshes.size()) + " meshes\n";
 			if (withproperties)
@@ -2174,7 +2174,7 @@ namespace SCM
 					out += "\t Vertices: " + std::to_string(m->m_vertices.getData().size()) + "\n";
 					if (extended)
 					{
-						for (auto v : m->m_vertices.getData())
+						for (auto& v : m->m_vertices.getData())
 						{
 							out += "\t\t Position:" + glmvec3tostring(v.m_position);
 							out += "\t\t UVs:" + glmvec2tostring(v.m_uv);
